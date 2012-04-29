@@ -33,6 +33,7 @@
 ##2010 May 5 - Added Karen's Mac access - push ENV path; tested for  if(-f "../../karenpittsMac.yes") on all opens for writing.
 ##             Change www.$cgiSite/cgi-bin/cgiwrap/popaware to $scriptpath
 
+use File::Basename;
 
 $args = $_[0];   # In case we do it from the command line
 if($args) {
@@ -42,11 +43,8 @@ if($args) {
 
 if(-f "debugit.yes") {}
 else {
-  push @INC, "/home/popaware/public_html/cgi-bin/";
-  push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-##  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
+  my $cgibin = dirname(__FILE__);
+  push @INC, $cgibin;
 }
 
 require 'errors.pl';         # error display and termination or return
