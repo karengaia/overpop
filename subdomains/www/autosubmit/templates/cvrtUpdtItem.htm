@@ -1,0 +1,151 @@
+<p>
+
+<font size=1 face=verdana>
+<input name="priority[pgitemcnt]" type="radio" value='1'>updt &nbsp;
+<input name="priority[pgitemcnt]" type="radio" value='D'>del  &nbsp;
+<input name="priority[pgitemcnt]" type="radio" value='0' checked>pass ...
+<b>#[pgitemcnt]</b> ... [docid]
+</font>
+
+&nbsp;&nbsp;&nbsp;  
+
+[ALINK]
+<font face=verdana size=2" color="#666666">  
+    <b>Link</b></font></a> &nbsp;&nbsp;
+  <font size=1 face=verdana>
+  <input name="link[pgitemcnt]" type="text" value="[link]" size=80 maxsize=300></textarea>
+&nbsp;&nbsp;
+    <input name="selflink" type=checkbox value="Y">
+  <font size=1 face="comic sans ms"> self </font>
+  
+  <br>
+
+
+
+<TABLE width=100%><TD valign=top width=50%>
+<font face=verdana size=2 color="#666666">&nbsp;&nbsp;&nbsp;<b>Headline</b> &nbsp;&nbsp;
+<input name="titlize[pgitemcnt]" type=checkbox value="Y">
+<font size=1 face="comic sans ms">Titlize</font>
+<br>
+  <font size=1 face=verdana>
+  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols=60">[headline]</textarea>
+  </font>
+
+<font face=verdana size=2 color="#666666">
+  <b>Summary:</b> 
+<br><font size=1 face=verdana>
+<textarea name="body[pgitemcnt]" wrap="physical" rows=17 maxrows=300 cols=60>
+[body]
+</textarea>
+</font> 
+<table><td>
+  <font face=verdana size=1 color="666666"><input type=submit value="GO" name="submit[pgitemcnt]"
+onClick="parent.dropdowns.useridPush(document.itemsSelect.userid,
+document.itemsSelect.pin)"></font>
+  &nbsp;
+  </td><td valign=top>
+  <font face="comic sans ms" size=1>
+Style (straight: summary only prints)<br>
+<select name="dTemplate[pgitemcnt]">
+[SELECT_TEMPLATE]<br>
+
+</td><td>&nbsp;&nbsp;</td><td valign=top>  <font face="comic sans ms" size=1>
+Formatting(s)<br>
+<select name="wFormat[pgitemcnt]" size=2 multiple>
+[SELECT_FORMAT]<br>
+</font>
+</td><td>
+
+<a target=_blank href=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display%login%[docid]">
+<img src=
+[REDARROW]
+ alt="[docid]" border=0></a>
+ 
+<input type="hidden" name="docid[pgitemcnt]" value="[docid]"><br>
+</td></table>
+
+
+</TD><TD valign=top width=40%>
+
+
+<table><td>
+<font size=1 face=verdana  color="#666666">
+<b>Stratus</b></font><br>
+<font size=1 face=arial><select name="docloc_add[pgitemcnt]" size=7>
+  <option value="A">A</option>
+  <option value="B">B</option>
+  <option value="C">C</option>
+  <option value="D">D</option>
+  <option value="E">E</option>
+  <option value="F">F</option>
+  <option value="M" selected>M</option>
+  <option value="U">U</option>
+  <option value="V">V</option>
+  <option value="W">W</option>
+  <option value="X">X</option>
+  <option value="Y">Y</option>
+  <option value="Z">Z</option>
+  </select>
+</font>
+</td><td>&nbsp;&nbsp;</td><td valign=top>
+
+<font face=verdana size=2 color="#666666">
+<b>PubDate: </b></font>
+&nbsp;&nbsp;
+<font face=arial size=1>
+<select name="pubmonth[pgitemcnt]">
+[PUBMONTHS]
+</select>
+
+<input type="text" name="pubday[pgitemcnt]" size="3" maxlength="2" value="
+[PUBDAY]
+">
+<select name="pubyear[pgitemcnt]">
+[PUBYEARS]
+</select></font>
+
+<br>
+
+
+    <font face=verdana size=2 color="#666666">
+  <b>Region</b> &nbsp;&nbsp;</font>
+  <font size=1 face=verdana color="#666666">
+  <input name="regionpull[pgitemcnt]" type=radio value="" 
+  onClick="parent.dropdowns.regionChoose(document.itemsSelect.region[pgitemcnt])"> pull
+    &nbsp;&nbsp;<input type="checkbox" name="regionhead" 
+[REGIONHEAD]
+    value="Y"> <font size=1 face="comic sans ms" color=#666666>Put in headline</font>
+    <br>
+  <font size=1 face=verdana>
+  <textarea name="region[pgitemcnt]" wrap="physical" rows="1" cols=40">[region]</textarea>
+  
+</td></table>
+
+ 
+  <font face=verdana size=2 color="#666666">
+  <b>Source</b> </font>&nbsp;&nbsp;
+    <font size=1 face=verdana color="#666666">
+  <input name="sourcepull[pgitemcnt]" type=radio value="" 
+  onClick="parent.dropdowns.sourceChoose(document.itemsSelect.source[pgitemcnt])">pull
+<br>
+  <textarea name="source[pgitemcnt]" wrap="physical" rows="1" cols=50">[source]</textarea>
+  
+
+  <font face=verdana size=2 color="#666666">
+  <b>Sectsubs</b> &nbsp;&nbsp;
+  <font face=verdana size=1 color="#666666">
+  <input name="sectsubspull[pgitemcnt]" type=radio value="" 
+  onClick="parent.dropdowns.sectsubsChoose(document.itemsSelect.sectsubs[pgitemcnt])"> pull &nbsp;&nbsp;
+    <input name="sectsubsadd[pgitemcnt]" type=radio value="" 
+  onClick="parent.dropdowns.sectsubsAdd(document.itemsSelect.sectsubs[pgitemcnt])"> add
+<br>
+  <textarea name="sectsubs[pgitemcnt]" wrap="physical" rows="1" cols=48">[sectsubs]</textarea>
+<br>
+  <font face=verdana size=2 color="#666666">
+  <b>Full Article:</b> 
+  <br>  <font face=verdana size=1>
+  <textarea name="fullbody[pgitemcnt]" wrap="physical" rows="8" cols=50">[fullbody]</textarea></font>
+</TD></TABLE>
+<p>
+<hr>

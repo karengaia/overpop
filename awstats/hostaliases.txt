@@ -1,0 +1,3 @@
+REGEX[(.*\.)?overpopulation\.org]
+REGEX[(.*\.)?population\-awareness\.org]
+REGEX[(.*\.)?population\-awareness\.net]

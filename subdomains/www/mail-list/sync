@@ -1,0 +1,6 @@
+#!/bin/sh
+rsync -av \
+  --exclude="mail-list.sql.gz" \
+  --exclude="config.php" \
+  . \
+  overpop@shell.telavant.com:~/www/overpopulation.org/subdomains/www/mail-list/

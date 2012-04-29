@@ -1,0 +1,28 @@
+/* IE6 - doubled margin bugs, float bugs, and background image bugs, amongst many other bugs. */
+/* hand coding by abstract machines. */
+
+body{behavior:url(csshover3.htc);}
+
+#header2_inner { /* overflow:hidden; */
+		background: url('img/mauve/logo_bg2.png') 0 0 repeat;
+		}
+
+#population2_logo {
+
+	background: url('img/mauve/logo_mauve_web4_smaller_ie6_page2.png') 0 0 no-repeat;
+	margin:0 0 0 0;padding:0 0 0 0;margin-right:-60px;
+	z-index:1000;
+	}
+	
+#woa2_text h1 {padding-right:45px;
+			color:#d3d3d3; /* dark brown #67432d;  off white #d3d3d3; */ 		
+	}
+
+/* .red_quote {margin:10px 20px 15px 20px;text-align:center;} */
+	
+/*	#push {height:0px;padding:0 0 0 0;margin:0 0 0 0;} */ /*end push immediately, empty div */
+/*	#footer {padding-top:0px;margin-top:-18px;} */
+	
+
+	
+

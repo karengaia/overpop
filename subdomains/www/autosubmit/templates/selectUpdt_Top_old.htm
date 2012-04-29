@@ -1,0 +1,73 @@
+
+<script language="JavaScript">
+<!--
+  
+  var regionObj;
+  var sourceObj;
+  var sectsubsObj;
+  
+  function regionChoose(field)
+  {
+    field.value = document.itemsSelect.selectregion[document.itemsSelect.selectregion.selectedIndex].value;
+  }
+   
+  function sourceChoose(field)
+  {
+    field.value = document.itemsSelect.selectsource[document.itemsSelect.selectsource.selectedIndex].value;
+  }
+  
+  function sectsubsChoose(field)
+  {
+    field.value = document.itemsSelect.selectSectsubs[document.itemsSelect.selectSectsubs.selectedIndex].value;
+  }
+  
+  function sectsubsAdd(field)
+  {
+    field.value = field.value + ";" + document.itemsSelect.selectSectsubs[document.itemsSelect.selectSectsubs.selectedIndex].value;
+  }
+  
+  function regionPush(obj)
+  { 
+    regionObj = obj;
+  }
+  
+  function sourcePush(obj)
+  {
+    sourceObj = obj;
+  }
+  
+  function sectsubsPush(obj)
+  {
+    sectsubsObj = obj;
+  }
+  
+  function regionPull(val)
+  { 
+    var regval = val;
+    alert(val);
+    regionObj.value = val;
+    alert(regionObj.value);
+  }
+  
+  function sourcePull(val)
+  {
+    sourceObj.value = val;
+    alert(sourceObj.value);
+  }
+  
+  function sectsubsPull(val)
+  {
+    sectsubsObj.value = val;
+    alert(sectsubsObj.value);
+  }
+  
+//-->
+</script>
+
+<form method="post" name="itemsSelect" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl">
+<input type="hidden" name="cmd" value="selectItems">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="selectUpdt_Top"></font>
+<input type="hidden" name="userid" value="" maxsize=10></font>
+<input type="hidden" name="pin" value="" maxsize=10></font>

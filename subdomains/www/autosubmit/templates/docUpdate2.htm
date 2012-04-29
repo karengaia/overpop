@@ -1,0 +1,304 @@
+<html>
+<title>WOA!! Article Submission</title>
+<head>
+</head>
+
+<body basefont=arial link="blue" vlink="blue" alink="green" bgcolor="eafaf7">
+
+<br>
+
+<!-- FORM BEGIN  - - -->
+
+<form method="post" name="article" action=
+"http://[SCRIPTPATH]/article2.pl">
+
+<TABLE width="70%"><TD width="80%" align="center">
+   <b><font size="5" face="arial">
+     WOA Article/Item Submittal</font></b><br>
+</TD><TD align="right">
+<table cellpadding=0 cellspacing=0 align=right>
+      <tr><td><img src="http://[CGISITE]/woaLogoAN.gif" hspace=20></td>
+      <tr><td><center>
+         <table cellpadding="0" cellspacing="0"><td><a target=_top href=
+          "http://[CGISITE]">
+          <font face="arial" size="2" color="#000000">
+          <b>Home</b></a>&nbsp;&nbsp;</td></table>
+</td></table>
+</TD></TABLE>
+
+<font size=1 face="comic sans ms">
+[TODAY] ..
+docid# [docid] ... sysdate [sysdate]
+<br>
+[OPERATOR_NAME] ...
+[SUMMARIZER_NAME] ...
+[SUGGESTOR_NAME]
+</font>
+
+<br>
+
+<input type="hidden" name="cmd" value="storeform">
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
+<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
+<input type="hidden" name="sysdate" value="[sysdate]">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="sectsubs" value="[sectsubs]">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="docUpdate">
+
+
+<!-- STYLE, PRIORITY, REGIONS TABLE -->           
+
+<table cellpadding=10>
+<td valign=top><font size="2" face="arial">
+[MODDELNEW]
+<br><br>
+</font><font face="comic sans ms" size=1>
+Choose style if not regular &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Styled box selection<br>
+[SELECT_TEMPLATE]<br>
+(Straight: summary only prints)
+</font>
+</td><td>
+<font face="comic sans ms" size=1>
+Priority<br>
+[PRIORITY]
+(5=highest)<br>
+Quick Region<br>
+<input type="text" name="region" size="35" maxlength="55"
+value="">
+
+</font>
+</td><td>&nbsp;</td>
+
+<td>
+<b>Region or Country:</b> <font face="comic sans ms" size=1>[region]</font>
+<br>
+<select name="region" size="4" multiple>
+[REGIONS]
+</select>
+</td>   
+
+</table>
+<!-- DATE/SOURCE two cols -->
+<table id=datesrc>
+
+<td valign=top id=datecol1>
+
+<! ---------- PUB DATE --------->
+<b>Article Publish Date: </b><br> 
+<select name="pubmonth">
+[PUBMONTHS]
+</select>
+
+<input type="text" name="pubday" size="3" maxlength="2" value="
+[PUBDAY]
+">
+
+<select name="pubyear">
+[PUBYEARS]
+</select></font>
+<br><font size = 1 face=verdana color="666666">
+<b>Expiration Date:</b><br> 
+
+<select name="expmonth">
+[EXPMONTHS]
+</select>
+
+<input type="text" name="expday" size="3" maxlength="2" value="
+[EXPDAY]
+">
+
+<select name="expyear">
+[EXPYEARS]
+</select>
+</font>
+<br>
+
+
+</td>
+<td> &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+<td id="sourcecol2" valign=top>
+    <b>Article Source :</b>&nbsp;&nbsp;
+    <font size=1 face= "comic sans ms" >Publication or organization</font>
+  <br>
+    <select name="selectsource">
+[SOURCES] 
+    <option value=""></option>
+     </select><br>
+     <font size=1 face="comic sans ms">or other if not on list</font><br>
+      <input type="text" name="source" size="50" maxlength="70"
+value="
+[OTHERSOURCE]
+">
+</td>
+<td id="datesrcCaveat">
+  <font size=1 face="comic sans ms" color=#666666>
+  Publish date and Source <br>are always important, <br>even if not printed<br> i.e.'straight'
+  </font>
+</td>
+</table>
+
+<!--- HEADLINE & LINK AREA -->
+<br>
+<table>
+<tr><td valign="bottom">
+<b>Article Headline:&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b>
+</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td valign=bottom><input type="checkbox" name="regionhead" 
+[REGIONHEAD]
+    value="Y"> <font size=1 face="comic sans ms" color=#666666>Put region in headline</font><br>
+</td>   
+</table>
+
+<textarea name="headline" wrap="physical" rows="2" cols=100">
+[headline]</textarea><br>
+<font size=1 face="comic sans ms">End headline with: 
+[PERIOD_RADIOS]
+&nbsp;&nbsp; (Usually a period) &nbsp; &nbsp; &nbsp;
+
+</font> 
+  <input name="titlize" type=radio value="Y">
+  <font size=1 face="comic sans ms"> Titlize headline. </font>
+<p>
+
+<b>Article Source Link <font size=2>(URL):</font>
+<font size=1 face="comic sans ms"> &nbsp;(Please provide if there is a live link)</b> &nbsp;&nbsp;&nbsp;&nbsp;
+   <font size=1 face=verdana>
+    <input name="selflink" type=checkbox value="Y"
+[SELFLINK_CHECK]
+>
+  <font size=1 face="comic sans ms"> self </font>
+<br>
+  </font>
+  
+<textarea name="link" wrap="physical" rows="2" cols=100">[link]</textarea>
+<p>
+
+
+<!---  BODY, COMMENTS, FULL - 2 COLS -->
+
+    <b>Summary of Article:</b> &nbsp; &nbsp; <font size=1 face="comic sans ms"> Cut and paste for more accurate results. </font><br>
+
+    <textarea name="body" wrap="physical" rows=20 maxrows=150 cols=100>[body]</textarea>
+    <br><font size=1 face="comic sans ms">Text will wrap. Extra spaces and
+    line returns do not matter  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+    <input type="checkbox" name="needsSum"
+[NEEDSSUM]
+    value="Y">Needs summarization (red arrow)&nbsp;&nbsp;
+        <input type="checkbox" name="endtable"
+[CKENDTABLE]
+    value="Y">  End table &nbsp;&nbsp;
+[SKIP_HANDLE]
+</font>
+<br><br>
+<table><td>
+    <b>Comments:</b> &nbsp;&nbsp;
+   <font size=1 face="comic sans ms">Use sparingly</font><br>
+    <textarea name="comment" wrap="physical" rows="3" cols=49">[comment]</textarea>
+</td><td>
+    <b>Notation:</b> &nbsp;&nbsp;
+   <font size=1 face="comic sans ms">(not published)</font>
+<br>
+    <textarea name="note" wrap="physical" rows="3" cols=48">[note]</textarea>
+</td></table>
+
+<br>
+    <b>Full Article:</b> &nbsp;&nbsp;
+<font size=1 face="comic sans ms"> Cut and paste full article here.</font>
+&nbsp;&nbsp;<input type=checkbox name="freeview" value="Y"
+[FREEVIEW_CHECK]
+>&nbsp;<font size=1 face="comic sans ms">Allow public view</font>
+
+<br>
+    <textarea name="fullbody" wrap="physical" rows=15 maxrows=300 cols=100>
+[FULLBODY]
+</textarea>
+<br><br>
+<input type=submit value="SUBMIT" name="submit">
+
+</font>
+
+<!-- SECTIONS ->
+
+<!-  2010 Apr12 added News, Headlines, Suggested radio buttons, simplified table structure -->
+  <br><br>
+  <b>Sections and Subsections Where This Article Will Appear:</b>
+<TABLE cellpadding="5" cellspacing="0" border="1">
+ <TR><TD valign="top"> 
+ <font size="2" face="verdana"><b>News Processing Sections</b><br>
+ <font size="1" face="comic sans ms">Only one can be selected</font><br>
+	<font size="1" face="arial">
+[NEWS_ONLY_SECTIONS]
+    </font>
+<br><br><br>
+  <font size="2" face="verdana"><b>Current Sections</b><br>
+  <font size="1" face="comic sans ms">Un-check those you wish to delete</font><br>
+    <font size="1" face="arial">
+[CURRENT_SECTIONS]
+    </font></TD>
+  <TD valign="top">
+    <font size="2" face="verdana"><b>Major Sections</b><br>
+    <font size="1" face="comic sans ms">To add a Section, select one or more.</font><br>
+    <font size="1" face="arial">
+[ADD_NON_COUNTRIES]
+	</font>
+  </TD>
+    <TD valign="top">
+    <font size="2" face="verdana"><b>Countries</b><br>
+    <font size="1" face="comic sans ms">To add a Section, select one or more.</font><br>
+    <font size="1" face="arial">
+[ADD_COUNTRIES]
+	</font>
+    <br><br><font size="2" face="verdana"><b>Other/Admin</b></font><br>
+    <font size="1" face="arial">
+[OTHER_SECTIONS]
+    </font></TD>
+</TR></TABLE>
+
+</form>
+<p>
+<br>
+<br>
+<hr>
+<p>
+</font>
+</td></table><center><font size=4 face=arial><b>Instructions</b></font></center>
+
+<p>
+<b>Sections: Normal progression of articles through the Autosubmit System</b></b><br>
+(Not neccessarily every time)
+<font size=2 face=arial>
+<ol>
+<li>Email (for emailed items sent by news clipping services)</li>
+<li>Suggested</li>
+<li>Headlines</li>
+<li>Summarized</li>
+<li>News Digest</li>
+<li>section organized by topic</li>
+<li>News Archives</li>
+</ol>
+</font>
+<p><br>
+
+<a name=stratification></a>
+<font size=2 face=arial>
+<b>Stratification:</b></b><br>
+
+Items are normally put in 'most recent goes to the top' order. 
+However, occasionally we will want to have some more towards the top 
+and others near the bottom. Use M for the normal way - normal items go in the middle.
+Use A to go on the very top, Z to go on the very bottom, and the other letters for 
+various stratus in between.
+</font>
+<p>
+<br>
+<br>
+<br>
+<br>
+<br>
+</body>
+</html>

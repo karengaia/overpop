@@ -1,0 +1,54 @@
+<hr width=80%>
+<input type="hidden" name="selitem[pgItemcnt]" value="Z">
+
+<p>
+<table border=1 cellpadding=5 cellspacing=0>
+<tr><td>
+<font size=2 face=verdana>
+<input type="radio" name="actionselected" value="delsource">&nbsp;
+       Delete selected items from current (from) section/subsection<font size=1>(no move)</font><br>
+<input type="radio" name="actionselected" value="move">&nbsp;
+      Move -- remove selected items from current section/subsection and move to target section/subsection<br>
+<input type="radio" name="actionselected" value="copy">&nbsp;
+      Copy selected items from current section/subsection to target section/subsection<br>
+<input type="radio" name="actionselected" value="deltarget">&nbsp;
+      Delete selected items from target section/subsection<br>
+<input type="radio" name="actionselected" value="fix">&nbsp;
+      Fix selected items<br>
+<input type="radio" checked name="actionselected" value="none">&nbsp;None of the above<br>
+
+</td><tr><td>
+
+<font size=2 face=verdana>If moving or copying:<br><font size=1>
+ 
+<input type="radio" name="itemstratus" value="normal">&nbsp;Normal item stratification (M) &nbsp;&nbsp;&nbsp;&nbsp;
+<input type="radio" checked name="itemstratus" value="maintain">&nbsp;Maintain current item stratification (A-F, M, U-Z)
+<p>
+<input type="checkbox" name="startselect" value="Y">&nbsp;Select everything after and including 1st checked item
+</td></table>
+<br>
+
+Correction of data problems:<br>
+&nbsp;&nbsp;&nbsp;<input type="checkbox" name="sethandle" value="Y">&nbsp;Set skiphandle to 'Yes'?<br>
+<p>
+Choose target:<br>
+&nbsp;&nbsp;&nbsp;
+[ADD_SECTIONS]
+
+<p>
+Change items' sort order<br>&nbsp;&nbsp;
+[SORTORDER]
+<p>
+<font size=1 face=verdana>UserID&nbsp;
+<input type="input" name="userid" size=10 maxlength=10></font>&nbsp;&nbsp;
+
+<font size=1 face=verdana>pin&nbsp;
+<input type="password" name="pin" size=10 maxlength=10></font>
+
+<p>
+<input type=submit value="FINISH" name="submit">
+</font>
+</FORM>
+<a
+href="http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.p
+l?clean_index%%%Suggested_emailedItem"><b>Empty email file</b></a>

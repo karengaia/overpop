@@ -1,0 +1,42 @@
+<HEAD>
+<title>World Population Awareness - Impacts</title>
+<SCRIPT LANGUAGE="JavaScript">
+
+<!--
+var pop=1;
+var wild=1;
+
+function increasePop() {
+        pop=pop+ 1.4;
+        x=parseInt(pop);
+        document.statfrm.population.value = x;
+ 
+        setTimeout("increasePop() ",500); }
+
+function increaseWilds() {
+        wild=wild+1.6;
+        y=parseInt(wild);
+        document.statfrm.wilds.value = y;
+        setTimeout("increaseWilds() ",1000); }
+
+//-->
+
+</SCRIPT>
+</HEAD>
+
+<body onLoad="increasePop(); increaseWilds()" bgcolor="ffffff"
+link="#555555" vlink="#555599" alink="#990033" background="woabg.gif">
+
+<FORM NAME="statfrm" METHOD=POST ACTION="">
+
+
+[TEMPLATE=select_top]
+[TEMPLATE=logo]
+<center>
+<table><td align=center><font size=7 color="808080">[cTitle]</font><br> 
+ <font size=2 face=arial>
+[TODAY]
+</font>
+</td></table>
+<p>
+[BLOCKQUOTE]

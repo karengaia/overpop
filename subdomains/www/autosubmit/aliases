@@ -1,0 +1,265 @@
+#
+#  This file lists the default mail aliases for Caldera OpenLinux.
+#
+#  Aliases in this file will NOT be expanded in the header from
+#  Mail, but WILL be visible over networks or from /bin/mail.
+#
+#  			IMPORTANT NOTE: 
+#
+#  After you make any changes to this file, you have to run
+#
+#	/usr/sbin/mta-switch newconfig
+#
+#  or the program `newaliases' (works for smail and sendmail).
+#  Otherwise the changes won't be visible to your MTA.
+#
+
+# Basic system aliases -- these MUST be present.
+MAILER-DAEMON:	postmaster
+postmaster:	root
+
+# General redirections for pseudo accounts.
+bin:		root
+daemon:		root
+adm:		root
+games:		root
+ingres:		root
+system:		root
+toor:		root
+news:		root
+uucp:		root
+operator:	root
+ftp:		root
+nobody:		root
+
+# Well-known aliases.
+manager:	root
+dumper:		root
+newsadm:	news
+newsadmin:	news
+usenet:		news
+netnews:	news
+gnats:		root
+ftpadm:		ftp
+ftpadmin:	ftp
+ftp-adm:	ftp
+ftp-admin:	ftp
+
+
+# trap decode to catch security attacks
+decode:		root
+
+# Person who should get root's mail
+#root:		col
+
+karen:		gaia
+popaware:	karen@gaia-s.net
+popnews:	"|/home/popaware/public_html/cgi-bin/getmail.pl"
+mailtest:	"|/home/darkmoon/mailtest.pl"
+
+Majordomo-Owner: darkmoon
+Majordomo: "|/usr/lib/majordomo/wrapper majordomo"
+
+test: "|/usr/lib/majordomo/wrapper resend -l test test-list"
+test-list: :include:/var/lib/majordomo/lists/test,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/test.archive"
+owner-test: darkmoon@lunamorena.net
+test-owner: owner-test
+test-approval: owner-test
+test-request: "|/usr/lib/majordomo/wrapper majordomo -l test"
+
+open: "|/usr/lib/majordomo/wrapper resend -l open open-list"
+open-list: :include:/var/lib/majordomo/lists/open,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/open.archive"
+owner-open: darkmoon@lunamorena.net
+open-owner: owner-open
+open-approval: owner-open
+open-request: "|/usr/lib/majordomo/wrapper majordomo -l open"
+
+indiaforum: "|/usr/lib/majordomo/wrapper resend -l indiaforum indiaforum-list"
+indiaforum-list: :include:/var/lib/majordomo/lists/indiaforum,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/indiaforum.archive"
+owner-indiaforum: gaia@calweb.com
+indiaforum-owner: owner-indiaforum
+indiaforum-approval: owner-indiaforum
+indiaforum-request: "|/usr/lib/majordomo/wrapper majordomo -l indiaforum"
+
+popsierrans: "|/usr/lib/majordomo/wrapper resend -l popsierrans popsierrans-list"
+popsierrans-list: :include:/var/lib/majordomo/lists/popsierrans,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/popsierrans.archive"
+owner-popsierrans: gaia@calweb.com
+popsierrans-owner: owner-popsierrans
+popsierrans-approval: owner-popsierrans
+popsierrans-request: "|/usr/lib/majordomo/wrapper majordomo -l popsierrans"
+
+woahelp: "|/usr/lib/majordomo/wrapper resend -l woahelp woahelp-list"
+woahelp-list: :include:/var/lib/majordomo/lists/woahelp,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/woahelp.archive"
+owner-woahelp: owner-woahelp
+woahelp-owner: owner-woahelp
+woahelp-approval: owner-woahelp
+woahelp-request: "|/usr/lib/majordomo/wrapper majordomo -l woahelp"
+
+greenumbrella: "|/usr/lib/majordomo/wrapper resend -l greenumbrella greenumbrella-list"
+greenumbrella-list: :include:/var/lib/majordomo/lists/greenumbrella
+owner-greenumbrella: owner-greenumbrella
+greenumbrella-owner: owner-greenumbrella
+greenumbrella-approval: owner-greenumbrella
+greenumbrella-request: "|/usr/lib/majordomo/wrapper majordomo -l greenumbrella"
+
+popnewsmonthly: "|/usr/lib/majordomo/wrapper resend -l popnewsmonthly popnewsmonthly-list"
+popnewsmonthly-list: :include:/var/lib/majordomo/lists/popnewsmonthly
+owner-popnewsmonthly: gaia@calweb.com
+popnewsmonthly-owner: owner-popnewsmonthly
+popnewsmonthly-approval: owner-popnewsmonthly
+popnewsmonthly-request: "|/usr/lib/majordomo/wrapper majordomo -l popnewsmonthly"
+
+
+puzzles: "|/usr/lib/majordomo/wrapper resend -l puzzles puzzles-list"
+puzzles-list: :include:/var/lib/majordomo/lists/puzzles
+owner-puzzles: darkmoon@lunamorena.net
+puzzles-owner: owner-puzzles
+puzzles-approval: owner-puzzles
+puzzles-request: "|/usr/lib/majordomo/wrapper majordomo -l puzzles"
+
+darkcounter: "|/usr/lib/majordomo/wrapper resend -l darkcounter darkcounter-list"
+darkcounter-list: :include:/var/lib/majordomo/lists/darkcounter
+owner-darkcounter: darkmoon@lunamorena.net
+darkcounter-owner: owner-darkcounter
+darkcounter-approval: owner-darkcounter
+darkcounter-request: "|/usr/lib/majordomo/wrapper majordomo -l darkcounter"
+
+demographics: "|/usr/lib/majordomo/wrapper resend -l demographics demographics-list"
+demographics-list: :include:/var/lib/majordomo/lists/demographics,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/demographics.archive"
+owner-demographics: owner-demographics
+demographics-owner: owner-demographics
+demographics-approval: owner-demographics
+demographics-request: "|/usr/lib/majordomo/wrapper majordomo -l demographics"
+
+activism: "|/usr/lib/majordomo/wrapper resend -l activism activism-list"
+activism-list: :include:/var/lib/majordomo/lists/activism,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/activism.archive"
+owner-activism: owner-activism
+activism-owner: owner-activism
+activism-approval: owner-activism
+activism-request: "|/usr/lib/majordomo/wrapper majordomo -l activism"
+
+indestruction: "|/usr/lib/majordomo/wrapper resend -l indestruction indestruction-list"
+indestruction-list: :include:/var/lib/majordomo/lists/indestruction
+owner-indestruction: aeaen@pacbell.net
+indestruction-owner: owner-indestruction
+indestruction-approval: owner-indestruction
+indestruction-request: "|/usr/lib/majordomo/wrapper majordomo -l indestruction"
+
+sustainability: "|/usr/lib/majordomo/wrapper resend -l sustainability sustainability-list"
+sustainability-list: :include:/var/lib/majordomo/lists/sustainability,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/sustainability.archive"
+owner-sustainability: owner-sustainability
+sustainability-owner: owner-sustainability
+sustainability-approval: owner-sustainability
+sustainability-request: "|/usr/lib/majordomo/wrapper majordomo -l sustainability"
+
+familyplanning: "|/usr/lib/majordomo/wrapper resend -l familyplanning familyplanning-list"
+familyplanning-list: :include:/var/lib/majordomo/lists/familyplanning,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/familyplanning.archive"
+owner-familyplanning: owner-familyplanning
+familyplanning-owner: owner-familyplanning
+familyplanning-approval: owner-familyplanning
+familyplanning-request: "|/usr/lib/majordomo/wrapper majordomo -l familyplanning"
+
+economics: "|/usr/lib/majordomo/wrapper resend -l economics economics-list"
+economics-list: :include:/var/lib/majordomo/lists/economics,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/economics.archive"
+owner-economics: owner-economics
+economics-owner: owner-economics
+economics-approval: owner-economics
+economics-request: "|/usr/lib/majordomo/wrapper majordomo -l economics"
+
+usapop: "|/usr/lib/majordomo/wrapper resend -l usapop usapop-list"
+usapop-list: :include:/var/lib/majordomo/lists/usapop,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/usapop.archive"
+owner-usapop: owner-usapop
+usapop-owner: owner-usapop
+usapop-approval: owner-usapop
+usapop-request: "|/usr/lib/majordomo/wrapper majordomo -l usapop"
+
+pitts: "|/usr/lib/majordomo/wrapper resend -l pitts pitts-list"
+pitts-list: :include:/var/lib/majordomo/lists/pitts
+owner-pitts: gaia@calweb.com
+pitts-owner: owner-pitts
+pitts-approval: owner-pitts
+pitts-request: "|/usr/lib/majordomo/wrapper majordomo -l pitts"
+
+greenumbrella.old: "|/usr/lib/majordomo/wrapper resend -l greenumbrella.old greenumbrella.old-list"
+greenumbrella.old-list: :include:/var/lib/majordomo/lists/greenumbrella.old,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/greenumbrella.old.archive"
+owner-greenumbrella.old: gaia@calweb.com
+greenumbrella.old-owner: owner-greenumbrella.old
+greenumbrella.old-approval: owner-greenumbrella.old
+greenumbrella.old-request: "|/usr/lib/majordomo/wrapper majordomo -l greenumbrella.old"
+
+immigrationsprawl: "|/usr/lib/majordomo/wrapper resend -l immigrationsprawl immigrationsprawl-list"
+immigrationsprawl-list: :include:/var/lib/majordomo/lists/immigrationsprawl,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/immigrationsprawl.archive"
+owner-immigrationsprawl: gaia@calweb.com
+immigrationsprawl-owner: owner-immigrationsprawl
+immigrationsprawl-approval: owner-immigrationsprawl
+immigrationsprawl-request: "|/usr/lib/majordomo/wrapper majordomo -l immigrationsprawl"
+
+livejournal: "|/usr/lib/majordomo/wrapper resend -l livejournal livejournal-list"
+livejournal-list: :include:/var/lib/majordomo/lists/livejournal,
+        "| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+        -f /var/lib/majordomo/archive/livejournal.archive"
+owner-livejournal: darkmoon@lunamorena.net
+livejournal-owner: owner-livejournal
+livejournal-approval: owner-livejournal
+livejournal-request: "|/usr/lib/majordomo/wrapper majordomo -l livejournal"
+
+infantsurvival: "|/usr/lib/majordomo/wrapper resend -l infantsurvival infantsurvival-list"
+infantsurvival-list: :include:/var/lib/majordomo/lists/infantsurvival,
+	"| /usr/lib/majordomo/wrapper archive2.pl -a  -m
+	-f /var/lib/majordomo/archive/infantsurvival.archive"
+owner-infantsurvival: karen@gaia-s.net
+infantsurvival-owner: karen@gaia-s.net
+infantsurvival-approval: karen@gaia-s.net
+infantsurvival-request: "|/usr/lib/majordomo/wrapper majordomo -l infantsurvival"
+
+wildcosumnes: "|/usr/lib/majordomo/wrapper resend -l wildcosumnes wildcosumnes-list"
+wildcosumnes-list: :include:/var/lib/majordomo/lists/wildcosumnes
+owner-wildcosumnes: gaia@calweb.com
+wildcosumnes-owner: gaia@calweb.com
+wildcosumnes-approval: gaia@calweb.com
+wildcosumnes-request: "|/usr/lib/majordomo/wrapper majordomo -l wildcosumnes"
+
+glbt-sac: "|/usr/lib/majordomo/wrapper resend -l glbt-sac glbt-sac-list"
+glbt-sac-list: :include:/var/lib/majordomo/lists/glbt-sac
+owner-glbt-sac: darkmoon@lunamorena.net
+glbt-sac-owner: darkmoon@lunamorena.net
+glbt-sac-approval: darkmoon@lunamorena.net
+glbt-sac-request: "|/usr/lib/majordomo/wrapper majordomo -l glbt-sac"
+woanews: "|/usr/lib/majordomo/wrapper resend -l woanews woanews-list"
+woanews-list: :include:/var/lib/majordomo/lists/woanews
+owner-woanews: gaia@calweb.com
+woanews-owner: gaia@calweb.com
+woanews-approval: gaia@calweb.com
+woanews-request: "|/usr/lib/majordomo/wrapper majordomo -l woanews"
+emergencycontraception: "|/usr/lib/majordomo/wrapper resend -l emergencycontraception emergencycontraception-list"
+emergencycontraception-list: :include:/var/lib/majordomo/lists/emergencycontraception
+owner-emergencycontraception: karen@gaia-s.net
+emergencycontraception-owner: karen@gaia-s.net
+emergencycontraception-approval: karen@gaia-s.net
+emergencycontraception-request: "|/usr/lib/majordomo/wrapper majordomo -l emergencycontraception"

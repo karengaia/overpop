@@ -1,0 +1,104 @@
+<html>
+<title>Do no bookmark</title>
+<body bgcolor="FFFFFF" link="#006000" vlink="#000080" alink="#000080">
+
+<form method="post" name="admin" action=
+"http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl">
+<input type="hidden" name="cmd"  value="process_select_login">
+<input type="hidden" name="ipform"  value="select_login">
+
+<p>
+<br>
+<center><TABLE border=1 cellpadding=10 cellspacing=0 width=200>
+<TR><TD>
+
+<center><font face="Lucida sans unicode" size=2><b>WOA!! Admin Section_subsection Functions*</b></font></center>
+<p>
+
+<font size=2 face="verdana">
+<b>Please enter your:</b>
+<br>
+
+<table>
+<td>&nbsp;&nbsp;</td>
+<td align=right valign=top>
+
+<font face=arial size=2>userID
+
+</td><td align=left valign=top>  
+<font size=2 face=verdana>
+<input type="input" name="userid" size=8 maxlength=8></font>
+
+<br> <font size=1 face=arial>(case sensitive)</font>
+
+</td><td align=right valign=top>
+
+<font face=arial size=2>pin:
+
+</td><td align=left valign=top>  
+<font size=2 face=verdana>
+<input type="password" name="pin" size=8 maxlength=8></font>
+
+<br> <font size=1 face=arial>(4 digit) &nbsp;&nbsp;&nbsp;<a href="mailto:[adminEmail]?subject=WOA!! What is my pin again?">Forgot?</a></font>
+
+</td></table>
+
+<p>
+
+<b>Choose which section_subsection</b> 
+<br>&nbsp;&nbsp;&nbsp;
+[ADD_SECTIONS]
+
+</font><p><font size=2 face="verdana">
+
+<b>Choose an action: </b><br>
+&nbsp;&nbsp;&nbsp;<font size=2 face=verdana>
+<select size=1 name="action">
+<option value="display_subsection">A. View chosen subsection</option>
+<option value="display_prepage">B. View preliminary web page prior to publishing</option>
+<option value="move_webpage">C. Move page to public web page</option>
+<option value="print_select">D. Select from a list and chose action upon selected</option>
+<option value="convert_old_subsection">E. Convert old subsection to new autosubmit subsection</option>
+<option value="fix_sectsub">F. Fix item's sectsub</option>
+</select>
+<font face="comic sans ms" size=1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Note: B, C, and E do not work</font>
+
+</font>
+
+</font><p><font size=2 face="verdana">
+
+<b>Filters: </b> <font size=1 face="comic sans ms">(optional)</font>
+<br>
+<table><td>&nbsp;&nbsp;&nbsp;</td><td>
+Select only pubdate older than: <font size=1 face=verdana>
+<input type="text" name="chk_pubdate"  size=12 value=""> </font>
+<font size=1 face="comic sans ms">i.e 2001-12-04</font>
+<br>
+<input type="checkbox" name="select_kgp"  value="Y"> Select only handle KGP?
+</td></table>
+<p>
+
+<input type="submit" value="Continue" name="submit">
+
+</font>
+<p>
+<hr>
+<p>
+
+<font size=2 face="verdana"><b>*Sections and subsections:</b></font></font><p>
+The WOA!! website is organized into sections: i.e. categories. 
+Each section is accessed from the navigation bar on the home page. 
+<p>
+
+An example of a section is Sustainability. Its subsections include: Energy, Water, Consumption, Agriculture, and so on. 
+<p>
+Sections can occupy one or more pages. For example, Energy has its own page.
+<p>
+This admin screen is set up to allow section editors and administrators to move, view, and otherwise maintain groups of items by selecting a subsection, choosing some or all items within the subsection, and performing a function on them.
+
+
+</TD></TABLE></center>
+</form>
+</body>
+</html>

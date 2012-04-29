@@ -1,0 +1,1102 @@
+
+/* -------- HTML AND BG IMAGE ------------ */
+html {height:100%;/* sticky footer */
+		background:#888 url('/img/mauve/bg_mauve9.png') repeat; /* margin background */
+		background-attachment:fixed;
+	 }
+
+	* { margin: 0;padding: 0;}		/* reset browser defaults */
+
+body {
+	  text-align:left;
+	  z-index:1;
+	  margin:0 80px; 0 80px;padding:0 0 0 0;
+	  font-family: helmet,arial, freesans,sans-serif;
+	  font-size: 100%;
+	  font-weight: 300;
+	  letter-spacing:normal;
+	  color: #101010; /* almost black */
+	  background: #FFFAFA;  /* snow #FFFAFA mint cream #F5FFFA  old lace #FDF5E6
+	                           sea shell #FFF5EE  white smoke  (too pink)*/
+	}
+	
+#world_population_wrapper { /* varying monitor settings */
+		min-width:840px;
+		max-width:2000px;  /* flex and fluid design */
+		margin:0; margin-right: 0;
+	/*	margin-left:auto; margin-right:auto; */
+		width:100%;
+		padding:0 0 0 0; padding-bottom:10px;
+		}
+	
+p, li, td { /* basic font, used for newsitem */
+	  font-family: helmet,arial,freesans,sans-serif;
+	  font-size: .9em;
+	  font-weight: 300;
+	  color: #101010;  /* almost black */
+	}
+
+a, a:link, a:visited { text-decoration: underline; color: #369;}
+	a:active, a:hover {text-decoration:underline; color: #903;}
+
+h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
+		text-decoration: none;
+		color: inherit;
+	}
+	
+* html a:hover { background: transparent; } /* star hack for ie6 */
+
+	p,input,form {text-align:left;}
+	table{border-collapse:collapse;}
+	td,th,thead th,tbody th{text-align:left;vertical-align:top;margin:0;padding:0;border:0;}
+	abbr{border-bottom:1px dotted #666;cursor:help;white-space:nowrap;}
+	hr{height:1px;border:1px solid #666;}
+	form, fieldset{margin:0;padding:0;}
+
+	table.fixed {table-layout:fixed;}
+	
+	table.layout {
+		width:100%;
+		table-layout:fixed;
+		}
+	.layout table, td {
+		margin:0; padding:0;
+		background-color:#fff;
+	}
+	.layout td {}
+
+	li {margin: 5px 10px 5px 10px;}
+
+	big {font-size:115%;}
+
+	.block {
+		  display: block;
+		  margin: .5em 0 0 0;
+		  padding: 0;
+	  }
+	.center, div.center {
+	  margin-left: auto; margin-right: auto;
+	  text-align: center;
+	}
+	img.center {
+	  display:block;
+	  margin:auto;
+	}
+	.right {
+	  float: right;
+	}
+	.left {
+	  float: left;
+	}
+	.not { display: none; }
+
+	.centertext {text-align: center;}
+	.righttext {text-align: right;}
+	
+	img, a img {
+	font-family: verdana, sans;
+	font-size:.7em;
+	color: #808080;
+	text-decoration: none;
+	border:0px; margin:0; padding:0;
+	} /* no image borders */
+	
+	/* serif fonts: "Georgia, Palatino, Palatino Linotype, Times, Times New Roman" */
+	/* sans-serif:  (for headlines), "Arial, Verdana (small), Helvetica" | or-- Tahoma, Geneva | or-- Century Gothic */
+	/* Palatino-like fonts include Book Antiqua, Palatino, Palatino Linotype, URW Palladio L, and Zapf Calligraphic */
+	/* casual: "Lucida Sans Unicode", "Lucida Sans", "Lucida Grande", "comic sans ms", Trebuchet MS */
+	/* headlines: Arial Narrow, Franklin Gothic Medium
+
+	font-family:Arial,Helmet,Freesans,sans-serif;
+	font-family:'Arial Narrow','Nimbus Sans L',sans-serif;
+	font-family:'Bookman Old Style',Bookman,'URW Bookman L',serif;
+	font-family:'Century Gothic',Futura,'URW Gothic L',sans-serif;
+	font-family:'Comic Sans MS',cursive;
+	font-family:'Courier New',Courier,Freemono,'Nimbus Mono L',monospace;
+	font-family:Constantina,Georgia,'Nimbus Roman No9 L',serif;
+	font-family:Consolas,'Lucida Console','Bitstream VeraSans Mono','DejaVu Sans Mono',monospace;
+	font-family:'Lucida Sans Unicode','Lucida Grande','Lucida Sans','DejaVu Sans Condensed',sans-serif;
+	font-family:Cambria,'Palatino Linotype','Book Antiqua','URW Palladio L',serif;
+	font-family:symbol,'Standard Symbols L';
+	font-family:Cambria,'Times New Roman','Nimbus Roman No9 L','Freeserif',Times,serif;
+	font-family:Verdana,Geneva,'Bitstream Vera Sans','DejaVu Sans',sans-serif;
+	*/
+
+	h1, h2, h3 {margin-left:auto; margin-right:auto;text-align: center;}
+
+
+	h1 { /* website title */
+	  font-family: tahoma,arial, serif;
+	  font-size: 1.5em;
+	  font-weight: 500;
+	  color: #8B4513; /* darker brown */
+	/*  color: #608da4;  */
+	  padding-top: 1em;
+	}
+
+	h2 { /* page title */
+	  font-family: "lucida sans", verdana, geneva, tahoma, "arial narrow", arial, san-serif;
+	  font-size: 180%;
+	  font-style: normal;
+	  font-weight: 500;
+	  font-variant:small-caps;
+	  text-align: center;
+	  color: #712E82;  /* #336666; medium teale .. nice blue #555599; */
+	  margin-top: 10px; margin-bottom: -.5em;
+	  width: 100%;
+	}
+
+
+	h3 { /* subtitle, country */
+	  font-family: verdana,sans;
+	  font-size: 1.4em;
+	  font-weight: bold;
+	  color: #A08080;
+	  margin-top: 40px; padding-right:150px;
+	}
+
+
+	h4 { /* article headline */
+	  font-family: verdana,sans-serif;
+	  font-size: 1.2em;
+	  font-weight: 500;
+	  color: #606060;
+	  margin: 4px 2px 6px 2px; padding:0;
+	  text-align: left;
+	}
+
+	h5 { /* subtitle 2nd line  or sidebar headline*/
+	  font-family: verdana,sans-serif;
+	  font-size: 1.0em;
+	  font-weight: bold;
+	  color: #808080;
+	  margin: 8px 0 2px 0;
+	}
+
+	h6 { /* sidebar headline */
+	  font-family: verdana,sans-serif;
+	  font-size: .8em;
+	  font-weight: 700;
+	  color: #336666;
+	  margin: -5px 0 2px 0;
+	  text-align: left;
+	}
+	
+#header2_outer {height:174px;min-width:923px; max-width:1120px; /* IE */  /* 125px + 49 (spacer); */    
+			background: url('/img/mauve/woa_logo135h.png') 0px 5px no-repeat;
+			z-index:15;
+	
+}
+						
+#header { background: #B58945 url('/img/mauve/logo_bg2.png') 0 0 repeat;
+		/* width:auto; */ height:186px;       /* height:182px; */
+		 min-width:923px; max-width:1120px;
+	 /*   border-bottom: 3px solid #8b4513;   This is really a nice red - if I decide to use it later */ 
+		z-index:10;}
+/* page 2 */
+#header2 { background: #fff /* #B58945 */ url('/img/mauve/logo_bgPg2.png') 0 0 repeat-x;
+		/* width:auto; */ height:129px;       /* 125px + 49 (spacer); */
+		   min-width:883px; max-width:1060px;
+	/*		border-bottom: 3px solid #8b4513;   This is really a nice red - if I decide to use it later */ 
+		z-index:10;}
+						
+#header_inner {height:140px;width:100%;margin-bottom:.3em;
+		background: #8b4513 url('/img/mauve/page2_header_bg5.png') 0 0 repeat; } 
+		
+#header2_inner {height:45px;width:100%;margin-bottom:.3em;
+				background: #8b4513 url('/img/mauve/page2_header_bg5.png') 0 0 repeat; }
+#header2_spacer {height:49px; background: #fff; z-index:11;}
+
+#population_awareness_logo {width:35%;height:150px;float:left;display:inline; /* IE */ 
+		background: url('/img/mauve/woa_logo135h.png') 0 0 no-repeat;}
+
+#population2_logo {width:35%;height:93px;float:left;display:inline; /* IE */ 
+				background: url('/img/mauve/WOA_logo_small.png') 0 0 no-repeat; 
+				z-index:12;}  /* 12 */
+
+	#woa_text {width:65%;
+		height:100px;
+		float:left;
+		display:inline;/* IE */
+		background:transparent; /*background texture */
+		overflow:hidden;		/*fit to div for flex design*/
+		}
+	#woa_text h1 {padding-top:30px;padding-right:25px;display:inline-block;
+		font-size:1.6em;color:#67432d; /* off white #d3d3d3; */ 	
+		font-weight:bold;
+		font-family: 'Lucida Sans Unicode','Lucida Grande','Lucida Sans','DejaVu Sans Condensed',sans-serif;}
+	#woa_text p {padding-top:55px;padding-right:25px;display:inline-block;
+		font-size:10px;color:#ddd;font-weight:normal;font-family:"Lucida Grande", arial, sans-serif;}
+		
+	#woa2_text h1 {padding-top:10px;padding-right:25px;display:inline-block;
+			font-size:1.6em;color:#67432d; /* off white #d3d3d3; */ 	
+			font-weight:bold;
+			font-family: 'Lucida Sans Unicode','Lucida Grande','Lucida Sans','DejaVu Sans Condensed',sans-serif;}
+
+	div.popclock{
+		background-color:#EBECE4;
+		width: 7.6em; height: 22px;
+		margin-left: 53em;
+		padding-top:3px;
+		border:2px solid #fff;
+	    font-family: "Lucida Grande", arial, sans-serif;
+		font-size:14px;
+		color:#606060;  /*teale ; #765c81; purple ;   dark red #67432d; */ 
+	    padding-left: 3px;
+	    display: block;
+	}
+	
+	div.clock_ie {
+		font-family: "Lucida Grande", arial, sans-serif;
+		font-size: 17px;
+		color:#606060;
+	}
+	div.clock_ie p {margin-top:15px;margin-bottom:20px;
+		text-align:right; margin-right:17px;}
+	div.clock_ie p span {color:#4B0082;}
+
+		
+	div.popclock a, div.clock_ie6 a {
+	  text-decoration: none;
+	  color:#765c81;  /*teale ; #765c81; purple ;   dark red #67432d; */ 
+	}
+	div.popclock a:hover, div.clock_ie6 a:hover {
+	color:#765c81; /* purple */
+	background-color:#D8BFD8;
+	text-decoration:none;
+	}
+	
+#centercol {width:auto;
+			min-width:490px;
+			max-width:600px; /* 1700 */
+	/*		background:#FFFFEA; */
+			padding:5px 10px 20px 10px;
+			margin: 0;
+			}
+
+#pg2maincol {width:auto;
+			min-width:823px;
+			max-width:900px; /* 1700 */
+	 		background:#fff; 
+			padding:0;
+			margin: 0;
+			}
+			
+.columns table, td {
+		margin: 0; padding: 0;
+		vertical-align:top;
+	}
+.columns table {
+	background-color: #d7d3ca;  #CCFFCC 
+	padding-bottom: 20px;
+	width: 100%;
+}
+
+/* <table><tr><td id="pg2leftcol"> */
+
+#leftcol {width:150px; max-width: 150px; margin: 0; padding: 0;}
+#rightcol {width:300px; max-width: 300px; min-width: 200px; margin: 0; padding: 0;}
+
+#pg2leftcol {width:30px; max-width: 30px; min-width: 30px; margin: 0; padding: 0;}
+#pg2rightcol {width:30px; max-width: 30px; min-width: 30px; margin: 0; padding: 0;}
+
+.rightcol { /* used for a short right column */
+  float: right;
+  width: 150px;
+  margin: 0; padding: 0;
+}
+
+div.sidebar {
+  font-size: 90%;
+  background: #fff;  /* white */
+}
+div.sidebar p {
+  margin-top: 10px; margin-bottom: 10px;
+  }
+div.sidebar a:link {text-decoration: none; color: #557799}
+div.sidebar a:visited {text-decoration: none; color: #557777;}
+div.sidebar a:active {text-decoration: none; color: #990033;}
+div.sidebar a:hover {text-decoration: none; color: #990033;}
+
+div.sidebar_rt_list {
+  margin: 20px 10px 20px 0;
+  padding: 2px 5px 6px 5px;
+  border-top: solid thin #d0d0d0;
+  border-left: solid thin #d0d0d0;
+  border-right: ridge thin #d0d0d0;
+  border-bottom: ridge thin #d0d0d0;
+  }	
+
+div.sidebar_lft_list {
+  width:92%;
+  margin: 20px 0px 20px 0;
+  padding: 2px 5px 6px 5px;
+  border-top: solid thin #d0d0d0;
+  border-left: solid thin #d0d0d0;
+  border-right: ridge thin #d0d0d0;
+  border-bottom: ridge thin #d0d0d0;
+}
+
+div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png') right bottom no-repeat; }
+
+			
+	/* SIDEBAR column   -- NOT USED   
+
+	.sidebar div {
+	width: 100%;
+	font: 0.85em verdana,arial,sans-serif;
+	text-align: center; margin-left:auto; margin-right:auto;
+	}
+	.sidebar p, ul li td {
+	font: 0.8em verdana,arial,sans-serif;
+	}
+	.sidebar h4, h5 {
+	font-weight: bold;
+	margin-bottom: -.05em;
+	text-align: center;
+	}
+	.sidebar h4 a, h5 a {
+		text-decoration: none;
+	}
+	.sidebar h4 {
+	font: 1.0em arial,sans-serif;
+	font-weight: 700;
+	}
+	.sidebar h5 {
+	font: .9em verdana,sans-serif;
+	font-weight: 700;
+	color: #369;
+	}
+	.sidebar p {
+	background: #fff;
+	margin-top: .5em;
+	margin-bottom: .5em;
+	}
+	.sidebar ul {
+	padding-left: 0; margin-left: 0;
+	}
+	.sidebar ul li, li {
+	list-style-position: inside;
+	text-indent: -.7em;
+	}
+	.sidebar small {
+	font: 0.66em verdana,arial,sans-serif;
+	color: #000;
+	}
+	.sidebar a {
+		text-decoration: underline;
+		color: #000;
+	}
+*/	
+	.sidebar_img {  /* use for cartoon images */
+	width:100%;
+	background-color:transparent;
+	margin-left:auto; margin-right:auto;
+	margin-top: 20px;
+	}
+	.sidebar_img p {  /* use for cartoon images */
+		font: 0.7em normal verdana,arial,sans-serif;
+		color: #000;
+		background-color: transparent;
+		text-align: center; padding: 4px;
+		margin-bottom: 15px;
+	}
+	
+	
+	
+	.smallfont {
+	  font-family: verdana,arial,tahoma,sans-serif;
+	  font-size:  0.7em;
+	}
+
+	.smallest, p.smallest, span.smallest, div.smallest {
+	font-family: arial, helvetica, sans-serif;
+	font-size: .6em;
+	}
+
+	.smallest, p.smallest, span.smallest, div.smallest {
+	font-family: arial, helvetica, sans-serif;
+	font-size: .6em;
+	}
+
+
+	.comment {
+	  font-family:  "Lucida Sans", "Gill Sans", "courier sans", "helvetica rounded", sans-serif;
+	  font-size: .9em;
+	  font-weight: 300;
+	  font-style: normal;
+	  color: #036;
+	  background-color: #F0F0F0;
+	  }
+
+	.error {
+	  font-family: "lucida sans", sans;
+	  font-size: 1.0em;
+	  font-weight: 300;
+	  color: #A08080;
+	}
+
+	.shadow {
+	  font-family: "lucida sans", sans;
+	  font-size: 1.0em;
+	  font-weight: 300;
+	  color: #CBCBCB;
+	}
+									
+
+	/*    IMAGES (in general) */
+
+	a.tinyimg img  { /* tinybutton that links to article form */
+	  border: none;
+	  margin:0; padding:0;
+	  vertical-align:middle;
+	  }
+	a.tinyimg  {text-decoration: none; color: #000;}			
+
+	acronym {
+	  color:#53395E;
+	  border-bottom: 1px dotted #aaa;
+	}
+
+	#slideshow_rt {      /* use with a - anchor tag */
+			    position:relative; /*this is the key*/
+			    z-index:100;
+			    color:#000;
+			    font-size: 9px; font-family: verdana,arial,sans-serif;
+			    text-decoration:none;
+			    border: none;
+			}
+	#slideshow_rt cite {display:block; margin:0; padding:0; 
+		                background-color: #57331d; color: #ccc;}
+	#slideshow_rt:link {text-decoration:none; background-color: transparent;}
+	#slideshow_rt:hover{z-index:80;}
+	#slideshow_rt span{display: none}
+	#slideshow_rt:hover span{ /*the span will display just on :hover state*/
+				background-color:#F1EDC2;
+			    background-image: url(/img/Asia/Giving_birthing_kit.jpg);
+				background-repeat: no-repeat;
+				background-position: 1px bottom;
+			    display:block;
+			    position:absolute;
+			    margin-left:150px; margin-top:-220px; margin-bottom: 0; margin-right: 0;
+			    width:550px; height:570px;
+			    border:1px solid #d1cda2;
+			    text-align: left;
+			    text-decoration: none;
+				cursor: help;
+			/* example: <a href="http://www.meyerweb.com/eric/css/">Links<span>A collection
+			of things which interest me, and might interest you</span></a> */
+		}
+	a#slideshow_rt:hover span p {
+/*	       position:absolute;
+		   display:block;
+	       margin-left:100px; margin-top:-170px; width:625px;
+	       border:1px solid #d1cda2; */
+		   padding: 3px;
+	       background-color:#F1EDC2; color:#000;
+		   font-size: 10px;
+	       text-align: left;
+	       text-decoration: none;
+		}
+
+	/*  ******** red quote ******** */
+	#quotetext {color:#7B3402; /* #800000 */
+		font-weight:500;
+		margin:10px auto 15px auto;
+		text-align:left;
+		min-width:200px;max-width:550px;
+		font-style:normal;
+		height: 90px;}					
+	/* red quote source */
+	#quotetext span {display:block;color:#777;font-size:.77em;font-style:italic;}
+					
+									
+					/* ******** news item ******** */
+					.news_item_wrapper {text-align:center;margin:0 auto 0 auto; margin-bottom:30px;
+						min-width:450px;max-width:550px;
+						background:#d3d3d3;
+						padding:0 0 0 0; padding-right:3px;} /* drop shadow */
+					.news_item_content {text-align:left; padding-right:10px;
+						position:relative;
+						background:#fff;border-bottom:1px solid #666; border-right:1px solid #666;
+						} /* drop shadow */
+					/* h1: headline */
+					.news_item_content h1, .news_item_content h1 a, .news_item_content h1 a:visited 
+					{text-decoration:underline;font-weight:bold;font-family:Helvetica Arial sans-serif;
+						font-size:1.1em;
+						color:#666666;} 
+					div.news_item_content h1 a:hover {
+						color:#9370DB;}/* headline hover */
+					/* h2: date and source */
+					div.news_item_content h2 {font-size:.9em;padding-bottom:10px;}
+					div.news_item_content span.date {text-decoration:none;display:inline-block;font-size:.9em;padding-right:5px;}
+					div.news_item_content span.source {text-decoration:none;display:inline-block;}
+					.news_item_content p {margin-bottom:12px;}				
+/* end twocol wrap here in html - 2 column wrap for cross browser CSS/HTML - 3 column design with fluid center content area. */
+		
+						/* **************** right column article templates. **************** */
+						/*  ******** how you can help ******** */
+						.help_one {
+							background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+							margin:5px;margin-bottom:20px;border:0px;}
+						.help_one_inner {
+							padding:5px;top:-3px;background-color: #FFE4E1;border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+						/* help one h1 */
+							.help_one_inner h1, .help_one_inner h1 a, .help_one_inner h1 a:active, .help_one_inner h1 a:visited 
+							{text-decoration:none;color:#2f4f4f;
+								font-family:Georgia, serif;
+									font-size:1.3em;display:block;
+									color:#381704;letter-spacing:0.1em;
+									line-height:200%;padding-top:11px;}
+							.help_one_inner h1 a:hover {color:#2f4f4f;display:block;text-decoration:underline;}
+								/*  ******** */	
+									.help_one_inner h2, .help_one_inner h2 a, .help_one_inner h2 a:active, .help_one_inner h2 a:visited {text-decoration:none;color:#8B4513;
+										font-size:.8em;display:block;}
+									.help_one_inner h2 a:hover {color:#800080;display:block;text-decoration:none;} 					
+
+
+	div.picture-right img  { /* any picture - not icons or tiny, floats right */
+	  border: none;
+	  float: right;
+	  vertical-align: text-top;
+	  padding: 0 0 5px 5px;
+	  }
+	div.picture-left img  { /* any picture - not icons or tiny, floats left */
+	  border: none;
+	  float: left;
+	  vertical-align: text-top;
+	  padding: 0 5px 5px 0;
+	  }
+
+
+	div.imageright {
+	   float:right;
+	   margin: 0 0 10px 20px;
+	   padding-bottom: 20px;
+	   width:400px;
+	   background-color: #fff;">
+	}
+
+	div.imageleft {
+	   float:left;
+	   margin: 0 20px 0 20px;
+	   padding-bottom: 20px;
+	   width:400px;
+	   background-color: #fff;">
+	}
+	div.imageleft img, div.imageright img {
+	   vertical-align:text-bottom;
+	}
+
+	/*    HEADER */
+	div.header {
+	     font: .65em Verdana, Arial, Sanserif;
+	}
+
+	/*    PAGING (bottom of page) */
+
+	div.paging { /* small page index at bottom of subsection;  */
+	  font: 0.7em verdana, arial, sanserif;
+	  display: block;
+	  text-align: left;
+	  margin: 1.5em 0 1.5em 0;
+	  }
+	div.pagingcenter { /* small page index at top of news digest  */
+	  font-family:  verdana, arial, sanserif;
+	  font-size: .7em;
+	  text-align: center;
+	  margin: 1.5em 0 1.1em 0;
+	  }
+
+	div.topdate { /*  today's date, centered */
+	  text-align: center;
+	  margin-top: 1.0em; margin-bottom: -1.0em;
+	  font: .7em Verdana, Arial, Sanserif;
+	  }
+
+	/*    INTROITEM (item - top of many subsections) */
+
+	div.wide100 { /*introduction */
+	  width: 100%;
+	  }
+
+	div.intro { /*introduction */
+	  max-width: 650px;
+	  background-color: #FFF5EE; /* #ffddff; */
+	  margin: 20px 15px 20px 35px;
+	  padding-left: 8px;
+	  padding-top: -6px;
+	  border:3px solid #eeeedd; /* or #c3b183 */
+	  font-family: helvetica,sans-serif;
+	  font-size: 100%;
+	  color: #8B4513 /* #070040; */
+	  }
+	div.intro p, li, td { /*introduction */
+	  font-family: helvetica,sans-serif;
+	  font-size: 100%;
+	  color: #8B4513 /* #070040; */
+	  padding-top: -3px;
+	  }
+	div.intro small {
+	  font-size: .7em;
+	  font-family: arial,sans-serif;
+	  }
+	div.intro span {
+	  font-size: 1.3em;
+	  font-family: helvetica,arial,sans-serif;
+	  font-weight: 500;
+	  text-align: center;
+	  color: #5F9EA0;
+	  }
+
+	/*    NEWSITEM (all articles) */
+	div.newsitem {
+	  max-width: 650px;
+	  background: #fff;  /* white */
+	/* font is set for <p> in general (above)*/
+	  margin: 20px 20px 25px 20px;
+	  margin-left: 20px;
+	  padding: 2px 15px 6px 20px;
+	  border-top: solid thin #d0d0d0;
+	  border-left: solid thin #d0d0d0;
+	  border-right: ridge thin #d0d0d0;
+	  border-bottom: ridge thin #d0d0d0;
+	  }
+
+	div.newsitem p {
+	  margin-top: 10px; margin-bottom: 10px;
+	  margin-left: 20px;
+	  }
+	
+	  div.newsitem li, p li{
+	  background: #fff;  /* white */
+	  }
+	  div.newsitem a:link {text-decoration: none; color: #557799}
+	  div.newsitem a:visited {text-decoration: none; color: #557777;}
+	  div.newsitem a:active {text-decoration: none; color: #990033;}
+	  div.newsitem a:hover {text-decoration: none; color: #990033;}
+
+
+	/*    REDQUOTE (quoteitem)      NOT USED     */
+	  div.redquote { /*red quote */
+	  text-align:justify;
+	  width:60%;
+	  margin: 25px 100px 20px 40px;
+	  border: none;
+	  }
+	  div.redquote p, li, td { /*red quote */
+	  font: normal 95% "Trebuchet MS", "Lucida Sans Unicode", "Lucida Sans", "Lucida Grande", "comic sans ms";
+	  color: #5B4D6B; /* bisque 4 #8B7D6B; (made darker); rosy brown #8B6969; silver #808080; #8B0000 900B09 (lighter)*/
+	  letter-spacing:0.1em;
+	  }
+	  div.redquote small {
+	  font: italic 80% arial, geneva, sans-serif;
+	  color: #A0A0A0;
+	  }
+	p.quote, span.quote div.quote{  /* IS THIS USED? */
+	  font-family: "comic sans serif", tahoma, serif;
+	  font-size: small;
+	  color: #000;
+	}
+
+	/*    FACTOID (similar to quoteitem) */
+	  div.factoid {
+	  background: #f0efc9;  /*ltgreytan  .. #FAF8CC pale pinkish yellow .. was pinkish beige #F8F5EF*/
+	  width: 70%;
+	  margin: 10px 45px 15px 35px;
+	  padding-left: 7px; padding-right: 5px;
+	  padding-top: 7px; padding-bottom: 7px;
+	  border: 1px solid #D0D0D0;
+	  font: normal 500 0.9em arial,verdana,sans-serif;
+	  }
+	  div.factoid p, li, td, dd {
+	  font: normal 500 0.9em arial,verdana,sans-serif;
+	  color: #150045;  /* try #8B0000  #290060 4B0082 */
+	  letter-spacing:0.1em;
+	  }
+	  div.factoid small {
+	  font: italic 500 .8em verdana,arial, sans-serif;
+	  color: #100040;
+	  letter-spacing:1px;
+	  }
+	  div.factoid small a {
+	  color: 800000;
+	  text-decoration: none;
+	  }
+	  div.factoid small a:hover {text-decoration: underline;}
+
+
+	/*   HEADLINE ITEM (all articles) */
+	  div.headlineitem {
+	  background: #fff;  /* white */
+	  font-family: arial,sans-serif;
+	  font-size: 90%;
+	  color: #000;
+	  width: 80%;
+	  margin: 30px 20px 0 20px;
+	  padding: 0;
+	  }
+	  div.headlineitem h5 {
+	  font-family: verdana,sans-serif;
+	  font-size: 100%;
+	  font-weight: bold;
+	  }
+	  div.headlineitem small {
+	  font-size: 75%;
+	  font-family: arial,sans-serif;
+	  }
+	  div.headlineitem a:link {text-decoration: none; color: #555599}
+	  div.headlineitem a:visited {text-decoration: none; color: #555577;}
+	  div.headlineitem a:active {text-decoration: none; color: #990033;}
+	  div.headlineitem a:hover {text-decoration: none; color: #990033;}
+
+
+	/* EVENT - for calendar items */
+	  div.event {
+	  font-family: arial, verdana, helvetica, sans-serif;
+	  font-size: 85%;
+	  width: 80%;
+	  margin: 35px 45px 30px 35px;
+	  padding: 0;
+	  }
+	  div.event h5 {
+	  font-family: arial,sans-serif;
+	  font-size: 100%;
+	  font-weight: bold;
+	  }
+	  div.event small {
+	  font-size: 75%;
+	  font-family: verdana,sans-serif;
+	  }
+	  div.event img  {
+	  border: none;
+	  margin: 0 0 0 0;
+	  padding: 0;
+	  }
+	  div.event a:link {text-decoration: none; color: #555599}
+	  div.event a:visited {text-decoration: none; color: #555577;}
+	  div.event a:active {text-decoration: none; color: #990033;}
+	  div.event a:hover {text-decoration: none; color: #990033;}
+
+	/* DICTIONARY - yet to be defined. Patterned on newsitem */
+	  div.dictionary {
+	  background: #fff;  /* white */
+	  font-family: arial,sans-serif;
+	  font-size: 90%;
+	  color: #000;
+	  width: 80%;
+	  margin: 30px 20px 0 20px;
+	  padding: 0;
+	  }
+	  div.dictionary h5 {
+	  font-family: verdana,sans-serif;
+	  font-size: 100%;
+	  font-weight: bold;
+	  }
+	  div.dictionary small {
+	  font-size: 75%;
+	  font-family: arial,sans-serif;
+	  }
+	  div.dictionary img  {
+	  border: none;
+	  margin: 0 0 0 0;
+	  padding: 0;
+	  }
+	  div.dictionary a:link {text-decoration: none; color: #555599}
+	  div.dictionary a:visited {text-decoration: none; color: #555577;}
+	  div.dictionary a:active {text-decoration: none; color: #990033;}
+	  div.dictionary a:hover {text-decoration: none; color: #990033;}
+
+
+	/* OPINION item - yet to be defined. Patterned on newsitem */
+	  div.opinion {
+	  background: #fff;  /* white */
+	  font-family: arial,sans-serif;
+	  font-size: 90%;
+	  color: #000;
+	  width: 80%;
+	  margin: 30px 20px 0 20px;
+	  padding: 0;
+	  }
+	  div.opinion  h5 {  /*    NEED TO FLATTEN */
+	  font-family: verdana,sans-serif;
+	  font-size: 100%;
+	  font-weight: bold;
+	  }
+	  div.opinion  small {
+	  font-size: 75%;
+	  font-family: arial,sans-serif;
+	  }
+
+
+	/* LINK ITEM  */
+
+	  div.linkitem {
+	  font: .80em arial,sanserif;
+	  color: #000;
+	  margin: 10px 0 10px 0;
+	  padding: 0 0 0 0;
+	  text-align: left;
+	  }
+	  div.linkitem a:link {text-decoration: none; color: #555555}
+	  div.linkitem a:visited {text-decoration: none; color: #555599;}
+	  div.linkitem a:active {text-decoration: none; color: #990033;}
+	  div.linkitem a:hover {text-decoration: none; color: #990033; font-size:110%;}
+
+
+	/*    BACKGROUND colored boxes (sidebar and main) */
+
+	/* Other background colors to try: fad163 orange sherbert; fff7d7 pink (make a gradient with this
+	    and  8c6d8c or 8c608c mauve-dusky - use off white text good for headline sidebar)
+	   */
+
+	/* CIA factbook
+	fbf6f2 - pink background for black, blue-black or red text
+	e1e1e1 - grey background for menu bar
+	756692 - maroon-purle bar across the top with white text
+	501d1d - dark maroon menu side bar with white text
+	f6f6f6 - grey margin
+	f033cf - tan background color for dropdown menu hover; text is slightly darker grey
+	f5f5f5 - grey background color for dropdown menu non-hover; text color light grey
+	*/
+
+
+/*  NOT USED
+	div.sidebar_inner_lt {
+	width: 92%;
+	background-color:#FBFCF4;
+	border:2px solid #d8bfb2;
+	padding: 4px;
+	text-align:left;
+	margin-bottom: 15px;
+	}
+	div.sidebar_inner_lt a.hover {background-color: #369;}
+	div.sidebar_inner_lt h4 {
+	margin:0; padding: 4px;}
+	div.sidebar_inner_lt p, a {background-color: transparent;}
+*/
+	
+	div#videos h4 {background-color:#A84f32;color:#FFFAED;}
+
+	div.newsheadlineitem h4 {background-color:transparent;color:#808080;}
+	div.bluegreen h4 {background-color:#5F858b;color: #E6EEFE;}	
+	div.teale2 h4 {background-color:#5F858b;color:#FFFAFA;}
+	div.duskyturq2 h4 {background-color:#92b3ba;color:#FFFAED;}
+	div.rust h4 {background-color:#A84f32;color:#FFFAED;}		
+	div.red h4 {background-color:#A7372B;color:#FFFACD;}
+	div.red2 h4 {background-color:#BC4625;color:#FFFACD;}
+	div.gold h4 {background-color:#937c16;color:#FAFAD2;}
+	div.gold2 h4 {background-color:#B8860B;color:#FFEFD5;}
+	div.greytaupe h4 {background-color:#dac89b;color:#336666;}
+	div.mauve h4 {background-color:#7A548D;color:#ede0e4;}
+	div.darkmauve h4 {background-color:#98717b;color:#FdF0F4;}
+	div.pinkmauve h4 {background-color:#ae8991;color:#fff;}
+	div.taupe h4 {background-color:#e7e3da; /* taupe */}
+	div.fleshtaupe h4 {background-color:#EEEFE1;}
+	div.greentaupe h4 {background-color:#EEF3E2;}
+	div.tan h4 {background-color:#EEEEDD;}
+	div.peachytan h4 {background-color:#f5f5EB;}
+	div.paleblue h4 {background-color:#99CCCC;  /* #CCCCFF */}
+	div.camel h4 {background-color:#F1EDC2;}
+	div.palepeach h4 {background-color:#ffffcc;}
+	div.paleorange h4 {background-color:#FAFAD2;}
+	div.pinkbeige h4 {background-color:#eeeecc;}
+	div.yellowtan h4 {background-color:#dac89b;color:#606060; /*#7B3402; brown*/}
+	div.mauve_lt h4 {background-color:#c9b8c8;color:#67432d;}
+	div.mauve_lt a {color:#67432d;}
+
+a:hover.ltgreytan {color: #eec289;}
+
+	/* other divs:  #efece6 pinkish tan | f3edd7 pinkbeige | fde9ec  ltpink | c5b797 dark tan | 9cb063 darkgreen
+	               d8eeec ltaqua | 9a9cba blue-grey (use w/white) | 9b7c37 copper brown (white text) |
+	               e7f9cf greentan | eeefe1 pinkgrey | f3f3f3 ltlavendergrey
+	                fef7de lt peach */
+
+
+
+
+	/* INDEX  - Can be floated right or left */
+	  div.index {
+	  font-size: .90em;
+	  font-weight: 600;
+	  font-family: verdana, arial, sans-serif;
+	  color: #3366aa;  /* darkteale | darker brown #8B4513;  | teale #483D8B | blue #555599 */
+	  width: 150px;
+	  margin: 0 0 5px 25px;
+	  padding: 5px;
+	  background-color: #c2bfb8; /* taupetan  | #ccd8c8; nicegreen | palemauve #F3EAF4; |  grey -  #e2e2d7; | #b7deC1 */
+	  border: 1px solid #9B5523; /* medium brown */
+	  }
+	  div.index a {text-decoration: none; color: #336666; } /* red brown #8B4513; */
+	  div.index a:hover {text-decoration: none; color: #483D8B; background-color: #b7deC1;}
+	  div.index p { margin-top: 0.1em; margin-top: 0.1em; padding: 0;}
+	  }
+
+	/* ABORTION page */
+
+	div.pinkongrey {
+	  background-color: #eee;
+	  width: 120px;
+	/*  margin: auto; */
+	/*  border: none; */
+	}
+	div.pinkongrey p, div.pinkongrey p li, div.pinkongrey li {
+	  background-color: #eee;
+	  font-size: 85%;
+	  font-weight: 300;
+	  font-family: 'Comic Sans MS',cursive;
+	  color: #000;  /* black | use pink span for pink color */
+	}
+	div.pinkongrey b, div.pinkongrey p b {
+	  font-size: 115%;
+	  font-weight: 600;
+	  font-family:'Comic Sans MS',cursive;
+	  color: #F39;
+	}
+
+	table.rtcolumnlayout td  {
+	  background-color: #fff;
+	  padding: 6px;
+	  border: 1px solid #000;
+	}
+
+	table.rtcolumnlayout td p, table.rtcolumnlayout td li, table.rtcolumnlayout td p li {
+	  background-color: #fff;
+	  font-size: 85%;
+	  font-weight: 400;
+	  font-family: Verdana,Geneva,'Bitstream Vera Sans','DejaVu Sans',sans-serif;
+	  color: #000;  /* black */
+	}
+	table.rtcolumnlayout td li {
+	  margin-right: 15px;
+	}
+
+	table.rtcolumnlayout td h5 {
+	  font-size: 110%;
+	  font-weight: 400;
+	  font-family: 'Comic Sans MS',cursive;
+	  color: #F39;  /* black */
+	  text-align: center;
+	  margin-top: 0px; margin-bottom: 6px;
+	}
+	div.rtcolumnlayout td b, div.rtcolumnlayout td p b {
+	  font-size: 100%;
+	  font-weight: bold;
+	  font-family: Verdana,Geneva,'Bitstream Vera Sans','DejaVu Sans',sans-serif;
+	  color: #000;
+	}
+
+	div.topbar {
+	  float:right; 
+	  width:700px;
+	  background-color:#EEEFE1;
+	  color:#549fbc;
+	  vertical-align: middle;
+	  border:#fff thin;solid;
+	  font-size:10px;
+	  padding: 3px;
+	}
+	div.topbar div {
+	  float:right;
+	}
+	div.topbar div span.worldpop {
+	  font-size:12px;
+	}
+	div.topbar span.popcount {
+	  color:#4B0082;
+	  font-size:14px;
+	}
+
+	/*  BOX for WOA names and URLs - pg1 */
+	div.woainfo {
+	  font-family: verdana, tahoma, sans-serif;
+	  font-size: 11px;
+	  color: #000;
+	  width: 150px;
+	  margin-bottom: 10px;
+	  padding:  0;
+	  }
+	  div.woainfo span {
+	  font-family: verdana, tahoma, sans-serif;
+	  font-size: 6px;
+	  font-weight: 400;
+	  }
+	  div.woainfo small {
+		font: 4px verdana,tahoma,sans-serif;
+	    color: #000;
+	  }
+
+
+	/*    YUTXPE (EC page) */
+	  div.yutxpe {
+	      float: right;
+	      width: 500px;
+	      margin: 0.2em 0 0.2em 0.6em;
+	      padding: 0.5em;
+	      font: .65em verdana, Arial, sanserif;
+	      border: 2px groove #000;
+	   }
+	   div.yutxpe img {
+	      float: right; border:0;
+	   }
+
+	/*    THE HOLDREN SCENARIO (Energy page) */
+	table.holdren {
+			font: 15px Arial, Helvetica, sans-serif;
+			border-collapse: collapse;
+			width: 520px;
+			}
+		th { padding: 0 0.5em; text-align: left; 	}
+		td { padding: 0 0.5em; vertical-align:top;}
+		td.yearcol { width: 8%; 	text-align: left; }
+		td.popcol { width: 19%; text-align: center; }
+		td.energycol {width: 24%; text-align: center;}
+		td.totalcol {width: 33%; text-align: center;}
+		td.symbolcol {width: 8%; text-align: center;}
+
+		a.tooltip {
+			    position:relative; /*this is the key*/
+			    z-index:24; background-color:transparent;  /*#e3e3e3*/;
+			    color:#000;
+			    text-decoration:none;
+			    border-bottom: 2px dotted #808080;
+		}
+		a.tooltip:hover {z-index:25; background-color:#e3e3e3;}
+		a.tooltip span {display: none}
+		a.tooltip:hover span { /*the span will display just on :hover state*/
+			    display:block;
+			    position:absolute;
+			    top:4em; left:-30em; width:30em;
+			    border:1px solid #d1cda2;
+			    background-color:#F5F3C7; color:#000;
+			    margin: 2px;
+			    font-size: 100%;
+			    text-align: left;
+			    text-decoration: none; padding:5px;
+				cursor: help;
+			/* example: <a href="http://www.meyerweb.com/eric/css/">Links<span>A collection
+			of things which interest me, and might interest you</span></a> */
+		}
+		a.lft_tooltip:hover span { /*the span will display just on :hover state*/
+			    top:4em; left:5em;
+		}		
+		a.rt_tooltip:hover span { /*the span will display just on :hover state*/
+			    top:4em; left:-32em; width:30em;
+		}
+				
+/* ***************************     FOOTER ****************************/
+/* sticky footer  */
+.push {height:10px;clear:both;} 
+#footer {height:50px;padding-top:10px;
+	width:100%;
+	clear:both;
+	float:left;
+	background: #FFDEAD;}
+#hitcounter {height:20px;
+	background:#888 url('/img/mauve/bg_mauve9.png') repeat;
+	text-align:center;
+	font: 10px verdana,arial,sans-serif;
+	color:#fff;
+	padding-bottom:15px; padding-top:10px;}
+	
+	

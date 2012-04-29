@@ -1,0 +1,94 @@
+	
+<div style="margin-left:10px;margin-right:7px;margin-bottom:10px;">  
+	
+   <div style="font-family:geneva;font-size:1.3em;"><strong>Webpage Item</strong></font> &nbsp;&nbsp; 
+	<cite><big><input name="action" type=radio value="mod" checked="checked"> Change item below or 
+		<input name="action" type=radio value="new" onclick="clearItem();"> Clear item and Add new one</big></cite></div>
+
+<br>
+<form method="post" id="article" name="article" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="storeform">
+<input type="hidden" id="userid" name="userid" value="[userid]">
+<input type="hidden" id="sysdate" name="sysdate" value="[sysdate]">
+<input type="hidden" id="docid" name="docid" value="[docid]">
+<input type="hidden" id="sectsubs" name="sectsubs" value="CSWP_event">
+<input type="hidden" id="thisSectsub" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="cswpUpdate">
+
+
+<!-- STYLE, PRIORITY, REGIONS TABLE -->           
+
+<br>
+<table width="50%"><tr>
+	
+   <td><cite>Which list is it in?</cite><br>
+		<select id="cswpsectsub" name="cswpsectsub">
+		[CSWP_SECTIONS]	
+		</select><br>
+	</td>
+	<td width="20px">&nbsp;</td>
+	<td>
+
+	<!-- - - PUB DATE  - - - - -->
+	<table width="350px"><tr><td width="200px">
+		<label for 'pubmonth'>Start date</label><br>
+		<select id="pubmonth" name="pubmonth">
+		[PUBMONTHS]
+		</select>
+		<input type="text" id="pubday" name="pubday" size="3" maxlength="2" value="
+		[PUBDAY]
+		">
+		<select id="pubyear" id="pubyear" name="pubyear">
+		[PUBYEARS]
+		</select>
+	    </td><td>
+	    <cite>Used for sorting items in most recent order): 
+	    <br>Does not appear on web page</cite></td>
+	    </tr></table>
+
+      </td>
+
+
+
+</tr></table>
+
+<br>
+<!--- HEADLINE -->
+<table>
+<tr><td valign="bottom">
+<b>Title:</b>&nbsp;&nbsp; <span style="font-family:arial;font-size:82%">i.e: April 30 Thurs - ECOS Showing of Mother</span> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<input id="titlize" name="titlize" type=radio value="Y">
+<cite>   Titlize tool (after submit). </cite> <input name="titlize" type=radio value=""> <cite>Clear titlize</cite>
+</td> </tr></table>
+<input type="input" id="headline" name="headline" size="100" maxlength="200" value="[headline]">
+<br><br>
+
+<!---  BODY -->
+    <label for='body'>Description:</label> &nbsp;   
+	<span style="font-family:arial;font-size:82%">i.e: 6:30pm Room SH111, Science Building, Sierra College, Rocklin </span><br>
+    <textarea id="body" name="body" wrap="physical" rows="6" maxrows="150" cols="100">[body]</textarea>
+
+<!--- LINK AREA -->
+<br><br>
+<b>Link to event website, if needed:</b>
+  <br>
+<input type="input" id="link" name="link" size="100" maxlength="200" value="[link]">
+<br><br>
+
+<table><tr>
+<td>
+<label for='userid'>Userid</label><br>
+<input type="input" name="userid" size="6" maxlength="10" value="[userid]">
+</td><td>
+<label for='password'>password</label>
+<br>
+<input type="password" name="pin" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;
+</td>
+	<td>
+	<input type=submit value="SUBMIT" name="submit">
+	</td>
+</tr></table>
+</form>
+<br>
+</div>

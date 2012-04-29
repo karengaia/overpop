@@ -1,0 +1,100 @@
+<script language="JavaScript">
+<!--
+
+function get_radio_value(radio_array)
+  {    var i;
+    for (i = 0; i < radio_array . length; ++ i)
+    {
+      if (radio_array [i] . checked)
+        return radio_array [i] . value;   
+     }
+    return null;
+  }
+
+ function setRadio(tofield, fromfield)
+  {
+    var field = get_radio_value(fromfield);
+    tofield.value=(tofield.value + field);
+  }
+
+function stylize()
+  { 
+   var field = get_radio_value(document.article.bodystyle);
+   var which = document.article.which.value;
+   if(which == "1")
+    {
+      var body=document.article.body.value;
+      body = body + field;
+      document.article.body.value = body;
+    }
+   else 
+    {
+      var comment = document.article.comment.value;
+      comment = comment + field;
+      document.article.comment.value = comment;
+    }
+  }
+
+//-->
+</script>
+
+
+<td id=right>
+
+<p>
+<br>
+<table border=1 cellpadding=4 cellspacing=0><td>
+<br>
+<table><td>
+<font size=1 face="verdana"> Select one or more:<br>
+(hold down &lt;ctrl&gt; key)</font><br>
+<select size=8 multiple name="textaction">
+<option value="" selected>  Default  </option>
+<option value="i"> Italicize it </option>
+<option value="b"> Bold it  </option>
+<option value="font size=4 face='comic sans ms'">Bigger #2</option>
+<option value="font size=4">Bigger #3</option>
+<option value="font size=2 face='arial'"> Opinion/Action </option>
+<option value="font size=2 color=#AA6000"> Gold for action </option>
+<option value="font size=2 face='arial'">Small font</option>
+</select>
+</td>
+<td>&nbsp;</td>
+<td> <font face="Times New Roman">
+Default <br>
+<i>Italicize it</i> <br>
+<b>Bold it</b>  <br>  
+</font>
+<font size=4 face="comic sans ms"> Bigger  #1</font>  <br>
+<font size=4 face="arial">Bigger  #2</font> <br>
+<font size=4 face="Times New Roman"> Bigger #3</font> <br>
+<font size=2 face="arial">Opinion/action</font> <br>
+<font size=2 color="#AA6000">Gold for action </font> <br>
+<font size=1 face="verdana">Small font</font> 
+
+</td></table>
+
+<br>
+<font size=1 face="verdana">And/or link text to this URL:</font><br>
+<input type="text" name="linkinsert" value="" size="28">
+<p>
+<font size=1 face="verdana">Or using the text above as caption,<br>add this
+image (give file name):</font><br>
+<input type="text" name="imageinsert" value="" size="28"><br>
+<font size=1 face="verdana">Image location relative to article:<br>
+<input type="radio" value="R" name="imageloc">right &nbsp;
+<input type="radio" value="L" name="imageloc">left &nbsp;
+<input type="radio" value="T" name="imageloc">top &nbsp;
+</font>
+<p>
+
+&nbsp;&nbsp;
+<input type="button" name="insertspecial" 
+value="Insert Special Text/Image"><br>
+<p>
+<font size=1 face=verdana>You can re-use this tool to<br> add more than one
+set of text</font> 
+<p>
+</td></table>
+
+</td></table>

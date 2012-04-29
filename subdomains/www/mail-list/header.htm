@@ -1,0 +1,29 @@
+<html style="background-color:#969;">
+<head>
+  <title><?php echo APP_TITLE . ' ' . $title ?></title>
+</head>
+<body style="width:65%; padding:20px; height:450px; background-color:#fff; font-family:arial; font-size:.8em;">
+ 
+
+  <div id="menu" style="float:right; width:200px;background-color:#cc9; padding:7px;">
+    <a href="admin.php">Add or Delete a List</a><br />
+    <a href="quickmsg.php">Send a quick message to users</a><br />
+
+    <a href="list-subscribers.php">List subscribers</a><br />
+    <a href="bulkSubscribe.php">Bulk subscribe</a><br />
+    <a href="delete_all.php">Truncate (delete) all tables</a><br />
+    <br />
+    <hr>
+    <a href="popnews_send.php">Send Popnews Weekly to list</a><br />
+    <div style="margin-left:8px; font-size: 80%">
+    (First autosubmit must
+      <a target="_top" href="http://telavant.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?send_popnews%">
+       write latest 40 articles to popnews.php</a> 
+       in control folder -- automatically done after each 40 articles)
+     </div>
+       
+  </div>
+  
+  <h3><?php echo APP_TITLE; ?></h3>
+  <h1><?php echo $title; ?></h1>
+  <div id="main" style="width:100%; background-color:#fff;">

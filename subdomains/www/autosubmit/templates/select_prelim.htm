@@ -1,0 +1,45 @@
+<title>Do no bookmark</title>
+<body bgcolor="FFFFFF" link="#006000" vlink="#000080" alink="#000080">
+
+<form method="post" name="" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl">
+<input type="hidden" name="cmd"  value="print_select">
+<input type="hidden" name="ipform"  value="select_prelim">
+<input type="hidden" name="userid"  value="[userid]">
+<p>
+
+<center>
+<TABLE border=1 cellpadding=10 cellspacing=0><TR><TD>
+<center><font face="Lucida sans unicode" size=3><b>WOA!! Admin Functions</b></font></center>
+<p>
+<font size=2 face="arial">
+<b>Manage items selected from a list:</b>
+<table><td>
+<font face=verdana size=2><b>Choose which section/subsection</b> <br> you want to select from:</font>
+<br>
+[ADD_SECTIONS]
+</TD>
+
+<TD> <font size=2 face="verdana">
+<b>Selection List Options </b><br>
+&nbsp;&nbsp;<font size=1>Choose zero or more - other <br>options  are on the next page</font>
+<p>
+view list order (not working)<br>
+[SORTORDER]
+
+<hr>
+
+<p>
+<input type="checkbox" name="select_kgp"  value="Y"> Select only handle KGP?
+<p>
+Select only pubdate older than: <br>
+<input type="text" name="chk_pubdate"  size=12 value=""> (2001-12-04)
+<p><center>
+<input type="submit" value="Continue" name="submit">
+</center>
+</font>
+</td></table>
+</TD></TABLE></center>
+</form>
+</body>
+</html>

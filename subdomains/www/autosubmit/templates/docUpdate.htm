@@ -1,0 +1,596 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>WOA!! Article Submission</title>
+<script language="javascript" type="text/javascript">
+<!--
+// PLEASE DO NOT REMOVE THIS. THANKS
+// FIND GREATE JAVASCRIPT CODES AT http://www.wallpaperama.com
+var state = 'hidden';
+
+function showhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+max = document.getElementById(layer_ref);
+max.style.visibility = state;
+}
+}
+
+function addAcronym() {
+document.getElementById('addacronym').value = 'A';	
+}
+
+function addregion() {
+document.getElementById('addchgregion').value = 'A';
+document.getElementById('regionid').value = "";
+document.getElementById('seq').value = "";
+document.getElementById('r_type').value = "";
+document.getElementById('regionmatch').value = "";
+document.getElementById('rnotmatch').value = "";
+document.getElementById('members_ids').value = "";
+document.getElementById('continent_grp').value = "";
+document.getElementById('location').value = "";
+document.getElementById('extended_name').value = "";
+document.getElementById('f1st2nd3rd_world').value = "";
+document.getElementById('fertility_rate').value = "";
+document.getElementById('population').value = "";
+document.getElementById('pop_growth_rate').value = "";
+document.getElementById('sustainability_index').value = "";
+document.getElementById('humanity_index').value = "";
+}
+
+function addsource() {
+document.getElementById('addchgsource').value = 'A';
+document.getElementById('sourceid').value = "";
+document.getElementById('sourcename').value = "";
+document.getElementById('shortname').value = "";
+document.getElementById('shortname_use').value = "";
+document.getElementById('sourcematch').value = "";
+document.getElementById('linkmatch').value = "";
+document.getElementById('snotmatch').value = "";
+document.getElementById('sregionname').value = "";
+document.getElementById('sregionid').value = "";
+document.getElementById('region_use').value = "";
+document.getElementById('subregion').value = "";
+document.getElementById('subregionid').value = "";
+document.getElementById('subregion_use').value = "";
+document.getElementById('locale').value = "";
+document.getElementById('locale_use').value = "";
+document.getElementById('headline_regex').value = "";
+document.getElementById('linkdate_regex').value = "";
+document.getElementById('date_format').value = "";
+}
+
+function loadRegion()
+{
+if(!document.getElementById('region')) {
+	return(0);
+}
+var reg = document.getElementById('region');
+if(reg.options.selectedIndex < 0) {
+reg.options.selectedIndex = 0;
+}
+if(!reg.options[reg.options.selectedIndex].value) {
+	alert('null regions selected');
+	return(0);
+}
+var rstr = reg.options[reg.options.selectedIndex].value;
+var r = rstr.split("^",17);
+document.getElementById('addchgregion').value = 'U';
+document.getElementById('regionid').value = r[0];
+document.getElementById('seq').value = r[1];
+document.getElementById('r_type').value = r[2];
+document.getElementById('regionname').innerHTML = r[3];
+document.getElementById('regionmatch').value = r[5];
+document.getElementById('rnotmatch').value = r[6];
+document.getElementById('members_ids').value = r[7];
+document.getElementById('continent_grp').value = r[8];
+document.getElementById('location').value = r[9];
+document.getElementById('extended_name').value = r[10];
+document.getElementById('f1st2nd3rd_world').value = r[11];
+document.getElementById('fertility_rate').value = r[12];
+document.getElementById('population').value = r[13];
+document.getElementById('pop_growth_rate').value = r[14];
+document.getElementById('sustainability_index').value = r[15];
+document.getElementById('humanity_index').value = r[16];
+}
+
+function loadSource()
+{
+if(!document.getElementById('selectsource')) {
+	alert('loadSource No selectsource found');
+    return(0);
+}
+var src = document.getElementById('selectsource');
+if(src.options.selectedIndex < 0) {
+src.options.selectedIndex = 0;
+}
+if(!src.options[src.options.selectedIndex].value) {
+	alert("null source selected");
+	return(0);
+}
+var sstr = src.options[src.options.selectedIndex].value;
+var s = sstr.split("^",19);
+document.getElementById('addchgsource').value = 'U';
+document.getElementById('sourceid').value = s[0];
+document.getElementById('sourcename').innerHTML = s[1];
+document.getElementById('shortname').value = s[3];
+document.getElementById('shortname_use').value = s[4];
+document.getElementById('sourcematch').value = s[5];
+document.getElementById('linkmatch').value = s[6];
+document.getElementById('snotmatch').value = s[7];
+document.getElementById('sregionname').value = s[8];
+document.getElementById('sregionid').value = s[9];
+document.getElementById('region_use').value = s[10];
+document.getElementById('subregion').value = s[11];
+document.getElementById('subregionid').value = s[12];
+document.getElementById('subregion_use').value = s[13];
+document.getElementById('locale').value = s[14];
+document.getElementById('locale_use').value = s[15];
+document.getElementById('headline_regex').value = s[16];
+document.getElementById('linkdate_regex').value = s[17];
+document.getElementById('date_format').value = s[18];
+}
+
+function clearSourceUpdtAdd() {
+document.getElementById('addchgsource').value = '';	
+}
+
+function clearRegionUpdtAdd() {
+document.getElementById('addchgregion').value = '';	
+}
+
+function loadAcronym()
+{
+if(!document.getElementById('acronyms')) {
+	return(0);
+}
+var acr = document.getElementById('acronyms');
+if(acr.options.selectedIndex < 0) {
+acr.options.selectedIndex = 0;
+}
+if(!acr.options[acr.options.selectedIndex].value) {
+	alert('null acronyms selected');
+	return(0);
+}
+var acstr = acr.options[acr.options.selectedIndex].value;
+var ac = acstr.split("^",2);
+document.getElementById('actitle').value = ac[1];
+}
+
+
+function prevMonth() {
+var mm = 0;
+var yyyy = 0;
+var mmstr = "";
+var yyyystr = "";
+var elname = "";
+var mon = document.getElementById('pubmonth');
+mmstr = mon.options[mon.options.selectedIndex].value;
+if(mmstr.charAt(0) == '0') {
+  mm = parseInt(mmstr.charAt(1));
+}
+else {
+ mm = parseInt(mmstr);	
+}
+if(mm == 1) {
+ mm = 12;
+ year = document.getElementById('pubyear');
+ yyyystr = year.options[year.options.selectedIndex].value;
+ yyyy = parseInt(yyyystr);
+ yyyy = yyyy - 1;
+ yyyystr = yyyy.toString();	
+ document.getElementById('yyyy' + yyyystr).selected = true;
+}
+else {
+  mm = mm - 1;
+}
+mmstr = mm.toString();
+if (mmstr.length < 2) {
+  mmstr = '0' + mmstr;
+}
+//elname = 'mm' . mmstr;	
+
+document.getElementById('mm' + mmstr).selected = true;
+} // end lastmonth function
+
+//-->
+</script>
+
+<style>
+	html {background-color:#969;}
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	h1   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	b    {font-family: verdana;font-size:12px;font-weight:bold;}
+	table tr td {font-size:100%;}
+	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
+	span  {font-family:verdana; font-size:10px;}
+	label {font-family:verdana; font-size:12px; font-weight:bold;}
+	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
+	select {font-size: 12px; font-family: arial; border: 1px solid #ccc; background: #fff;}
+	p     {font-family:arial font-size:12px;}
+	.grey {color:#666666;}
+	cite.verdana {font-family:verdana;}
+	div#hiddenregion {border: 2px solid #ccc; margin-left:4px; padding:5px;visibility:hidden;}
+	div#hiddensource {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	div#hiddenacronym {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	div#sectsub {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	</style>
+</head>
+
+<body basefont="arial" onLoad="clearSourceUpdtAdd();clearRegionUpdtAdd();">
+	
+<div style="margin-left:10px;margin-right:7px;margin-bottom:10px;">  
+	
+<table width="100%"><tr>
+<td width=20%>
+<a target=_top href=
+  "http://[CGISITE]">
+  <font face="arial" size="2" color="#000000"><b>Overpopulation.org</b></a>&nbsp;&nbsp;
+<br><cite style="color:darkred;">
+[TODAY] .. docid# [docid] <br> sysdate [sysdate]<br>
+[OPERATOR_NAME] ...
+[SUMMARIZER_NAME] ...
+[SUGGESTOR_NAME]
+</cite></td>
+<td width="35%">
+   <div style="font-family:geneva;font-size:1.3em;text-align:center;"><strong>WOA Article/Item<br> Submittal</strong></div>
+	<cite>[MODDELNEW]</cite>	
+</td>
+<td>
+
+<cite>Choose style if not regular &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Styled box selection</cite><br>
+[SELECT_TEMPLATE]
+<br><cite>(Straight: summary only prints)</cite>
+</td>
+</tr></table>
+
+<form method="post" id="article" name="article" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="storeform">
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
+<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
+<input type="hidden" name="sysdate" value="[sysdate]">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="sectsubs" value="[sectsubs]">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="docUpdate">
+
+
+<!-- STYLE, PRIORITY, REGIONS TABLE -->           
+
+<table cellpadding=5 id="dateregion">
+<td valign="top"><cite>
+    Priority &nbsp;
+	[PRIORITY]
+	(5=highest)
+	<br><br>
+
+	<!-- - - PUB DATE  - - - - -->
+	<label for 'pubmonth'><span style="color:red">*</span> Article Publish Date: </label> &nbsp;&nbsp; 
+	<input name="prevmon" value="-" checked="" onclick="prevMonth();" type="radio"><br> 
+	<select id="pubmonth" name="pubmonth">
+	[PUBMONTHS]
+	</select>
+
+	<input type="text" name="pubday" size="3" maxlength="2" value="
+	[PUBDAY]
+	">
+
+	<select id="pubyear" name="pubyear">
+	[PUBYEARS]
+	</select>
+	<br>
+	<b class="grey">Expiration Date:</b><br> 
+
+	<select name="expmonth">
+	[EXPMONTHS]
+	</select>
+
+	<input type="text" name="expday" size="3" maxlength="2" value="
+	[EXPDAY]
+	">
+
+	<select name="expyear">
+	[EXPYEARS]
+	</select>
+	</font>
+</td>
+
+<td>
+<label for='region'><span style="color:red">*</span> Region or Country:</label> <cite>[region] &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Update</cite><input type="radio" name="regioncrud" value="U" onclick="loadRegion();showhide('hiddenregion');">
+<br>
+<select id="region" name="region" size="4" multiple onChange="loadRegion();">
+[REGIONS]
+</select>
+<br>
+<cite>Region name if not on list
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Add region</cite><input type="radio" name="regioncrud" value="A" onclick="addregion();showhide('hiddenregion');">
+<br><input id="region2" type="text" name="region" size="35" maxlength="55" value="">
+<input type="radio" name="regioncrud" value="-" checked onclick="clearRegionUpdtAdd();showhide('hiddenregion');">
+</td>
+<td><div id="hiddenregion">
+	<table><tr>
+	<td valign="top"><cite>
+		*<input id="addchgregion" type="hidden" maxlength="1" name="addchgregion" value="">
+    <input id="regionid" type="hidden" maxlength="6" name="regionid" value="[regionid]">*&nbsp;
+    <span id="regionname"></span><br>
+	Seq: <input id="seq" type="text" size="3" maxlength="6" name="seq" value="[seq]"><br>
+	The <input id="rstarts_with_the" type="checkbox" name="rstarts_with_the" [RSTARTSWTHE] value="T"><br>
+	Type: <input id="r_type" type="text" size="1" maxlength="6" name="r_type" value="[r_type]"><br>	
+	Continent: <input id="continent_grp" type="text" size="2" maxlength="2" name="continent_grp" value="[continent_grp]"><br>
+	1st2nd3rd: <input id="f1st2nd3rd_world" type="text" size="1" maxlength="5" name="f1st2nd3rd_world" value="[1st2nd3rd_world]"></cite></td>
+	<td><cite>Regionmatch: <input id="regionmatch" type="text" size="15" maxlength="200" name="regionmatch" value="[regionmatch]"><br>
+		Notmatch: <input id="rnotmatch" type="text" size="15" maxlength="100" name="rnotmatch" value="[rnotmatch]"><br>
+		Members ids: <input id="members_ids" type="text" size="15" maxlength="200" name="members_ids" value="[members_ids]"><br>
+		Location: <input id="location" type="text" size="15" maxlength="75" name="location" value="[location]"><br>	
+		Extended name: <input id="extended_name" type="text" size="15" maxlength="100" name="extended_name" value="[extended_name]"></cite></td>
+		<td><cite>
+		Fertility: <input id="fertility_rate" type="text" size="3" maxlength="5" name="fertility_rate" value="[fertility_rate]"><br>
+		Population: <input id="population" type="text" size="7" maxlength="10" name="population" value="[population]"><br>
+		Growth: <input id="pop_growth_rate" type="text" size="4" maxlength="5" name="pop_growth_rate" value="[pop_growth_rate]"><br>
+		Sustainable: <input id="sustainability_index" type="text" size="4" maxlength="5" name="sustainability_index" value="[sustainability_index]"><br>
+		Humanity: <input id="humanity_index" type="text" size="4" maxlength="5" name="humanity_index" value="[humanity_index]"></cite></td>
+    </tr></table>
+</div>
+</td>
+</table>
+<!-- DATE/SOURCE two cols -->
+<table id="sourceheadline"><tr>
+
+<td id="sourcecol2" valign=top>
+    <label for="selectsource"><span style="color:red">*</span> Article Source :</label>&nbsp;&nbsp;
+    <cite>Publication or organization&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update source</cite><input type="radio" name="sourcecrud" value="U" onclick="loadSource();showhide('hiddensource')">
+  <br>
+    <select id="selectsource" name="selectsource" onChange="loadSource();">
+[SOURCES] 
+    <option value=""></option>
+     </select><br>
+     <cite>Source name if not on list &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Add source</cite>
+<input id="addchgsource" type="hidden" maxlength="1" name="addchgsource" value="">
+<input type="radio" name="sourcecrud" value="A" onclick="addsource();showhide('hiddensource');"> <br>
+      <input type="text" name="source" size="50" maxlength="70"
+value="
+[OTHERSOURCE]
+"> &nbsp;
+<input type="radio" name="sourcecrud" value="-" checked="checked" onclick="clearSourceUpdtAdd();showhide('hiddensource')">
+<br><br>
+
+<!--- HEADLINE -->
+<table>
+<tr><td valign="bottom">
+<b><span style="color:red">*</span> Article Headline:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</td><td>&nbsp;&nbsp;&nbsp;</td>
+<td valign=bottom><input type="checkbox" name="regionhead" 
+[REGIONHEAD]
+    value="Y"> <cite>Put region in headline &nbsp; &nbsp; &nbsp;
+  <input name="titlize" type=radio value="Y">
+    Titlize headline. </cite><br>
+</td>   
+</table>
+
+<textarea name="headline" wrap="physical" rows="2" cols=70">
+[headline]</textarea>
+</td>
+
+<td valign="top"><div id="hiddensource">
+	<table><tr>
+	<td><cite>
+	*<input id="sourceid" type="hidden" maxlength="6" name="sourceid" value="[sourceid]">*&nbsp;
+	The: <input id="sstarts_with_the" type="checkbox" name="sstarts_with_the" [SSTARTSWTHE] value="T"> &nbsp;
+	Shortname: <input id="shortname" type="text" size="6" maxlength="75" name="shortname" value="[shortname]"> &nbsp;
+	SN use: <input id="shortname_use" type="text" size="1" maxlength="1" name="shortname_use" value="[shortname_use]"> &nbsp; &nbsp; &nbsp;
+			DateForm <input id="date_format" type="text" size="7" maxlength="75" name="date_format" value="[date_format]"><br>
+	Sourcematch: <input id="sourcematch" type="text" size="30" maxlength="200" name="sourcematch" value="[sourcematch]"> &nbsp; &nbsp;
+		Linkdate_rx <input id="linkdate_regex" type="text" size="5" maxlength="75" name="linkdate_regex" value="[linkdate_regex]"><br>
+	Linkmatch: <input id="linkmatch" type="text" size="20" maxlength="100" name="linkmatch" value="[linkmatch]">&nbsp;
+	Notmatch: <input id="snotmatch" type="text" size="20" maxlength="100" name="snotmatch" value="[snotmatch]"><br>
+	Region: name <input id="sregionname" type="text" size="17" maxlength="75" name="sregionname" value="[sregionname]">&nbsp;
+	id <input id="sregionid" type="text" size="2" maxlength="6" name="sregionid" value="[sregionid]">&nbsp;
+	use <input id="region_use" type="text" size="1" maxlength="1" name="region_use" value="[region_use]"> &nbsp;
+		Headln_rx <input id="headline_regex" type="text" size="4" maxlength="75" name="headline_regex" value="[headline_regex]"><br>
+	Subregion: <input id="subregion" type="text" size="30" maxlength="75" name="subregion" value="[subregion]">&nbsp;
+	id <input id="subregionid" type="text" size="4" maxlength="6" name="subregionid" value="[subregionid]">&nbsp;
+	use <input id="subregion_use" type="text" size="1" maxlength="1" name="subregion_use" value="[subregion_use]"><br>
+	Locale <input id="locale" type="text" size="25" maxlength="75" name="locale" value="[locale]">&nbsp;
+	use <input id="locale_use" type="text" size="1" maxlength="1" name="locale_use" value="[locale_use]">    <span id="sourcename"></span><br>
+	</cite></td>
+	</tr></table>
+	</div>	
+		
+</td></tr>	
+</table>
+<br>
+<!--- LINK AREA -->
+
+<div id="linksummarycomment">
+<b><span style="color:red">*</span> Link to article (URL):</b>
+<cite> &nbsp;(Please provide if there is a live link)</b> &nbsp;&nbsp;&nbsp;&nbsp;</cite>
+    <input name="selflink" type=checkbox value="Y"
+[SELFLINK_CHECK]
+> <cite>self&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="[link]">Open url</a></cite>
+  <br>
+<textarea name="link" wrap="physical" rows="2" cols=100">[link]</textarea>
+<br><br>
+
+
+<!---  BODY, COMMENTS, FULL - 2 COLS -->
+<table><tr><td>
+    <label for='body'>Summary of Article:</label> &nbsp; &nbsp; <cite> Cut and paste for more accurate results.   
+	&nbsp;&nbsp;&nbsp;&nbsp;Get full article:&nbsp;
+	<input type="radio" name="getfullbody" value="A" 
+	   onclick="document.getElementById('body').value=document.getElementById('body').value+'\n'+ document.getElementById('fullbody').value;"></cite><br>
+    <textarea id="body" name="body" wrap="physical" rows="20" maxrows="150" cols="100">[body]</textarea>
+    <br><cite>Text will wrap. Extra spaces and
+    line returns do not matter  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</cite>
+
+[SKIP_HANDLE]
+</td>
+<!--             NEW ACRONYM-->
+<td valign="top"><cite> Acronyms
+	<select size="1" id="acronyms" name="acronyms" onChange="loadAcronym();">
+	[ACRONYMS]
+	</select><br>
+	<input id="actitle" type="text" size="25" maxlength="200" name="title" value="[title]">
+	<br><br>
+	&nbsp;&nbsp;New Acronym</cite><input type="radio" name="chgacronym" value="-" onclick="addAcronym();showhide('hiddenacronym')">
+	<div id="hiddenacronym">
+    <cite>
+		<input id="addacronym" type="hidden" maxlength="1" name="addacronym" value="">
+		Acronym
+        <input id="acronym" type="text" maxlength="50" name="acronym" value=""><br>
+	    Title<br>
+	    <textarea name="title" wrap="physical" rows="2" cols=25"></textarea></cite>
+
+</td></tr></table>
+<br><br>
+<table><td>
+    <label for="comment">Comments:</label> &nbsp;&nbsp;
+   <cite>Use sparingly</cite><br>
+    <textarea name="comment" wrap="physical" rows="3" cols=49">
+[comment]
+</textarea>
+</td><td>
+    <label for="note">Notation:</label> &nbsp;&nbsp;
+   <cite>(not published)</cite>
+<br>
+    <textarea name="note" wrap="physical" rows="3" cols=48">[note]</textarea>
+</td></table>
+
+    <label for='points'>Top Points:</label> &nbsp;&nbsp;
+<cite>Quotable talking points extracted from the article</cite>&nbsp;&nbsp;&nbsp;&nbsp;
+[POINTS_SECTIONS]
+<input name="pointssectsub" type=radio value=""> <cite>NA</cite><br>
+<textarea name="points" wrap="physical" rows=6 maxrows=300 cols=100>
+[POINTS]
+</textarea>
+</div> <!-- end of linksummarycomment -->
+<br><br>
+
+<table><tr><td>
+    <b>Full Article:</b> &nbsp;&nbsp;
+<cite> Cut and paste full article here.</cite>
+&nbsp;&nbsp;<input type=checkbox name="freeview" value="Y"
+[FREEVIEW_CHECK]
+>&nbsp;<cite>Allow public view</cite>
+
+<br>
+    <textarea id="fullbody" name="fullbody" wrap="physical" rows=15 maxrows=300 cols=100>
+[FULLBODY]
+</textarea>
+<br><br>
+</td></tr></table>
+
+<table><tr>
+<td>
+<input type=submit value="SUBMIT" name="submit">
+</td>
+<td>
+<cite class="verdana grey"><b>Userid</b>&nbsp;&nbsp;</cite><br>
+&nbsp;&nbsp;<input type="input" name="userid" size="6" maxlength="10" value="[userid]">
+</td><td>
+<font size=1 face=verdana color="666666"><b>
+password</a></b></font><br>
+<input type="password" name="pin" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;
+</td>
+<td><label for="imagefile">imagefile:</label>&nbsp;<input type="text" name="imagefile" size="55" maxlength="150"
+value="[imagefile]"><br>
+	<cite>
+	<input type="radio" value="R" name="imageloc">right &nbsp
+	<input type="radio" value="L" name="imageloc">left &nbsp
+	<input type="radio" value="T" name="imageloc">top &nbsp
+	<input type="radio" value="B" name="imageloc">btm &nbsp </cite><br>
+	<label for="imagealt">alt:</label>&nbsp;<input type="text" name="imagealt" size="63" maxlength="300"
+</td>
+</tr></table>
+
+<br><input type="checkbox" name="skipsections" value="Y"> <cite>Skip Section processing</cite><br>
+
+<!-- SECTIONS ->
+
+<!-  2010 Apr12 added News, Headlines, Suggested radio buttons, simplified table structure -->
+
+  <b>Sections and Subsections Where This Article Will Appear:</b> 
+
+<TABLE cellpadding="5" cellspacing="0" border="1">
+ <TR><TD valign="top"> 
+ <b>News Processing Sections</b><br>
+ <cite>Only one can be selected</cite><br>
+[NEWS_ONLY_SECTIONS]
+<br>
+  <b>Current Sections</b><br>
+  <cite>Un-check those you wish to delete</cite><br>
+[CURRENT_SECTIONS]
+</TD>
+  <TD valign="top">
+    <b>Major Sections</b><br>
+    <cite>To add a Section, select one or more.</cite><br>
+[ADD_NON_COUNTRIES]
+  </TD>
+    <TD valign="top">
+    <b>Countries</b><br>
+    <cite>To add a Section, select one or more.</cite><br>
+[ADD_COUNTRIES]
+    <br><br><b>Other/Admin</b><br>
+[OTHER_SECTIONS]
+</TD>
+</TR></TABLE>
+
+</form>
+<p>
+<br>
+<br>
+<hr>
+<p>
+</font>
+</td></table><center><font size=4 face=arial><b>Instructions</b></font></center>
+
+<p>
+<b>Sections: Normal progression of articles through the Autosubmit System</b></b><br>
+(Not neccessarily every time)
+<font size=2 face=arial>
+<ol>
+<li>Email (for emailed items sent by news clipping services)</li>
+<li>Suggested</li>
+<li>Headlines</li>
+<li>Summarized</li>
+<li>News Digest</li>
+<li>section organized by topic</li>
+<li>News Archives</li>
+</ol>
+</font>
+<p><br>
+
+<a name=stratification></a>
+<b>Stratification:</b><br>
+<p>
+Items are normally put in 'most recent goes to the top' order. 
+However, occasionally we will want to have some more towards the top 
+and others near the bottom. Use M for the normal way - normal items go in the middle.
+Use A to go on the very top, Z to go on the very bottom, and the other letters for 
+various stratus in between.</p>
+<p>
+<br>
+<br>
+<br>
+<br>
+<br>
+</div>
+</body>
+</html>

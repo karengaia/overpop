@@ -1,0 +1,178 @@
+ie7 Hacks
+Amanda,
+
+PLEASE DISCARD MY LAST EMAIL. I had not finished and did not intend to send until everything was together in one email like you requested.
+
+YOU ASKED: (Nov 23, 2010 at 10:26 PM)
+> Okay, everything almost clear; what does "minimize or zap" menu mean? You want it removed?
+>What is the instruction.
+
+MY ANSWER:
+Here it is, from the previous email:
+
+>> Let's get the menu problems out of the way. If you use the menu
+>> displayed at http://abstractmachines.net/client_demo/overpopulation/index3.html?mobify=0, (MINIMIZE)
+>> will that make things easier? .If not, how about leaving the menu out,
+>> but leave in the blank container? (REMOVE IT)
+
+THE INSTRUCTION: Remove the menu or go back to a less complex menu (51 item) - ONLY IF YOU THINK IT WILL HELP REDUCE TIME SPENT ON THIS PROJECT.
+
+MENU PROBLEM CLARIFICATION:
+
+I SAID:
+If we can't get rid of the menu problem, I don't think we have a
+chance of making either one of us happy.
+
+If you think the menu problem can be easily zapped, let's proceed.
+
+YOU ASKED: what do you mean by the "menu problem"?
+
+MY ANSWER:
+I am talking about the menu problem that you mention here:
+(Email of Nov 22, 2010 at 7:07 PM)
+TO DO: MENU
+-Menu problems have increased dramatically in *all* browsers due to
+shortening of header. these will need to be fixed at an hourly rate of 
+$50 hour, no fixed bids or estimates, but developer will work as quickly
+as possible.
+
+Plus you have mentioned menu problems in multiple emails - just about
+any email with a description of why it took so long.
+
+TO RECAP: I am taking over the responsibility of the menu, using a
+different menu, so it will not interfere with the completion of the
+rest of the website. You may be happy to know that I will be using the
+same color as the menu you designed.
+
+CHANGE DOCUMENT:
+
+1. Minimize or REMOVE menu for testing purposes. But keep the container.
+(Minimize means go to an earlier version of the menu that was less complex - like the 51 item menu, or the one at http://abstractmachines.net/client_demo/overpopulation/index3.html?mobify=0,)
+
+2. Page 2 header, shorter than Page 1, same gradient background as
+before. Logos as needed for non-IE, IE-8, IE-7, and or IE-6.
+
+3. Page 1 header - restore gradient background. IE-8 logo if needed.
+
+4. All shadows - for text, borders, main content, sidebars, - removed
+from css and html.
+The resulting pages should work in all browsers.
+
+5. I agree with you, to a point, about the gradient in the header. But
+I think it would look better if it were modified. If you want to spend
+some time creating a different background gradient, one with less
+smog-color at the bottom (I like the top color of the gradient), the
+same size as the current one, I am willing to pay you for that. But if
+you think changing the gradient is a bad idea, don't do this.
+
+Any work other than the above to be negotiated as a separate item. If
+you have other loose ends in mind, let's talk about them. I'll say
+whether or not I want to pay for them.
+
+MY ORIGINAL EMAIL:
+
+Amanda,
+
+I don't mind paying you an hourly rate, up to a point. Can you at
+least give me a maximum amount that you won't exceed? When I made time
+estimates for my customers, I always doubled it, which was usually
+closer to the real time than my original guess.
+
+I was not demanding free work. I had asked you not to work on the menu
+issues if they were going to be a problem. I thought they were
+probably going to be a problem which is why I made this request. I
+also asked you not to do the mobile image if it there was any
+question. But apparently you did spend some time on these issues.
+
+I did not like paying you for time spent on a Page 1 header that had a
+textured brown background - that I did not request - rather than the
+gradient one that you had already completed and that I had already
+paid you to do previously.
+
+Let's get the menu problems out of the way. If you use the menu
+displayed at http://abstractmachines.net/client_demo/overpopulation/index3.html?mobify=0,
+will that make things easier? .If not, how about leaving the menu out,
+but leave in the blank container?
+
+If we can't get rid of the menu problem, I don't think we have a
+chance of making either one of us happy.
+
+If you think the menu problem can be easily zapped, let's proceed.
+
+1. Minimize or zap menu for testing purposes. But keep the container.
+
+2. Page 2 header, shorter than Page 1, same gradient background as
+before. Logos as needed for non-IE, IE-8, IE-7, and or IE-6.
+
+3. Page 1 header - restore gradient background. IE-8 logo if needed.
+
+4. All shadows - for text, borders, main content, sidebars, - removed
+from css and html.
+The resulting pages should work in all browsers.
+
+5. I agree with you, to a point, about the gradient in the header. But
+I think it would look better if it were modified. If you want to spend
+some time creating a different background gradient, one with less
+smog-color at the bottom (I like the top color of the gradient), the
+same size as the current one, I am willing to pay you for that. But if
+you think changing the gradient is a bad idea, don't do this.
+
+Any work other than the above to be negotiated as a separate item. If
+you have other loose ends in mind, let's talk about them. I'll say
+whether or not I want to pay for them.
+
+Karen
+iehacks.css
+ 
+#wrapper {
+  width: 770px;
+  wid\th: 750px;
+}
+
+<!--[if IE 7]>
+<link rel="stylesheet" type="text/css" href="iehacks.css" />
+<![endif]-->
+
+~~~~~~
+
+  Another Solution by Tantek
+
+Another way to get around IE5's buggy box model is the Mid Pass Filter (http://www.tantek.com/CSS/Examples/midpass.html). This seems like the best solution, because it doesn't break in any browsers. On the plus side it also separates hacks from normal code.
+
+div {
+border: 10px solid;
+padding: 10px solid;
+}
+
+@media tty {
+ i{content:"\";/*" "*/}} @import 'midpassbefore.css'; /*";}
+}/* */
+
+div {
+width: 100px;
+}
+
+@media tty {
+ i{content:"\";/*" "*/}} @import 'midpassafter.css'; /*";}
+}/* */
+
+Then midpassafter.css contains
+
+div {
+width: 140px;
+}
+
+~~~
+
+Only in IE7:
+
+The Child Selector
+
+This selector uses a ">" symbol as a "combinator" that is placed between two parts of a CSS selector, and indicates that the target of the rule is the element on the right side of the ">" combinator, but only when that element is a direct child of the element to the left of the combinator. Thus, the selector table>td can never target any element, because TD's are never direct children of tables, only of TR's. On the other hand, the selector tr>td would select every TD on the page, since all TD's are direct children of TR's.
+
+html>body  .targetelement. It works because the body is always a direct child of html, making that part of the selector true at all times. Then the space combinator in front of .targetelement (or any other selected element) allows the styles to be applied anywhere within the body element.   IE7 will be able to view such hacked CSS. But since that browser will still have quite a few failings, letting it get a look at those hacks could be less than desirable, to say the least. 
+
+
+
+
+

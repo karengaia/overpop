@@ -1,0 +1,142 @@
+<input type="hidden" name="selitem[pgitemcnt]" value="Z">
+
+<TABLE width=75% bgcolor="#C6CECE" cellpadding=20 border=1><TD valign=top align=left>
+<font size=1 face=verdana>
+<input name="selitem9998" type="hidden" value='N'> 
+<input name="docid9998" type="hidden" value="">
+<input name="action9998" type="hidden" value="update">
+<input name="sectsubs9998" type="hidden" value="">
+<input name="docfullbody9998" type="hidden" value="">
+
+<table cellpadding=0 cellspacing=0>
+<tr><td valign=bottom colspan=2>
+<font face="comic sans ms" size=1 color="#666666">
+   <b>Your notes about the link or article: (optional)</b></font><br>
+[JS_ON]
+<select name="linknote" onChange="document.itemsSelect.note9998.value=this[this.selectedIndex].value">
+[JS_OFF]
+<option value="Link and article are good" selected>Link and article are good</option>
+<option value="Link does not work">Link does not work</option>
+<option value="Link may be incomplete">Link may be incomplete</option>
+<option value="Page does not load">Page does not load</option>
+<option value="Fee required & abstract says little">Fee required & abstract says little</option>
+<option value="Article is a long but interesting PDF">Article is a long but interesting PDF</option>
+<option value="Article is way off the topic">Article is way off the topic</option>
+<option value="Article is just too technical">Article is just too technical</option>
+<option value="Other:">Other</option>
+</select>
+</td><td>&nbsp;&nbsp;</td><td valign=bottom>&nbsp;
+<font face="comic sans ms" size=1 color="#666666">
+   and/or type notes here.</b></font><br>
+<input name="note9998" type="text" size="50" maxlength="100" value="">
+
+</td></table>
+
+<p>
+
+<font face=verdana size=2 color="#666666"><b>Headline</b></font>  
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<font size=1 face="comic sans ms" color="#666666">Headline in the linked-to web page (e.g. Grist changes the headline)</font>
+&nbsp;&nbsp;&nbsp;&nbsp;
+ 
+<input name="titlize9998" type=checkbox value="Y">
+<font size=1 face="comic sans ms" color="#666666">Fix caps to sentence case
+
+</font>
+<br>
+  <font size=1 face=verdana>
+  <input name="headline9998" type="text" size="95" maxlength="150" value="[headline]">
+  </font>
+<p>
+
+
+<table cellpadding=0 cellspacing=0>
+<tr><td valign=top align=left>
+
+<font face=verdana size=2 color="#666666">
+<b>Publish Date: </b></font><br>
+  <font size=1 face="comic sans ms" color="#666666">date on the article</font>
+</td><td>
+<font face=arial size=1>
+<select name="pubmonth9998">
+[PUBMONTHS]
+</select>
+
+<input type="text" name="pubday9998" size="3" maxlength="2" value="
+[PUBDAY]
+">
+<select name="pubyear9998">
+[PUBYEARS]
+</select></font>
+
+  
+</td><td>
+&nbsp;&nbsp; 
+<font face=verdana size=2 color="#666666">
+<b>Region: </b></font>
+<input name="region9998" type="text" size="30" maxlength="100" value="[region]">
+</td></table>
+<p>
+
+<font face=verdana size=2" color="#666666">  
+    <b>Link</b></font></a> </font>  &nbsp;&nbsp;&nbsp;&nbsp;
+    <font size=1 face="comic sans ms" color="#666666">web address of the article (not the forwarding link address as in Grist)
+   	
+  <font size=1 face=verdana>&nbsp;&nbsp;
+  <input name="link9998" type="text" size="95" maxlength="150" value="[link]">
+
+  </font>
+
+<p> 
+  <font face=verdana size=2 color="#666666">
+  <b>Source</b> </font>  &nbsp;&nbsp;&nbsp;<font size=1 face="comic sans ms" color="#666666">
+  who published it/where published?</font>
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <font size=1 face="comic sans ms" color="#666666">Correct if needed or narrow the choices
+<br><font size=1 face=verdana>
+  <input name="source9998" type="text" size="95" maxlength="150" value="[source]"></font>
+<p>
+  <font face=verdana size=2 color="#666666">
+  <b>Full Article:</b> </font> &nbsp;&nbsp;&nbsp;<font size=1 face="comic sans ms" color="#666666">
+  copy the full article here</font>
+  <br>  <font face=verdana size=1>
+  <textarea name="fullbody9998" wrap="physical" rows="17" cols=70" maxrows=300>[fullbody]</textarea>
+<br>
+Hint: If your cut and paste produces an undesirable left margin offset or raggedy lines, try  a 
+more <br>recent browser version of Internet Explorer or Netscape or go to the web page's 
+'printer friendly' option,<br> if there is one, to get an easier-to-copy version.</font>
+
+<p>
+<font face=verdana size=2 color="#666666">
+  <b>Summarization (optional):</b> </font>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <font size=1 face="comic sans ms" color="#666666">This option is not available from this form at this time.<br> If you wish to summarize
+  please contact the admin.</font>
+<br><font size=1 face=verdana>
+<textarea name="newbody9998" wrap="physical" rows=5 maxrows=300 cols=70>
+[body]
+</textarea>
+</font> 
+
+<p>
+<table><td>
+<font size=1 face=verdana color="666666"><b>
+Your Userid</b>&nbsp;&nbsp;</font><br>
+<font size=1 face="verdana">
+&nbsp;&nbsp;<input type="input" name="userid" size="6" maxlength="10"></font>
+</td><td >
+<font size=1 face=verdana color="666666"><b>
+password</a></b></font><br>
+<font size=1 face="verdana">
+<input type="password" name="pin" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;</font>
+</td><td valign=bottom>
+<font face=verdana size=1"><input type=submit value="SUBMIT" name="submit"></font>
+</td><td width=250>&nbsp;</td>
+<td>
+<font face="comic sans ms" size=1 color="#666666"> info&nbsp;
+<input name="showdocid9998" type="text" size=8 value=""><br>
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;not changable
+</font>
+</td></table>
+</form>
+
+</TD></TABLE>

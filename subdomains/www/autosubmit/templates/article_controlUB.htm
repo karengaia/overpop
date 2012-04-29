@@ -1,0 +1,457 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transistional.dtd">
+
+<html>
+<head>
+<title>WOA! Autosubmit Article Control</title>
+<meta http-equiv="Content-Style-Type" content="text/css" />
+<link rel="styleSheet" href="woa.css" type="text/css" media="screen" />
+</head>
+
+<body style="width:100%; font-family:verdana,arial,helvitica,geneva,sans-serif; font-size:10px;">
+
+<table id="columnLayout" width="100%" valign="top">
+  <tr id="toprow">
+  <td id="column1" width="20%">
+
+<a href="http://validator.w3.org/check/referer">w3 check</a>
+
+<br /><br />
+
+<b class="font12">Server:</b>&nbsp;
+[svrinfoSvrname]
+<br />
+Master&nbsp;
+[svrinfoMaster]
+<br />
+
+<a href="http://www.[svrdestCGIPATH]/article.pl?display%article_control">
+Go to other server</a><br />
+
+Time: [nowdate]<br />
+Docs: [docCount]<br />
+Users: [userCount]<br />
+Hits: [hitCount]<br />
+
+<br />
+<b class="font12">Moxley Data</b><br />
+<a href="https://https://66.135.33.108/cgi-bin/qmailadmin/:">Moxley Data Mail</a><br />
+
+<br />
+<b class="font12">PBP</b><br />
+<a target="_blank" href="http://www.gaia-s.net:1000/">Webmin (majordomo)</a><br />
+<a target="_blank" href="http://www.pbp.net/kb/">PBP technical support</a><br />
+
+
+<br />
+<b class="font12">News, Headlines</b><br />
+<a href="http://[CGIPATH]/autosubmit/prepage/newsScan.html">news prepage</a><br />
+<a href="http://[CGIPATH]/article.pl?display_section%%%NewsDigest_NewsItem%">News on the fly</a><br />
+<a href="http://[CGIPATH]/article.pl?display_section%%fly%Headlines_sustainability%">Headlines</a><br />
+
+<br />
+<b class="font11">Logs</b><br />
+<a href="http://[CGIPATH]/autosubmit/log/errlog.html">Error log</a><br />
+<a href="http://[CGIPATH]/autosubmit/log/ftplog.html">FTP log</a><br />
+
+<br />
+<b class="font11">Helper/Volunteer Aids</b><br />
+<a href="http://[CGIPATH]/autosubmit/guestAdmin.html">Guest Admin</a><br />
+<a href="http://[CGIPATH]/autosubmit/summarize.html">Summarize instructions</a><br />
+<a href="http://[CGIPATH]/autosubmit/apply.html">Application</a><br />
+<a target="_top" href="http://[CGIPATH]/volunteer_page.html">Volunteer page</a><br />
+<a href="http://[CGIPATH]/article.pl?display_section%%fly%Volunteer_intro">
+Volunteer Inside Pg(fly)</a><br />
+
+
+
+</td>
+<td id="column2" width="45%">
+
+
+<form method="post" name="autodirs" action=
+"http://[CGIPATH]/moveutil.pl">
+
+<table id="syncFtp" class="compactTable" border="1" valign="top">
+<tr>
+<td>
+
+<b class="font12">FTP/Sync</b>  From:[SVRinfo{svrname}]<br />
+
+<input type="hidden" name="cmd"  value="autodir" />
+
+<table id="inContainer" class="tightTable" valign="top">
+<tr>
+<td class="roomyCell" style="vertical-align:bottom">
+UserID: <br /><input type="text" name="userid" size="10" maxlength="10" />
+</td>
+<td class="roomyCell" style="vertical-align:bottom">
+Svr pswd:<br />
+<input type="password" name="password" size="10" maxlength="10" />
+</td> 
+<td class="roomyCell" style="vertical-align:bottom">&nbsp;&nbsp;</td> 
+<td class="roomyCell" style="vertical-align:bottom">
+<select name="ftpsync" multiple="multiple" size="2">
+<option value="ftp" selected="selected" >FTP</option>
+<option value="rsync" >Sync</option>
+</select>
+</td></tr></table>
+
+
+FTP/sync by directory -
+<select name="dirname" size="1">
+<option value="public">public</option>
+<option value="prepage">prepage</option>
+<option value="images">images</option>
+<option value="clock">clock</option>
+<option value="cgibin">scripts</option>
+<option value="mail">popnews email</option>
+<option value="mailbkp">email bkup</option>
+<option value="autosubmit">autosubmit</option>
+<option value="control">control</option>
+<option value="items">items</option>
+<option value="sections">sections</option>
+<option value="keywords">keywords</option>
+<option value="deleted">deleted</option>
+<option value="log">logs</option>
+</select>&nbsp;&nbsp;
+<br />
+
+
+<table class="tightTable" cellpadding="0" cellspacing="0" valign="top">
+<tr>
+<td class="tightCell">Last FTP date: <br />
+<input type="text" name="lastFTPdate" size="10" maxlength="10" value="[LAST_FTPDATE]" />
+&nbsp;&nbsp;
+</td>
+<td class="tightCell" valign="top">min docid (ftp) <br />
+<input type="text" name="mindocid" size="6" maxlength="6" value="" />
+&nbsp;&nbsp;&nbsp;
+</td>
+<td class="tightCell">max docid (ftp)<br />
+<input type="text" name="maxdocid" size="6" maxlength="6" value="" />
+</td></tr>
+</table>
+
+<table class="tightTable" valign="top"><tr>
+<td class="tightCell">
+<input type="submit" value="SUBMIT" name="submit" />
+</td><td>&nbsp;&nbsp;
+</td><td class="tightCell">
+<b class="font12">Move/FTP</b><br />
+<a href="http://[CGIPATH]/moveutil.p
+l?move2">NewsScan/Headlines</a> <br />
+<a href="http://[CGIPATH]/moveutil.p
+l?move1">NewsScan only</a>
+</td></tr></table>
+
+</td></tr></table>
+
+</form>
+
+
+
+<br />
+
+<form method="post" name="admin" action=
+"http://[CGIPATH]/article.pl">
+
+<input type="hidden" name="cmd"  value="process_select_login" />
+<input type="hidden" name="ipform"  value="select_login" />
+
+
+
+<table border="1" width="200" valign="top">
+<tr><td class="centerblock">
+
+<div class="centertext">
+<b class="font14">
+   WOA!! Admin Section_subsection Functions</b>
+</div>
+<br />
+<b class="font12">Please enter your:</b>
+<br />
+
+
+<table class="tightTable" valign="top"><tr>
+<td class="tightCell">&nbsp;&nbsp;</td>
+<td class="tightCell" style="text-align:right;">
+userID#
+</td>
+
+<td class="tightCell" style="text-align:right;"> 
+<input type="text" name="userid" size="7" maxlength="5" />
+<br /> <span class="note">(case sensitive)</span>
+</td>
+
+<td class="tightCell" style="text-align:right; vertical-align:top;"> 
+pin:
+</td>
+
+<td class="tightCell" style="text-align:right; vertical-align:top;">  
+<input type="password" name="pin" size="7" maxlength="4" />
+<br /> <span class="note">(4 digit) &nbsp;&nbsp;&nbsp;
+<a href="mailto:[adminEmail]?subject=WOA!! What is my pin again?">Forgot?</a></span>
+
+</td></tr></table>
+
+<br />
+
+<b class="font12">Choose which section_subsection</b> 
+<br />&nbsp;&nbsp;&nbsp;
+[ADD_SECTIONS]
+
+<br /><br />
+
+<b class="font12">Choose an action: </b><br />
+&nbsp;&nbsp;&nbsp;
+<select size="1" name="action">
+<option value="display_subsection">A. View chosen subsection</option>
+<option value="display_prepage">B. View preliminary web page prior to publishing</option>
+<option value="move_webpage">C. Move page to public web page</option>
+<option value="print_select">D. Select from a list and chose action upon selected</option>
+<option value="sort_subsection">E. Sort subsection</option>
+<option value="convert_old_subsection">F. Convert old subsection to new autosubmit subsection</option>
+<option value="fix_sectsub">G. Fix this subsection</option>
+</select>
+<span class="comment">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Note: B does not work</span>
+
+<br />
+
+<b class="font12">Filters: </b> <span class="note">(optional)</span>
+<br />
+
+<table id="filters" class="tightTable" valign="top"><tr>
+<td class="tightCell" style="text-align:right;">
+&nbsp;&nbsp;&nbsp;</td>
+<td class="tightCell" style="text-align:right;">
+Select only pubdate older than:
+<input type="text" name="chk_pubdate"  size="12" value="" /> 
+<span class="note">i.e 2001-12-04</span>
+<br />
+<input type="checkbox" name="select_kgp"  value="Y" /> Select only handle KGP?
+<br />
+<input type="text" name="start_docid" size="6" maxlength="6" value="" /> Select starting with this docid
+</td></tr></table>
+<br />
+
+<input type="submit" value="Continue" name="submit" />
+
+<b class="font12">&nbsp;&nbsp;&nbsp;
+Template: &nbsp;</b>
+<select size="1" name="aTemplate">
+<option value="alertitem">alertitem</option>
+<option value="chaseLink_Item">chaseLink_Item</option>
+<option value="comicStdItem">comicStdItem</option>
+<option value="chaseLink_Item">chaseLink_Item</option>
+<option value="dictionaryItem">dictionaryItem</option>
+<option value="eventItem">eventItem</option>
+<option value="fullItem">fullItem</option>
+<option value="headlineItem">headlineItem</option>
+<option value="introHeadItem">introHeadItem</option>
+<option value="introItem">introItem</option>
+<option value="linkBulletItem">linkBulletItem</option>
+<option value="linkItem">linkItem</option>
+<option value="MthlyItem">MthlyItem</option>
+<option value="needsSummItem">needsSummItem</option>
+<option value="newsitem">newsitem</option>
+<option value="opinionItem">opinionItem</option>
+<option value="paragraphItem">paragraphItem</option>
+<option value="plainHeadlineItem">plainHeadlineItem</option>
+<option value="quoteItem">quoteItem</option>
+<option value="recentItem">recentItem</option>
+<option value="reviewItem">reviewItem</option>
+<option value="selectUpdt_Item">selectUpdt_Item</option>
+<option value="skippedItem">skippedItem</option>
+<option value="smalHeadlineItem">smalHeadlineItem</option>
+<option value="smallLinkItem">smallLinkItem</option>
+<option value="stdItem">stdItem</option>
+<option value="straight">straight</option>
+<option value="select_top;suggestedItem;select_end">suggestedItem</option>
+<option value="testItem">testItem</option>
+<option value="stdItem">stdItem</option>
+</select>
+
+</td></tr></table>
+</form>
+
+
+
+</td>
+<td id="column3"  width="25%">
+
+
+
+<b class="font15">Worklists</b><br />
+
+<a href="http://[CGIPATH]/article.pl?display_section%%%Suggested_suggestedItem%%%10">Suggested Update List</a><br />
+
+<br />
+<b class="font12">Control files</b>
+<br />
+<a href="http://[CGIPATH]/control/sections.html">Sections</a><br />
+<a href="http://[CGIPATH]/control/contributors.html">Contributors</a>
+&nbsp;&nbsp;<a href="http://[CGIPATH]/article.p
+l?print_users%">Print</a>
+
+&nbsp;&nbsp;<a href="http://[CGIPATH]/contributor_do.p
+l?write_acctapp">Approve users</a><br />
+
+
+<a href="http://[CGIPATH]/control/regions.html">Regions</a><br />
+<a href="http://[CGIPATH]/control/sources.html">Sources</a><br />
+
+<br />
+<b class="font12">Quick Fix files</b><br />
+<a href="http://[CGIPATH]/article.pl?display%quickchange%dir">
+Quickchange</a>
+<br /><br />
+
+<b class="font12">Email</b><br />
+
+<a target="_top" href="http://[CGIPATH]/article.pl?display_section%%%Suggested_emailedItem%">
+  Select email</a> arg6=Acct#
+<br />
+<a href="http://xxx.[CGIPATH]/article.pl?clean_index%%%Suggested_emailedItem">
+Empty email file</a>
+<br /><br />
+
+<b class="font12">Population News Monthly</b><br />
+
+<a href=
+"http://[CGIPATH]/article.pl?display_section%%%NewsMthly_NewsMthlyTop%">
+Print PopNewsMthly email</a><br />
+
+<a href=
+"http://[CGIPATH]/article.pl?display_section%%%NewsWeekly_NewsWeeklyTop%">
+Print PopNewsMthly (older-saved) email</a><br />
+<a
+href="http://[CGIPATH]/article.p
+l?clean_index%%%NewsMthly_MthlyItem">Empty PopnewsMthly file</a>
+
+<br /><br />
+
+<b class="font12">Self Link to Full Article</b><br />
+
+<a href="http://[CGIPATH]/article.pl?display%fullArticle%001707">
+(example)</a>
+
+<br /><br />
+
+<table class="tightTable" valign="top">
+<tr>
+<th><b class="font12">Switches Off/On</b></th>
+<td class="leftTextCell" height="8">Futzing</td>
+<td class="tightCell" height="8">
+<a href="http://[CGIPATH]/small_utils.pl?turnON%futzing">on</a></td>
+<td class="tightCell" height="12px">
+<a href="http://[CGIPATH]/small_utils.pl?turnOFF%futzing">off</a></td>
+</tr><tr>
+<td class="leftTextCell" height="12">Master Svr</td>
+<td class="tightCell" height="12">
+<a href="http://[CGIPATH]/small_utils.pl?turnON%masterServer">yes</a></td>
+<td class="compactCell" height="12">
+<a href="http://[CGIPATH]/small_utils.pl?turnOFF%masterServer">no</a></td>
+
+</tr><tr>
+<td class="leftTextCell">FTP</td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnON%FTP">do</a></td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnOFF%FTP">don't</a></td>
+</tr><tr>
+<td class="leftTextCell">Vacation</td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnON%vacation">on</a></td>
+<td class="compactCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnOFF%vacation">off</a></td>
+</tr><tr>
+<td class="leftTextCell">DisableCGI</td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnON%disableCGI">on</a></td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnOFF%disableCGI">off</a></td>
+</tr><tr>
+<td class="leftTextCell">Popnews forward</td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnON%popnewsForward">on</a></td>
+<td class="tightCell">
+<a href="http://[CGIPATH]/small_utils.pl?turnOFF%popnewsForward">off</a></td>
+
+</tr></table>
+
+
+</td>
+<td id="column4"  width="10%">&nbsp;
+</td>
+
+
+</tr><tr id="btmrow">
+  <td colspan="3">&nbsp;
+
+<br />
+<b class="font12">Convert old Subsection</b>
+
+<table valign="top">
+<tr>
+<td>(Send a Section by email to popnews@population-awareness.net <br />
+ Separate by #####; <br />ACTION::convert at top of message<br />
+ TEMPLATE::straight if straight html)
+</td>
+<td>
+<a href="http://[CGIPATH]/article.pl?convert_old_subsection%%%FundingPolitics_index%cvrtFrom">
+Funding Politics - NOT USED ANYMORE</a><br />
+<br />
+<a href="http://[CGIPATH]/article.pl?convert_old_subsection%%%Religion_intro%cvrtFrom">
+Religion</a>
+</td>
+</tr><tr><td colspan="2">
+<a href="http://[CGIPATH]/article.pl?display_subsection%%%convert_Item%%%10%">
+Convert worklist</a><br />
+
+<br />
+<a href="http://[CGIPATH]/article.pl?display_subsection%cvrtUpdtItem%%Religion_intro%%%10%cvrtUpdtTop%selectUpdt_End">
+http://[CGIPATH]/article.pl?display_subsection%cvrtUpdtItem%%convert_Item%%%10%cvrtUpdtTop%selectUpdt_End</a><br />
+Print subsection with convert templates
+<br />
+<br />
+<a href="http://[CGIPATH]/article.pl?display_subsection%selectUpdt_Item%%Volunteer_grist%%%20%selectUpdt_Top%selectUpdt_End">
+http://[CGIPATH]/article.pl?display_subsection%selectUpdt_Item%%Volunteer_grist%%%20%selectUpdt_Top%selectUpdt_End</a><br />
+Print subsection with Suggest templates
+
+<br />
+<br />
+<a href="http://[CGIPATH]/article.pl?display_subsection%selectUpdt_Item%%NewsDigest_NewsItem%%%20%selectUpdt_Top%selectUpdt_End">
+http://[CGIPATH]/article.pl?display_subsection%selectUpdt_Item%%NewsDigest_NewsItem%%%20%selectUpdt_Top%selectUpdt_End</a><br />
+Print subsection with Suggest templates
+
+</td></tr></table>
+
+<br />
+
+<b class="font12">Small Utils</b>
+<br />
+Delete items ....<br />
+http://www.population-awareness.net/small_utils.pl?deleteItems%011422%014525
+<br /><br />
+Display items in a range ...<br />
+http://[CGIPATH]/article.pl?displayRange%fullItem%011421%011455
+<br /><br />
+Backup testBKUP.pl ...<br />
+http://[CGIPATH]/moveutil.pl?bkup%cgi:testBKUP.pl
+<br /><br />
+Restore testBKUP.pl ...<br />
+http://[CGIPATH]/moveutil.pl?unbkup%cgi:testBKUP.pl
+<br /><br />
+
+</td></tr></table>
+
+  <p>
+    <a href="http://validator.w3.org/check?uri=referer"><img
+        src="http://www.w3.org/Icons/valid-xhtml10"
+        alt="Valid XHTML 1.0 Transitional" height="31" width="88" /></a>
+  </p>
+
+
+</body>
+</html>

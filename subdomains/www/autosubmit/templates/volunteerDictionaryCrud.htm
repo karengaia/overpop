@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"	xml:lang="en">
+<title>WOA!! Article Submission</title>
+</head>
+
+<head>
+	<style>
+	html {background-color:#969;}
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	h1   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	b    {font-family: verdana;font-size:12px;font-weight:bold;}
+	table tr td {font-size:100%;}
+	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
+	span  {font-family:verdana; font-size:10px;}
+	label {font-family:verdana; font-size:12px; font-weight:bold;}
+	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
+	select {font-size: 12px; font-family: arial; border: 1px solid #ccc; background: #fff;}
+	p     {font-family:arial font-size:12px;}
+	.grey {color:#666666;}
+	cite.verdana {font-family:verdana;}
+	div#hiddenregion {border: 2px solid #ccc; margin-left:4px; padding:5px;visibility:hidden;}
+	div#hiddensource {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	</style>
+</head>
+
+<body basefont="arial">
+	
+<div style="margin-left:10px;margin-right:7px;margin-bottom:10px;">  
+	
+<table width="100%"><tr>
+<td width=20%>
+<a target=_top href=
+  "http://[CGISITE]">
+  <font face="arial" size="2" color="#000000"><b>Overpopulation.org</b></a>&nbsp;&nbsp;
+<br><cite style="color:darkred;">
+[TODAY] .. docid# [docid] <br> sysdate [sysdate]<br>
+[OPERATOR_NAME] ...
+[SUGGESTOR_NAME]
+</cite><br><br><cite>[MODDELNEW]</cite>
+</cite></td>
+<td width="35%">
+   <div style="font-family:geneva;font-size:1.3em;text-align:center;"><strong>WOA Item Submittal</strong><br><cite><big>(Dictionary)</big></cite></div>
+	
+</td><td width="30%"></td>
+</tr></table>
+
+<form method="post" id="article" name="article" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="storeform">
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
+<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
+<input type="hidden" name="sysdate" value="[sysdate]">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="sectsubs" value="[sectsubs]">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="dTemplate" value="default">
+<input type="hidden" name="ipform" value="docUpdate">
+<input type="hidden" name="priority" value="0">
+<input type="hidden" name="expmonth" value="00">
+<input type="hidden" name="expday" value="00">
+<input type="hidden" name="expyear" value="0000">
+<input type="hidden" name="region" value="">
+
+<!-- STYLE, PRIORITY, REGIONS TABLE -->           
+
+<table cellpadding=5>
+<td valign="top"><cite>
+	<!-- - - PUB DATE  - - - - -->
+	<label for 'pubmonth'>Date defined in WOA: </label><br> 
+	<select name="pubmonth">
+	[PUBMONTHS]
+	</select>
+
+	<input type="text" name="pubday" size="3" maxlength="2" value="
+	[PUBDAY]
+	">
+
+	<select name="pubyear">
+	[PUBYEARS]
+	</select>
+</td><td>&nbsp;&nbsp;</td>
+<!-- DATE two cols -->
+
+<td id="sourcecol2" valign=top>
+    <label for="selectsource">Source :</label>&nbsp;&nbsp;
+    <cite>Publication or organization</cite>
+  <br>
+    <select id="selectsource" name="selectsource">
+[SOURCES] 
+    <option value=""></option>
+     </select><br>
+     <cite>Source name if not on list</cite><br>
+      <input type="text" name="source" size="50" maxlength="70"
+value="
+[OTHERSOURCE]
+">
+</td></table>
+
+<!--- HEADLINE -->
+<table>
+<tr><td valign="bottom">
+<b>Defined Term:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</td><td>&nbsp;&nbsp;&nbsp;</td>
+<td valign=bottom><cite>Titlize</cite><input type="checkbox" name="regionhead" 
+[REGIONHEAD]
+    value="Y"></cite><br>
+</td>   
+</table>
+<textarea name="headline" wrap="physical" rows="1" cols=50">
+[headline]</textarea>
+</td></tr></table>	
+
+<br><br>
+<!--- LINK AREA -->
+
+<div id="linksummarycomment">
+<b>Link to source or a longer explanation (URL):</b><br>
+    
+<textarea name="link" wrap="physical" rows="2" cols=100">[link]</textarea>
+<br><br>
+
+
+<!---  BODY, COMMENTS, FULL - 2 COLS -->
+
+    <label for='body'>Definition:</label> &nbsp; &nbsp; <cite> Cut and paste for more accurate results.</cite><br>
+    <textarea name="body" wrap="physical" rows="20" maxrows="150" cols="100">Paraphrase and take excerpts, avoid plagiarizing long sections of text. [body]</textarea>
+    <br><cite>Text will wrap. Extra spaces and
+    line returns do not matter  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</cite>
+
+<br><br>
+<table><td>
+    <label for="note">Short Definition:</label> &nbsp;&nbsp;
+   <cite>(appears when mouse hovers over the term in an article)</cite>
+<br>
+    <textarea name="note" wrap="physical" rows="3" cols=60">[note]</textarea>
+</td></table>
+</div> <!-- end of linksummarycomment -->
+<br><br>
+
+<table><tr>
+<td>
+<input type=submit value="SUBMIT" name="submit">
+</td>
+<td>
+<cite class="verdana grey"><b>Userid</b>&nbsp;&nbsp;</cite><br>
+&nbsp;&nbsp;<input type="input" name="userid" size="6" maxlength="10" value="[userid]">
+</td><td>
+<font size=1 face=verdana color="666666"><b>
+password</a></b></font><br>
+<input type="password" name="pin" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;
+</td><td>&nbsp;&nbsp;</td>
+<td><label for="imagefile">imagefile:</label>&nbsp;<input type="text" name="imagefile" size="55" maxlength="150"
+value="Does not currently work [imagefile]"><br>
+	<cite>
+	<input type="radio" value="R" name="imageloc">right &nbsp
+	<input type="radio" value="L" name="imageloc">left &nbsp
+	<input type="radio" value="T" name="imageloc">top &nbsp
+	<input type="radio" value="B" name="imageloc">btm &nbsp </cite><br>
+	<label for="imagealt">alt:</label>&nbsp;<input type="text" name="imagealt" size="63" maxlength="300"
+</td>
+</tr></table>
+
+
+</form>
+<br>
+<br>
+</div>
+</body>
+</html>

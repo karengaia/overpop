@@ -1,0 +1,7 @@
+AuthUserFile /www/overpopulation.org/subdomain/www/.htpasswd
+AuthGroupFile /www/overpopulation.org/subdomain/www/.htgroup
+AuthName "Autosubmit"
+AuthType Basic
+<Limit GET>
+require group autosubmit
+</Limit>

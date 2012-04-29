@@ -1,0 +1,19 @@
+<title>World Population Awareness</title>
+
+<body bgcolor="ffffff" link="#006000" vlink="#000080" alink="#000080"  background="woabg.gif">
+
+<blockquote>
+
+<table cellpadding=0 cellspacing=0 align=right><tr><td><img src="http://www.population-awareness.org/woaLogoAN.gif" hspace=20></td>
+<tr><td><center>
+   <table cellpadding=0 cellspacing=0><td><a target=_top   
+    href="http://www.population-awareness.org"><font face=arial size=2 color="#000000">
+    <b>Home</b></a>&nbsp;&nbsp;</td></table>
+</td></table>
+
+<center>
+<font size=6 face=arial><b>World Population Awareness</b></font>
+<p>
+<font face="comic sans ms" size=5><b>Search Results</b></font>
+</center>
+<p>

@@ -1,0 +1,72 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"	xml:lang="en">
+<title>WOA!! Article Submission - Email Similation</title>
+
+<head>
+	<style>
+	html {background-color:#969;}
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	h1   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	b    {font-family: verdana;font-size:12px;font-weight:bold;}
+	table tr td {font-size:100%;}
+	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
+	span  {font-family:verdana; font-size:10px;}
+	label {font-family:verdana; font-size:12px; font-weight:bold;}
+	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
+	select {font-size: 12px; font-family: arial; border: 1px solid #ccc; background: #fff;}
+	p     {font-family:arial font-size:12px;}
+	.grey {color:#666666;}
+	cite.verdana {font-family:verdana;}
+	div#hiddenregion {border: 2px solid #ccc; margin-left:4px; padding:5px;visibility:hidden;}
+	div#hiddensource {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	</style>
+</head>
+
+<body basefont="arial"">
+	
+<div style="margin-left:10px;margin-right:7px;margin-bottom:10px;">  
+	
+<table><tr>
+<td width=20%>
+<a target=_top href=
+  "http://[CGISITE]">
+  <font face="arial" size="2" color="#000000"><b>Overpopulation.org</b></a>&nbsp;&nbsp;
+<br><cite style="color:darkred;">
+[TODAY]
+<br>
+[OPERATOR_NAME] ...
+</cite></td>
+<td>
+   <div style="font-family:geneva;font-size:1.3em;text-align:center;"><strong>WOA Article/Item<br> Submittal (Email Simulation)</strong></div>
+</td>
+<td width="10%">&nbsp;</td>
+</tr></table>
+
+<form method="post" id="article" name="article" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="emailsimulate">
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="action" value="new">
+<input type="hidden" name="sumAcctnum" value="">
+<input type="hidden" name="suggestAcctnum" value="">
+<input type="hidden" name="sysdate" value="">
+<input type="hidden" name="docid" value="">
+<input type="hidden" name="sectsubs" value="">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="newItemEmailSim">
+<br>
+<b>Full Article:</b> &nbsp;&nbsp;
+<cite> Cut and paste full article here. Include date, link, source, region</cite>
+&nbsp; <input type=submit value="SUBMIT" name="submit">
+<br>
+    <textarea name="fullbody" wrap="physical" rows=25 maxrows=300 cols=130>
+[FULLBODY]
+</textarea>
+<br><br>
+
+</form>
+
+</div>
+</body>
+</html>

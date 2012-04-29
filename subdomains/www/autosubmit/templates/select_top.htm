@@ -1,0 +1,21 @@
+<form method="post" name="itemsSelect" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="selectItems">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="select_top">
+
+<script LANGUAGE="JavaScript">
+
+<!--
+function CheckAll()
+{
+ for (var i=0;i<document.itemsSelect.elements.length;i++) {
+   var e = document.itemsSelect.elements[i];
+   if (e.name.match(/^selitem/))
+      e.checked = document.itemsSelect.allbox.checked;
+ }
+}
+//-->
+</script>
+<font size=2 face=arial><input name="allbox" type="checkbox" value="moxnix" onClick="CheckAll();">
+&nbsp;Check/uncheck all<p>

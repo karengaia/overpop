@@ -1,0 +1,3 @@
+<Files ~ ".pl$">
+    SetHandler cgi-script
+</Files>

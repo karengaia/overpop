@@ -1,0 +1,23 @@
+/* IE8 - background image bugs amongst several other bugs*/
+/* hand coding by abstract machines */
+
+#world_population_wrapper {margin-bottom:9px;
+		background-color: #d7d3ca;}
+
+#header {height:185px;}   /* height:182px; */
+
+#header_inner {padding-bottom:4px;
+		background: url('/img/mauve/page2_header_bg5.png') 0 0 repeat;
+		height:135px;}
+	
+#population_awareness_logo {
+	background: url('/img/mauve/woa_logo135h.png') 0 0 no-repeat;}
+
+/* ie background image bugs */
+#threecolwrap {
+	background-color:#B8860B;
+	margin-top:-5px;}
+	
+#newsIndexBox ul li:hover ul {
+	display:block; margin-top:-3px; !important; top:28px;
+	}

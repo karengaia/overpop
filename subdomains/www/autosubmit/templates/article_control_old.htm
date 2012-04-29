@@ -1,0 +1,436 @@
+<title>WOA! Article Control</title>
+<TABLE><TD width=20% valign=top>
+<font face="comic sans ms">
+<font size=2>
+<b>Server:</b>&nbsp;
+</font><font size=1>
+[svrinfoSvrname]
+&nbsp;Master&nbsp;
+[svrinfoMaster]
+<br>
+<a href="http://www.[svrdestCgisite]/cgi-bin/cgiwrap/popaware/article.pl?display%article_control">
+Go to other server</a><br>
+</font><font size=1>
+<b>Time:<b>&nbsp;
+[nowdate]
+<br>
+<b>Docs:</b> [docCount]<br>
+<b>Users:</b> [userCount]<br>
+<b>Hits:</b> [hitCount]<br>
+
+</font><font size=2>
+<p><b>Moxley Data</b></font><br>
+<font size=1>
+<a href="https://https://66.135.33.108/cgi-bin/qmailadmin/:">Moxley Data Mail</a>
+</font>
+<font size=2>
+<p><b>PBP</b></font><br>
+<font size=1>
+<a target=_top href="http://www.pbp.net/kb/">PBP technical support</a><br>
+<a target=_top href="http://www.gaia-s.net:1000/?cat=webmin">Webmin (majordomo)</a><br>
+
+</font><font size=2>
+<p><b>News, Headlines</b></font><br>
+<font size=1>
+<a href="http://www.[CGISITE]/autosubmit/prepage/newsScan.html">news prepage</a><br>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%NewsDigest_NewsItem%">News on the fly</a>
+<A HREF="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%fly%Headlines_sustainability%">Headlines</a><br>
+</font>
+<font size=2>
+<p><b>Other</b></font>
+<br><font size=1>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%recent_recentItem%">Recent List</a><br>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%delete_deleteItem%">Deleted List</a><br>
+
+</font>
+<font size=2>
+<p><b>Logs</b></font>
+<br><font size=1>
+<a href="http://www.[CGISITE]/autosubmit/log/errlog.html">Error log</a><br>
+<a href="http://www.[CGISITE]/autosubmit/log/ftplog.html">FTP log</a><br>
+</font>
+<font size=2>
+<p><b>Helper/Volunteer Aids</b></font>
+<br><font size=1>
+<a href="http://www.[CGISITE]/autosubmit/guestAdmin.html">Guest Admin</a><br>
+<a href="http://www.[CGISITE]/autosubmit/summarize.html">Summarize instructions</a><br>
+<a href="http://www.[CGISITE]/autosubmit/apply.html">Application</a><br>
+<a target="_top" href="http://www.[CGISITE]/volunteer_page.html">Volunteer page</a><br>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%fly%Volunteer_intro">
+Volunteer Inside Pg(fly)</a><br>
+
+</font>
+
+</TD><TD width=60% valign=top align=center>
+
+
+<form method="post" name="autodirs" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/moveutil.pl">
+
+<table border=1 cellpadding=1 cellspacing=0><td>
+<font size=2 face=verdana>
+<b>FTP/Sync</b>  From:[SVRinfo{svrname}]<br>
+
+<input type="hidden" name="cmd"  value="autodir">
+
+<table>
+<td valign=bottom> <font size=1 face=verdana>
+UserID: <br><input type="input" name="userid" size="10" maxlength="10">
+</td><td valign=bottom><font size=1 face=verdana>
+Svr pswd:<br><input type="password" name="password" size="10" maxlength="10">
+</td> <td>&nbsp;&nbsp;</td> <td valign=bottom><font size=1 face=verdana>
+<select name="ftpsync" multiple size="2">
+<option value="ftp" selected ><font size=1 face=verdana>FTP</font></option>
+<option value="rsync" >Sync</option>
+</select>
+</td></table>
+
+<font size=1 face=verdana>
+<br>
+FTP/sync by directory - 
+<select name="dirname" size=>
+<option value="public">public</option>
+<option value="prepage">prepage</option>
+<option value="images">images</option>
+<option value="clock">clock</option>
+<option value="cgibin">scripts</option>
+<option value="mail">popnews email</option>
+<option value="mailbkp">email bkup</option>
+<option value="autosubmit">autosubmit</option>
+<option value="control">control</option>
+<option value="items">items</option>
+<option value="sections">sections</option>
+<option value="keywords">keywords</option>
+<option value="deleted">deleted</option>
+<option value="log">logs</option>
+</select>&nbsp;&nbsp;
+<p>
+
+<table><td><font size=1 face=verdana>
+Last FTP date: <br>
+<input type="text" name="lastFTPdate" size="10" maxlength="10" value="[LAST_FTPDATE]">
+&nbsp;&nbsp;
+</td><td><font size=1 face=verdana>
+min docid (ftp) <br>
+<input type="text" name="mindocid" size="6" maxlength="6" value="">
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</td><td><font size=1 face=verdana>
+max docid (ftp)<br>
+<input type="text" name="maxdocid" size="6" maxlength="6" value="">
+</td></table>
+
+
+<input type=submit value="SUBMIT" name="submit">
+
+<hr>
+<font size=1 face=verdana>
+<b>Sync</b><br>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/rsyncdbSP.sh">
+Article files</a> &nbsp;&nbsp;
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/rsyncMail_SpPlex.sh">
+Mail</a> &nbsp;&nbsp;
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/rsync.pl">
+Keyword files</a><br>
+
+<font size=1 face=verdana>
+<b>Move/FTP</b><br>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/moveutil.p
+l?move2">NewsScan/Headlines</a> &nbsp;&nbsp;
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/moveutil.p
+l?move1">NewsScan only</a>
+
+
+</form>
+</td></table>
+
+<form method="post" name="admin" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl">
+<input type="hidden" name="cmd"  value="process_select_login">
+<input type="hidden" name="ipform"  value="select_login">
+
+<p>
+<br>
+<center><TABLE border=1 cellpadding=10 cellspacing=0 width=200>
+
+<TR><TD>
+
+<center><font face="Lucida sans unicode" size=2><b>WOA!! Admin Section_subsection Functions*</b></font></center>
+<p>
+<font size=2 face="verdana">
+<b>Please enter your:</b>
+<br>
+
+<table>
+<td>&nbsp;&nbsp;</td>
+<td align=right valign=top>
+
+<font face=arial size=2>userID#
+
+</td><td align=left valign=top>  
+<font size=2 face=verdana>
+<input type="input" name="userid" size=7 maxlength=5></font>
+
+<br> <font size=1 face=arial>(case sensitive)</font>
+
+</td><td align=right valign=top>
+
+<font face=arial size=2>pin:
+
+</td><td align=left valign=top>  
+<font size=2 face=verdana>
+<input type="password" name="pin" size=7 maxlength=4></font>
+
+<br> <font size=1 face=arial>(4 digit) &nbsp;&nbsp;&nbsp;<a href="mailto:[adminEmail]?subject=WOA!! What is my pin again?">Forgot?</a></font>
+
+</td></table>
+
+<p>
+
+<b>Choose which section_subsection</b> 
+<br>&nbsp;&nbsp;&nbsp;
+[ADD_SECTIONS]
+
+</font><p><font size=2 face="verdana">
+
+<b>Choose an action: </b><br>
+&nbsp;&nbsp;&nbsp;<font size=2 face=verdana>
+<select size=1 name="action">
+<option value="display_subsection">A. View chosen subsection</option>
+<option value="display_prepage">B. View preliminary web page prior to publishing</option>
+<option value="move_webpage">C. Move page to public web page</option>
+<option value="print_select">D. Select from a list and chose action upon selected</option>
+<option value="sort_subsection">E. Sort subsection</option>
+<option value="convert_old_subsection">F. Convert old subsection to new autosubmit subsection</option>
+<option value="fix_sectsub">G. Fix this subsection</option>
+</select>
+<font face="comic sans ms" size=1>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+Note: B does not work</font>
+
+</font>
+
+</font><p><font size=2 face="verdana">
+
+<b>Filters: </b> <font size=1 face="comic sans ms">(optional)</font>
+<br>
+<table><td>&nbsp;&nbsp;&nbsp;</td><td>
+Select only pubdate older than: <font size=1 face=verdana>
+<input type="text" name="chk_pubdate"  size=12 value=""> </font>
+<font size=1 face="comic sans ms">i.e 2001-12-04</font>
+<br>
+<input type="checkbox" name="select_kgp"  value="Y"> Select only handle KGP?
+<br>
+<input type="text" name="start_docid" size=6 maxsize=6 value=""> Select starting with this docid
+</td></table>
+<p>
+
+<input type="submit" value="Continue" name="submit">
+
+<font size=2 face="verdana">&nbsp;&nbsp;&nbsp;
+Template: &nbsp;<select size=1 name="aTemplate">
+<option value="alertitem">alertitem</option>
+<option value="chaseLink_Item">chaseLink_Item</option>
+<option value="comicStdItem">comicStdItem</option>
+<option value="chaseLink_Item">chaseLink_Item</option>
+<option value="dictionaryItem">dictionaryItem</option>
+<option value="eventItem">eventItem</option>
+<option value="fullItem">fullItem</option>
+<option value="headlineItem">headlineItem</option>
+<option value="introHeadItem">introHeadItem</option>
+<option value="introItem">introItem</option>
+<option value="linkBulletItem">linkBulletItem</option>
+<option value="linkItem">linkItem</option>
+<option value="MthlyItem">MthlyItem</option>
+<option value="needsSummItem">needsSummItem</option>
+<option value="newsitem">newsitem</option>
+<option value="opinionItem">opinionItem</option>
+<option value="paragraphItem">paragraphItem</option>
+<option value="plainHeadlineItem">plainHeadlineItem</option>
+<option value="quoteItem">quoteItem</option>
+<option value="recentItem">recentItem</option>
+<option value="reviewItem">reviewItem</option>
+<option value="selectUpdt_Item">selectUpdt_Item</option>
+<option value="skippedItem">skippedItem</option>
+<option value="smalHeadlineItem">smalHeadlineItem</option>
+<option value="smallLinkItem">smallLinkItem</option>
+<option value="stdItem">stdItem</option>
+<option value="straight">straight</option>
+<option value="select_top;suggestedItem;select_end">suggestedItem</option>
+<option value="testItem">testItem</option>
+<option value="stdItem">stdItem</option>
+</select>
+
+</font>
+</form>
+</TD></TABLE>
+
+
+
+</TD><TD valign=top>
+
+
+</font>
+<font size=2 face=verdana>
+<p><b>Worklists</b></font>
+<br><font size=1 face=verdana>
+
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%Suggested_suggestedItem%%%10">Suggested Update List</a><br>
+
+</font>
+<font size=2 face=verdana>
+<p><b>Control files</b></font>
+<br><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/control/sections.html">Sections</a><br>
+<a href="http://www.[CGISITE]/control/contributors.html">Contributors</a>
+&nbsp;&nbsp;<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.p
+l?print_users%">Print</a>
+
+&nbsp;&nbsp;<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/contributor_do.p
+l?write_acctapp">Approve users</a><br>
+
+
+<a href="http://www.[CGISITE]/control/regions.html">Regions</a><br>
+<a href="http://www.[CGISITE]/control/sources.html">Sources</a><br>
+
+<p>
+<font size=2 face=verdana>
+<b>Quick Fix files</b><br>
+</font><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display%quickchange%dir">
+Quickchange</a>
+<p>
+</font> <font size=2 face=verdana>
+<b>Email</b><br>
+</font><font size=1 face=verdana>
+<a target=_top href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%Suggested_emailedItem%">
+  Select email</a> arg6=Acct#
+<br>
+<a href="http://xxx.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?clean_index%%%Suggested_emailedItem">
+Empty email file</a>
+<p>
+</font> <font size=2 face=verdana>
+<b>Population News Monthly</b><br>
+</font><font size=1 face=verdana>
+<a href=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%NewsMthly_NewsMthlyTop%">
+Print PopNewsMthly email</a><br>
+
+<a href=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%NewsWeekly_NewsWeeklyTop%">
+Print PopNewsMthly (older-saved) email</a><br>
+<a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.p
+l?clean_index%%%NewsMthly_MthlyItem">Empty PopnewsMthly file</a>
+
+<p>
+</font> <font size=2 face=verdana>
+<b>Self Link to Full Article</b><br>
+</font><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display%fullArticle%001707">
+(example)</a>
+
+<p></font>
+
+<table>
+<tr><td colspan=3><font size=2 face=verdana>
+<b>Switches Off/On</b></td>
+
+<tr><td><font size=1 face=verdana><b>Futzing</b></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnON%futzing">on</a></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnOFF%futzing">off</a></td>
+
+<tr><td><font size=1 face=verdana><b>Master Svr</b></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnON%masterServer">yes</a></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnOFF%masterServer">no</a></td>
+
+<tr><td><font size=1 face=verdana><b>FTP</b></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnON%FTP">do</a></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnOFF%FTP">don't</a></td>
+
+<tr><td><font size=1 face=verdana><b>Vacation</b></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnON%vacation">on</a></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnOFF%vacation">off</a></td>
+
+<tr><td><font size=1 face=verdana><b>DisableCGI</b></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnON%disableCGI">on</a></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnOFF%disableCGI">off</a></td>
+
+<tr><td><font size=1 face=verdana><b>Popnews forward</b></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnON%popnewsForward">on</a></td>
+<td><font size=1 face=verdana>
+<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/small_utils.pl?turnOFF%popnewsForward">off</a></td>
+
+</table>
+
+
+<br><font size=2 face=verdana>
+<b>Convert old Subsection</b>
+<table><tr>
+<td>
+<font size=1 face=verdana>(Send a Section by email to popnews@population-awareness.net <br>
+ Separate by #####; ACTION::convert at top of message<br>
+ TEMPLATE::straight if straight html)
+</td>
+<td><font size=1 face=verdana>
+<a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?convert_old_subsection%%%FundingPolitics_index%cvrtFrom">
+Funding Politics - NOT USED ANYMORE</a><br>
+<p>
+<a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?convert_old_subsection&&&Religion_intro&cvrtFrom">
+Religion</a>
+</td>
+<tr colspan=2><td><font size=1 face=verdana>
+<a <a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%%%convert_Item%%%10%">
+Convert worklist</a><br>
+
+<p>
+<a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%cvrtUpdtItem%%Religion_intro%%%10%cvrtUpdtTop%selectUpdt_End">
+http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%cvrtUpdtItem%%convert_Item%%%10%cvrtUpdtTop%selectUpdt_End</a><br>
+Print subsection with convert templates
+<p>
+<br>
+<a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%selectUpdt_Item%%Volunteer_grist%%%20%selectUpdt_Top%selectUpdt_End">
+http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%selectUpdt_Item%%Volunteer_grist%%%20%selectUpdt_Top%selectUpdt_End</a><br>
+Print subsection with Suggest templates
+
+<p>
+<br>
+<a
+href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%selectUpdt_Item%%NewsDigest_NewsItem%%%20%selectUpdt_Top%selectUpdt_End">
+http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%selectUpdt_Item%%NewsDigest_NewsItem%%%20%selectUpdt_Top%selectUpdt_End</a><br>
+Print subsection with Suggest templates
+<br><font size=2 face=verdana>
+<b>Small Utils</b>
+<p>
+Delete items ....<br>
+http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/small_utils.pl?deleteItems%011422%014525
+<p>
+Display items in a range ...<br>
+http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?displayRange%fullItem%011421%011455
+<p>
+Backup testBKUP.pl ...<br>
+http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/moveutil.pl?bkup%cgi:testBKUP.pl
+<p>
+Restore testBKUP.pl ...<br>
+http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/moveutil.pl?unbkup%cgi:testBKUP.pl
+<p>
+
+
+</td></table>
+
+</TD></TABLE>
+

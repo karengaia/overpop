@@ -1,0 +1,498 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html><head><title></title>
+<meta content="text/html; charset=UTF-8" http-equiv="Content-Type">
+<style type="text/css">
+        body {
+width: 100%;
+height: 100%;
+margin: 0;
+border: 0;
+padding: 0;
+font-family: arial, helvetica, sans-serif;
+background: white;
+color: black;
+}
+html>body .goog-inline-block {
+display: -moz-inline-box;
+display: inline-block;
+}
+.goog-inline-block {
+position: relative;
+display: inline-block;
+}
+* html .goog-inline-block {
+display: inline;
+}
+*:first-child+html .goog-inline-block {
+display: inline;
+}
+.spr-icon-downarrow-gadget{
+margin: 0 0 -1px 2px;
+}
+#gd-content {
+margin: 0 3px;
+padding: 3px 0;
+}
+.gd-content-info {
+font-size: 12px;
+text-align: center;
+}
+#gd-search {
+padding-bottom: 5px;
+}
+#gd-search-form {
+margin: 0;
+padding: 0;
+white-space: nowrap;
+}
+
+#query {
+width: 100%;
+margin-right: 0;
+border: 1px solid #ccc;
+padding: 2px;
+font-size: 11px;
+}
+#gd-search .gd-hint {
+color: #CCC;
+}
+table.gd-data-table a.gd-a {
+margin-left: 2px;
+text-decoration: none;
+font-size: 12px;
+color: black;
+}
+table.gd-data-table tr.gd-a-highlight {
+background-color: #ffc;
+}
+table.gd-data-table {
+table-layout: fixed;
+width: 100%;
+padding: 0;
+margin: 0;
+border: 0;
+border-collapse: collapse;
+}
+table.gd-data-table td {
+height: 20px;
+}
+table.gd-data-table td.gd-empty {
+font-size: 12px;
+font-style: italic;
+}
+table.gd-data-table td.gd-icon {
+width: 12px;
+vertical-align: middle;
+}
+table.gd-data-table td.gd-icon img {
+margin: 0 0 2px 0;
+}
+table.gd-data-table td.gd-title {
+padding-right: 6px;
+overflow: hidden;
+white-space: nowrap;
+text-overflow: ellipsis;
+font-size: 12px;
+}
+table.gd-data-table td.gd-mod {
+width: 50px;
+color: #999;
+font-size: 11px;
+white-space: nowrap;
+text-align: right;
+}
+#gd-menu-bar {
+margin: 3px 0 0 0;
+padding: 2px 0;
+font-size: 11px;
+}
+#gd-menu-bar a:link,
+#gd-menu-bar a:visited {
+text-decoration: none;
+}
+#gd-menu-bar a:hover,
+#gd-menu-bar a:active {
+text-decoration: underline;
+}
+#gd-menu-bar .gd-menu-button {
+font-size: 11px;
+color: #00c;
+}
+div.gd-menu {
+position: absolute;
+top: -10000px;
+left: -10000px;
+border: 1px solid #7aa5d6;
+padding: 2px 4px 2px 2px;
+background: white;
+z-index: 100;
+}
+div.gd-menu table {
+border-collapse: collapse;
+padding: 3px;
+}
+div.gd-menu .gd-menu-item td {
+padding: 3px;
+font-size: 11px;
+line-height: 14px;
+vertical-align: middle;
+}
+div.gd-menu .gd-menu-item img {
+margin: 0 0 3px 0;
+}
+div.gd-menu a,
+div.gd-menu .gd-menu-item-action {
+cursor: pointer;
+font-size: 11px;
+}
+div.gd-menu a:link,
+div.gd-menu a:visited,
+div.gd-menu span:link.gd-menu-item-action,
+div.gd-menu span:visited.gd-menu-item-action {
+text-decoration: none;
+color: black;
+}
+div.gd-menu a:hover,
+div.gd-menu a:active,
+div.gd-menu span:hover.gd-menu-item-action,
+div.gd-menu span:active.gd-menu-item-action {
+text-decoration: underline;
+color: #36c;
+}
+
+.spr-icon-blank-gadget, .spr-icon-check-gadget, .spr-icon-doctype-audio-gadget, .spr-icon-doctype-doc-gadget, .spr-icon-doctype-drawing-gadget, .spr-icon-doctype-excel-gadget, .spr-icon-doctype-form-gadget, .spr-icon-doctype-generic-gadget, .spr-icon-doctype-kix-gadget, .spr-icon-doctype-powerpoint-gadget, .spr-icon-doctype-pdf-gadget, .spr-icon-doctype-photo-gadget, .spr-icon-doctype-pres-gadget, .spr-icon-doctype-spread-gadget, .spr-icon-doctype-video-gadget, .spr-icon-doctype-word-gadget, .spr-icon-downarrow-gadget, .spr-icon-star-gadget{background:no-repeat url("https://ssl.gstatic.com/docs/doclist/images/gadgetmimetypes_10.gif")}
+.spr-icon-blank-gadget{background-position:0 -90px;width:10px;height:10px}
+.spr-icon-check-gadget{background-position:0 -10px;width:10px;height:10px}
+.spr-icon-doctype-audio-gadget{background-position:0 -170px;width:10px;height:10px}
+.spr-icon-doctype-doc-gadget{background-position:0 -60px;width:10px;height:10px}
+.spr-icon-doctype-drawing-gadget{background-position:0 -140px;width:10px;height:10px}
+.spr-icon-doctype-excel-gadget{background-position:0 -40px;width:10px;height:10px}
+.spr-icon-doctype-form-gadget{background-position:0 -70px;width:10px;height:10px}
+.spr-icon-doctype-generic-gadget{background-position:0 -100px;width:10px;height:10px}
+.spr-icon-doctype-kix-gadget{background-position:0 -110px;width:10px;height:10px}
+.spr-icon-doctype-powerpoint-gadget{background-position:0 -50px;width:10px;height:10px}
+.spr-icon-doctype-pdf-gadget{background-position:0 -150px;width:10px;height:10px}
+.spr-icon-doctype-photo-gadget{background-position:0 0;width:10px;height:10px}
+.spr-icon-doctype-pres-gadget{background-position:0 -80px;width:10px;height:10px}
+.spr-icon-doctype-spread-gadget{background-position:0 -30px;width:10px;height:10px}
+.spr-icon-doctype-video-gadget{background-position:0 -20px;width:10px;height:10px}
+.spr-icon-doctype-word-gadget{background-position:0 -120px;width:10px;height:10px}
+.spr-icon-downarrow-gadget{background-position:0 -130px;width:10px;height:10px}
+.spr-icon-star-gadget{background-position:0 -160px;width:10px;height:10px}
+
+spr-icon-gadgetmimetypes{background:no-repeat url("https://ssl.gstatic.com/docs/doclist/images/gadgetmimetypes_10.gif");
+background-position:0 0;width:10px;height:180px}
+
+
+spr-icon-doctype-playlist-gadget{background:no-repeat url("https://ssl.gstatic.com/docs/doclist/images/icon_6_playlist_gadget.png");
+background-position:0 0;width:10px;height:10px}
+
+
+spr-icon-doctype-meeting-gadget{background:no-repeat url("https://ssl.gstatic.com/docs/doclist/images/icon_6_meeting_gadget.png");
+background-position:0 0;width:10px;height:10px}
+
+
+spr-icon-doctype-punch-gadget{background:no-repeat url("https://ssl.gstatic.com/docs/doclist/images/icon_7_punch_gadget.png");
+background-position:0 0;width:10px;height:10px}
+
+
+      </style></head><body id="gd-body" onunload="dispose()"><div 
+id="gd-content"><div id="gd-search"><form method="get" target="_blank" 
+name="gd-search-form" id="gd-search-form" 
+action="https://docs.google.com/?authuser=0"><div class="textbox-hack"><input
+ name="query" id="query" class="gd-hint" autocomplete="off" 
+maxlength="2048" value="Search recent docs" type="text"></div></form></div>
+<div id="gd-results"><table class="gd-data-table" id="gd-result-table"><tbody><tr
+ id="gd-row0"><td class="gd-icon"><div 
+class="spr-icon-doctype-kix-gadget">&nbsp;</div></td><td 
+class="gd-title"><a id="gd-a0" class="gd-a" 
+href="https://docs.google.com/document/d/1K0TL5I7msplRW9P-6WxpDBpCPG9qPUTP0KpPZuS56Ug/edit?hl=en&amp;authuser=0"
+ target="_blank" title="Last edited Mar 4 by karen.gaia.pitts@gmail.com">Ruby
+ Rails convert tables</a></td><td class="gd-mod"> Apr 6</td></tr><tr 
+id="gd-row1"><td class="gd-icon"><div 
+class="spr-icon-doctype-doc-gadget">&nbsp;</div></td><td 
+class="gd-title"><a id="gd-a1" class="gd-a" 
+href="https://docs.google.com/Doc?docid=0AREffAtapJgWZGY5bTdudGRfNGZuODlqcDZr&amp;hl=en&amp;authuser=0"
+ target="_blank" title="Last edited Apr 6 by karen.gaia.pitts@gmail.com">Ruby
+ Server - Televant</a></td><td class="gd-mod"> Apr 6</td></tr><tr 
+id="gd-row2"><td class="gd-icon"><div 
+class="spr-icon-doctype-kix-gadget">&nbsp;</div></td><td 
+class="gd-title"><a id="gd-a2" class="gd-a" 
+href="https://docs.google.com/document/d/1sxfgate8rs0QWTlb8_b20id2G5fUPtxbmZxa24xuvig/edit?hl=en&amp;authuser=0"
+ target="_blank" title="Last edited Apr 6 by karen.gaia.pitts@gmail.com">Bad
+ for dogs</a></td><td class="gd-mod"> Apr 6</td></tr><tr id="gd-row3"><td
+ class="gd-icon"><div class="spr-icon-doctype-pdf-gadget">&nbsp;</div></td><td
+ class="gd-title"><a id="gd-a3" class="gd-a" 
+href="https://docs.google.com/viewer?a=v&amp;pid=explorer&amp;chrome=true&amp;srcid=1urMsTG7BpXzUfpdDppsflXmLfLMQOGmCqLLLT4_OsagaV-Ayng6zxVqoro3p&amp;hl=en&amp;authuser=0"
+ target="_blank" title="Last edited Apr 5 by karen.gaia.pitts@gmail.com">Pitts31Jul11PearlDeposit.pdf</a></td><td
+ class="gd-mod"> Apr 6</td></tr><tr id="gd-row4"><td class="gd-icon"><div
+ class="spr-icon-doctype-kix-gadget">&nbsp;</div></td><td 
+class="gd-title"><a id="gd-a4" class="gd-a" 
+href="https://docs.google.com/document/d/1ujxX_GcPv7GGzwlFSk326H6E-eEcM6ysOnJkBHGKYgw/edit?hl=en&amp;authuser=0"
+ target="_blank" title="Last edited Apr 2 by karen.gaia.pitts@gmail.com">Alaska
+ Cruises 2011</a></td><td class="gd-mod"> Apr 2</td></tr></tbody></table></div>
+<div id="gd-noresults" style="display: none;"><table 
+class="gd-data-table"><tbody><tr><td class="gd-empty">No matches in the 
+100 most recent titles.</td></tr>
+<tr><td class="gd-empty">Use the Enter key to search all docs.</td></tr>
+<tr><td class="gd-empty">&nbsp;</td></tr> <tr><td class="gd-empty">&nbsp;</td></tr>
+ <tr><td class="gd-empty">&nbsp;</td></tr></tbody></table></div>
+<div id="gd-menu-bar"><div style="float: right; text-align: right; 
+white-space: nowrap;"><a id="gd-all-menu-button" class="gd-menu-button" 
+href="https://docs.google.com/?authuser=0" target="_blank">All docs »</a></div>
+<a id="gd-show-menu-button" class="gd-menu-button" href="#">Show<div 
+class="spr-icon-downarrow-gadget goog-inline-block"></div></a>
+<a id="gd-new-menu-button" class="gd-menu-button" href="#">New<div 
+class="spr-icon-downarrow-gadget goog-inline-block"></div></a></div>
+<div id="gd-show-menu" class="gd-menu" style="display: none;"><table><tbody><tr
+ class="gd-menu-item" id="gd-opened-by-me"><td class="gd-menu-item-icon"><div
+ class="spr-icon-check-gadget goog-inline-block"></div></td><td 
+class="gd-menu-item-text"><span class="gd-menu-item-action" 
+id="gd-opened-by-me-action">Opened by me</span></td></tr><tr 
+class="gd-menu-item" id="gd-owned-by-me"><td class="gd-menu-item-icon"></td><td
+ class="gd-menu-item-text"><span class="gd-menu-item-action" 
+id="gd-owned-by-me-action">Owned by me</span></td></tr><tr 
+class="gd-menu-item" id="gd-starred"><td class="gd-menu-item-icon"></td><td
+ class="gd-menu-item-text"><span class="gd-menu-item-action" 
+id="gd-starred-action">Starred<div class="spr-icon-star-gadget 
+goog-inline-block"></div></span></td></tr></tbody></table></div>
+<div id="gd-new-menu" class="gd-menu" style="display: none;"><table><tbody><tr
+ id="gd-new-Document" class="gd-menu-item"><td class="gd-menu-item-icon"><div
+ class="spr-icon-doctype-kix-gadget goog-inline-block"></div></td>
+<td class="gd-menu-item-text"><a 
+href="https://docs.google.com/document/create?hl=en&amp;authuser=0" 
+target="_blank">Document</a></td></tr> <tr id="gd-new-Drawing" 
+class="gd-menu-item"><td class="gd-menu-item-icon"><div 
+class="spr-icon-doctype-drawing-gadget goog-inline-block"></div></td>
+<td class="gd-menu-item-text"><a 
+href="https://docs.google.com/drawings/create?hl=en&amp;authuser=0" 
+target="_blank">Drawing</a></td></tr> <tr id="gd-new-Form" 
+class="gd-menu-item"><td class="gd-menu-item-icon"><div 
+class="spr-icon-doctype-form-gadget goog-inline-block"></div></td>
+<td class="gd-menu-item-text"><a 
+href="https://spreadsheets.google.com/newform?hl=en&amp;authuser=0" 
+target="_blank">Form</a></td></tr> <tr id="gd-new-Presentation" 
+class="gd-menu-item"><td class="gd-menu-item-icon"><div 
+class="spr-icon-doctype-pres-gadget goog-inline-block"></div></td>
+<td class="gd-menu-item-text"><a 
+href="https://docs.google.com/DocAction?action=new_presentation&amp;hl=en&amp;authuser=0"
+ target="_blank">Presentation</a></td></tr> <tr id="gd-new-Spreadsheet" 
+class="gd-menu-item"><td class="gd-menu-item-icon"><div 
+class="spr-icon-doctype-spread-gadget goog-inline-block"></div></td>
+<td class="gd-menu-item-text"><a 
+href="https://spreadsheets.google.com/ccc?new&amp;hl=en&amp;authuser=0" 
+target="_blank">Spreadsheet</a></td></tr>
+<tr id="gd-new-from-template" class="gd-menu-item"><td 
+class="gd-menu-item-icon">&nbsp;</td>
+<td class="gd-menu-item-text"><a 
+href="https://docs.google.com/templates?hl=en" target="_blank">From 
+template...</a></td></tr></tbody></table></div></div>
+
+<script type="text/javascript" src="IGoogle_data/2015141562-doclist_gmoduleslib.js"></script>
+
+<script type="text/javascript">
+      
+      var prefs = null;
+
+      if (window['gadgets'] && window['gadgets']['Prefs']) {
+         prefs = new gadgets.Prefs();
+      }
+      else if (window['_IG_Prefs']) {
+         prefs = new _IG_Prefs();
+      }
+
+      var initFn = (window['gadgets'] &&
+                    window['gadgets']['config'] &&
+                    window['gadgets']['config']['init']);
+      if (initFn) {
+        initFn({
+          'rpc': {
+            'parentRelayUrl' : '/rpc_relay.html',
+            'useLegacyProtocol': false
+          }
+        }, true);
+      }
+
+      if (typeof _IG_AdjustIFrameHeight != 'undefined') {
+        var content = document.getElementById('gd-content');
+        _IG_AdjustIFrameHeight(content.offsetHeight + 5);
+      }
+
+      
+      var loadedFn = (window['gadgets'] &&
+                      window['gadgets']['rpc'] &&
+                      window['gadgets']['rpc']['call']);
+
+      if (loadedFn) {
+        loadedFn(null, 'gadget-loaded');
+      }
+    </script>
+<script type="text/javascript" src="IGoogle_data/782182380-doclist_gadget.js"></script>
+
+<script type="text/javascript">
+
+        var config = {
+          'blankIconClassName': 'spr-icon-blank-gadget',
+          'checkedIconClassName': 'spr-icon-check-gadget',
+          'columnStyles': ['gd-icon', 'gd-title'],
+          'icons': ['https://docs.google.com/https://ssl.gstatic.com/docs/doclist/images/icon_7_document_gadget.png','https://docs.google.com/https://ssl.gstatic.com/docs/doclist/images/icon_7_pdf_gadget.png','https://docs.google.com/https://ssl.gstatic.com/docs/doclist/images/icon_7_spreadsheet_gadget.png','https://docs.google.com/https://ssl.gstatic.com/docs/doclist/images/icon_7_image_gadget.png'],
+          'iconSpriteClassNames': ['spr-icon-gadgetmimetypes','spr-icon-blank-gadget','spr-icon-check-gadget','spr-icon-doctype-doc-gadget','spr-icon-doctype-drawing-gadget','spr-icon-doctype-excel-gadget','spr-icon-doctype-form-gadget','spr-icon-doctype-generic-gadget','spr-icon-doctype-kix-gadget','spr-icon-doctype-powerpoint-gadget','spr-icon-doctype-pdf-gadget','spr-icon-doctype-photo-gadget','spr-icon-doctype-pres-gadget','spr-icon-doctype-spread-gadget','spr-icon-doctype-video-gadget','spr-icon-doctype-word-gadget','spr-icon-downarrow-gadget','spr-icon-star-gadget','spr-icon-doctype-playlist-gadget','spr-icon-doctype-meeting-gadget','spr-icon-doctype-punch-gadget','spr-icon-doctype-brix-gadget'],
+          'maxShown': 5,
+          'modDesc': "Last edited %%1 by %%2",
+          'openedByMeText': "Opened by me",
+          'ownedByMeText': "Owned by me",
+          'starredIconClassName': 'spr-icon-star-gadget',
+          'starredText': "Starred",
+          'titleLink': '<a id="gd-a%%1" class="gd-a" href="%%2" target="_blank" title="%%3">%%4</a>'
+        };
+
+        if (parseInt(document.body.offsetWidth, 10) > 200) {
+          config['columnStyles'].push('gd-mod');
+        }
+        
+        
+        
+        
+        var openedByMeDocs = [{st:false,ic:-1,ics:-1,a:"",t:"",md:"",mb:"",lv:"",o:false},
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1K0TL5I7msplRW9P-6WxpDBpCPG9qPUTP0KpPZuS56Ug/edit?hl\x3den\x26authuser\x3d0",t:"Ruby Rails convert tables",md:"Mar 4",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfNGZuODlqcDZr\x26hl\x3den\x26authuser\x3d0",t:"Ruby Server - Televant",md:"Apr 6",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1sxfgate8rs0QWTlb8_b20id2G5fUPtxbmZxa24xuvig/edit?hl\x3den\x26authuser\x3d0",t:"Bad for dogs",md:"Apr 6",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1urMsTG7BpXzUfpdDppsflXmLfLMQOGmCqLLLT4_OsagaV-Ayng6zxVqoro3p\x26hl\x3den\x26authuser\x3d0",t:"Pitts31Jul11PearlDeposit.pdf",md:"Apr 5",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1ujxX_GcPv7GGzwlFSk326H6E-eEcM6ysOnJkBHGKYgw/edit?hl\x3den\x26authuser\x3d0",t:"Alaska Cruises 2011",md:"Apr 2",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 2",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjhoczhkdHdoYw\x26hl\x3den\x26authuser\x3d0",t:"Kaiser Permanente Appointment Confirmation #9293596",md:"9/17/10",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 2",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/182ZdamZSE9-EMm-d8oY_iWgh2FngU7bjISNJTZxoU7k/edit?hl\x3den\x26authuser\x3d0",t:"Atrial Fib",md:"Mar 29",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 29",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d0B5F-idWfw7TeMjY5MTRmMTYtOWQxYy00YmFlLTllOTMtMzk4MDlhM2NkNGE5\x26authkey\x3dCJOtyKIE\x26hl\x3den\x26authuser\x3d0",t:"Seawater Irrigation.pdf",md:"Feb 12",mb:"poplist@populationmedia.org",lv:"Mar 21",o:false} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1ZaerBsJjnOAYbkxbhTuAXMbiBE6U7jy-86vQ7nhpD6Y/edit?hl\x3den\x26authuser\x3d0",t:"CSWP brochure 6,2,09 Page 1,2,3,4  FINAL Arial.doc",md:"Mar 10",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1pCzVsGAYTWbrhsYuxbUAowOZkMXItPK1MsvbDChfbL0/edit?hl\x3den\x26authuser\x3d0",t:"Questions - World Overpoulation awareness.docx",md:"Mar 2",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 7",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1KYBL1l8ER501Fw49Gjg_MQSsX1g5_oDPUecWfqB0uhg/edit?hl\x3den\x26authuser\x3d0",t:"sectsubs.rb (model)",md:"Mar 6",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1bxivKs7A_8ZeguQcQLm8iMKcq7Ffp-dhMpEHKSVQXns/edit?hl\x3den\x26authuser\x3d0",t:"create_sectsubs.rb",md:"Mar 6",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1tQyT5n1jrtKwJfzJ98UcWTxRWMN0ZIYRmQ61FuWSMgQ/edit?hl\x3den\x26authuser\x3d0",t:"create_indexes.rb",md:"Mar 6",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1RYMaMe9ylff77O1hjnAF3fkZT9qXjjk6DgLerB4EE_g/edit?hl\x3den\x26authuser\x3d0",t:"contributor.rb (model)",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/12p6Xod9Ss3emmtvgGwtH0109PElCTYj4r8805TDNOJI/edit?hl\x3den\x26authuser\x3d0",t:"sections control",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1sJ_k-Oikc46yZ-CoLQfYgb8aoPTtFcyhIgfm29-RtKo/edit?hl\x3den\x26authuser\x3d0",t:"common.pl",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1WY2KpyjwXShEDOiG6eji3QMWFt68_aXkC0Oe3q76Nc8/edit?hl\x3den\x26authuser\x3d0",t:"contributor_controller.rb",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/11b9g3JjDbfpr1BndKR45W3scQ6h5C5f4ML-YO53oNZQ/edit?hl\x3den\x26authuser\x3d0",t:"Migrate 001_create_contributors.rb",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1XVk_I4Cm_uUzwW1Hk1Ia-qrwz_-3aZgiWMnaGcdaFRE/edit?hl\x3den\x26authuser\x3d0",t:"CSWP brochure 6,2,09 Page 1,2,3,4  FINAL Arial.doc",md:"Feb 28",mb:"karen.gaia.pitts@gmail.com",lv:"Feb 28",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/13_7Pfjfw5llsB5OiVRTrGdP7WRA0gAK6wMwwKWHYpQQ/edit?hl\x3den\x26authuser\x3d0",t:"Dirty air triggers more heart attacks than cocaine",md:"Feb 26",mb:"karen.gaia.pitts@gmail.com",lv:"Feb 26",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1Q0PwdpEa-ctglC7bv-zBzMF5-R_dypknDdoStGsM_l8/edit?hl\x3den\x26authuser\x3d0",t:"Skype Conferencing",md:"Feb 26",mb:"karen.gaia.pitts@gmail.com",lv:"Feb 26",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1iQdUepR3X1Fa62PHpccRy2S6k7s6PT-dqZF2Gixrfhw/edit?hl\x3den\x26authuser\x3d0",t:"CNRCC Legislative Briefing 2010",md:"12/23/10",mb:"karen.gaia.pitts@gmail.com",lv:"12/23/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/117GkAsrkdwvbAg5zRQ9rY9Fp-1ZTgNDvlf1N1pnLhLg/edit?hl\x3den\x26authuser\x3d0",t:"Myanmar group",md:"12/21/10",mb:"karen.gaia.pitts@gmail.com",lv:"12/21/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1mpwhuv8baLPtVk5SNVaHsZ2b6dRaRuTPh9bQrX61Xsg/edit?hl\x3den\x26authuser\x3d0",t:"New Myanmar list",md:"12/17/10",mb:"karen.gaia.pitts@gmail.com",lv:"12/17/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/187HaMHg91Hc8OBf-IZETZRf72KmRuYIi8gtj2RhmUZI/edit?hl\x3den\x26authuser\x3d0",t:"WOA HIT COUNTER",md:"11/16/10",mb:"karen.gaia.pitts@gmail.com",lv:"11/16/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1Vr2pWfXqhzoGiN2FhAYV3ATazxct9ih5sNrCKcU4kL8/edit?hl\x3den\x26authuser\x3d0",t:"Mauve design changes summary",md:"11/12/10",mb:"karen.gaia.pitts@gmail.com",lv:"11/13/10",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1Qvay-0wRRkS2I9R3NrZP3ymQIvAotRAhg-zxByWXFoo8zDZwGxX2yH3S79Zj\x26hl\x3den\x26authuser\x3d0",t:"215 Bluebird Lane Folsom_Pest Report.pdf",md:"11/10/10",mb:"karen.gaia.pitts@gmail.com",lv:"11/12/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMzBmYnd2c25jdg\x26hl\x3den\x26authuser\x3d0",t:"Your United flight confirmation - October 13, 2010 - Sacramento t",md:"10/11/10",mb:"karen.gaia.pitts@gmail.com",lv:"10/11/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjlkczV3cmZoaA\x26hl\x3den\x26authuser\x3d0",t:"Your United flight confirmation - October 13, 2010 - Sacramento t",md:"9/30/10",mb:"karen.gaia.pitts@gmail.com",lv:"9/30/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1AzckZv6oK6gjqU3lbXFt-FXMxun_gMHWNriCBkjeX2A/edit?hl\x3den\x26authuser\x3d0",t:"GAS and BLOATING",md:"9/17/10",mb:"karen.gaia.pitts@gmail.com",lv:"9/17/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1gaXpvufUa7NUC-jkFLod17mv-ddlgW9Ga5hx466vwas/edit?hl\x3den\x26authuser\x3d0",t:"TO DO",md:"9/10/10",mb:"karen.gaia.pitts@gmail.com",lv:"9/10/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AWcoXZel8ziiZGQ0bmRuN21fNTJ6OGhkNWhoag\x26hl\x3den\x26authuser\x3d0",t:"DesignDetails",md:"7/27/10",mb:"abstractmachines@gmail.com",lv:"8/2/10",o:false} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjdndnpzcTlkZg\x26hl\x3den\x26authuser\x3d0",t:"Fw: Sept 4 - 10 Wyndham Vacation Details",md:"7/24/10",mb:"karen.gaia.pitts@gmail.com",lv:"7/24/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjZmNGZnZHBjMw\x26hl\x3den\x26authuser\x3d0",t:"TREASURY BONDS",md:"6/14/10",mb:"karen.gaia.pitts@gmail.com",lv:"6/14/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjNoNXdidndoZg\x26hl\x3den\x26authuser\x3d0",t:"SSH SHARED KEYS",md:"5/31/10",mb:"karen.gaia.pitts@gmail.com",lv:"6/4/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjVndzRkbXpmZw\x26hl\x3den\x26authuser\x3d0",t:"10Arunchal Pradesh2010",md:"5/31/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/31/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjRmcG1uNmt0bQ\x26hl\x3den\x26authuser\x3d0",t:"10Myanmar_Oct15-Nov1,2010",md:"5/31/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/31/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjJmYzI0Y3NnYw\x26hl\x3den\x26authuser\x3d0",t:"June Ballot:",md:"5/26/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/26/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjF4OGtydGdkaA\x26hl\x3den\x26authuser\x3d0",t:"Directions to Lee Millers",md:"5/24/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/24/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTlmc2IycGJkdg\x26hl\x3den\x26authuser\x3d0",t:"Roses Schedule",md:"5/20/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/24/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjBjODh3bTJjcw\x26hl\x3den\x26authuser\x3d0",t:"Karen Gaia, Check out all the possibl...",md:"5/21/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/21/10",o:true} ,
+        {st:false,ic:2,ics:13,a:"https://spreadsheets.google.com/ccc?key\x3d0AhEffAtapJgWdGVZVXVPZl8tdHZ6Z1JoSHBJQzYzQ2c\x26hl\x3den\x26authuser\x3d0",t:"215bluebird",md:"5/16/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/16/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMThncmIyMjJoaA\x26hl\x3den\x26authuser\x3d0",t:"CSWP meeting Thursday May 20",md:"5/16/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/16/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMGhrcWg5cmdk\x26hl\x3den\x26authuser\x3d0",t:"FTB_tax_payment",md:"9/13/09",mb:"karen.gaia.pitts@gmail.com",lv:"5/14/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTZmaGtnbmJjOQ\x26hl\x3den\x26authuser\x3d0",t:"Super Shuttle reservation return from Houston",md:"4/29/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/14/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTdjMmdyMmtkOA\x26hl\x3den\x26authuser\x3d0",t:"CSWP,Bonanza, spring 2010",md:"5/9/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/9/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTVmOGJmY3hnZw\x26hl\x3den\x26authuser\x3d0",t:"William Rees Are Humans Unsustainable by Nature",md:"4/23/10",mb:"karen.gaia.pitts@gmail.com",lv:"4/23/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTRoYjhnY3Q4eg\x26hl\x3den\x26authuser\x3d0",t:"CSWP Minutes Feb. 23, 2010",md:"3/5/10",mb:"karen.gaia.pitts@gmail.com",lv:"3/5/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTNmcW01dHBkcw\x26hl\x3den\x26authuser\x3d0",t:"CSWP, Brune welcome,2,15,10",md:"2/20/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/20/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTJkOXh2amtnYw\x26hl\x3den\x26authuser\x3d0",t:"March 10th Meeting State Parks Initiative doc",md:"2/20/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/20/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTFkYmY2NmZkNw\x26hl\x3den\x26authuser\x3d0",t:"CSWP Minutes  November 24",md:"2/11/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/12/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTBkeDRoOGhnag\x26hl\x3den\x26authuser\x3d0",t:"Bonanza Article Feb 2010 CSWP",md:"2/7/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/7/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfOWRqdzQyZzNk\x26hl\x3den\x26authuser\x3d0",t:"To Our Amador County Member2",md:"1/26/10",mb:"karen.gaia.pitts@gmail.com",lv:"1/26/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfN2Y5NXJkdmR0\x26hl\x3den\x26authuser\x3d0",t:"maidu agenda 2010 0111",md:"1/9/10",mb:"karen.gaia.pitts@gmail.com",lv:"1/9/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfNmM5cmgzOWdo\x26hl\x3den\x26authuser\x3d0",t:"Schwab eConfirms account ending in 461",md:"1/1/10",mb:"karen.gaia.pitts@gmail.com",lv:"1/1/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfM2hzdmtrOXpi\x26hl\x3den\x26authuser\x3d0",t:"Re: Ruby Server",md:"12/14/09",mb:"karen.gaia.pitts@gmail.com",lv:"12/29/09",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMmdzbXF2bmM2\x26hl\x3den\x26authuser\x3d0",t:"Ruby Server - Televant",md:"12/14/09",mb:"karen.gaia.pitts@gmail.com",lv:"12/29/09",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfNWZiNzh0djZz\x26hl\x3den\x26authuser\x3d0",t:"US_Bank_Restore_Account_form.pdf",md:"12/29/09",mb:"karen.gaia.pitts@gmail.com",lv:"12/29/09",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1LDZtJy7XNOfXes63s3OE9WDZES3_9Ip-0sEyqlo0Sc0FBE23LfSYmzsVQ0I5\x26hl\x3den\x26authuser\x3d0",t:"Spring 2011 Singles Schedule.pdf",md:"Feb 26",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d14pQjtkLWC69dqFCydqXmp6A1fXKOw2it_dPguaBCPKfHPMfxx3Pvh-X1nzUT\x26hl\x3den\x26authuser\x3d0",t:"Cancellation of Contract_Lopez.pdf",md:"12/21/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1vHmMP1dd5p6P5DoH81W_6HhaWCSHjCEiYVFot8NfCCkcTBctxHKjhdXYH7HI\x26hl\x3den\x26authuser\x3d0",t:"Est_1127_from_KnightHawk_Bu.pdf",md:"11/12/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1Cb7gD4B3AKvys9yRGLIw-rcBXfjVr_4Oebg0f_9OKyMb69FHkcxwjSJvgXM0\x26hl\x3den\x26authuser\x3d0",t:"215 Bluebird Lane Home Inspection Report.pdf",md:"11/10/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1t6mUuPMenkKQZmZkT5WyZZUKlhSzz_zrvPtIBZaTP5BNUidGw7naU7C5IKJ5\x26authkey\x3dCPqkjMEK\x26hl\x3den\x26authuser\x3d0",t:"Traveler.pdf",md:"9/16/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1xfQeusPJ5jZulXcgIb9hCDde3iwdy8TwkgO9P3tUmbxQDFHcR18taHusS5w5\x26hl\x3den\x26authuser\x3d0",t:"Elements needing styling.pdf",md:"8/3/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:3,ics:11,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1CkamUYhgl-66M2RhhV4nyK-gP3MXmY-2Kru7qYs6fnFbhLlrdCWEUqJg8cg5\x26hl\x3den\x26authuser\x3d0",t:"ssh_example.tiff",md:"6/12/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true}];
+
+        var ownedByMeDocs = [{st:false,ic:-1,ics:-1,a:"",t:"",md:"",mb:"",lv:"",o:false},
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1K0TL5I7msplRW9P-6WxpDBpCPG9qPUTP0KpPZuS56Ug/edit?hl\x3den\x26authuser\x3d0",t:"Ruby Rails convert tables",md:"Mar 4",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfNGZuODlqcDZr\x26hl\x3den\x26authuser\x3d0",t:"Ruby Server - Televant",md:"Apr 6",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1sxfgate8rs0QWTlb8_b20id2G5fUPtxbmZxa24xuvig/edit?hl\x3den\x26authuser\x3d0",t:"Bad for dogs",md:"Apr 6",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1urMsTG7BpXzUfpdDppsflXmLfLMQOGmCqLLLT4_OsagaV-Ayng6zxVqoro3p\x26hl\x3den\x26authuser\x3d0",t:"Pitts31Jul11PearlDeposit.pdf",md:"Apr 5",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1ujxX_GcPv7GGzwlFSk326H6E-eEcM6ysOnJkBHGKYgw/edit?hl\x3den\x26authuser\x3d0",t:"Alaska Cruises 2011",md:"Apr 2",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 2",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjhoczhkdHdoYw\x26hl\x3den\x26authuser\x3d0",t:"Kaiser Permanente Appointment Confirmation #9293596",md:"9/17/10",mb:"karen.gaia.pitts@gmail.com",lv:"Apr 2",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/182ZdamZSE9-EMm-d8oY_iWgh2FngU7bjISNJTZxoU7k/edit?hl\x3den\x26authuser\x3d0",t:"Atrial Fib",md:"Mar 29",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 29",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d0B5F-idWfw7TeMjY5MTRmMTYtOWQxYy00YmFlLTllOTMtMzk4MDlhM2NkNGE5\x26authkey\x3dCJOtyKIE\x26hl\x3den\x26authuser\x3d0",t:"Seawater Irrigation.pdf",md:"Feb 12",mb:"poplist@populationmedia.org",lv:"Mar 21",o:false} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1ZaerBsJjnOAYbkxbhTuAXMbiBE6U7jy-86vQ7nhpD6Y/edit?hl\x3den\x26authuser\x3d0",t:"CSWP brochure 6,2,09 Page 1,2,3,4  FINAL Arial.doc",md:"Mar 10",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1pCzVsGAYTWbrhsYuxbUAowOZkMXItPK1MsvbDChfbL0/edit?hl\x3den\x26authuser\x3d0",t:"Questions - World Overpoulation awareness.docx",md:"Mar 2",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 7",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1KYBL1l8ER501Fw49Gjg_MQSsX1g5_oDPUecWfqB0uhg/edit?hl\x3den\x26authuser\x3d0",t:"sectsubs.rb (model)",md:"Mar 6",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1bxivKs7A_8ZeguQcQLm8iMKcq7Ffp-dhMpEHKSVQXns/edit?hl\x3den\x26authuser\x3d0",t:"create_sectsubs.rb",md:"Mar 6",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1tQyT5n1jrtKwJfzJ98UcWTxRWMN0ZIYRmQ61FuWSMgQ/edit?hl\x3den\x26authuser\x3d0",t:"create_indexes.rb",md:"Mar 6",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1RYMaMe9ylff77O1hjnAF3fkZT9qXjjk6DgLerB4EE_g/edit?hl\x3den\x26authuser\x3d0",t:"contributor.rb (model)",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 6",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/12p6Xod9Ss3emmtvgGwtH0109PElCTYj4r8805TDNOJI/edit?hl\x3den\x26authuser\x3d0",t:"sections control",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1sJ_k-Oikc46yZ-CoLQfYgb8aoPTtFcyhIgfm29-RtKo/edit?hl\x3den\x26authuser\x3d0",t:"common.pl",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1WY2KpyjwXShEDOiG6eji3QMWFt68_aXkC0Oe3q76Nc8/edit?hl\x3den\x26authuser\x3d0",t:"contributor_controller.rb",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/11b9g3JjDbfpr1BndKR45W3scQ6h5C5f4ML-YO53oNZQ/edit?hl\x3den\x26authuser\x3d0",t:"Migrate 001_create_contributors.rb",md:"Mar 5",mb:"karen.gaia.pitts@gmail.com",lv:"Mar 5",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1XVk_I4Cm_uUzwW1Hk1Ia-qrwz_-3aZgiWMnaGcdaFRE/edit?hl\x3den\x26authuser\x3d0",t:"CSWP brochure 6,2,09 Page 1,2,3,4  FINAL Arial.doc",md:"Feb 28",mb:"karen.gaia.pitts@gmail.com",lv:"Feb 28",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/13_7Pfjfw5llsB5OiVRTrGdP7WRA0gAK6wMwwKWHYpQQ/edit?hl\x3den\x26authuser\x3d0",t:"Dirty air triggers more heart attacks than cocaine",md:"Feb 26",mb:"karen.gaia.pitts@gmail.com",lv:"Feb 26",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1Q0PwdpEa-ctglC7bv-zBzMF5-R_dypknDdoStGsM_l8/edit?hl\x3den\x26authuser\x3d0",t:"Skype Conferencing",md:"Feb 26",mb:"karen.gaia.pitts@gmail.com",lv:"Feb 26",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1iQdUepR3X1Fa62PHpccRy2S6k7s6PT-dqZF2Gixrfhw/edit?hl\x3den\x26authuser\x3d0",t:"CNRCC Legislative Briefing 2010",md:"12/23/10",mb:"karen.gaia.pitts@gmail.com",lv:"12/23/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/117GkAsrkdwvbAg5zRQ9rY9Fp-1ZTgNDvlf1N1pnLhLg/edit?hl\x3den\x26authuser\x3d0",t:"Myanmar group",md:"12/21/10",mb:"karen.gaia.pitts@gmail.com",lv:"12/21/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1mpwhuv8baLPtVk5SNVaHsZ2b6dRaRuTPh9bQrX61Xsg/edit?hl\x3den\x26authuser\x3d0",t:"New Myanmar list",md:"12/17/10",mb:"karen.gaia.pitts@gmail.com",lv:"12/17/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/187HaMHg91Hc8OBf-IZETZRf72KmRuYIi8gtj2RhmUZI/edit?hl\x3den\x26authuser\x3d0",t:"WOA HIT COUNTER",md:"11/16/10",mb:"karen.gaia.pitts@gmail.com",lv:"11/16/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1Vr2pWfXqhzoGiN2FhAYV3ATazxct9ih5sNrCKcU4kL8/edit?hl\x3den\x26authuser\x3d0",t:"Mauve design changes summary",md:"11/12/10",mb:"karen.gaia.pitts@gmail.com",lv:"11/13/10",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1Qvay-0wRRkS2I9R3NrZP3ymQIvAotRAhg-zxByWXFoo8zDZwGxX2yH3S79Zj\x26hl\x3den\x26authuser\x3d0",t:"215 Bluebird Lane Folsom_Pest Report.pdf",md:"11/10/10",mb:"karen.gaia.pitts@gmail.com",lv:"11/12/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMzBmYnd2c25jdg\x26hl\x3den\x26authuser\x3d0",t:"Your United flight confirmation - October 13, 2010 - Sacramento t",md:"10/11/10",mb:"karen.gaia.pitts@gmail.com",lv:"10/11/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjlkczV3cmZoaA\x26hl\x3den\x26authuser\x3d0",t:"Your United flight confirmation - October 13, 2010 - Sacramento t",md:"9/30/10",mb:"karen.gaia.pitts@gmail.com",lv:"9/30/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1AzckZv6oK6gjqU3lbXFt-FXMxun_gMHWNriCBkjeX2A/edit?hl\x3den\x26authuser\x3d0",t:"GAS and BLOATING",md:"9/17/10",mb:"karen.gaia.pitts@gmail.com",lv:"9/17/10",o:true} ,
+        {st:false,ic:0,ics:8,a:"https://docs.google.com/document/d/1gaXpvufUa7NUC-jkFLod17mv-ddlgW9Ga5hx466vwas/edit?hl\x3den\x26authuser\x3d0",t:"TO DO",md:"9/10/10",mb:"karen.gaia.pitts@gmail.com",lv:"9/10/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AWcoXZel8ziiZGQ0bmRuN21fNTJ6OGhkNWhoag\x26hl\x3den\x26authuser\x3d0",t:"DesignDetails",md:"7/27/10",mb:"abstractmachines@gmail.com",lv:"8/2/10",o:false} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjdndnpzcTlkZg\x26hl\x3den\x26authuser\x3d0",t:"Fw: Sept 4 - 10 Wyndham Vacation Details",md:"7/24/10",mb:"karen.gaia.pitts@gmail.com",lv:"7/24/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjZmNGZnZHBjMw\x26hl\x3den\x26authuser\x3d0",t:"TREASURY BONDS",md:"6/14/10",mb:"karen.gaia.pitts@gmail.com",lv:"6/14/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjNoNXdidndoZg\x26hl\x3den\x26authuser\x3d0",t:"SSH SHARED KEYS",md:"5/31/10",mb:"karen.gaia.pitts@gmail.com",lv:"6/4/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjVndzRkbXpmZw\x26hl\x3den\x26authuser\x3d0",t:"10Arunchal Pradesh2010",md:"5/31/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/31/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjRmcG1uNmt0bQ\x26hl\x3den\x26authuser\x3d0",t:"10Myanmar_Oct15-Nov1,2010",md:"5/31/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/31/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjJmYzI0Y3NnYw\x26hl\x3den\x26authuser\x3d0",t:"June Ballot:",md:"5/26/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/26/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjF4OGtydGdkaA\x26hl\x3den\x26authuser\x3d0",t:"Directions to Lee Millers",md:"5/24/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/24/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTlmc2IycGJkdg\x26hl\x3den\x26authuser\x3d0",t:"Roses Schedule",md:"5/20/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/24/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMjBjODh3bTJjcw\x26hl\x3den\x26authuser\x3d0",t:"Karen Gaia, Check out all the possibl...",md:"5/21/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/21/10",o:true} ,
+        {st:false,ic:2,ics:13,a:"https://spreadsheets.google.com/ccc?key\x3d0AhEffAtapJgWdGVZVXVPZl8tdHZ6Z1JoSHBJQzYzQ2c\x26hl\x3den\x26authuser\x3d0",t:"215bluebird",md:"5/16/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/16/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMThncmIyMjJoaA\x26hl\x3den\x26authuser\x3d0",t:"CSWP meeting Thursday May 20",md:"5/16/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/16/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMGhrcWg5cmdk\x26hl\x3den\x26authuser\x3d0",t:"FTB_tax_payment",md:"9/13/09",mb:"karen.gaia.pitts@gmail.com",lv:"5/14/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTZmaGtnbmJjOQ\x26hl\x3den\x26authuser\x3d0",t:"Super Shuttle reservation return from Houston",md:"4/29/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/14/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTdjMmdyMmtkOA\x26hl\x3den\x26authuser\x3d0",t:"CSWP,Bonanza, spring 2010",md:"5/9/10",mb:"karen.gaia.pitts@gmail.com",lv:"5/9/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTVmOGJmY3hnZw\x26hl\x3den\x26authuser\x3d0",t:"William Rees Are Humans Unsustainable by Nature",md:"4/23/10",mb:"karen.gaia.pitts@gmail.com",lv:"4/23/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTRoYjhnY3Q4eg\x26hl\x3den\x26authuser\x3d0",t:"CSWP Minutes Feb. 23, 2010",md:"3/5/10",mb:"karen.gaia.pitts@gmail.com",lv:"3/5/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTNmcW01dHBkcw\x26hl\x3den\x26authuser\x3d0",t:"CSWP, Brune welcome,2,15,10",md:"2/20/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/20/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTJkOXh2amtnYw\x26hl\x3den\x26authuser\x3d0",t:"March 10th Meeting State Parks Initiative doc",md:"2/20/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/20/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTFkYmY2NmZkNw\x26hl\x3den\x26authuser\x3d0",t:"CSWP Minutes  November 24",md:"2/11/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/12/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMTBkeDRoOGhnag\x26hl\x3den\x26authuser\x3d0",t:"Bonanza Article Feb 2010 CSWP",md:"2/7/10",mb:"karen.gaia.pitts@gmail.com",lv:"2/7/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfOWRqdzQyZzNk\x26hl\x3den\x26authuser\x3d0",t:"To Our Amador County Member2",md:"1/26/10",mb:"karen.gaia.pitts@gmail.com",lv:"1/26/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfN2Y5NXJkdmR0\x26hl\x3den\x26authuser\x3d0",t:"maidu agenda 2010 0111",md:"1/9/10",mb:"karen.gaia.pitts@gmail.com",lv:"1/9/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfNmM5cmgzOWdo\x26hl\x3den\x26authuser\x3d0",t:"Schwab eConfirms account ending in 461",md:"1/1/10",mb:"karen.gaia.pitts@gmail.com",lv:"1/1/10",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfM2hzdmtrOXpi\x26hl\x3den\x26authuser\x3d0",t:"Re: Ruby Server",md:"12/14/09",mb:"karen.gaia.pitts@gmail.com",lv:"12/29/09",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfMmdzbXF2bmM2\x26hl\x3den\x26authuser\x3d0",t:"Ruby Server - Televant",md:"12/14/09",mb:"karen.gaia.pitts@gmail.com",lv:"12/29/09",o:true} ,
+        {st:false,ic:0,ics:3,a:"https://docs.google.com/Doc?docid\x3d0AREffAtapJgWZGY5bTdudGRfNWZiNzh0djZz\x26hl\x3den\x26authuser\x3d0",t:"US_Bank_Restore_Account_form.pdf",md:"12/29/09",mb:"karen.gaia.pitts@gmail.com",lv:"12/29/09",o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1LDZtJy7XNOfXes63s3OE9WDZES3_9Ip-0sEyqlo0Sc0FBE23LfSYmzsVQ0I5\x26hl\x3den\x26authuser\x3d0",t:"Spring 2011 Singles Schedule.pdf",md:"Feb 26",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d14pQjtkLWC69dqFCydqXmp6A1fXKOw2it_dPguaBCPKfHPMfxx3Pvh-X1nzUT\x26hl\x3den\x26authuser\x3d0",t:"Cancellation of Contract_Lopez.pdf",md:"12/21/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1vHmMP1dd5p6P5DoH81W_6HhaWCSHjCEiYVFot8NfCCkcTBctxHKjhdXYH7HI\x26hl\x3den\x26authuser\x3d0",t:"Est_1127_from_KnightHawk_Bu.pdf",md:"11/12/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1Cb7gD4B3AKvys9yRGLIw-rcBXfjVr_4Oebg0f_9OKyMb69FHkcxwjSJvgXM0\x26hl\x3den\x26authuser\x3d0",t:"215 Bluebird Lane Home Inspection Report.pdf",md:"11/10/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1t6mUuPMenkKQZmZkT5WyZZUKlhSzz_zrvPtIBZaTP5BNUidGw7naU7C5IKJ5\x26authkey\x3dCPqkjMEK\x26hl\x3den\x26authuser\x3d0",t:"Traveler.pdf",md:"9/16/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:1,ics:10,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1xfQeusPJ5jZulXcgIb9hCDde3iwdy8TwkgO9P3tUmbxQDFHcR18taHusS5w5\x26hl\x3den\x26authuser\x3d0",t:"Elements needing styling.pdf",md:"8/3/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true} ,
+        {st:false,ic:3,ics:11,a:"https://docs.google.com/viewer?a\x3dv\x26pid\x3dexplorer\x26chrome\x3dtrue\x26srcid\x3d1CkamUYhgl-66M2RhhV4nyK-gP3MXmY-2Kru7qYs6fnFbhLlrdCWEUqJg8cg5\x26hl\x3den\x26authuser\x3d0",t:"ssh_example.tiff",md:"6/12/10",mb:"karen.gaia.pitts@gmail.com",lv:null,o:true}];
+
+        var dispose = _bootstrap(config, openedByMeDocs, ownedByMeDocs, prefs);
+      </script>
+<script type="text/javascript">
+      
+      if (typeof _IG_AdjustIFrameHeight != 'undefined') {
+        var content = document.getElementById('gd-content');
+        _IG_AdjustIFrameHeight(content.offsetHeight + 5);
+      }
+    </script></body></html>

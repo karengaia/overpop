@@ -1,0 +1,1 @@
+- Change ADMIN_E-MAIL to ADMIN_E_MAIL

@@ -1,0 +1,9 @@
+User-agent: *
+Disallow:/clock
+Disallow:/articles
+Disallow:/colors
+Disallow:/cgi-bin
+Disallow:/saveold
+Disallow:/Search_News
+Disallow:/Temp_news_images
+Disallow:/autosubmit

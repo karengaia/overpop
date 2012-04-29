@@ -1,0 +1,254 @@
+<html>
+<head>
+<title>WOA!!s Summarization Form</title>
+[TEMPLATE=saveSummaryJS]
+</head>
+<body basefont=arial link="blue" vlink="blue" alink="green"  bgcolor="FFCC99">
+<blockquote>
+<p>
+<table cellpadding=0 cellspacing=0 align=right><tr><td><img src="http://www.[CGISITE]/woaLogoAN.gif" hspace=20></td>
+<tr><td><center>
+   <table cellpadding=0 cellspacing=0><td><a target=_top   
+    href="http://www.[CGISITE].net"><font face=arial size=2 color="#000000">
+    <b>Home</b></a>&nbsp;&nbsp;</td></table>
+</td></table>
+
+<center>
+   <b><font size="5" face=arial>
+     WOA Article/Item Summarization<br></font></b>
+<table><td><center>
+   <font size=1 face="comic sans ms">
+[TODAY]
+<br>
+submitter: [firstname] [mi] [lastname]
+<br>
+#[docid]</font>
+<p>
+[ALINK]
+<b>[headline]</b></a>&nbsp; ... 
+<font size=1 face=arial>
+[SRCDATE]
+&nbsp;[source]
+</font>
+</center>
+
+</center></td></table></center>
+
+<!----- FORM BEGIN --------->
+
+<form method="post" name="article" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl"
+[ONSUBMIT]
+>
+<input type="hidden" name="cmd" value="storeform">
+<input type="hidden" name="ipform" value="summarize">
+<input type="hidden" name="action" value="update"> 
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
+<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
+<input type="hidden" name="sysdate" value="[sysdate]">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="userid" value="[userid]"> 
+<input type="hidden" name="pubmonth" value="[pubmonth]"> 
+<input type="hidden" name="pubday" value="
+[PUBDAY]
+">
+<input type="hidden" name="pubyear" value="[pubyear]"> 
+<input type="hidden" name="pubdate" value="[pubdate]"> 
+<input type="hidden" name="expday" value="[expmonth]"> 
+<input type="hidden" name="expyear" value="[expday]"> 
+<input type="hidden" name="expdate" value="[expyear]"> 
+<input type="hidden" name="priority" value="[priority]"> 
+<input type="hidden" name="topic" value="[topic]"> 
+<input type="hidden" name="regionhead" value="[regionhead]">
+<input type="hidden" name="source" value="[source]"> 
+<input type="hidden" name="link" value="[link]"> 
+<input type="hidden" name="headline" value="[headline]"> 
+<input type="hidden" name="period" value="[period]"> 
+<input type="hidden" name="keywords" value="[keywords]"> 
+<input type="hidden" name="unique" value="[unique]"> 
+<input type="hidden" name="imagefile" value="[imagefile]"> 
+<input type="hidden" name="imageloc" value="[imageloc]"> 
+<input type="hidden" name="sectsubs" value="[sectsubs]"> 
+<input type="hidden" name="comment" value="[comment]"> 
+
+<TABLE><TD width=400 valign=top>
+
+<table>
+<td valign=top>
+<font size=2 face="comic sans ms">
+Follow the <br><a href=#guidelines>guidelines </a><br>below</font><br>
+</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</td><td valign=top>
+<b>Region or <br>country:</b>
+</td><td>&nbsp;
+</td><td valign=top>
+<select size=3 multiple name="region">
+[REGIONS]
+</select>
+<br>
+<font face="verdana" size=1>Hold down CTRL key while selecting more than one</font>
+</td></table>
+
+<br>
+    <b>Please write the summary of the article/item here:</b></font><br> 
+    <textarea name="body" wrap="physical" rows="20" cols=55">[body]</textarea>
+    <br> <font size=1 face="comic sans ms">Text will wrap. Extra spaces and
+    line returns do not matter</font>
+
+<p>
+    <b>Make or add any remarks here:</b> &nbsp;&nbsp;
+   <font size=1 face="comic sans ms"></font><br>
+    <textarea name="note" wrap="physical" rows="2" cols=55">
+    [note]</textarea>
+
+<p>
+<br>
+[ADVANCE]
+<p>
+
+<table>
+<td><input type="submit" value="SUBMIT" name="submit"></td>
+<td>&nbsp;&nbsp;
+[SKIP_HANDLE]
+</td></table>
+
+<br><br><br>
+
+
+<a name=guidelines></a>
+<hr width=300>
+
+<p>
+<font face=verdana size=3><b>Why do we Summarize Population <br>and Environmental
+News?</b></font>
+<p>
+<font face=arial size=2>
+The News Digest, which is on the <a
+href="http://www.[CGISITE]">front page of WOA!!</a>
+provides a large set of news items in summarized form for quick scanning by
+the population-concerned and by those who may be just newly aware to the
+problems and impacts of overpopulation. 
+<p>
+In addition, the WOA!! News Digest and Archives provide a valuable research
+tool for those who want to check out certain facts or statistics on the
+environment, sustainability, population, or family planning.
+<p>
+If you would like to help WOA!! by summarizing news articles, it is
+important that you retain, for each article, important statistics and facts
+that researchers can use. Also look for opinions from respected researchers. Many of the
+links to news articles go dead after awhile, but WOA!! will still retain the
+news summaries.
+<p> 
+Choose from the article information which would interest the population-concerned: demographics, the environment, family planning, maternal and infant health, women's self-esteem, key political players, sustainability, etc.
+<p>
+When you summarize an article for WOA!!, one or two quotes are allowed, but
+please give credit. Show the source of the information. Cite publications so
+viewers can go to the library and do more research. Copy a little, but
+paraphrase a lot, to avoid copyright infringement. Shorten paragraphs by
+cutting out most descriptive words and hyperbole. Cut out unclear concepts
+or wordy explanations. Eliminate or use sparingly: anectdotal narratives. 
+<p>
+Often the same thing will be said twice in the same article -
+combine or eliminate. 
+<p>
+DO NOT ADD YOUR OWN INFORMATION OR OPINION except in brackets. At any rate,
+I publish very few comments and there is no guarantee that I will publish
+them.
+<p>
+<br>
+
+<hr width=300>
+<p>
+
+<font size=3 face=verdana>
+<b>Sections: Normal progression of articles <br>through the Autosubmit System</b></b></font><br>
+<font size=1 face=arial>
+(Not neccessarily every time)</font>
+<p>
+<font size=2 face=arial>
+<table cellpadding=5 cellspacing=0>
+<tr><td valign=top><font size=2 face="arial">1. Email (for emailed items sent by individuals or news clipping services)<br>
+                               -or- Suggested form<br><br>
+</td><td valign=top><font size=2 face="arial"> where I select the article into the database, if appropriate</td>
+<tr><td valign=top><font size=2 face="arial">2. Suggested worklist<br>
+       (and sometimes chaseLink list on volunteer page)<br><br></td><td valign=top><font size=2 face="arial"> where we process it for date, source, and various other corrections</td>
+<tr><td valign=top><font size=2 face="arial">3. Headlines <br><br></td><td valign=top><font size=2 face="arial"> where it stays until someone summarizes it</li>
+<tr><td valign=top><font size=2 face="arial">4. Summarized worklist<p></td><td valign=top><font size=2 face="arial"> where it waits for me to review and then send to the News Digest <br>
+    and the appropriate section</td>
+<tr><td valign=top><font size=2 face="arial">5a. News Digest ---> 6. News Archives</td><td>&nbsp;</td>
+<tr><td valign=top><font size=2 face="arial">5b. Section organized by topic <br>
+(i.e. India or Sustainability or Birth Control)</td><td>&nbsp;</td>
+</table>
+</font>
+
+<br><br><br>
+<font size=3 face=verdana>
+<b>Publishing Sequence</b></font><P>
+<font size=2 face="arial">	
+A page is displayed two different ways: dynamically and statically. Generally
+the public sees the static page and someone working as a volunteer sees the dynamic page, 
+which is generated on the fly so you can see your results immediately. 
+<p>
+An example of a dynamic URL is <br>
+http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?<br>display_section%%%India_intro%
+<br>One drawback to dynamic pages is that images are difficult to display and we
+usually do not attempt to display them. 
+
+<p>If you want to see the static page,
+you have to go to the location of that page - indirectly by going to the front page and navigating
+to the page using the indexes - or directly if you know the URL, like www.population-awareness.net/India.html
+<p>
+Once a webpage has been modified by a volunteer, it goes to the admin for approval, and is
+then FTP'd as a static page to the public area (in otherwords, it is 'published'). 
+When a section editor makes changes, the
+page may advance to the public area immediately.
+</font>
+<p>
+<hr width = 300>
+<p>
+<font face=verdana size=3>
+<b>The Region/Country scroll-down box</b></font>
+<font size=2 face="arial">
+<p>
+On this form you will see a small scroll-down box, with the regions/countries in it.
+<p>
+The country that the article is about will be highlighted. Of course, there are a few times when we have no clue what country it is. Then we use the default region, 'Global' (or N/A), which is at the top of the list.
+<p>
+You also have the ability to change the country if you do not think it is appropriate to the article. Just scroll to the country you want and click with your left mouse button on it.
+<p>
+To 'scroll' the countries, use your mouse cursor (left mouse button) to push on the up or down arrows on the right of the Regions/Countries box. Or you can put your mouse cursor (holding the left mouse button down) on the small bar between the arrows and drag it up or down.
+<p>
+Occasionally more than one country or region will be shown in the article. Both will be highlighted, but you will probably have to scroll down to find the second highlighted country.
+<p>
+There is one tricky thing about this type of scroll-down box - once you click your left mouse button inside the box, the selected country becomes unselected, even if you didn't want it to, and there is no way to get it back unless you click on it again.
+<p>
+To select more than one country, hold down the CTRL key (usually at the bottom left of your keyboard while you are clicking (left mouse button) on second or subsequent countries you are selecting.
+<p>
+If none of this is clear, you always have the option of noting the country in the Remarks box.
+
+</TD><TD width=5>&nbsp;</TD><TD width=45% align=left valign=top>
+<p><br>
+<b>Here is the full article to summarize from:</b></font>
+<table border=1 cellpadding=5 cellspacing=0><td>
+<font size=2 face=arial>
+[FULLBODY]
+</font>
+</td></table>
+
+</TD></TABLE>
+
+
+
+
+<br><br><br><br><br><br><br><br><br><br><br>
+<br><br><br><br><br><br><br><br><br><br><br><br>
+<br>
+
+<div align=right>
+<textarea name="fullbody" wrap="physical" rows="1" cols="1">[fullbody]</textarea>
+<font size=1 face=arial>please ignore</font>
+</div>
+</form>
+</html>

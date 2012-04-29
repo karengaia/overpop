@@ -1,0 +1,535 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+
+<!-- article_control lives in /www/autosubmit/templates-->
+<head>
+<title>WOA! Autosubmit Article Control</title>
+
+<script language="javascript" type="text/javascript">
+<!--
+// PLEASE DO NOT REMOVE THIS. THANKS
+// FIND GREATE JAVASCRIPT CODES AT http://www.wallpaperama.com
+var state = 'hidden';
+
+function showhide(layer_ref) {
+
+if (state == 'visible') {
+state = 'hidden';
+}
+else {
+state = 'visible';
+}
+if (document.all) { //IS IE 4 or 5 (or 6 beta)
+eval( "document.all." + layer_ref + ".style.visibility = state");
+}
+if (document.layers) { //IS NETSCAPE 4 or below
+document.layers[layer_ref].visibility = state;
+}
+if (document.getElementById && !document.all) {
+max = document.getElementById(layer_ref);
+max.style.visibility = state;
+}
+}
+
+function storeSectsub() {
+ document.getElementById('cmd').value = 'storesectsubs';
+// var xx = document.getElementById('cmd').value
+//	alert('storeSectsub cmd ' + xx);
+}
+
+function addSectsub() {
+document.getElementById('addchgsectsub').value = 'A';	
+document.getElementById('sectsubid').value = '';
+//var yy = document.getElementById('addchgsectsub').value;
+//	alert('addSectsub addchgsectsub ' + yy);
+}
+
+function delSectsub() {
+document.getElementById('addchgsectsub').value = 'D';
+//var zz = document.getElementById('addchgsectsub').value;	
+//	alert('delSectsub addchgsectsub ' + zz)
+}
+
+function loadSectsub()
+{
+if(!document.getElementById('selectedsectsub')) {
+	return(0);
+}
+var ss = document.getElementById('selectedsectsub');
+if(ss.options.selectedIndex < 0) {
+ss.options.selectedIndex = 0;
+}
+if(!ss.options[ss.options.selectedIndex].value) {
+	alert('null sectsub selected');
+	return(0);
+}
+var ssstr = ss.options[ss.options.selectedIndex].value;
+var s = ssstr.split("^",29);
+document.getElementById('addchgsectsub').value = 'U';
+document.getElementById('sectsubid').value = s[0];
+document.getElementById('ss_seq').value = s[1];
+document.getElementById('sectsub').value = s[2];
+document.getElementById('fromsectsubid').value = s[3];
+document.getElementById('fromsectsub').value = s[4];
+document.getElementById('subdir').value = s[5];
+document.getElementById('page').value = s[6];
+document.getElementById('category').value = s[7];
+document.getElementById('visable').value = s[8];
+document.getElementById('preview').value = s[9];
+document.getElementById('order1').value = s[10];
+document.getElementById('pg2order').value = s[11];
+document.getElementById('template').value = s[12];
+document.getElementById('titletemplate').value = s[13];
+document.getElementById('title').value = s[14];
+document.getElementById('allor1').value = s[15];
+document.getElementById('mobidesk').value = s[16];
+document.getElementById('doclink').value = s[17];
+document.getElementById('header').value = s[18];
+document.getElementById('footer').value = s[19];
+document.getElementById('ftpinfo').value = s[20];
+document.getElementById('pg1items').value = s[21];
+document.getElementById('pg2items').value = s[22];
+document.getElementById('pg2header').value = s[23];
+document.getElementById('more').value = s[24];
+document.getElementById('subtitle').value = s[25];
+document.getElementById('subtitletemplate').value = s[26];
+document.getElementById('menutitle').value = s[27];
+document.getElementById('keywordsmatch').value = s[28];
+//var uu = document.getElementById('addchgsectsub').value;
+//	alert('loadSectsub addchgsectsub ' + uu)
+}
+
+function clearssUpdateAdd() {
+document.getElementById('addchgsectsub').value = '';
+document.getElementById('cmd').value = 'process_select_login';
+document.getElementById('action').value = '';
+document.getElementById('sectsubid').value = '';
+document.getElementById('ss_seq').value = '';
+document.getElementById('sectsub').value ='';
+document.getElementById('fromsectsubid').value = '';
+document.getElementById('fromsectsub').value = '';
+document.getElementById('subdir').value = '';
+document.getElementById('page').value = '';
+document.getElementById('category').value = '';
+document.getElementById('visable').value = '';
+document.getElementById('preview').value = '';
+document.getElementById('order1').value = '';
+document.getElementById('pg2order').value = '';
+document.getElementById('template').value = '';
+document.getElementById('titletemplate').value = '';
+document.getElementById('subtitletemplate').value = '';
+document.getElementById('title').value = '';
+document.getElementById('subtitle').value = '';
+document.getElementById('allor1').value = '';
+document.getElementById('mobidesk').value = '';
+document.getElementById('doclink').value = '';
+document.getElementById('header').value = '';
+document.getElementById('footer').value = '';
+document.getElementById('ftpinfo').value = '';
+document.getElementById('pg1items').value = '';
+document.getElementById('pg2items').value = '';
+document.getElementById('pg2header').value = '';
+document.getElementById('more').value = '';
+document.getElementById('menutitle').value = '';
+document.getElementById('keywordsmatch').value = '';
+}
+
+function loadAcronym()
+{
+if(!document.getElementById('acronyms')) {
+	return(0);
+}
+var acr = document.getElementById('acronyms');
+if(acr.options.selectedIndex < 0) {
+acr.options.selectedIndex = 0;
+}
+if(!acr.options[acr.options.selectedIndex].value) {
+	alert('null acronyms selected');
+	return(0);
+}
+var acstr = acr.options[acr.options.selectedIndex].value;
+var ac = acstr.split("^",2);
+document.getElementById('actitle').value = ac[1];
+}
+//-->
+</script>
+
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link rel="stylesheet" href="/css/woa.css" type="text/css">
+<style>
+	div#hiddensectsub {margin-left:4px; visibility:hidden;}
+</style>
+</head>
+
+<body basefont="arial">
+
+<table width="100%">
+  <tr>
+<!-- LEFT COLUMN -->
+  <td width="20%" valign="top">
+
+<b>Server:</b>&nbsp;
+[svrinfoSvrname]
+<br>
+Master&nbsp;
+[svrinfoMaster]
+<br>
+
+Time: [nowdate]<br>
+Docs: [docCount]<br>
+Users: [userCount]<br>
+Hits: [hitCount]<br>
+
+
+<b>Telavant</b>&nbsp;&nbsp;
+<a target="_blank" href="https://www.telavant.com/controlpanel/login/">Login</a><br>
+
+<br>
+<b class="head">Logs</b><br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/log/errlog.html">Error log</a><br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/log/ftplog.html">FTP log</a><br>
+<br>
+
+<b class="head">Helper/Volunteer Aids</b><br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/guestAdmin.html">Guest Admin</a><br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/summarize.html">Summarize instructions</a><br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/apply.html">Application</a><br>
+<a target="_top" href="http://[PUBLICURL]/volunteer_page.html">Volunteer page</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_intro">
+Volunteer Inside Pg(fly)</a><br>
+<br>
+<b>Quick Fix files (not used)</b><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%quickchange%dir">
+Quickchange</a>
+<br><br>
+
+<table>
+<th>Switches Off/On (not used)</th>
+<tr>
+<td height="8">Futzing</td>
+<td height="8">
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnON%futzing">on</a></td>
+<td height="12px">
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnOFF%futzing">off</a></td>
+</tr><tr>
+<td height="12">Master Svr</td>
+<td height="12">
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnON%masterServer">yes</a></td>
+<td height="12">
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnOFF%masterServer">no</a></td>
+</tr><tr>
+<td>FTP</td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnON%FTP">do</a></td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnOFF%FTP">don't</a></td>
+</tr><tr>
+<td>Vacation</td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnON%vacation">on</a></td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnOFF%vacation">off</a></td>
+</tr><tr>
+<td>DisableCGI</td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnON%disableCGI">on</a></td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnOFF%disableCGI">off</a></td>
+</tr><tr>
+<td>Popnews forward</td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnON%popnewsForward">on</a></td>
+<td>
+<a href="http://[SCRIPTPATH]/small_utils.pl?turnOFF%popnewsForward">off</a></td>
+</tr></table>
+
+<br><br>
+<a href="http://validator.w3.org/check/referer">w3 check</a>
+
+</td>
+
+<!-- MIDDLE COLUMN -->
+
+<td width="40%">
+
+<div style="border: thin ridge;">
+	
+<form method="post" name="admin" action=
+"http://[SCRIPTPATH]/article.pl">
+<b style="font-size:110%;">WOA!! Admin Section_subsection Functions&nbsp;&nbsp;&nbsp;</b>
+
+<input type="hidden" id="cmd" name="cmd"  value="process_select_login">
+<input type="hidden" id="action" name="action"  value="">
+<input type="hidden" name="ipform"  value="article_control">
+
+<br><br>
+<b>Pages / PHP / Sections</b><br> 
+<div style="width:100%;height:300px;overflow:auto;border:1px solid #000;">
+[PHP_DO_PAGES]
+</div>
+<br><br>
+<div style="border: 3px purple ridge;padding:3px;">
+<br><b>Sections_subsections</b><br>
+<select id='selectedsectsub' size="10" multiple="multiple" name="selectsectsub">
+[ADD_SECTIONS_INFO]
+</select>
+<br>
+<br><b>Action:</b><br>
+<select size="1" name="action">
+<option value="display_subsection">A. View chosen subsection</option>
+<option value="display_prepage">B. View preliminary web page prior to publishing</option>
+<option value="move_webpage">C. Move page to public web page</option>
+<option value="print_select">D. Select from a list and chose action on selected</option>
+<option value="sort_subsection">E. Sort subsection</option>
+<option value="convert_old_subsection">F. Convert old subsection to new autosubmit</option>
+<option value="fix_sectsub">G. Fix this subsection</option>
+</select>
+
+<br>
+
+<b>Template:</b>&nbsp;
+<select size="1" name="aTemplate">
+<option value="default">default</option>
+<option value="alertitem">alertitem</option>
+<option value="chaseLink_Item">chaseLink_Item</option>
+<option value="comicStdItem">comicStdItem</option>
+<option value="chaseLink_Item">chaseLink_Item</option>
+<option value="dictionaryItem">dictionaryItem</option>
+<option value="eventItem">eventItem</option>
+<option value="fullItem">fullItem</option>
+<option value="headlineItem">headlineItem</option>
+<option value="introHeadItem">introHeadItem</option>
+<option value="introItem">introItem</option>
+<option value="linkBulletItem">linkBulletItem</option>
+<option value="linkItem">linkItem</option>
+<option value="MthlyItem">MthlyItem</option>
+<option value="needsSummItem">needsSummItem</option>
+<option value="newsitem">newsitem</option>
+<option value="opinionItem">opinionItem</option>
+<option value="paragraphItem">paragraphItem</option>
+<option value="plainHeadlineItem">plainHeadlineItem</option>
+<option value="quoteItem">quoteItem</option>
+<option value="recentItem">recentItem</option>
+<option value="reviewItem">reviewItem</option>
+<option value="selectUpdt_Item">selectUpdt_Item</option>
+<option value="skippedItem">skippedItem</option>
+<option value="smalHeadlineItem">smalHeadlineItem</option>
+<option value="smallLinkItem">smallLinkItem</option>
+<option value="stdItem">stdItem</option>
+<option value="straight">straight</option>
+<option value="select_top;suggestedItem;select_end">suggestedItem</option>
+<option value="testItem">testItem</option>
+<option value="stdItem">stdItem</option>
+</select>
+<br>
+<b class="head">Filters: </b> &nbsp;Select:<br>
+
+<table><tr>
+<td>
+&nbsp;&nbsp;&nbsp;</td>
+<td>
+Pubdate older than:
+<input type="text" name="chk_pubdate"  size="12" value=""> 
+<span class="note">i.e 2001-12-04</span>
+<br>
+Only handle KGP?&nbsp;<input type="checkbox" name="select_kgp"  value="Y"> 
+<br>
+Starting with this docid &nbsp;<input type="text" name="start_docid" size="6" maxlength="6" value="">
+</td></tr></table>
+<br>
+user:&nbsp; 
+<input type="text" name="userid" size="7" maxlength="5" value="[userid]">
+&nbsp;&nbsp; pin:
+<input type="password" name="pin" size="7" maxlength="4">
+&nbsp;<input type="submit" value="Continue" name="submit">&nbsp;
+<br><br>
+<b>Section control</b> <small>(select sectsub from dropdown list above)</small><br>
+<input type="radio" name="sectsubcrud" value="U" onclick="loadSectsub();storeSectsub();showhide('hiddensectsub');"> Update
+<input type="radio" name="sectsubcrud" value="A" onclick="loadSectsub();addSectsub();storeSectsub();showhide('hiddensectsub');"> Clone (add)
+ <input type="radio" name="sectsubcrud" value="-" checked="checked" onclick="clearssUpdateAdd();showhide('hiddensectsub');"> Clear
+ <input type="radio" name="sectsubcrud" value="D" onclick="loadSectsub();delSectsub();storeSectsub();showhide('hiddensectsub');"> Delete
+</cite>
+<div id="hiddensectsub">
+
+<table><tr>
+<td valign="top"><cite>
+<input id="addchgsectsub" type="hidden" maxlength="1" name="addchgsectsub" value="">
+id <input id="sectsubid" type="text" size="3" maxlength="6" name="sectsubid" value="[sectsubid]">
+seq <input id="ss_seq" type="text" size="3" maxlength="6" name="ss_seq" value="[ss_seq]">
+ss <input id="sectsub" type="text" size="18" maxlength="50" name="sectsub" value="[sectsub]"><br>
+fromSS <input id="fromsectsub" type="text" size="18" maxlength="35" name="fromsectsub" value="[fromsectsub]">	
+fromSSID <input id="fromsectsubid" type="text" size="3" maxlength="5" name="fromsectsubid" value="[fromsectsubid]"><br>
+subdir <input id="subdir" type="text" size="15" maxlength="50" name="subdir" value="[subdir]">
+page <input id="page" type="text" size="12" maxlength="50" name="page" value="[page]"><br>
+cat <input id="category" type="text" size="2" maxlength="2" name="category" value="[category]">
+vis <input id="visable" type="text" size="2" maxlength="2" name="visable" value="[visable]">
+prvw <input id="preview" type="text" size="2" maxlength="2" name="preview" value="[preview]">
+ord1 <input id="order1" type="text" size="2" maxlength="2" name="order1" value="[order1]">
+ord2<input id="pg2order" type="text" size="2" maxlength="2" name="pg2order" value="[pg2order]"><br>
+template <input id="template" type="text" size="15" maxlength="25" name="template" value="[template]"><br>
+title <input id="title" type="text" size="15" maxlength="25" name="title" value="[title]">
+titletmpl <input id="titletemplate" type="text" size="12" maxlength="25" name="titletemplate" value="[titletemplate]"><br>
+subtitle <input id="subtitle" type="text" size="15" maxlength="50" name="subtitle" value="[subtitle]"><br>
+subtempl <input id="subtitletemplate" type="text" size="12" maxlength="25" name="subtitletemplate" value="[subtitletemplate]"><br>
+allor1 <input id="allor1" type="text" size="5" maxlength="4" name="allor1" value="[allor1]">
+mobidesk <input id="mobidesk" type="text" size="5" maxlength="4" name="mobidesk" value="[mobidesk]">
+doclink <input id="doclink" type="text" size="5" maxlength="8" name="doclink" value="[doclink]"><br>
+hdr <input id="header" type="text" size="15" maxlength="25" name="header" value="[header]">
+ftr <input id="footer" type="text" size="15" maxlength="25" name="footer" value="[footer]"><br>
+ftp <input id="ftpinfo" type="text" size="15" maxlength="25" name="ftpinfo" value="[ftpinfo]">
+pg1ct <input id="pg1items" type="text" size="5" maxlength="10" name="pg1items" value="[pg1items]">
+pg2ct <input id="pg2items" type="text" size="5" maxlength="10" name="pg2items" value="[pg2items]">
+more <input id="more" type="text" size="5" maxlength="10" name="more" value="[more]">
+pg2hdr <input id="pg2header" type="text" size="15" maxlength="25" name="pg2header" value="[pg2header]"><br>
+menutitle <input id="menutitle" type="text" size="15" maxlength="50" name="menutitle" value="[menutitle]"><br>
+keywords <input id="keywordsmatch" type="text" size="15" maxlength="50" name="keywordsmatch" value="[keywordsmatch]">
+</td></tr></table>
+</div>
+</div>
+</form>
+<br><br>
+ 
+</td>
+
+<!-- RIGHT COLUMN -->
+
+<td style="width:40%;padding-left:15px; vertical-align:top;">
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%newItemParse%%%%A3491">New Article (All-in-One) Form</a><br><br>
+
+<b class="head">Acronyms</b>
+<select size="1" id="acronyms" name="acronyms" onChange="loadAcronym();">
+[ACRONYMS]
+</select><br>
+<input id="actitle" type="text" size="25" maxlength="200" name="title" value="[title]">
+<br><br>
+<b class="head">Worklists</b><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Headlines_priority%%%100">Headlines Priority</a><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Suggested_suggestedItem%%%10">Suggested Update List</a><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Suggested_emailedItem%%A3491">
+  Select email</a><br>
+<a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?clean_index%%%Suggested_emailedItem%%A3491">Clean email index</a><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%NewsDigest_NewsItem%">News on the fly</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Headlines_sustainability%">Headlines</a><br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/prepage/newsScan.html">news prepage</a><br>
+<br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_newArticle">New Article</a><br>
+<br>
+<a target="_blank" href="http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?list_sepmail%%">List Sepmail (popnews in)</a><br>
+<br>
+<b class="head">Population News Weekly</b><br>
+
+<a  target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%NewsWeekly_WeeklyItem%">
+Print PopNewsWeekly email</a><br>
+(Do a View->Source and then use Notepad to delete p br and nbsp tags.)<br><br>
+http://overpopulation.org/mail-list/quickmsg.php
+<b>Email Popnews</b>&nbsp;<a target="blank" href="http://overpopulation.org/mail-list/quickmsg.php">List admin PHP</a>
+<br><br>
+<b class="head">Move to Public:</b>
+<a target="_blank" href="http://[SCRIPTPATH]/moveutil.p
+l?move2">NewsScan/Headlines</a> <br>
+<a target="_blank" href="http://[SCRIPTPATH]/moveutil.p
+l?move1">NewsScan only</a>
+
+<br><br>
+<b class="head">Control files</b><br>
+
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/control/sections.html">Sections</a><br>
+
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/control/regions.html">Regions</a><br>
+
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/control/sources.html">Sources</a><br>
+<br>
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/control/contributors.html">Contributors</a>
+&nbsp;&nbsp;<a target="_blank" href="http://[SCRIPTPATH]/article.pl?print_users%">Print</a>
+
+&nbsp;&nbsp;<a target="_blank" href="http://[SCRIPTPATH]/contributor_do.pl?write_acctapp">Approve users</a><br>
+
+&nbsp;&nbsp;<a target="_blank" href="http://[PUBLICURL]/rr/contributor/list">List</a>&nbsp; in Ruby/MySQL (Ruby not used)<br>
+<br><br>
+
+<br><br>
+<b class="head">Self Link to Full Article</b><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%fullArticle%001707">
+(example)</a>
+
+</td>
+<td  width="10%">&nbsp;
+</td>
+
+
+</tr><tr>
+  <td colspan="3">&nbsp;
+	
+[DBTABLES]
+
+<br>
+<b class="head">Convert old Subsection</b>
+
+<table>
+<tr>
+<td>(Send a Section by email to popnews@population-awareness.net <br>
+ Separate by #####; <br>ACTION::convert at top of message<br>
+ TEMPLATE::straight if straight html)
+</td>
+<td>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?convert_old_subsection%%%FundingPolitics_index%cvrtFrom">
+Funding Politics - NOT USED ANYMORE</a><br>
+<br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?convert_old_subsection%%%Religion_intro%cvrtFrom">
+Religion</a>
+</td>
+</tr><tr><td colspan="2">
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%convert_Item%%%10%">
+Convert worklist</a><br>
+
+<br>
+<a target="_blank"  href="http://[SCRIPTPATH]/article.pl?display_subsection%cvrtUpdtItem%%Religion_intro%%%10%cvrtUpdtTop%selectUpdt_End">
+http://[SCRIPTPATH]/article.pl?display_subsection%cvrtUpdtItem%%convert_Item%%%10%cvrtUpdtTop%selectUpdt_End</a><br>
+Print subsection with convert templates
+<br>
+<br>
+<a target="_blank" 
+http://[SCRIPTPATH]/article.pl?display_subsection%selectUpdt_Item%%Volunteer_grist%%%20%selectUpdt_Top%selectUpdt_End</a><br>
+Print subsection with Suggest templates
+
+<br>
+<br>
+<a target="_blank"  href="http://[SCRIPTPATH]/article.pl?display_subsection%selectUpdt_Item%%NewsDigest_NewsItem%%%20%selectUpdt_Top%selectUpdt_End">
+http://[SCRIPTPATH]/article.pl?display_subsection%selectUpdt_Item%%NewsDigest_NewsItem%%%20%selectUpdt_Top%selectUpdt_End</a><br>
+Print subsection with Suggest templates
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?do_fullitem%%022598%">
+http://[SCRIPTPATH]/article.pl?do_fullitem%%022598%</a><br>
+Print file contents of docitem file with given docid
+
+</td></tr></table>
+
+<br>
+
+<b class="head">Small Utils</b><br>
+
+Delete items ....<br>
+http://[SCRIPTPATH]/small_utils.pl?deleteItems%011422%014525
+<br><br>
+Display items in a range ...<br>
+http://[SCRIPTPATH]/article.pl?displayRange%fullItem%011421%011455
+<br><br>
+Backup testBKUP.pl ...<br>
+http://[SCRIPTPATH]/moveutil.pl?bkup%cgi:testBKUP.pl
+<br><br>
+Restore testBKUP.pl ...<br>
+http://[SCRIPTPATH]/moveutil.pl?unbkup%cgi:testBKUP.pl
+<br><br>
+
+</td></tr></table>
+
+
+</body>
+</html>

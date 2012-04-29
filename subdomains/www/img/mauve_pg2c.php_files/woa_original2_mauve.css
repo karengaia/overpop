@@ -1,0 +1,430 @@
+/* design and coding by abstractmachines.net - modular template coding for overpopulation.org
+----
+Scope of Project: To modernize site, while retaining look and feel of a legacy site to a certain degree, 
+to honor site's history and longevity.
+Target audience includes individuals with vision problems, older readers, 
+and also younger/more tech-saavy readers, who are used to 
+seeing drop shadows and gradient backgrounds. 
+More modern DIV design such as opacity and rounded corners were avoided for these reasons.
+
+---- article templates
+for ease of use, sidebar article templates are modular/self-contained as much as possible - 
+this results in a lot of redundant css. 
+
+
+---- content overflow in this liquid layout
+wrapper will handle ANY height/size of content in center div, without breaking layout, in all popular browsers and screen resolutions.
+----layout has been tested in various settings - 
+particularly at low screen resolutions, zoomed in, testing for users with vision difficulties.
+such as:
+Internet Explorer with 800x600 screen resolution, as well as 1152x720 resolution, *and* 1280x720 resolution - and varying browser sizes...
+zoomed in/out at 100%, 125% 150%.
+Firefox Windows with same screen resolutions, Chrome for Windows and Mac, Opera, Flock, Safari, Firefox for Mac, monitor sizes 13" to 24"
+...layout tested in: IE6, IE7, IE8, Firefox for Windows and Mac, Chrome for Windows and Mac, Opera, Flock, Safari, and mobile devices.
+...liquid layout also suitable for extremely large monitors.
+----Liquid layout means the layout changes slightly according to browser size and related settings.
+
+----mobile site:
+mobile site is viewable by going to http://abstractmachines.net/client_demo/overpopulation/index.html on any popular mobile device
+-as requested in brief and project scop/contract, center content area is the only section of page viewable on mobile site
+-url for mobile site is http://demo-overpopulation.mobify.me
+-mobile site can be easily perfected and changed by client. it is not perfect right now, but it's very very easy 
+for client to change later to client's preferences. All work for mobile site is performed using GUI at the Mobify site.
+
+----mobile site and staging site:
+-staging site is located at http://abstractmachines.net/client_demo/overpopulation/index.html
+
+-mobile site is a JavaScript redirect from index.html page hosted at abstractmachines.net staging site for overpopulation.org client demo
+-overpopulation staging site and JavaScript redirects to mobile site will remain up and available for client for 60 calendar days after contract completion - 
+late October 2010. Once the redesign is complete for overpopulation.org, please inform designer, so mobile site redirect can be transferred over to correct domain.
+-Please note that if overpopulation.org redesign is not complete within 60 days, designer will create new login for client at mobify and run client through
+the very basic and simple instructions for mobify.
+*************** NOTE: ***************
+-Many popular and award-winning design industry sites use a Mobify mobile site redirect, 
+such as I Love Typography and A List Apart.
+
+----JavaScript red quote animation
+-User has no need to refresh page with this design. All links lead user away from page with quote.
+Current design includes JavaScript quote animation; when combined with the JavaScript slideshow the effect is more modern and interesting.
+Designer strongly suggests that this design for red quote is best design for the page, and best design for user experience.
+
+*/
+
+/* -------- HTML AND BG IMAGE ------------ */
+html {height:100%;/* sticky footer */}
+	/* reset browser defaults */
+	* { margin: 0;padding: 0;}		
+	body {
+		background:#888 url('/img/mauve/bg_mauve9.png') repeat; /* margin background */
+		background-attachment:fixed;
+		text-align:center; /* center */
+		z-index:1;margin:0 0 0 0;padding:0 0 0 0;}	
+	img {border:0px;} /* no image borders */
+	a img {border:0px;} 
+	p {text-align:left;}
+
+#world_population_wrapper {background: #8b4513 url('/img/mauve/logo_bg2.png')0 0 repeat; /* varying monitor settings */
+	min-width:800px;
+	max-width:2000px;  /* flex and fluid design */
+	overflow:hidden; /*drop shadow, and center content overflow in relation to screen resolution/monitor settings	*/
+	margin-left:auto; margin-right:auto;width:90%; /* centered layout with css drop shadow */
+	padding:0 0 0 0; margin-bottom:10px;
+		/* css drop shadow*/
+		-moz-box-shadow: 0px 4px 4px 6px #000;
+		-webkit-box-shadow:0px 4px 4px 6px #000;
+		box-shadow: 0px 4px 4px 6px #000;
+		/* For IE 8 */
+		-ms-filter: "progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=135, Color='#000000')";
+		/* For IE 5.5 - 7 */
+		filter: progid:DXImageTransform.Microsoft.Shadow(Strength=8, Direction=135, Color='#000000');
+	} 
+	#header {
+		width:auto;height:182px;
+		border-bottom:3px solid #8b4513;
+		z-index:10;}
+	#header_inner {height:150px;width:100%;background: #8b4513 url('/img/mauve/page2_header_bg5.png')0 0 repeat;}
+	#population_awareness_logo {width:40%;height:150px;float:left;display:inline; /* IE */ 
+		background: url('/img/mauve/logo_clear_web.png')0 0 no-repeat;}
+	#woa_text {width:60%;
+		height:150px;
+		float:left;
+		display:inline;/* IE */
+		background:transparent; /*background texture */
+		overflow:hidden;		/*fit to div for flex design*/
+		}
+	#woa_text p {padding-top:50px;padding-right:100px;display:inline-block;
+		font-size:1.8em;color:#d3d3d3;font-weight:bold;}
+	
+/*    ***************************** navigation ************************ */
+/* notes on adding/removing navigation: you must nest a ul within an li. menu is css and html, with exception of csshover.htc for IE*/
+#nav {text-align:left;margin:0 0 0 0;padding:0 0 0 0;}
+#nav, #nav ul, ul#nav_menu, #nav li {z-index:10;}
+#nav ul {width:100%;list-style:none;margin:0 0 0 0;padding:0 0 0 0;}
+/* **************** primary menu **************** */
+ul#nav_menu {background:#ffe4b5;margin-left:auto;margin-right:auto;text-align:center;border-bottom:3px solid #BC8F8F;}ul#nav_menu li {padding-right:30px;line-height:30px;}
+/* primary menu typography */
+ul#nav_menu li a, ul#nav_menu li a:visited {text-decoration:none;color:#696969;font: bold 1em helvetica arial, sans-serif;}
+ul#nav_menu li a:hover {text-decoration:none;color:#800000;padding-bottom:10px;}
+/* **************** secondary menu: design and positioning**************** */
+#nav ul.secondary {background:#c8ac8c;background: #c8ac8c url('/img/mauve/menu_bg_gold.png')0 0 repeat; margin-top:18px;border:1px solid gray;}
+/* ****** hover ******* padding for menu useability ***** */
+#nav ul.secondary li a:hover {padding-bottom:10px;color:black;}
+/* **************** secondary menu: typography **************** */
+#nav ul.secondary li, #nav ul.secondary li {font-size:.8em;line-height:30px;}#nav ul.secondary li, #nav ul.secondary li a {color:#2F4F4F;}
+/* secondary menu dropdowns */
+#nav ul#home {width:450px; left:-2px;}
+#nav ul#why_population {width:600px;}
+#nav ul#what_works {width:600px;left:-300px;}
+/*handle large what_works menu without inheriting to tertiary menu */
+#nav ul#what_works li {padding-right:10px;}#nav ul#what_works li ul li {padding-right:0px;} 
+/* ie inheritance */
+ul.tertiary {padding-right:0px;} 
+#nav ul#countries {width:600px;left:-300px;}
+#nav ul#advocacy {width:800px;left:-500px;}
+/* **************** tertiary menu **************** */
+#nav ul.tertiary {width:300px;margin-top:5px; border-top:1px solid gray;border-left:1px solid gray;border-right:1px solid gray;
+	z-index:5000;background:#c8ac8c;background: #c8ac8c url('/img/mauve/menu_bg_light.png')0 0 repeat;}
+#nav ul.tertiary li, #nav ul.tertiary li a {line-height:20px;background:#c8ac8c;;background: #c8ac8c url('/img/mauve/menu_bg_light.png')0 0 repeat;font-size:1em;display:block;margin:0 0 0 0;padding:0 0 0 0;}
+#nav ul.tertiary li {border-bottom:1px solid gray;}
+#nav ul.tertiary li a:hover {margin:0 0 0 0;padding:0 0 0 0;/* clear inheritance from secondary li a:hover */
+	background-color:#D8BFD8;} 
+/*tertiary menu dropdowns */
+#nav ul#holdups {width:300px;}
+/* CSS DROPDOWN MENU show and hide with CSS */
+ul li {display:inline;position:relative;}
+/* secondary drop down CSS menus: hover display*/
+li ul {width:100%;list-style:none;position: absolute;left: 0px;top: 0px;display: none;}
+li:hover ul {display:inline;}
+/* tertiary drop down CSS menus: hover display*/
+div#nav ul ul ul {width:100%;list-style:none;position: absolute;display: none;left:0px;top:14px;}
+div#nav ul ul li:hover ul {display:inline;}
+		/* **************************  3 column layout with fixed sidebars and fluid content area **************************  */
+			#threecolwrap {float:left;width:100%;
+				height:auto;height:100%;/*content overflow*/
+				margin-bottom:50px; overflow:hidden/* footer, and content overflow. */}
+			#twocolwrap {	float:left;display:inline; /*IE Doubled Margin bug */
+				 width:100%; /* wraps left and center   */
+				margin-right:-150px;
+				height:auto;height:100%; /*content overflow*/}							
+				/* inner columns - styling, and javascript equal heights script */
+				.col {height:auto;height:100%;/*content overflow for leftcol, centercol, rightcol */
+					margin-bottom:0;padding-bottom:0;
+					overflow:scroll;}			
+	/* ***************************     LEFT ****************************/
+			#leftcol {float:left;display:inline; /*IE Doubled Margin bug */
+				width:150px;background: url('/img/mauve/logo_bg2.png')0 0 repeat;padding-bottom:10px;}
+				/* **************** sidebar paragraph typography. **************** */			
+				p.tiny {color:#2f4f4f; 	font-style: normal;
+						font-variant: small-caps;
+						text-decoration: none;
+						 font-size: 13px;
+					        } /* for WOA!! info on right sidebar */				
+				p.sidebar {text-align:center;} /* assign this class to all left column and right column paragraphs - see HTML */
+				/* **************** left column media templates. **************** */
+				/*  ******** media one ******** */
+				.media_one {
+					background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+					margin:5px;margin-bottom:20px;
+					border:0px;}
+				.media_one_inner {
+					padding:5px;
+					top:-3px;background-color:#DDA0DD;background: #FFE4E1;
+					border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+				/*h1 */
+				
+					.media_one_inner h1, .media_one_inner h1 a, .media_one_inner h1 a:active, .media_one_inner h1 a:visited {text-decoration:none;
+						font-size:1.1em;
+						font-family:Georgia,serif;
+						color:#4E443C;
+						font-variant: small-caps; text-transform: none; font-weight: bold; margin-bottom: 0;}
+					.media_one_inner h1 a:hover {color:black;text-decoration:underline;} 	
+					/*  ******** */				
+					.media_one_inner h2, .media_one_inner h2 a, .media_one_inner h2 a:active, .media_one_inner h2 a:visited {font-family:Georgia,serif;
+						font-size: .7em;
+						text-transform:uppercase;
+						letter-spacing:2px;padding-top:3px;}				
+					.media_one_inner h2 a:hover {color:black;text-decoration:underline;} 	
+				/*  ******** media two ******** */
+				.media_two {
+					background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+					margin:5px;margin-bottom:20px;
+					border:0px;}
+				.media_two_inner {
+					padding:5px;
+						top:-3px;background-color:#ffffff;
+						border-bottom:1px solid black;border-right:1px solid black;}/* drop shadow */
+					.media_two_inner h1, .media_two_inner h1 a, .media_two_inner h1 a:active, .media_two_inner h1 a:visited	
+					{color: #424242;
+					        font-family: Georgia, Garamond, Times, serif;
+						letter-spacing:0.1em;
+						text-align:center;
+						text-transform: lowercase;
+						line-height: 105%;
+						font-size: 14pt;
+						font-variant: small-caps;text-decoration:none; }
+					.media_two_inner h1 a:hover {color:#800080;text-decoration:underline;}
+					/*  ******** */	
+					.media_two_inner h2, .media_two_inner h2 a, .media_two_inner h2 a:active, .media_two_inner h2 a:visited
+					{font-family: Georgia, Garamond, Times, serif;
+						font-style: italic;
+					        color: #424242;font-size:1em;}
+								.media_two_inner h2 a:hover {color:#800080;display:block;text-decoration:underline;}			
+	/* ***************************     CENTER ****************************/
+				/* LAYOUT */
+				#centercol {width:auto;
+					margin-left:150px;
+					margin-right:150px;
+					min-width:500px;
+					max-width:1700px;
+					background:#ffffff;
+					padding:5px 10px 5px 10px; /*news_item_wrapper styling */
+					}						
+					/* **************** center column article templates. **************** */
+					#news_digest {margin:10px auto 10px auto;}
+					#news_digest h1 {font-size:3em;text-shadow:2px 2px 2px #111;color:#666;letter-spacing:1px;font-weight:bold;}
+					#news_digest h2 {font-size:1em;text-shadow:none;color:#666;text-decoration:underline;font-weight:lighter;padding-top:5px;}
+					/*  ******** red quote ******** */
+					#quotetext {color:#800000;font-weight:bold;text-shadow: 3px 3px 3px #778899;
+						margin:10px auto 15px auto;
+						text-align:center;
+						min-width:200px;max-width:600px;
+						font-style:italic;}					
+					/* red quote source */
+					#quotetext span {display:block;color:#000;font-size:.8em;text-shadow:none;}				
+					/* ******** news item ******** */
+					.news_item_wrapper {text-align:center;margin:0 auto 0 auto; margin-bottom:30px;
+						min-width:450px;max-width:550px;
+						background:#d3d3d3;)
+						padding:0 0 0 0;padding-right:3px;} /* drop shadow */
+					.news_item_content {text-align:left; padding-right:10px;
+						position:relative;top: -3px;
+						background:#fff;border-bottom:1px solid #666;border-right:1px solid #666;} /* drop shadow */
+					/* h1: headline */
+					.news_item_content h1, .news_item_content h1 a, .news_item_content h1 a:visited 
+					{text-decoration:underline;font-weight:bold;font-family:Helvetica Arial sans-serif;
+						font-size:1.1em;
+						color:#666666;} 
+					div.news_item_content h1 a:hover {
+						color:#9370DB;}/* headline hover */
+					/* h2: date and source */
+					div.news_item_content h2 {font-size:.9em;padding-bottom:10px;}
+					div.news_item_content span.date {text-decoration:none;display:inline-block;font-size:.9em;padding-right:5px;}
+					div.news_item_content span.source {text-decoration:none;display:inline-block;}
+					.news_item_content p {margin-bottom:12px;}				
+/* end twocol wrap here in html - 2 column wrap for cross browser CSS/HTML - 3 column design with fluid center content area. */
+	/* ***************************     RIGHT ****************************/
+	#rightcol {float:left;width:150px;
+					/* *************  border-right:5px solid #A0522D; *************  */
+						background: url('/img/mauve/logo_bg2.png')0 0 repeat;
+						padding-bottom:10px; }			
+						/* **************** right column article templates. **************** */
+						/*  ******** how you can help ******** */
+						.help_one {
+							background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+							margin:5px;margin-bottom:20px;border:0px;}
+						.help_one_inner {
+							padding:5px;top:-3px;background-color: #FFE4E1;border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+						/* help one h1 */
+							.help_one_inner h1, .help_one_inner h1 a, .help_one_inner h1 a:active, .help_one_inner h1 a:visited 
+							{text-decoration:none;color:#2f4f4f;
+								font-family:Georgia, serif;
+									font-size:1.3em;display:block;
+									color:#381704;letter-spacing:0.1em;
+									line-height:200%;padding-top:11px;}
+							.help_one_inner h1 a:hover {color:#2f4f4f;display:block;text-decoration:underline;}
+								/*  ******** */	
+									.help_one_inner h2, .help_one_inner h2 a, .help_one_inner h2 a:active, .help_one_inner h2 a:visited {text-decoration:none;color:#8B4513;
+										font-size:.8em;display:block;}
+									.help_one_inner h2 a:hover {color:#800080;display:block;text-decoration:none;} 					
+						/*  ******** how you can help 2 ******** */
+						    .help_two {
+								background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+								margin:5px;margin-bottom:20px;border:0px;}
+							.help_two_inner {
+								padding:5px;top:-3px;background-color: #D2B48C;border-bottom:1px solid black;border-right:1px solid black;}/* drop shadow */
+								.help_two_inner h1, .help_two_inner h1 a, .media_two_inner h1 a:active, .help_two_inner h1 a:visited	
+								{text-decoration:none;color:#2f4f4f;
+										font-size:1.1em;display:block;}
+								.help_two_inner h1 a:hover {color:#556B2F;display:block;text-decoration:none;}
+								/*  ******** */	
+									.help_two_inner h2, .help_two_inner h2 a, .help_two_inner h2 a:active, .help_two_inner h2 a:visited {text-decoration:none;color:#000000;
+										font-size:.8em;display:block;}
+									.help_two_inner h2 a:hover {color:#800080;display:block;text-decoration:none;}					
+						/*  ******** news by email ******** */
+						.news_by_email_one {
+							background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+							margin:5px;margin-bottom:20px;
+							border:0px;}
+						.news_by_email_one_inner {
+							padding:5px;
+							top:-3px;background-color: #FFE4E1;
+							border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+							.news_by_email_one_inner h1, .news_by_email_one_inner h1 a, .news_by_email_one_inner h1 a:active, .news_by_email_one_inner h1 a:visited {
+								font-size:1.1em;
+							margin-top: 5px; margin-bottom: 0px;
+							text-align: center;
+						        font-weight: normal;
+						        color: #222;text-decoration:none;}
+							.news_by_email_one_inner h1 a:hover {color:#800080;text-decoration:underline;} 
+							.news_by_email_one_inner h2, .news_by_email_one_inner h2 a, .news_by_email_one_inner h2 a:active, .news_by_email_one_inner h2 a:visited {
+							font-family: "Lucida Grande", Tahoma;
+								font-size: .8em;
+								font-weight: lighter;
+								font-variant: normal;
+								text-transform: uppercase;
+								color: #666666;
+							        margin-top: 10px;
+								letter-spacing: 0.3em;text-decoration:none;}
+								.news_by_email_one_inner h2 a:hover {text-decoration:underline;}						
+						/*  ******** news by email  2******** */	
+								.news_by_email_two{
+									background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+									margin:5px;margin-bottom:20px;
+									border:0px;}
+								.news_by_email_two_inner {
+									padding:5px;
+									top:-3px;background: #FFE4E1;
+									border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+									.news_by_email_two_inner h1, .news_by_email_two_inner h1 a, .news_by_email_two_inner h1 a:active, .news_by_email_two_inner h1 a:visited {
+										font-family:georgia, serif;
+										  color:#786E69;
+										  font-size:1.2em;
+										  font-weight:bold;
+										  font-style:italic;
+										  letter-spacing:.1em;
+										  text-decoration:none;}
+									.news_by_email_two_inner h1 a:hover {color:#800080;display:block;text-decoration:underline;} 
+									.news_by_email_two_inner h2, .news_by_email_two_inner h2 a, .news_by_email_two_inner h2 a:active, .news_by_email_two_inner h2 a:visited 
+											{font-size: .9em;
+											font-weight: lighter;
+											font-variant: normal;
+											text-transform: uppercase;
+											color: #000;
+										        margin-top: 10px;
+											letter-spacing: 0.3em;text-decoration:none;}
+									.news_by_email_two_inner h2 a:hover {text-decoration:underline;margin-top:10px;}
+						/*  ******** calendar ******** */
+						.calendar_one {
+							background-color:#666; padding-right:2px;padding-bottom:2px;/* drop shadow */
+							margin:5px;margin-bottom:20px;
+							border:0px;}
+						.calendar_one_inner {
+							padding:5px;
+							top:-3px;background: #FFE4E1;
+							border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+							/*headline is h1 */
+							.calendar_one_inner h1,.calendar_one_inner h1 a, .calendar_one_inner h1 a:active, .calendar_one_inner h1 a:visited 
+							{text-decoration:none;color:#8B4513;
+								font-family:georgia, serif;
+								  color:#381704;
+								  font-size:1.1em;
+								  letter-spacing:0.1em;
+								  line-height:300%;
+								  padding-top:11px;}
+							.calendar_one_inner h1 a:hover {color:#800080;text-decoration:none;}
+							/*dates h2*/
+							.calendar_one_inner h2,.calendar_one_inner h2 a, .calendar_one_inner h2 a:active, .calendar_one_inner h2 a:visited 
+							{text-decoration:none;
+								font-family:georgia, serif;
+								  color:#3B200F;
+								  font-size:16px;
+								  font-weight:bold;
+								  line-height:125%;
+								  text-align:center;
+								padding-top:8px;}
+								/* in case you want to add links later to calendar item titles such as "world aids day" */
+							.calendar_one_inner h2 a:hover {color:#800080;text-decoration:underline;}	
+							/*event title h3*/
+							.calendar_one_inner h3,.calendar_one_inner h3 a, .calendar_one_inner h3 a:active, .calendar_one_inner h3 a:visited 
+							{text-decoration:none;color:#2f4f4f;font-size:.8em;display:block;padding-left:11px;text-align:left;}
+									/* add links later */
+							.calendar_one_inner h3 a:hover {color:#800080;text-decoration:underline;}	
+							/*world tours and photo galleries - title h4*/
+							.calendar_one_inner h4,.calendar_one_inner h4 a, .calendar_one_inner h4 a:active, .calendar_one_inner h4 a:visited 
+							{text-decoration:none;
+								font-family:georgia, serif;
+								  color:#3B200F;
+								  font-size:16px;
+								  font-weight:bold;
+								  line-height:125%;
+								  text-align:center;
+								padding-top:8px;}
+							.calendar_one_inner h4 a:hover {color:#800080;text-decoration:underline;}							
+							/*world tours and photo galleries - title h5*/
+							.calendar_one_inner h5, .calendar_one_inner h5 a, .calendar_one_inner h5 a:active, .calendar_one_inner h5 a:visited 
+								{text-decoration:none;color:#2f4f4f;
+										font-size:1em;display:block;padding-left:5px;text-align:left;}
+										.calendar_one_inner h5 a:hover {color:#800080;text-decoration:underline;}
+							/* descriptions h6 */
+							.calendar_one_inner h6, .calendar_one_inner h6 a, .calendar_one_inner h6 a:active, .calendar_one_inner h6 a:visited 
+							{font-family:georgia, serif;
+								  color:#786E69;
+								  font-size:10px;
+								  font-weight:bold;
+								  letter-spacing:.1em;
+								  text-transform:uppercase;
+								  padding-bottom:3px;}
+								.calendar_one_inner h6 a:hover {color:black;text-decoration:underline;}
+						/*  ******** ad ******** */
+						.ad_inner p.sidebar_ad {font-size:.8em;text-align:left;}
+						.ad {	margin:5px;
+									top:-3px;background-color:#ffffff;
+									border-bottom:1px solid black;border-right:1px solid black;}
+						.ad_inner {
+							padding:5px;
+							top:-3px;background-color:#DDA0DD;background: #FFE4E1;
+							border-bottom:1px solid black;border-right:1px solid black;} /* drop shadow */
+						/*h1 */
+							.ad_inner h1, .ad_inner h1 a, .ad_inner h1 a:active, .ad_inner h1 a:visited {text-decoration:none;color:#8B4513;
+								font-size:1.1em;display:block;}
+							.ad_inner h1 a:hover {color:#800080;display:block;text-decoration:none;}						
+/* ***************************     FOOTER ****************************/
+/* sticky footer  */
+.push {height:10px;clear:both;} 
+#footer {height:50px;padding-top:10px;
+	width:100%;
+	clear:both;
+	float:left;
+	background: #FFDEAD;}
+	
+	

@@ -1,0 +1,119 @@
+<html>
+<head>
+<title>WOA!! Autosubmit Common Dropowns - DO NOT BOOKMARK</title>
+
+<script language="JavaScript">
+<!--
+  var regionobj;
+  var sourceobj;
+  var sectsubsobj;
+  
+  function getRegionObj(objectx)
+  {
+     alert(objectx.value);
+     regionobj = objectx;
+  }
+  
+  function getSourceObj(objectx)
+  {
+     alert(objectx.value);
+     sourceobj = objectx;
+  }
+  
+  function getSectsubsObj(objectx)
+  {
+     alert(objectx.value);
+     sectsubsobj = objectx;
+  }
+      
+  function regionChoose(field)
+  {
+     field.value = document.dropdowns.selectregion[document.dropdowns.selectregion.selectedIndex].value;
+  }
+  
+  function sourceChoose(field)
+  {
+    field.value = document.dropdowns.selectsource[document.dropdowns.selectsource.selectedIndex].value;
+  }
+  
+  function sectsubsChoose(field)
+  {
+    field.value = document.dropdowns.selectSectsubs[document.dropdowns.selectSectsubs.selectedIndex].value;
+  }
+  
+  function sectsubsAdd(field)
+  {
+    field.value = field.value + ";" + document.dropdowns.selectSectsubs[document.dropdowns.selectSectsubs.selectedIndex].value;
+  }
+  
+// On submit
+
+  function useridPush(id,pswd)
+  {
+    id.value   = document.dropdowns.userid.value;
+    pswd.value = document.dropdowns.pin.value;
+  }
+  
+//-->
+</script>
+</head>
+<body>
+<form method="post" name="dropdowns" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl">
+<input type="hidden" name="cmd"  value="process_select_login">
+<input type="hidden" name="ipform"  value="select_login">
+
+<table cellpadding=0 cellspacing=0>
+<td valign=top>
+<font size=1 face=verdana color="666666">
+<a target="updtlist" href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display%article_control">
+<b>A:</b></a>
+<input type="input" name="userid" size="5" maxlength="10" value="admidID">&nbsp;
+<b>pin:</b> <input type="password" name="pin" size="5" maxlength="10">&nbsp;&nbsp;&nbsp;</font>
+</td>
+
+</td><td valign=top><font face=verdana size=1 color="666666">
+[JS_ON]
+<select name="selectregion" 
+  onBlur="parent.updtlist.document.regionPull(document.dropdowns.selectSectsubs[document.dropdowns.selectSectsubs.selectedIndex].value)"
+  onClick="alert(parent.updtlist.document.regionObj.value)">
+[JS_OFF]
+[REGIONS]
+</select></font>
+
+&nbsp;&nbsp;
+
+<font face=verdana size=1 color="666666">
+[JS_ON]
+<select name="selectsource" 
+  onBlur="parent.updtlist.document.sourcePull(this[this.selectedIndex].value)">
+[JS_OFF]
+[SOURCES] 
+ <option value=""></option>
+</select></font>
+
+
+
+</td></table>
+
+<table cellpadding="0" cellspacing="0">
+<td valign="middle"><font face=verdana size=1>
+<a target="updtlist" href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%Suggested_suggestedItem%">
+<b>Sug</b></a>
+</font></td>
+
+<td valign="middle">
+<font face=verdana size=1 color="666666">
+[JS_ON]
+    <select name="selectSectsubs" maxlength=25
+    onBlur="parent.updtlist.document.sectsubsPull(document.dropdowns.selectSectsubs[document.dropdowns.selectSectsubs.selectedIndex].value)">
+[JS_OFF]
+[ADD_SECTIONS]
+&nbsp;&nbsp;
+[SELECT_ALL_TEMPLATES]
+&nbsp;&nbsp;
+[SORTORDER]
+</font>
+</td></table>
+
+</form></body></html>

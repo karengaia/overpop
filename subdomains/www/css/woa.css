@@ -1,0 +1,222 @@
+/*  SET DEFAULTS  */
+
+/* Do this at the top to fix the margins for all browsers: (then override below as needed) 
+*/
+
+html, body, ul, ol, li, p, 
+h1, h2, h3, h4, h5, h6, 
+form, fieldset, a, 
+table, tr, td, tbody
+{
+   font-size: 100.01%;   /* for I.E. */ 
+/*   font-size: .8em; */
+   margin:    0; 
+   padding:   0; 
+   border:    0;
+   word-spacing: normal;
+}
+
+a, address, blockquote, body, cite, code, col, colgroup, dd, del, dfn,		
+div, dl, dt, em, form, h1, h2, h3, h4, h5, h6, iframe, img, kbd,		
+li, object, ol, p, q, samp, span, strong, sub, sup, ul, var, 		
+applet, center, dir, font, hr, menu, pre,		
+abbr, acronym, bdo, button, fieldset, ins, label	{	
+	word-spacing:	 normal;
+	letter-spacing:	 normal;
+	text-transform:	 none;
+	text-decoration: none;
+	border-color:	 #CC9;
+	border-style:	 none;
+	margin-top:	 0;
+	margin-bottom:	 0;
+	padding-top:	 0;
+	padding-bottom:	 0;
+	border-top:	 0;
+	border-bottom:	 0;
+	vertical-align:	 baseline;
+}
+
+body	{	
+	line-height:	1.58em;
+}
+
+table {
+	empty-cells: show;
+	}
+	
+table th {	
+	vertical-align:	baseline;
+	font-weight:	bold;
+	}
+	
+table tr td {	
+	vertical-align:	top;
+	font-weight:	normal;
+	}
+
+
+table td, th, thead, tfoot
+{
+    word-spacing:	normal;
+    letter-spacing:	normal;
+    text-transform:	none;
+}
+
+table.shaded {background-color: #eee; margin-left:15px;}
+table.shaded td {padding-left:5px; padding-right:5px;}
+
+h1, h2, h3, h4, h5, h6, th, thead, dt
+{
+	font-weight: bold;
+}
+
+
+h1, h2, h3, h4, h5	{
+	margin: 25px 0 0 0;
+	padding: 0;
+	text-align:center;
+	}
+
+h1	{font-size: 140%;}
+
+h2	{font-size: 130%;}
+
+h3	{font-size: 120%;}
+
+h4	{font-size: 110%;}
+
+h5, dt, tfoot, thead	{font-size:	105%;}
+
+h6	{font-size:	90%;}
+
+## the common terms are: xx-large, x-large, large, medium, small, x-small, and xx-small
+
+
+/* - - - - - Dictionary - - - - */
+
+dl { margin-left: 12px; }
+dt { margin-top: 0.5em; }
+dd { margin-top: 0.5em; }
+
+
+/* - - - - - LINE ITEMS - - - - */
+		
+ul     {
+       padding-left: .9em;
+       margin-top: .5em; margin-bottom:0;
+       }
+
+ul li {
+       margin-bottom: .5em;
+       list-style-position: outside;
+       list-style-type:	square ;
+       }
+
+li	{
+	margin-bottom: .5em;
+	}
+
+ul li li	{	
+	list-style-type:	disc;
+	}	
+
+ul li li li	{	
+	list-style-type:	circle;
+	}	
+	
+ol li	{	
+	list-style-type:	decimal;
+	}	
+
+ol li li	{	
+	list-style-type:	lower-alpha;
+	}	
+
+lo li li li	{	
+	list-style-type:	lower-roman;
+	}
+	
+	
+acronym	{	
+	font-variant:	small-caps;
+	letter-spacing:	0.1em;
+	}
+
+hr {
+	color: #039;
+	clear: both; 
+	height: 2px;
+	text-align: left;
+	}
+		
+
+/*  - - SITE SPECIFIC  - - -  */
+
+
+body {
+  color: #000;     /* black */	
+  background-color: #fff;
+  max-width: 900px;
+  font-family: arial, verdana, helvitica, georgia, tahoma, sans-serif;
+  font-size: .8em;
+}
+
+.center {
+  text-align:center;
+}
+
+.right {
+  text-align:right;
+}
+
+
+h1, h2, h3, h4, h5, th, thead, tfoot
+{
+    font-family: arial, verdana, helvitica, georgia, tahoma, sans-serif;
+    font-style:	normal;
+}
+
+
+/* - - - - - LINKS - - - - */
+
+
+/*   If you put the A:hover style definition first, 
+     you would never see it. The A:link and A:visited 
+     definitions would supersede it because they are 
+     defined after the fact.
+*/
+
+a:link	{	
+	text-decoration: none;
+	color:	#33c;
+	}	
+		
+a:visited	{	
+	text-decoration: none;
+	color:	#609;
+	background: transparent;
+	}	
+		
+a:active	{	
+	text-decoration: none;
+	color:	#900;
+	background: transparent;
+	}	
+		
+a:hover	{	
+	text-decoration: underline;
+	color:	#900;
+	background: transparent;
+	}
+		
+       
+       /* - - - - - CONTAINERS - - - - - - */
+
+.center div p blockquote span 
+{
+   margin-left: auto;
+   margin-right: auto;
+   text-align: center;
+}
+
+

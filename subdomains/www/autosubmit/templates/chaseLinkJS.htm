@@ -1,0 +1,77 @@
+<html>
+<head>
+<title>[cTitle] of WOA!! Population Awareness</title>
+
+<script language="JavaScript">
+
+<!--
+
+function pushObj(selitem, docid, headline, link, pubmonth, pubday, pubyear, source, region, sectsubs, note, docfullbody)
+{
+  document.itemsSelect.selitem9998.value  = 'Y';
+  document.itemsSelect.docid9998.value    = docid.value;
+  document.itemsSelect.showdocid9998.value = docid.value;
+  document.itemsSelect.headline9998.value = '';
+  document.itemsSelect.headline9998.value = headline.value;
+  document.itemsSelect.region9998.value   = region.value;
+  document.itemsSelect.link9998.value     = link.value;
+  mm = pubmonth.value - 1;
+  document.itemsSelect.pubmonth9998[mm].selected = 1;
+  document.itemsSelect.pubday9998.value   = '';
+  document.itemsSelect.pubday9998.value   = pubday.value;
+  yyyy = pubyear.value;
+  
+  for (x=0; x < 13; x+=1)
+  {
+     if(yyyy == document.itemsSelect.pubyear9998[x].value) 
+     {
+        document.itemsSelect.pubyear9998[x].selected = 1;
+        break;
+     }
+  }
+  document.itemsSelect.source9998.value   = '';
+  document.itemsSelect.source9998.value   = source.value;
+  document.itemsSelect.region9998.value   = '';
+  document.itemsSelect.region9998.value   = region.value;
+  document.itemsSelect.action9998.value   = 'update';
+  document.itemsSelect.fullbody9998.value = '';
+  document.itemsSelect.body9998.value     = '';
+  document.itemsSelect.sectsubs9998.value = sectsubs.value;
+  document.itemsSelect.note9998.value     = note.value; 
+  document.itemsSelect.docfullbody9998.value = docfullbody.value; 
+}
+
+function clearForm()
+{
+  document.itemsSelect.selitem9998.value  = 'Y';
+  document.itemsSelect.docid9998.value    = '';
+  document.itemsSelect.showdocid9998.value = '';
+  document.itemsSelect.headline9998.value = ''; 
+  document.itemsSelect.link9998.value     = '';
+  document.itemsSelect.pubday9998.value   = '';
+  document.itemsSelect.source9998.value   = '';
+  document.itemsSelect.region9998.value   = '';
+  document.itemsSelect.body9998.value     = '';
+  document.itemsSelect.fullbody9998.value = '';
+  document.itemsSelect.topic9998.value    = '';
+  document.itemsSelect.sectsubs9998.value = '';
+  document.itemsSelect.note9998.value     = '';
+  document.itemsSelect.docfullbody9998.value  = '';
+}
+
+//-->
+</script>
+
+</head>
+
+<body onLoad="clearForm()" bgcolor="ffffff" link="#555555" vlink="#555599" alink="#990033"
+background="woabg.gif">
+<center><font size=5 color="808080">World Population Awareness</font></center>
+<p>
+<center><font size=6 color="808080">[cTitle]</font></center>
+<p>
+<center><font size=2 face=arial>
+[TODAY]
+</font></center>
+[TEMPLATE=select_top]
+[BLOCKQUOTE]

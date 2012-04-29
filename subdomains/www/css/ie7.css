@@ -1,0 +1,35 @@
+/* IE7 - doubled margin bugs, float bugs, and background image bugs, amongst many other bugs. */
+/* hand coding by abstract machines. */
+#world_population_wrapper {overflow:hidden; margin-bottom:9px;background-color: #d7d3ca;}
+
+#header {height:185px;}   /* height:182px; */
+	
+#header_inner {margin-bottom: .25em;
+		background: url('/img/mauve/page2_header_bg5.png') 0 0 repeat;
+		overflow:hidden; height:135px;}
+			
+#population_awareness_logo {
+	height:150px;
+	background: url('/img/mauve/woa_logo135h.png') 0 0 no-repeat;
+	margin:0 0 0 0;padding:0 0 0 0;margin-right:-60px;
+	z-index:1000;
+	}
+
+.menu_container {
+	width:100%;
+ }	
+
+div.popclock {
+   display: none;
+}
+
+/* ie background image bugs */
+#threecolwrap {
+	background-color:#EBECE4; /* F5DCFC; lavendar  #D73c3A rose beige #B8860B; nice brown */
+	margin-top:-5px;overflow:hidden;}
+
+#slideshow_rt:hover span{ /*the span will display just on :hover state*/
+        margin-left:78px; margin-top:-200px; margin-bottom: 0; margin-right: 0;
+}
+
+a.arrow {vertical-align: top;}

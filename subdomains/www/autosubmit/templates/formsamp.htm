@@ -1,0 +1,49 @@
+<body bgcolor="FFFFFF" link="#006000" vlink="#000080" alink="#000080">
+
+<form method="post" name="" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl">
+<input type="hidden" name="from" value="login">
+<input type="hidden" name="cmd"  value="processlogin">
+<p>
+Please enter your:<p>
+Email: <input type="input" name="email" size="25" maxlength="45">
+<br>
+<table><td align=left valign=top cellpadding=0 cellspacing=0>
+<font face=arial size=2>Name: 
+</td><td align=left valign=top><font size=1 face=verdana>first  <input
+type="input" name="fname" size="20" maxlength="25"></font>
+<br>
+<font size=1 face=verdana>last <input
+type="input" name="lname" size="20" maxlength="25"></font>
+</td></table>
+<p>
+Make up a 4-digit easy-to-remember: <br>
+<table><td>
+<font size=2 face=arial>PIN: <input type="password" name="pin" size="4" maxlength="4"></font>
+</td><td>
+<font size="1" face="comic sans ms">(birthmonth & year, last 4 of SSN, <br>last 4 of phone #, etc)</font></td></table>
+
+<table><td>
+<font size=2 face=arial>Comment <font size="1" face="comic sans ms">(optional):</font><font face=arial size=2> <textarea name="usercomment" wrap="physical" rows="2" cols=40" maxlength=200></textarea><br>
+<input type=checkbox value='Y' name='handle'></font><font size=1 face="comic sans ms">Do you want to be acknowledged for your volunteer contributions?</font>
+</font>
+</td>
+
+sample radio buttons - can be checked or both blank to start with<br>
+<input type="radio" name="action" value="update" checked> Summarize this item: <br>
+
+<input type="radio" name="action" value="new"> Suggest a new article. <br>
+<p>
+sample text area<br>
+<textarea name="headline" wrap="physical" rows="4" cols=50">
+sample text</textarea><br>
+
+<p>
+<input type="submit" value="GO" name="submit"></font>
+<p>
+<font size=1 face="comic sans ms">Your information will not be used for advertising or given or sold to others.</font>
+
+
+</form>
+</body>
+</html>

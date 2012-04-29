@@ -1,0 +1,307 @@
+<html>
+<title>WOA!! Article Submission</title>
+<head>
+	<style>
+	html {background-color:#969;}
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	h1   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	b    {font-family: verdana;font-size:12px;font-weight:bold;}
+	table tr td {font-size:100%;}
+	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
+	span  {font-family:verdana; font-size:10px;}
+	label {font-family:verdana; font-size:12px; font-weight:bold;}
+	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
+	select {font-size: 12px; font-family: arial; border: 1px solid #ccc; background: #fff;}
+	p     {font-family:arial font-size:12px;}
+	.grey {color:#666666;}
+	cite.verdana {font-family:verdana;}
+	</style>
+</head>
+
+<body basefont="arial" link="blue" vlink="blue" alink="green">
+<div style="margin-left:10px;margin-right:10px;margin-bottom:10px;">
+<br>
+
+<!-- FORM BEGIN  - - -->
+
+<form method="post" name="article" action=
+"http://[SCRIPTPATH]/article.pl">
+
+<TABLE width="70%"><TD width="80%" align="center">
+   <h1>WOA Article/Item Submittal</h1>
+</TD><TD align="right">
+<table cellpadding=0 cellspacing=0 align=right>
+      <tr><td><img src="http://[CGISITE]/woaLogoAN.gif" hspace=20></td>
+      <tr><td><center>
+         <table cellpadding="0" cellspacing="0"><td><a target=_top href=
+          "http://[CGISITE]">
+          <font face="arial" size="2" color="#000000">
+          <b>Home</b></a>&nbsp;&nbsp;</td></table>
+</td></table>
+</TD></TABLE>
+
+<cite>
+[TODAY] ..
+docid# [docid] ... sysdate [sysdate]
+<br>
+[OPERATOR_NAME] ...
+[SUMMARIZER_NAME] ...
+[SUGGESTOR_NAME]
+</cite>
+
+<input type="hidden" name="cmd" value="storeform">
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
+<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
+<input type="hidden" name="sysdate" value="[sysdate]">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="sectsubs" value="[sectsubs]">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="docUpdate">
+
+
+<!-- STYLE, PRIORITY, REGIONS TABLE -->           
+
+<table cellpadding=10>
+<td valign="top">
+[MODDELNEW]
+<br><br>
+<cite>Choose style if not regular &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Styled box selection</cite><br>
+[SELECT_TEMPLATE]
+<br><cite>(Straight: summary only prints)</cite>
+</td><td>
+<cite>
+Priority &nbsp;
+[PRIORITY]
+(5=highest)
+<div style="text-align:right;"><cite>Quick Region</cite></div>
+<input type="text" name="region" size="35" maxlength="55"
+value="">
+</td>
+
+<td>
+<label for='region'>Region or Country:</label> <cite>[region]</cite>
+<br>
+<select name="region" size="4" multiple>
+[REGIONS]
+</select>
+</td>   
+
+</table>
+<!-- DATE/SOURCE two cols -->
+<table id=datesrc>
+
+<td valign=top id=datecol1>
+
+<! ---------- PUB DATE --------->
+<label for 'pubmonth'>Article Publish Date: </label><br> 
+<select name="pubmonth">
+[PUBMONTHS]
+</select>
+
+<input type="text" name="pubday" size="3" maxlength="2" value="
+[PUBDAY]
+">
+
+<select name="pubyear">
+[PUBYEARS]
+</select>
+<br>
+<b class="grey">Expiration Date:</b><br> 
+
+<select name="expmonth">
+[EXPMONTHS]
+</select>
+
+<input type="text" name="expday" size="3" maxlength="2" value="
+[EXPDAY]
+">
+
+<select name="expyear">
+[EXPYEARS]
+</select>
+</font>
+<br>
+
+
+</td>
+<td> &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+<td id="sourcecol2" valign=top>
+    <label for="selectsource">Article Source :</label>&nbsp;&nbsp;
+    <cite>Publication or organization</cite>
+  <br>
+    <select name="selectsource">
+[SOURCES] 
+    <option value=""></option>
+     </select><br>
+     <cite>or other if not on list</cite><br>
+      <input type="text" name="source" size="50" maxlength="70"
+value="
+[OTHERSOURCE]
+">
+</td>
+<td id="datesrcCaveat">
+  <cite class="grey">Publish date and Source <br>are always important, <br>even if not printed<br> i.e.'straight'</cite>
+</td>
+</table>
+
+<!--- HEADLINE & LINK AREA -->
+<br>
+<table>
+<tr><td valign="bottom">
+<b>Article Headline:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+</td><td>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+<td valign=bottom><input type="checkbox" name="regionhead" 
+[REGIONHEAD]
+    value="Y"> <cite>Put region in headline &nbsp; &nbsp; &nbsp;
+  <input name="titlize" type=radio value="Y">
+    Titlize headline. </cite><br>
+</td>   
+</table>
+
+<textarea name="headline" wrap="physical" rows="2" cols=100">
+[headline]</textarea>
+
+<br><br>
+
+<b>Article Source Link (URL):</b>
+<cite> &nbsp;(Please provide if there is a live link)</b> &nbsp;&nbsp;&nbsp;&nbsp;</cite>
+    <input name="selflink" type=checkbox value="Y"
+[SELFLINK_CHECK]
+> <cite>self</cite>
+  <br>
+<textarea name="link" wrap="physical" rows="2" cols=100">[link]</textarea>
+<br><br>
+
+
+<!---  BODY, COMMENTS, FULL - 2 COLS -->
+
+    <label for='body'>Summary of Article:</label> &nbsp; &nbsp; <cite> Cut and paste for more accurate results.</cite><br>
+    <textarea name="body" wrap="physical" rows="20" maxrows="150" cols="100">[body]</textarea>
+    <br><cite>Text will wrap. Extra spaces and
+    line returns do not matter  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</cite>
+
+[SKIP_HANDLE]
+
+<br><br>
+<table><td>
+    <label for="comment">Comments:</label> &nbsp;&nbsp;
+   <cite>Use sparingly</cite><br>
+    <textarea name="comment" wrap="physical" rows="3" cols=49">[comment]</textarea>
+</td><td>
+    <label for="note">Notation:</label> &nbsp;&nbsp;
+   <cite>(not published)</cite>
+<br>
+    <textarea name="note" wrap="physical" rows="3" cols=48">[note]</textarea>
+</td></table>
+
+<br>
+<table><tr><td>
+    <b>Full Article:</b> &nbsp;&nbsp;
+<cite> Cut and paste full article here.</cite>
+&nbsp;&nbsp;<input type=checkbox name="freeview" value="Y"
+[FREEVIEW_CHECK]
+>&nbsp;<cite>Allow public view</cite>
+
+<br>
+    <textarea name="fullbody" wrap="physical" rows=15 maxrows=300 cols=100>
+[FULLBODY]
+</textarea>
+<br><br>
+</td></tr></table>
+
+<table><tr>
+<td>
+<input type=submit value="SUBMIT" name="submit">
+</td>
+<td>
+<cite class="verdana grey"><b>Userid</b>&nbsp;&nbsp;</cite><br>
+&nbsp;&nbsp;<input type="input" name="userid" size="6" maxlength="10" value="[userid]">
+</td><td>
+<font size=1 face=verdana color="666666"><b>
+password</a></b></font><br>
+<input type="password" name="pin" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;
+</td>
+<td><label for="imagefile">imagefile:</label>&nbsp;<input type="text" name="imagefile" size="60" maxlength="150"
+value="[imagefile]"><br>
+	<cite>
+	<input type="radio" value="R" name="imageloc">right &nbsp
+	<input type="radio" value="L" name="imageloc">left &nbsp
+	<input type="radio" value="T" name="imageloc">top &nbsp
+	<input type="radio" value="B" name="imageloc">btm &nbsp </cite>
+</td>
+</tr></table>
+
+<!-- SECTIONS ->
+
+<!-  2010 Apr12 added News, Headlines, Suggested radio buttons, simplified table structure -->
+  <br><br>
+  <b>Sections and Subsections Where This Article Will Appear:</b>
+<TABLE cellpadding="5" cellspacing="0" border="1">
+ <TR><TD valign="top"> 
+ <b>News Processing Sections</b><br>
+ <cite>Only one can be selected</cite><br>
+[NEWS_ONLY_SECTIONS]
+<br>
+  <b>Current Sections</b><br>
+  <cite>Un-check those you wish to delete</cite><br>
+[CURRENT_SECTIONS]
+</TD>
+  <TD valign="top">
+    <b>Major Sections</b><br>
+    <cite>To add a Section, select one or more.</cite><br>
+[ADD_NON_COUNTRIES]
+  </TD>
+    <TD valign="top">
+    <b>Countries</b><br>
+    <cite>To add a Section, select one or more.</cite><br>
+[ADD_COUNTRIES]
+    <br><br><b>Other/Admin</b><br>
+[OTHER_SECTIONS]
+</TD>
+</TR></TABLE>
+
+</form>
+<p>
+<br>
+<br>
+<hr>
+<p>
+</font>
+</td></table><center><font size=4 face=arial><b>Instructions</b></font></center>
+
+<p>
+<b>Sections: Normal progression of articles through the Autosubmit System</b></b><br>
+(Not neccessarily every time)
+<font size=2 face=arial>
+<ol>
+<li>Email (for emailed items sent by news clipping services)</li>
+<li>Suggested</li>
+<li>Headlines</li>
+<li>Summarized</li>
+<li>News Digest</li>
+<li>section organized by topic</li>
+<li>News Archives</li>
+</ol>
+</font>
+<p><br>
+
+<a name=stratification></a>
+<b>Stratification:</b><br>
+<p>
+Items are normally put in 'most recent goes to the top' order. 
+However, occasionally we will want to have some more towards the top 
+and others near the bottom. Use M for the normal way - normal items go in the middle.
+Use A to go on the very top, Z to go on the very bottom, and the other letters for 
+various stratus in between.</p>
+<p>
+<br>
+<br>
+<br>
+<br>
+<br>
+</div>
+</body>
+</html>

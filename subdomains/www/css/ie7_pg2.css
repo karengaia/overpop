@@ -1,0 +1,12 @@
+/* IE7 - doubled margin bugs, float bugs, and background image bugs, amongst many other bugs. */
+/* hand coding by abstract machines. */
+#world_population_wrapper, #threecolwrap, #centercol {overflow:hidden;}
+#header2_inner {
+/*		background: url('img/mauve/page2_header_bg5.png') 0 0 repeat; */
+		overflow:visable;}
+	
+#population2_logo {
+	height:55px;
+	background: url('img/mauve/WOAlogo_50h.png') 0 0 no-repeat;
+	margin:0 0 0 0;padding:0 0 0 0;
+}

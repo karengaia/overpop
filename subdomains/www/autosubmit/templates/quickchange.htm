@@ -1,0 +1,66 @@
+<html>
+<title>WOA! QChg</title>
+<head>
+</head>
+
+<body basefont=arial link="blue" vlink="blue" alink="green">
+
+<form method="post" name="qkchgfilesdirs" action=
+"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl">
+
+<input type="hidden" name="cmd"  value="process_quickchange">
+<input type="hidden" name="ipform"  value="quickchange">
+<input type="hidden" name="template"  value="quickchange">
+<input type="hidden" name="action"  value="[action]">
+<input type="hidden" name="dir"  value="[dir]">
+
+
+<center><font face="Lucida sans unicode" size=2><b>WOA!! Quickchange</b></font></center>
+<p>
+
+<font size=2 face="verdana">
+<b>Please enter your:</b>
+<br>
+
+<table>
+<td valign=top>
+
+<font face=arial size=2>userID
+
+</td><td align=left valign=top>  
+<font size=2 face=verdana>
+<input type="input" name="userid" size=10 maxlength=10></font>
+
+<br> <font size=1 face=arial>(case sensitive)</font>
+
+</td><td align=right valign=top>
+
+<font face=arial size=2>pin:
+
+</td><td align=left valign=top>  
+<font size=2 face=verdana>
+<input type="password" name="pin" size=8 maxlength=8></font>
+
+<br> <font size=1 face=arial>(4 digit) &nbsp;&nbsp;&nbsp;<a href="mailto:[adminEmail]?subject=WOA!! What is my pin again?">Forgot?</a></font>
+
+</td></table>
+
+<select name="filedir" size=>
+[FILEDIR]
+</select>
+Select file or directory
+<p>
+
+<p>
+<input type=checkbox name="delete" value="Y">&nbsp;Delete this file
+<p>
+
+
+<textarea name="body" wrap="physical" rows="40" cols=200" maxsize=40000>[body]
+    </textarea>
+<p>
+<input type=submit value="SUBMIT" name="submit">
+
+</form>
+</body>
+</html>

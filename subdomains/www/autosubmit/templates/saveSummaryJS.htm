@@ -1,0 +1,16 @@
+<html>
+<head>
+	<title>Dynamic Document</title>
+	<script type="text/javascript" language="Javascript">
+		function buildResultDocument()
+		{
+			summaryWindow = window.open(
+				'', 'summaryWindow',
+				'toolbar=no,menubar=no,location=no,scrollbars=yes,resizable=yes,width=400,height=360');
+			summaryWindow.document.write('<html><body><font face="comic sans ms" size=2 color=#CC6666)<b>'
+			        +'Your summary is saved here just in case.'
+			        +'<br>(Karen is messing with the system.)</b></font><hr><p>'
+				+document.article.body.value
+				+'<p></body></html>\n');
+		}
+	</script>

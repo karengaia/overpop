@@ -1,0 +1,62 @@
+/* IE6 - doubled margin bugs, float bugs, and background image bugs, amongst many other bugs. */
+/* hand coding by abstract machines. */
+
+}
+
+body{behavior:url(csshover3.htc); margin:0 20px 0 20px;}
+#world_population_wrapper {overflow:hidden; margin-bottom:9px;background-color: #d7d3ca;}
+
+#header {height:185px;}   /* height:182px; */
+
+#header_inner {overflow:hidden;
+	height:135px;
+		background: url('/img/mauve/images/page2_header_bg5.png') 0 0 repeat;
+		}
+
+.menu_container {
+	width:100%;
+ }	
+
+div.popclock {
+   display: none;
+}
+div.popclock_ie6 {
+   display: block;
+}
+	
+#population_awareness_logo {
+	height:150px;
+	background: url('/img/mauve/logo_mauve_web4_smaller_ie6.jpg') 0 0 no-repeat;
+	margin:0 0 0 0;padding:0 0 0 0;margin-right:-60px;
+	z-index:1000;
+	}
+	
+.columns table {
+		background-color: #CCFFCC;  /* or #999 */
+	}
+	
+#human_rights_slideshow
+{margin:0 0 0 -250px;padding:0 0 0 0;
+	height:250px;width:400px;
+	}
+
+/* ie background image bugs */
+#threecolwrap {
+	background-color:#B8860B;
+	padding-bottom:0px;margin-bottom:0px;
+	}	
+	
+	#twocolwrap {margin-right:-170px;}
+	#leftcol {margin-right:-2px;margin-left:-2px;}
+	#centercol {margin-right:170px;margin-left:-2px;} 
+		#rightcol {margin-right:-2px;margin-left:10px;}
+		
+.red_quote {margin:10px 20px 15px 20px;text-align:center;}
+
+/* News index does not drop down, so hide */
+.titleCell { display:none;}
+#newsIndexBox {display:none;}
+	
+	#push {height:0px;padding:0 0 0 0;margin:0 0 0 0;} /*end push immediately, empty div */
+	#footer {padding-top:0px;margin-top:-18px;}
+

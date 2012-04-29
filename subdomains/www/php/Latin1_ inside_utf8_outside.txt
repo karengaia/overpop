@@ -1,0 +1,118 @@
+PERL
+constant %open2close = (
+"\x0028" => "\x0029",
+
+private Dictionary<char, List<char>> mapping = new Dictionary<char, List<char>>
+
+{
+
+    {'\'', new List<char>{'\x60', '\x2018', '\x2019', '\x2032', '\x301', '\x300'}},
+
+    {'"', new List<char>{'\x201C', '\x201D', '\x2033', '\x3003'}},
+
+    {'-', new List<char>{'\x2010', '\x2013', '\x2014', '\x2212', '\xAD', '\x2011', '\x2043'}},
+
+    {' ', new List<char>{'\xA0', '\x2003', '\x2002'}}
+
+};
+
+//ToDo - Replace with a more efficient implementation
+
+//I.E. Doesn't walk the string n times and create n new strings
+
+public string CleanInput(string input)
+
+{
+
+    foreach (var pair in mapping)
+
+        pair.Value.ForEach(c => input = input.Replace(c, pair.Key));
+
+    return input;
+
+}
+
+~~~~~~~~~~~~~~~~~~~
+
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />  charset=ISO-8859-1
+
+header('Content-Type:text/html; charset=UTF-8');
+
+
+http://blogs.sitepoint.com/2008/09/10/issues-with-cultural-integration/
+
+Latin1 on the inside, utf-8 on the outside
+
+Character Encoding: Issues with Cultural Integration
+
+Author
+    Troels Knak-Nielsen 
+
+I’ve run into a classic problem with charsets, in an application I’m currently working on. As is the standard for PHP, all strings are treated as latin1, but we now need to allow a wider range of charsets in a few places.
+
+The gold standard solution is to convert everything to utf-8. Since utf-8 covers the entire unicode range, it is capable of representing any character that latin1 can. Unfortunately, that’s a lot easier to do from the outset, than with a big, running application. And even then, there may be third party code and extensions, which assume latin1. I’d much rather continue with latin1 being the default, and only jump through hoops at the few places where I actually need full utf-8 capacity.
+
+So after some thinking, another solution dawned on me. To be fair, hack is probably more descriptive than solution, but nonetheless. The idea goes as follows:
+
+    * Use latin1, but serve pages in utf-8, encoding it at output.
+    * Embed utf-8 strings within latin1, and somehow don’t encode it (But still encode everything else).
+
+Simple, eh?
+Latin1 on the inside, utf-8 on the outside.
+
+When rendering HTML pages, it is trivial to capture the output with an output buffer and pipe it through utf8_encode. The page is thus served in utf-8, even though everything internally is latin1. Not much gain in that, since it still restricts us to use the range of characters covered by latin1.
+We are actually already doing this, simply to reduce the number of problems for external services communicating with our system. In particular, XmlHttpRequest defaults to utf-8, regardless of the page’s encoding.
+
+In essence, the following snippet exemplifies:
+
+// declare that the output will be in utf-8
+header("Content-Type: text/html; charset=utf-8");
+// open an output buffer, capturing all output
+ob_start('output_handler');
+// when the script ends, the buffer is piped through this functions, encoding it from latin1 to utf-8
+function output_handler($buffer) {
+  return utf8_encode($buffer);
+}
+
+Embed utf-8 within latin1.
+
+This is the tricky part. Instead of simply piping the entire buffer through utf8_encode, the string can be parsed so anything between a set of special tags (Eg. [[charset:utf8]] ... [[/charset:utf8]]) is left as-is, while the rest is assumed to be latin1 and encoded with utf8_encode as before. This ensures full backwards compatibility, while allowing real utf-8.
+
+Let’s modify our output-handler from before: 
+
+
+header("Content-Type: text/html; charset=utf-8");
+ob_start('output_handler');
+function output_handler($buffer) {
+  return preg_replace_callback(
+    '~\[\[charset:utf8\]\](.*?)\[\[/charset:utf8\]\]~',
+    'utf8_decode_first',
+    utf8_encode($buffer));
+}
+function utf8_decode_first($match) {
+  return utf8_decode($match[1]);
+}
+
+And that’s it. We can now embed full utf-8 strings within our otherwise latin1-encoded application, by wrapping it with [[chaset:utf8]]. To make things a bit more readable, I added a helper function:
+
+function utf8($utf8_encoded_byte_stream) {
+  return '[[charset:utf8]]' . $utf8_encoded_byte_stream . '[[/charset:utf8]]';
+}
+
+And we can now construct a string as simple as:
+
+echo utf8("blÃ¥bÃ¦r") . "grød";
+
+To produce the output: blåbærgrød
+
+note: As pointed out by Kore, it would be a problem if the delimiter itself (Eg. [[charset:utf8]]) is part of the data. To remedy this, it would be safer to use a more unique delimiter. You could simply replace charset:utf8 with something that is unlikely to ever happen. It’s still not completely bulletproof, but it’s good enough for most practical uses.
+Handling input.
+
+You may or may not know this, but when submitting a form, browsers send back data in the same encoding as the page was served. Since our application is predominantly latin1, we need user-input to be latin1, to keep BC. So all input must be decoded from utf-8 to latin1. This is simple enough; We just have to pipe all user-input ($_GET, $_POST etc.) through utf8_decode. Since we already run with the latin1-on-the-inside-utf-8-on-the-outside scheme, this was already in place in our case.
+
+This does however give a problem when the user needs to submit utf-8, as our users would need when replying to mails. So in these places, we would have to explicitly access the “raw” string, through an alternate mechanism. In our case, we needed to modify our http-request wrapper, but since this is extending the API, there is no BC problems.
+
+
+But the following iconv line gets rid of all invalid UTF-8 characters. 
+ $t = iconv("UTF-8","UTF-8//IGNORE",$t);
+

@@ -1,0 +1,578 @@
+<script language="JavaScript">
+<!--
+var counter="0020";
+var sysdate="2000-06-08";
+var userid="ZZ0001";
+var sysdateobj = new Date();
+
+months = new Array ("Jan","Feb","Mar","Apr", "May","Jun","Jul", 
+                      "Aug","Sep","Oct","Nov","Dec");
+
+// fixes a Netscape 2 and 3 bug
+function getFullYear(d) { // d is a date object
+ yr = d.getYear();
+ if (yr < 1000)
+  yr+=1900;
+ if (yr < 1985)    // Y2K
+  yr+=100;
+ return yr;
+}
+
+function str2Date(strDate)
+ {
+  strDate +='';
+  var yr = strDate.substring(0,4);
+  var mm = strDate.substring(5,7); 
+  var dd = strDate.substring(8,10);
+  var dt = new Date(yr, mm-1, dd);
+  yr = getFullYear(dt);
+  dt = new Date(yr, mm-1, dd);
+  return dt;
+  }
+
+function loadSetup()
+{
+   sysdateobj = str2Date(sysdate);
+   var yr = getFullYear(sysdateobj);
+   var mo = sysdateobj.getMonth();
+   var da = sysdateobj.getDate();
+
+   document.article.month[mo].selected = 1;
+   document.article.day.value = da;
+   var yridx = yr - 1996; 
+   document.article.year[yridx].selected = 1;
+   userid +='';
+   var access = userid.substring(0,1);
+   if(access = 'Z')
+     document.article.section1[1].selected = 1; 
+}
+
+function get_radio_value (radio_array)
+  {
+    var i;
+    for (i = 0; i < radio_array . length; ++ i)
+      if (radio_array [i] . checked)
+        return radio_array [i] . value;
+    return null;
+  }
+
+ function setRadio(tofield, fromfield)
+  {
+    var field = get_radio_value(fromfield);
+    tofield.value=(tofield.value + field);
+  }
+
+function stylize()
+  { 
+   var field = get_radio_value(document.article.bodystyle);
+   var which = document.article.which.value 
+   if(which == "1")
+    {
+      var body=document.article.body.value;
+      body = body + field;
+      document.article.body.value = body;
+    }
+   else 
+    {
+      var comment = document.article.comment.value;
+      comment = comment + field;
+      document.article.comment.value = comment;
+    }
+  }
+function setWhich(which)
+ {
+  document.article.which.value=which;
+ }
+
+function setControls()
+  {
+    var mo       = document.article.month.options[document.article.month.selectedIndex].value;
+    var da       = document.article.day.value;
+    var mm = (parseInt(mo) + 1);
+    if(mm < 10)
+        mo =  "0" + mm;
+   else
+        mo =  "" + mm;  
+   var yr = document.article.year.options[document.article.year.selectedIndex].value;
+
+   var pubdate = (yr + '-' +  mo + '-' + da);
+   var target = get_radio_value(document.article.targetRadio);
+   var source = (months[mm - 1] + " " + da + ", " + yr)
+         + " " + document.article.source.value;
+
+   document.article.sourceAtTopHtm.value=
+         '<font size=1>' + source + '</font>';
+
+   document.article.sourceAtEndHtm.value= 
+         '<font size=1 face=arial>' + source + '</font>';
+
+    var link = document.article.link.value;
+    var link4 = document.article.link.value.substring(0,3);
+
+    if(link != "")
+    {
+      if(link4 != "http")
+           link = "http://" + link;
+      link =    '<a target="'  +  target  +  '" href="'  +  link  +  '">';
+    } 
+
+    var period = get_radio_value(document.article.periodRadio);
+
+    document.article.headlineHtm.value =
+          link 
+          +  '<b>'  +  document.article.headline.value
+          +  period  +  '</b></a>&nbsp;';
+
+    var comment = document.article.comment.value;
+
+    document.article.commentHtm.value=
+          '<font color=#663300 face="comic sans ms" size=2>'
+          + comment
+          + '</font>';
+
+    document.article.articleEndHtm.value= '</li><p></div>';
+
+    var section1  = 
+document.article.section1.options[document.article.section1.selectedIndex].value;
+
+    var section2  = 
+document.article.section2.options[document.article.section2.selectedIndex].value;
+
+    var keywords = 
+document.article.keyword.options[document.article.keyword.selectedIndex].value;
+
+var control = '<div id="' + counter + '">'
+              + ' <! ^^&&'  
+              + ' ##u-'      +  userid
+              + ' ##d-'      + sysdate
+              + ' ##p-'      + pubdate
+              + ' ##S-'      + section1
+              + ' ##S-'      + section2
+              + ' '          + keywords
+              + ' ##O-'      + document.article.headline.value
+              + '//-->'   
+              +  '<a name='   + counter + '></a>';
+document.article.control.value =   control;
+
+var dt = new Date(yr, mo-1, da);
+now = new Date();
+if (dt > now)
+     alert("I'm sorry, the date you have entered is in the future");
+else 
+  document.article.submit();
+} 
+//-->
+</script>
+
+<body bgcolor="#FFFFFF" basefont=arial link="blue" vlink="blue" alink="green" background="http://www.calweb.com/~gaia/poparticles/greenmarble.gif"
+  onLoad="loadSetup()">
+<blockquote>
+
+<center>
+    <b><font size="5" face=arial>
+WOA Article/Item Submittal<br></font><font size=4>
+For Editors and Contributors
+</font></b></font></center>
+<p>
+<blockquote>
+<table bgcolor=#E5E7E8><td><font face=arial size=2>
+Please go to the <a href=#instructions>Instructions</a> if this is
+your first time or periodically for a refresher.
+</font></td></table></blockquote>
+
+
+
+<!-- THIS PART IS NEEDED FOR CANNED EMAIL PROGRAM -->
+<FORM METHOD="post" ACTION="/cgi-bin/cgiemail.pl">
+<INPUT TYPE="hidden" NAME="username" VALUE="gaia">
+<INPUT TYPE="hidden" NAME="template" VALUE="submittal_template.txt">
+<INPUT TYPE="hidden" NAME="success" VALUE="">
+
+<!-- NOT NEEDED FOR CANNED EMAIL PROGRAM -->
+<!-- form method="post" name="article"
+     action="http://gaia.lunamorena.net/cgi-bin/pop/preview.pl" -->
+   <input type="hidden" name="control"         value="">
+   <input type="hidden" name="sourceAtTopHtm"  value="">
+   <input type="hidden" name="headlineHtm"     value="">
+   <input type="hidden" name="commentHtm"      value="">
+   <input type="hidden" name="sourceAtEndHtm"  value="">
+   <input type="hidden" name="articleEndHtm"   value="">
+<!-- END OF NEEDED/NOT NEEDED -->
+                
+<table id=form_top>
+
+<table><td>
+
+<table>
+<td id=tdPubDate>
+ <table><tr>
+<td colspan=3><b>Date Article Published: </b></td>
+<tr>
+<td><select name="month" cols=3>
+<option value=0>Jan</option>
+<option value=1>Feb</option>
+<option value=2>Mar</option>
+<option value=3>Apr</option>
+<option value=4>May</option>
+<option value=5>Jun</option>
+<option value=6>Jul</option>
+<option value=7>Aug</option>
+<option value=8>Sep</option>
+<option value=9>Oct</option>
+<option value=10>Nov</option>
+<option value=11>Dec</option>
+</select>
+
+<input value="" name="day" size="3" maxlength="2">
+
+<select name="year">
+<option value="1996">1996</option>
+<option value="1997">1997</option>
+<option value="1998">1998</option>
+<option value="1999" selected>1999</option>
+<option value="2000">2000</option>
+<option value="2001">2001</option>
+<option value="2001">2002</option>
+<option value="2001">2003</option>
+</select>
+  </td></table>
+</td></table>
+
+<td> &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+<td id="tdSource">
+<b>Article Source (publication or organization):</b> <br>
+<input type="text" name="source" size="30" maxlength="30" value=""><br> 
+</td>
+
+<td> &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;</td>
+
+<td id="tdReset" align=bottom>
+&nbsp;<br>
+<input type="reset" value="Clear Form" name="reset">
+</td>
+</table>
+
+<table><tr>
+<td id="tdTitle">
+<b>Article Headline:</b> <br>
+<input type="text" name="headline" size="70" maxlength="100"
+value=""><br>
+<font size=1 face="comic sans ms">End headline with: 
+<input type="hidden" name="period" value="">
+<input name="periodRadio" type=radio value=".", checked>
+period
+<input name="periodRadio" type=radio value="," >
+comma
+<input name="periodRadio" type=radio value="&nbsp;">
+space
+
+<input name="periodRadio" type=radio value="<br>">
+line break &nbsp; &nbsp;&nbsp;&nbsp;(When in doubt, go with the default)</font> 
+</td>
+<tr><td> &nbsp;</td>
+<tr>
+<td id="tdLink">
+<b>Article Source Link <font size=2>(URL):</font>
+<font size=1 face=arial> &nbsp;(Optional, but desirable)</b> <br>
+<input type="text" name="link" size="70" maxlength="200" value=""><br> 
+<font size=1 face=arial><b>Link in or out:</b>
+<input type="hidden" name="target" value="">
+<input name="targetRadio" type=radio value="_top", checked>
+outside 
+<input name="targetRadio" type=radio value="main">
+inside &nbsp;&nbsp;&nbsp;(When in doubt, go with the default)
+</font>
+</td>
+</table>
+<p>
+</table>
+
+<table id="bodyArea" valign=top>
+
+<td id=left valign=top>
+  <table>
+    <tr><td>
+    <table><td>
+        <input name="which" type=hidden value="1">
+    <b>Body of Article:</b> <br>
+    <textarea name="body" wrap="physical" rows="20" cols=45 
+      onFocus="setWhich('1')"></textarea>
+    <br><font size=1 face=arial>Text will wrap. Extra spaces and
+    line returns do not matter</font>
+   </td></table>
+  </td>
+  <tr><td> 
+   <table id="editorComments"><td>
+    <b>Editor comments:<b><font size=1 face=arial> 
+     (use sparingly)</font>
+      <textarea name="comment" wrap="physical" rows="5"
+        cols="45" onFocus="setWhich('2')"></textarea>
+   </td></table>
+  </td></table>
+</td>
+
+<td id=tdHtml width=75% valign=top>
+  <table width=100%>
+    <tr><td colspan=2>
+       <center>
+       <font size=4 face=arial><b>Body and Comments HTML</b></font>
+       <font size=1 face=arial>Use only when necessary
+       <br>(This method will 
+          not let you insert,<br>
+      only add to the end of your text ... Sorry)</font></center>
+
+       <font face=verdana size=1><b> Links within an article. 
+         <a href=#links>Instructions here</a></b></font> 
+    </td>
+    <tr valign=top><td>
+       <input name="bodystyle" type=radio 
+         value=' <a target="_top" href="' onClick="stylize()">
+         <font size=1 face=arial> Start outside URL <br>
+            &nbsp; &nbsp; &nbsp; &lt;a target=_top href=" </font>
+     <br>
+       <input name="bodystyle" type=radio
+          value=' <a target="main" href="' onClick="stylize()">
+         <font face=arial size=1>Start inside URL <br>
+          &nbsp;&nbsp;&lt;a target="main" href=" </font>   
+    </td>
+    <td> <input name="bodystyle" type=radio value='"> '   
+            onClick="stylize()"> 
+          <u><font color=blue size=1>begin link text  </font></u> 
+           <font size=1 face=arial> &nbsp; &nbsp; "&gt;</font>
+       <br>
+         <input name="bodystyle" type=radio value=' </a> '   
+            onClick="stylize()"> 
+           <u><font color=blue size=1>end link text  </font></u> 
+           <font size=1 face=arial> &nbsp; &nbsp; &lt;/a&gt;</font>
+    </td>
+    <tr>
+    <td colspan=2>
+      <p>
+        <font face=verdana size=1><b>Stylizing. Use sparingly:
+       </b></font> 
+<br><font face=arial size=1>(does not usually fit WOA's style) </b></font>
+    </td> 
+    <tr>
+    <td><input name="bodystyle" type=radio
+          value=" <br>&nbsp; &nbsp; " onClick="stylize()">
+         <font face=arial size=1> New line &lt;br&gt;</font>
+    </td>
+    <td><input name="bodystyle" type=radio
+           value=" <p> " onClick="stylize()">
+         <font face=arial size=1> Paragraph &lt;p&gt;</font>
+    </td>
+    <tr>
+    <td><input name="bodystyle" type=radio
+            value=" <b> " onClick="stylize()">
+          <b>Bold </b><font size=1 face=arial>&lt;b&gt;</font>
+    </td>
+    <td><input name="bodystyle" type=radio
+            value=" </b> " onClick="stylize()">
+          <font face=arial size=1>end</font> <b>Bold</b>
+          <font face=arial size=1>&lt;/b&gt;</font>
+    </td>
+    <tr>
+    <td><input name="bodystyle" type=radio
+            value=" <i> " onClick="stylize()">
+          <i>Italic</i> <font face=arial size=1> &lt;i&gt;</font>
+    </td>
+    <td><input name="bodystyle" type=radio value=" </i> "
+          onClick="stylize()">
+           <font face=arial size=1>end</font> <i>Italic</i> 
+           <font size=1 face=arial>&lt;/i&gt;</font>
+    </td>
+    <tr valign=top>
+    <td><input name="bodystyle" type=radio value=" <u> "
+           onClick="stylize(document.article.body)">
+          <font size=1 face=arial> <u>Underline</u> &lt;u&gt;</font>
+    </td>
+    <td><input name="bodystyle" type=radio value=" </u> "
+          onClick="stylize()">
+        <font size=1 face=arial> end<u>Underline</u>
+            &lt;/u&gt;</font>
+    </td>
+    <tr>
+    <td><input name="bodystyle" type=radio value=" <center> "
+         onClick="stylize()">
+         <font size=1 face=arial> Center &lt;center&gt;</font>
+    </td>
+    <td><input name="bodystyle" type=radio value=" </center> " 
+         onClick="stylize()">
+         <font size=1 face=arial> end Center </font>
+    </td>
+    <tr valign=top>
+    <td><input name="bodystyle" type=radio value=" <blockquote> "
+          onClick="stylize()">
+          <font size=1 face=arial> Indent &lt;blockquote&gt;</font>
+    </td>
+    <td><input name="bodystyle" type=radio value=" </blockquote> "
+         onClick="stylize()">
+          <font size=1 face=arial> unIndent</font> 
+    </td>
+    <tr>
+    <td colspan=2>
+        <input name="bodystyle" type=radio value=" <font size=4><b> "
+          onClick="stylize()"> 
+         <font size=4 face=arial>Header font</font>
+            <font face=arial size=1>
+            &lt;font size=4 face=arial&gt;&lt;b&gt;</font>
+     </td><tr><td colspan=2> 
+      <input name="bodystyle" type=radio value=" <font size=2> "
+          onClick="stylize()"> 
+         <font size=1 face=arial> Small font &nbsp; &nbsp; 
+           <font face=arial size=1>&lt;font size=1 face=arial&gt;
+           </font>
+    </td><tr><td colspan=2> 
+      <input name="bodystyle" type=radio value=" </b></font> "
+         onClick="stylize()"> 
+             </font>Regular font &nbsp; &nbsp;
+          <font size=1 face=arial> &lt;/b&gt;&lt;/font&gt;</font>
+    </td>
+    <tr>
+    <td colspan=2><font face=arial size=1><b>Note on HTML tags:</b> 
+    Earlier versions of Internet Explorer will a) double up
+    on the HTML tags, which shouldn't hurt; and b) eliminate all
+    HTML tags if you "edit" the writeup while using Internet Explorer.</font>
+    </td>
+</table>
+
+</td></table>
+
+
+</td> 
+</table>
+
+
+<p>
+<table id=preview>
+<td>
+<input type=button value="SUBMIT" name="submit"
+onClick='setControls()'>
+</td>
+</table>
+
+</form>
+
+<p>
+<a name=instructions></a>
+<hr>
+<p>
+<table bgcolor=#E5E7E8><td> 
+<center><font size=5 face=arial><b>Instructions</b></font></b></center>
+<p></b>
+If you haven't already done so, please go to the <a
+href="http://www.overpopulation.org">WOA!! (World Overpopulation
+Awareness)</a> web page and examine it to see how it is organized and to get a general idea of the WOA!! philosophy.
+<p>
+<font face=arial size=3> <b>Keeping with WOA's Philosophy</b></font>
+<p> 
+WOA!! delves into the sensitive subjects of abortion, immigration, and population control infrequently. 
+<ul>
+<li>On abortion, it is felt that family planning prevents abortion and that there is still a large unmet need
+for family planning and contraceptive services.</li>
+<p>
+<li>On population control, the program developed at the Cairo conference and implemented by the UNFPA and the current program of USAID - both involving voluntary family planning, reproductive health services, availability of contraceptives, and education of women, is the most politically acceptable and successful means of lowering fertility rates.</li>
+<p>
+<li>On immigration, the fact that 98% of the world's population growth is occuring in third world countries, and that annual growth in the U.S. due to immigration is only 1% of the global growth, this web publication will focus on world overpopulation and contain anti-immigration sentiments to a very small section of the total web page.
+<p>
+<li>It is important to remind readers often that something can be done about overpopulation and to encourage them to help, rather than take a doomsday approach.</li>
+</ul>
+
+<font face=arial size=3> <b>Being a WOA!! Editor</b></font>
+Choose articles that are more fact than opinion. A limited number of
+quotes are acceptable (one, or two, at most) - if the source is given. Statistics from reliable sources are very important. Re-word to avoid copyright infringement. Summarize as much as possible, touching only on key points, but do include all important statistics that may be used as reference later. Reliable sources are: the U.S. Census Bureau, any U.N. agency, government agencies, research organizations, such as World Watch (not Population Research Insitute), and university research insitutes. Give credit to the source whenever possible.
+<p>
+<font face=arial size=3> <b>Using the Article/Item Submittal
+Form</b></font>
+<p> 
+<font face = "comic sans ms" size=3 color=blue>Don't be afraid to play - Karen can fix any mistakes before it goes on the web page.</font>
+<p>
+The form is designed so that you do not have to worry about style. 99% of the style is already determined.
+For example, in the News Scanner, the Date and Source of the article are on the top in small font, followed by the Headline with a link (if available) behind it, followed by the body, and sometimes
+editor's comments. An item on the Impacts page would have the source and date following the article. You do not have to worry about where these elements will appear - they may be arranged in a different order in which you key them. Please use the HTML style modifiers only if you really have to.
+<p>
+<a name=links></a>
+<font face=arial size=3> <b>Links</b></font>
+<p>
+Links are pointers, that when clicked, will take you to somewhere else on the Internet. They often appear as a different-colored text (commonly blue) that is underlined. They consist of two parts: Some text, which is a caption, a name, or a description of where you will go to, and a hidden part, the URL, which is the web address of where the web-surfer will go to. URL's usually start with www. or http://  &nbsp; &nbsp;  In addition, a link can be outside of the WOA!! web page, to a completely different organization, or they can link back
+to another part of WOA!! Almost always, you will be using the 'outside' link option.
+<p>
+<b>Links are very important.</b> WOA!! wants to avoid copying everything and insteady usually uses a brief summary and then a pointer to another web site where the full article resides. Some links expire in just a couple of weeks, particularly newspaper
+links. Magazine links last somewhat longer, maybe indefinitely. If the link is to a newspaper article, it is often worthwhile to find a link to a press release or the original source of the article.
+If you can take the time to hunt down a link to the original source of the item, it will make the readers and WOA!! very happy not to click on a lost link. 
+<p>
+<font face=arial size=3> <b>Instructions for links within the body or comments of an article</b></font>
+<br>
+First of all, you can skip over this part if it seems too complicated. Just enter the link (URL) in the body or comments and someone will add the HTML for you. But, if you want to go ahead and do it now ... To build a link within the body of the article, you will need to 1) click on the start inside or outside link option,  after which a strange sequence of characters (HTML) will appear in your text box, 2) following the strange text, enter the URL in the text box (cut and paste here ensures accuracy), 3) click on the 'begin link text' option (more strange text), 4) enter the description or title, and 5) click on the end link text option (more strange text).
+<p>
+<p>
+<br>
+<a name=newsscan></a>
+<font face=arial size=3> <b>Choice of Articles and Summarization 
+Instructions</b></font>
+<p>
+Choose articles that are more fact than opinion. A limited number of
+quotes are acceptable (one, or two, at most) - if the source is given.  Statistics from reliable sources are very important. Re-word to avoid copyright infringement. Summarize as much as possible, touching only on key points, but do include all important statistics that may be used as reference later. Reliable sources are: the U.S. Census Bureau, any U.N. agency, government agencies, research organizations, such as World Watch (not Population Research Insitute), and university research insitutes. Give credit to the source whenever possible.
+<p>
+<b>There are at least three reasons for summarizing:</b>
+<ol>
+<li>To give the readers an idea of what the article is about with having to
+read through a long article.</li>
+<p>
+<li>To provide essential statistics and quotes from people-in-the-know for
+those readers on a research mission.</li>
+<p>
+<li>To avoid copyright infringement ... the shorter the summary, the less
+chance of being slapped with a copyright infringement lawsuit.</li>
+</ol>
+
+<b>Ways to summarize:</b>
+<ul>
+<li>Remove extra words, especially hyperbole. </li>
+<li>Often re-arranging the words will express the idea in a shorter
+sentence. </li>
+<li>Remove re-statements of the same thing. Think: does it say the same
+thing as another sentence above?</li>
+<li>Keep important facts and statistics.</li>  
+<li>Cut quotes down to zero, one, or -at most- two, using only the very
+convincing ones.</li>
+<li>Look at the articles already summarized on WOA!!s front page
+<a href="http://www.[CGISITE]">http://www.[CGISITE]</a> to see how it's done.</li>
+<li>Read ahead in the article - sometimes more important information is at
+the end and needs to be brought to the beginning.</li>
+</ul>
+
+<b>Acceptable article types -</b>
+<ul>
+<li> Funding for contraceptives and family planning</li>
+<li>Impacts: global warming, desertification, deforestation, erosion,
+water shortages, pollution, acid rain, ozone, overfishing, threats to
+biodiversity.</li>
+<li>New contraceptives</li>
+<li>Population status: global and regional, annual growth, birth rates, death rates, immigration</li>
+<li>Lack of sustainability.</li>
+<li>How quality of life is affected - economics and disease impacts</li>
+<li>Exotic Species and genetic engineering</li>
+<li>Exploitation of resources</li>
+<li>Technological advances for sustainability</li>
+<li>Family planning programs </li>
+<li>More or less deaths - trends</li>
+<li>Cities and sprawl - major stories with lots of statistics only</li>
+<li>Women's advances</li>
+<li>Articles from the other side - so we know what we're up against. An editor's comment may be necessary to counteract.</li>
+</ul>
+
+<font size=4 face=arial> <b>Editor's comments</b></font>
+<p>
+On the News Scanner page, unless it is a rebuttal to an anti-family-
+planning or anti- environment item, this field is reserved for the
+editor-publisher, Karen. 
+<p>
+<br>&nbsp;
+</td></table>
+<p>
+<br>
+</blockquote>
+</BODY>
+</HTML>
