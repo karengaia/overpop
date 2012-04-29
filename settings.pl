@@ -1,12 +1,14 @@
 #!/usr/bin/perl --
 
+use File::Basename;
+
 # in overpopulation.org folder
 
 sub set_config {
   local @DB = @_;
 	
-  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/sseeccuurriittyy/";
-  push @INC, "/www/overpopulation.org/sseeccuurriittyy/";
+  my $rootdir = dirname(__FILE__);
+  push @INC, "$rootdir/sseeccuurriittyy/";
   require("conf.pl");
   @DB = &config(@DB);
 
