@@ -1,0 +1,31 @@
+sumAcctnum^
+suggestAcctnum^
+priority^D
+pubdate^0000-00-00
+expdate^
+sysdate^2011-04-28
+source^
+link^
+selflink^
+headline^No Route Found to Match "/mytest/" with {:method=>:get} 
+region^Global;
+regionhead^
+topic^
+period^
+dTemplate^
+dBoxStyle^
+wFormat^
+needsSum^
+body^
+fullbody^ok, so you must have a file called my_test_controller.rb in your 'app/ controllers' directory right? If so, you also need an 'action' and a corresponding 'view'. For example, put this in your my_test_controller.rb:def test @greeting = 'Hello World' endThen, create a file in your 'app/views/my_test' directory called test.rhtml. In there, just put this:<%= @greeting %>
+freeview^
+comment^
+note^
+miscinfo^ 
+keywords^
+unique^
+skiphandle^
+imageloc^
+imagefile^
+endtable^
+sectsubs^delete_deleteItem

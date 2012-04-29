@@ -1,0 +1,213 @@
+sumAcctnum^
+suggestAcctnum^A3491
+priority^0
+pubdate^2011-03-13
+expdate^0000
+sysdate^2011-03-23
+source^TheNextBigFuture.com
+link^http://nextbigfuture.com/2011/03/deaths-per-twh-by-energy-source.html
+selflink^
+headline^Deaths Per Tera Watt Hour (TWh) by Energy Source
+region^Global
+regionhead^N
+topic^
+period^.
+dTemplate^
+dBoxStyle^
+wFormat^
+needsSum^
+body^<img src="/img/impacts/death_rate_per_watts_produced.jpg" alt="Death rate per watts produced by energy source" width="450" height="306"><br>
+
+Even though there was the recent disaster with the Japanese nuclear plants following the 8.9 earthquake, nuclear still compares very, very well to the other energy sources. The air pollution data is mainly from the World Health Organization and the European study Externe.
+
+Coal, which supplies 26% of world energy and 50% of electricity has the highest death rate per unit of energy, with 161 deaths per Tera Watt hour (a unit of electrical energy equal to that done by one terawatt acting for one hour). China's coal is responsible for 278 deaths per TWh while U.S. coal is only 15. Most deaths are from coal particulates in the air and mining accidents.
+
+Oil, which supplies 36% of world energy, is second, with 36 deaths per TWh; followed by Natural Gas (21% of the world's energy) at 4 deaths per TWh. 
+
+Biofuel and Peat each result in 12 deaths per TWh, followed by Solar, Wind, and Hydro, each with less than 3% of world energy and less than 2 deaths per TWh. Most solar deaths are due to falling off a roof.
+
+Last is Nuclear, which supplies 5.9% of world energy and is responsible for 0.04 deaths per TWh.
+
+Controlling all particulates from coal plants, oil plants, natural gas plants, certain industrial facilities and retrofitting better control technology on cars and trucks would save 800,000 to 1.2 million lives per year. The cost would be in the range of $300 billion to $1 trillion, which would be more than offset by improved health and lower medical costs.
+
+Concerning solar power: Severin Borenstein, a professor at the University of California, Berkeley's Haas School of Business and director of the UC Energy Institute, calls for more state and federal money to be spent on research into better technology, rather than on subsidies for residential solar power systems. In his analysis, Borenstein found that a typical PV system costs between $86,000 and $91,000 to install, while the value of its power over its lifetime ranges from $19,000 to $51,000. Even assuming a 5% annual increase in electric costs and a 1% interest rate, the cost of a PV system is 80% greater than the value of the electricity it will produce. Even considering the value of greenhouse gas reductions, at current prices the PV technology still doesn't deliver.
+
+
+
+fullbody^<img src="/impacts/img/death_rate_per_watts_produced.jpg" title="Death rate per watts produced by energy source">
+
+Comparing deaths/TWh for all energy sources
+
+I wrote this back in 2008 and with one new death that is somewhat nuclear energy related (a death at one of the japanese nuclear plants following the 8.9 earthquake) the statistics are not changed. Japan should have had sealed backup diesel generators or updated some of their designs. However, nuclear still compares very, very well to the other energy sources. The air pollution data is mainly from the World Health Organization and the european study Externe. The World Health Organization compiled peer reviewed health studies on air pollution from many institutions. Occupational health and safety statistics track the deaths of workers in the different industries.
+
+Energy Source              Death Rate (deaths per TWh)
+
+Coal - world average               161 (26% of world energy, 50% of electricity)
+Coal - China                       278
+Coal - USA                         15
+Oil                                36  (36% of world energy)
+Natural Gas                         4  (21% of world energy)
+Biofuel/Biomass                    12
+Peat                               12
+Solar (rooftop)                     0.44 (less than 0.1% of world energy)
+Wind                                0.15 (less than 1% of world energy)
+Hydro                               0.10 (europe death rate, 2.2% of world energy)
+Hydro - world including Banqiao)    1.4 (about 2500 TWh/yr and 171,000 Banqiao dead)
+Nuclear                             0.04 (5.9% of world energy)
+
+UPDATE: I have taken a comprehensive look at lowering deaths per terawatt hour from energy
+
+A superior form of solar power would be the Coolearth concentrated solar power system which would be installed on the ground or wires over a ground installation.
+
+IBM Many Eyes visualization has been loaded so you can create graphs of this data
+
+Rooftop solar is several times more dangerous than nuclear power and wind power. It is still much, much safer than coal and oil, because those have a lot of air pollution deaths.
+
+Rooftop solar can be safer [0.44 up to 0.83 death per twh each year). If the rooftop solar is part of the shingle so you do not put the roof up more than once and do not increase maintenance then that is ok too. Or if you had a robotic system of installation.
+
+World average for coal is about 161 deaths per TWh.
+In the USA about 30,000 deaths/year from coal pollution from 2000 TWh.
+15 deaths per TWh.
+In China about 500,000 deaths/year from coal pollution from 1800 TWh.
+278 deaths per TWh.
+
+Air pollution deaths from coal, oil and natural gas are from the analysis of the impact of particulate matter (10 micron and 2.5 micron). Other air pollutants also cause health impacts but the scientific cause and effect is the most clear with particulates.
+
+Ground level ozone and other pollutants also have health effects
+
+Here is an article with some pictures related to air pollution.
+
+Besides replacing coal burners with nuclear power, there are particulate control technology costs about $20 million to 50 million per 1 gigawatt coal plant to achieve 99-99.5% reduction in particulates. (electrostatic precipitators) A total of about $400 million for the more effective air pollution technologies for Sulfur dioxide, nitrogen oxides and particulates.
+
+So it is perfectly feasible and economic to retrofit existing coal plants to prevent most of the air pollution and the damage that they cause. The costs is far less than what is required to deal with carbon dioxide (pipes to capture and put it all into large places underground). China has about 650 GWe of coal power installed in 2011. It would probably be cheaper for China to do the particulate retrofits (say $30 million per GWe). Therefore $20 billion would enable a 99.5% reduction in particulates. The United States has 315 GWe of coal power installed in 2011. It would cost about $16 billion for electrostatic precipitators on all coal plants in the United States.
+
+Controlling all particulates from coal plants, oil plants, natural gas plants, certain industrial facilities and retrofitting better control technology on cars and trucks would save 800,000 to 1.2 million lives per year. The cost would be in the range of $300 billion to $1 trillion (If phased in over ten years would be $30-100 billion per year worldwide.) The cost would be more than offset by improved health and lower medical costs.
+
+Calculated deaths per Terawatt hour
+
+Wind power proponent and author Paul Gipe estimated in Wind Energy Comes of Age that the mortality rate for wind power from 1980-1994 was 0.4 deaths per terawatt-hour. Paul Gipe's estimate as of end 2000 was 0.15 deaths per TWh, a decline attributed to greater total cumulative generation.
+
+Hydroelectric power was found to to have a fatality rate of 0.10 per TWh (883 fatalities for every TW·yr) in the period 1969-1996
+
+Nuclear power is about 0.04 deaths/TWh.
+
+The ExternE calculation of death/TWh from different energy sources (not including global warming effects and is the average for European nations).
+
+This draws on data from 4290 energy-related accidents, 1943 of them classified as severe, and compares different energy sources. It considers over 15,000 fatalities related to oil, over 8000 related to coal and 5000 from hydro.
+
+Deaths statistics from the fuel chain for coal and nuclear
+
+Higher level of deaths from coal in public health would be related to the increased deaths from particulates. The deaths totals are more from coal occupation are mining.
+
+The World Health Organization and other sources attribute about 1 million deaths/year to coal air pollution. Coal generates about 6200 TWh out of the world total of 15500 TWh of electricity. This would be 161 deaths per TWh.
+In the USA about 30,000 deaths/year from coal pollution from 2000 TWh. 15 deaths per TWh.
+In China about 500,000 deaths/year from coal pollution from 1800 TWh. 278 deaths per TWh.
+
+The construction of existing 1970-vintage U.S. nuclear power plants required 40 metric tons (MT) of steel and 190 cubic meters (m3) of concrete per average megawatt of electricity (MW(e)) generating capacity. For comparison, a typical wind energy system operating with 6.5 meters-per-second average wind speed requires construction inputs of 460 MT of steel and 870 m**3 of concrete per average MW(e). Coal uses 98 MT of steel and 160 m**3 of concrete per average MW(e); & natural-gas combined cycle plants use 3.3 MT steel and 27 m**3 concrete.
+
+Wind power generation was 95 GW at the end of 2007.
+1 MW produces 3,066 MWh if 35% efficient.
+20 GW in Germany generated 30 TWh in 2006.
+95GW would be generating about 150TWh.
+95000GW would have taken 43.7 million tons of steel and 82.7 million tons of concrete. 3% of one year of global steel production. 4% of one year of the world's concrete production. Half of one year's production in the US for steel. About 15 deaths if corresponded to half of one years metal/nonmetal mining fatalities. 0.1 deaths per TWh. If the metal and concrete had come from China about 2700 metal/nonmetal mining deaths per year for 5 times the amount of steel. 270 deaths to get the metal for the wind turbines. 1.9 deaths per TWh. These construction related deaths are amortized over the life of the wind turbines of 30 years. Other wind power deaths need to factor in dangers associated with working with very tall structures (50 stories tall) and with deep water work associated with building and anchoring offshore.
+
+    Wind power proponent and author Paul Gipe estimated in Wind Energy Comes of Age that the mortality rate for wind power from 1980-1994 was 0.4 deaths per terawatt-hour. Paul Gipe's estimate as of end 2000 was 0.15 deaths per TWh, a decline attributed to greater total cumulative generation. By comparison, hydroelectric power was found to to have a fatality rate of 0.10 per TWh (883 fatalities for every TW·yr) in the period 1969-1996. This includes the Banqiao Dam collapse in 1975 that killed thousands.
+
+Metal/Nonmetal fatalities in the USA (iron and concrete components mainly)
+
+(3.1 GWp generated 2TWh in Germany for solar)
+
+Coal and fossil fuel deaths usually do not include deaths caused during transportation. The more trucking and rail transport is used then the more deaths there are. The transportation deaths are a larger component of the deaths in the USA than direct industry deaths. Moving 1.2 billion tons of coal takes up 40% of the freight rail traffic and a few percent of the trucking in the USA.
+
+Uranium mining is a lot safer because insitu leaching (the main method of uranium mining) involves flushing acid down pipes. No workers are digging underground anymore. Only about 60,000 tons of uranium are needed each year so that is 200 times less material being moved than for coal plants.
+
+But what about Chernobyl ?
+The World Health Organization study in 2005 indicated that 50 people died to that point as a direct result of Chernobyl. 4000 people may eventually die earlier as a result of Chernobyl, but those deaths would be more than 20 years after the fact and the cause and effect becomes more tenuous.
+
+He explains that there have been 4000 cases of thyroid cancer, mainly in children, but that except for nine deaths, all of them have recovered. "Otherwise, the team of international experts found no evidence for any increases in the incidence of leukemia and cancer among affected residents."
+
+Averaging about 2100 TWh from 1985-2005 or a total of 42,000 TWh. So those 50 deaths would be 0.0012 deaths/TWh. If those possible 4000 deaths occur over the next 25 years, then with 2800 TWh being assumed average for 2005 through 2030, then it would be 4000 deaths over 112,000 TWh generated over 45 years or 0.037 deaths/TWh. There are no reactors in existence that are as unsafe as the Chernobyl reactor was. Even the eight of that type that exist have containment domes and operate with lower void co-efficients.
+
+The safety issues with Rooftop solar installations
+Those who talk about PV solar power (millions of roofs) need to consider roof worker safety. About 1000 construction fatalities per year in the US alone. 33% from working at heights.
+
+Falls are the leading cause of fatalities in the construction industry. An average of 362 fatal falls occurred each year from 1995 to 1999, with the trend on the increase. 269 deaths (combined falls from ladders and roofs in 2002). UPDATE: Based on a more detailed analysis of the fatal fall statistic reports I would now estimate the fatal falls that would match the solar panel roof installations as 100-150. Only 30-40 are classified as being a professional roofer but deaths for laborer or general construction worker or a private individual count as deaths.
+
+Roofing is the 6th most dangerous job. Roofers had a fatality rate in 2002 of 37 per 100,000 workers.
+
+In 2001, there were 107 million homes in the United States; of those, 73.7 million were single-family homes. Roughly 5 million new homes are built each year and old roofs need to significant work or replacement every 20 years. So 9-10 million roofing jobs in the US alone. In 2007, Solar power was at 12.4 GW or about 12.6 TWh. The 2006 figure for Germany PV was only 1TWh from about 1.5GW from $4 billion/yr. The German rate of solar power generation would mean 12.4GW would generate 8TWh. 2.8GW generates 2 TWh for Germany, assuming other places are 50% sunnier on average, then the 9.6GW would generate 10.6 TWh.
+
+$4 billion is about the cost of one of the new 1.5 GW nuclear power plants, which would generate 12 TWh/year. Nuclear power plants (104) rated at a total 100GW generated 800 Twh in 2007.
+
+The world total was from about 1.5 million solar roofed homes. 30% of the solar power was from roof installed units. 1/6th of the 9 million roofing job accidents would be about 50 deaths from installing 1.5 million roofs if other countries had similar to US safety. The amount of roof installations is increasing as a percentage. 4 TWh from roofs PV. So 12.5 deaths per TWh from solar roof installations. Assuming 15 years as the average functional life or time until major maintenance or upgrade is required. The average yearly deaths from rooftop solar is 0.83/TWh. Those who want a lower bound estimate can double the life of the solar panels (0.44deaths/TWh). This is worse than the occupational safety issues associated with coal and nuclear power. (see table below). 12 to 25 times less safe than the projected upper bound end effect of Chernobyl (from WHO figures). The fifty actual deaths from roof installation accidents for 1.5 million roof installations is equal to the actual deaths experienced so far from Chernobyl. If all 80 million residential roofs in the USA had solar power installed then one would expect 9 times the annual roofing deaths of 300 people or 2700 people (roofers to die). This would generate about 240 TWh of power each year. (30% of the power generated from nuclear power in the USA). 90 people per year over an optimistic life of 30 years for the panels not including maintenance or any electrical shock incidents.
+
+Maintenance and Functional life of solar panels
+
+[Q26. Do they require any maintenance?
+A26: Only an occasional wipe to ensure optimal performance of the solar panel.]
+
+15. How long will the panels last?
+Generally, systems last 20-30 years since the waterproof seals on the panels tend to deteriorate over time.
+16. If I move home, can I take the solar panels with me?
+You could take your solar power system down and re-install it at your new house provided the roof of the new house is suitable. Or, you could include it in the selling price of your house. If your house is in a remote area and the solar power system is the sole source of power, the purchaser of your house would be wise to make sure the solar power system is included in the price, or they'll be left without electricity.
+[Generally hail resistant but a storm big enough to damage a regular roof would also damage a rooftop solar panel system.]
+
+http://www.gepower.com/prod_serv/products/solar/en/faqs/resid_sys.htm#faq24
+http://www.gepower.com/prod_serv/products/solar/en/faqs/resid_sys.htm#faq28http://www.heatmyhome.co.uk/pv-solar-panels.htm
+
+The 10 most dangerous jobs
+Occupation     Fatalities per 100,000 Timber cutters               117.8
+Fishers                       71.1
+Pilots and navigators         69.8
+Structural metal workers      58.2
+Drivers-sales workers         37.9
+Roofers                       37
+Electrical power installers   32.5  [also, solar power related]
+Farm occupations              28
+Construction laborers         27.7
+Truck drivers                 25
+
+Source: Bureau of Labor Statistics; survey of occupations with minimum 30 fatalities and 45,000 workers in 2002
+
+Conclusion:
+Nothing is perfectly safe. Chasing perfection can cause us to ignore just improving and trading worse for a lot better. Non-roof installations of solar is safer than roof installation. Nuclear, wind, non-roof solar and hydro are a lot safer than coal and oil. Natural gas is safer but not as much as nuclear and those others. The focus needs to be on getting rid of the most dangerous energy sources which are coal and oil first. Then after that decades long project is done to look at the other energy sources. Safety and improvements for all energy sources should be made as we go.
+
+UPDATE:
+Rooftop solar is still a hundred times safer than coal and oil power because of air pollution deaths. Other ways to make solar power safer:
+1. Increase safety for all rooftop work (can reduce deaths by half or more)
+2. Rooftop solar tiles installed on new buildings might not have any more incremental deaths as opposed to panels that are separate from the roof tiles or systems installed that replace roof tiles before they would normally be replaced.
+3. Create some new installation system where people stay on the ground using some forklift or crane to raise and place a solar power system onto a roof. Have to ensure that the heavy machinery system is safer than the roofing process being replaced.
+
+Some responders online are in denial that people who work on a roof can fall off regardless of the reason they went up there. If I go up there to replace roofing tiles or go up there to install solar panels, the risk of falling is pretty much the same especially when the number of times being compared heads to large numbers like millions of times for each. As I noted in the comments, statistics show that 70% of fatal construction falls occur at height of 3 stories or less.
+
+Some have also claimed that someone who went up onto a roof to install a solar panel but then fell is not a death associated with solar power. Similarly then if someone is killed in a coal mine then that is not a coal power death because the coal was not in the power plant yet or they might have some other reason for being underground and would have been crushed anyway.
+
+FURTHER READING
+189 page pdf from the 1997 Externe analysis of energy sources and fuel cycles.
+
+RELATED NEWS
+Canada is increasing the planned number of nuclear reactors in Alberta to 4 plants generating 4 GW. The plan is to complete them by 2017.
+
+Southern California Edison (SCE) plans to spend $875 million over the next five years putting solar panels onto commercial roofs to generate 250 megawatts of solar capacity. The panels will be on 65 million square feet of roof.
+
+San Jose has a 15 year green vision to install 100,000 solar power roofs.
+
+San Jose was chosen a Solar America City by the U.S. Department of Energy and will share $2.4 million in funding with 11 other cities. Other cities designated as Solar America Cities include Sacramento, Santa Rosa, Seattle, Wash.; Houston, Texas; Knoxville, Tenn.; Milwaukee, Wis.; Minneapolis & St. Paul, Minn.; Orlando, Fla.; Philadelphia, Penn.; and San Antonio, Texas.
+
+Severin Borenstein, director of the U.C. Energy Institute and a professor at the University of California, Berkeley's business school, called existing technology "a loser" in a research paper. "We are throwing money away by installing the current solar PV technology," he said.
+
+    Borenstein calls for more state and federal money to be spent on research into better technology, rather than on subsidies for residential solar power systems. In his analysis, Borenstein found that a typical PV system costs between $86,000 and $91,000 to install, while the value of its power over its lifetime ranges from $19,000 to $51,000. Even assuming a 5 percent annual increase in electric costs and a 1 percent interest rate, the cost of a PV system is 80 percent greater than the value of the electricity it will produce. In his paper, Borenstein also factored in the value of greenhouse gas reductions into his calculations, and found that at current prices the PV technology still doesn't deliver.
+
+
+
+freeview^
+comment^
+note^
+miscinfo^
+keywords^
+unique^
+skiphandle^
+imageloc^
+imagefile^
+endtable^
+sectsubs^NewsDigest_NewsItem`M;Economics_ecoEconomics`M

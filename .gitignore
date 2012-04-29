@@ -11,12 +11,10 @@ subdomains/www/.htaccess.swp
 subdomains/www/*.html
 subdomains/www/*.htm
 *.bak
-subdomains/www/autosubmit/deleted/*.del
+*.bkp
 subdomains/www/autosubmit/elists/*.elist
-subdomains/www/autosubmit/items/*
 subdomains/www/autosubmit/itemsSave/*
 subdomains/www/autosubmit/popmail/*
-subdomains/www/autosubmit/sections/*
 subdomains/www/autosubmit/sepmail/*
 subdomains/www/autosubmit/volunteerEmail.txt
 subdomains/www/cgi-bin/_save*
