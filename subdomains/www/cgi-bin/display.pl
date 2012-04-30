@@ -279,7 +279,7 @@ sub process_1only_list
  unlink "$newsectionfile" if(-f $newsectionfile);
  system "touch $newsectionfile" or die;
 
- if(-f "../../karenpittsMac.yes") {
+ if($SVRinfo{environment} == 'development') {
     open(OUTSUB, ">$newsectionfile") or print "art H Mac - failed to open temp new section index file: $newsectionfile<br>\n";
  }
  else {

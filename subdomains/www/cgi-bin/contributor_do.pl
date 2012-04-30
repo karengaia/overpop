@@ -3,6 +3,7 @@
 # July 18, 2009
 #        contributor_do.pl
 
+require './bootstrap.pl';
 require 'contributor.pl';
 
 if($parm =~ /[A-Za-z0-9]/) {

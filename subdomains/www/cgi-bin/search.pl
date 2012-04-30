@@ -6,9 +6,7 @@
 # Distribute freely, but keep this notice intact, and do not charge money
 # for my work.  Keep information free.	
 
-require 'common.pl';
-
-&get_site_info;
+require './bootstrap.pl';
 
 $dir    = $publicdir;     # Directory to search
 $url    = $publicUrl;    # URL of directory

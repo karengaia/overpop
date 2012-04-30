@@ -20,7 +20,7 @@ sub do_keywords
   }
   $keywordsv =~  s/^;+//;
   if($newkeyword =~ /[A-Za-z0-1]/) {
-  	if(-f "../../karenpittsMac.yes") {  ## set permissions if using Karen's Mac as the server
+  	if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
      if(-f $newkeywords) {}
 		else {
 			system('touch $newkeywords');
@@ -45,7 +45,7 @@ sub add_to_keyword_index
 
   system "cp $keyidxfile $oldkeyidxfile" if($keyidxfile);
 #         put it at the top of the file
-  if(-f "../../karenpittsMac.yes") {  ## set permissions if using Karen's Mac as the server
+  if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
 	if(-f '$keyidxfile') {}
 	else {
 		system('touch $keyidxfile');

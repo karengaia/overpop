@@ -40,14 +40,7 @@ if($args) {
   local($cmd)  = $args[0];
 }
 
-if(-f "debugit.yes") {}
-else {
-  push @INC, "/home/popaware/public_html/cgi-bin/";
-  push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-##  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
-}
+require './bootstrap.pl';
 
 require 'errors.pl';         # error display and termination or return
 require 'display.pl';        # takes sectsub info for a particular section or subsection and uses it to create a page with html
@@ -74,7 +67,6 @@ print "Content-type: text/html\n\n";
 
 # print "Content-type:"."text/"."html\n\n";
 
-&get_site_info;        ## in common.pl
 &set_date_variables;   ## in date.pl
 &DB_get_switches_counts;  #in misc_dbtables.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl

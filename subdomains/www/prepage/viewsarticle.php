@@ -1,21 +1,12 @@
-<?php $sectionname = $_SERVER['QUERY_STRING'];
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-	  if ($sectionname = "Suggested_suggestedItem") {
-	      $sourcepage = "http://overpop/cgi-bin/article.pl?display_subsection%%%$sectionname";
-	  }
-	  else {
-	      $sourcepage = "http://overpop/cgi-bin/article.pl?display_section%%%$sectionname";
-	  }
- }
- else {
-	   if ($sectionname = "Suggested_suggestedItem") {
-		      $sourcepage = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%%%$sectionname";
-	  }
-	  else {
-		     $sourcepage = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%$sectionname";
-	  }
- }
+<?php
+require './../php/boostrap.php';
+$sectionname = $_SERVER['QUERY_STRING'];
+$root_url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl";
+if ($sectionname = "Suggested_suggestedItem") {
+  $sourcepage = "$root_url?display_subsection%%%$sectionname";
+}
+else {
+  $sourcepage = "$root_url?display_section%%%$sectionname";
 }
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 

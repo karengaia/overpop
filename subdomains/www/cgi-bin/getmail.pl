@@ -12,15 +12,10 @@
 #              chopped off excess at top and bottom; added sepmail functionality
 # 2010 July 22 - buffer too small; broke into lines while reading in
 
-if(-f "../../karenpittsMac.yes") { #Karens Mac
-  print "Mac server\n";
-  $pophome       = "/Users/karenpitts/Sites/web/www/overpopulation.org";
-  $publicdir     = "$pophome/subdomains/www";
-}
-else {  #telavant
-  $pophome       = "/www/overpopulation.org";
-  $publicdir     = "$pophome/subdomains/www";
-}
+require './bootstrap.pl';
+
+$pophome       = $SVRinfo{home};
+$publicdir     = $SVRinfo{public};
 
 # $bkppath  = "$pophome/popnews_bkp";
 $inboxpath  = "$pophome/popnews_inbox";
@@ -30,7 +25,7 @@ $inboxfilepath = "$inboxpath/$filename.email";
 print "file $filename $inboxfilepath\n";
 $line = "";
 
-open(EMAILBKP, ">>$inboxfilepath") or die();  #save entire email in bkp
+open(EMAILBKP, ">>$inboxfilepath") or die("Failed to open inbox");  #save entire email in bkp
 
 while (<STDIN>) 
 {          #      first pass
@@ -81,7 +76,4 @@ sub calc_date
   return($sysdatetm);
 }
 
-
-
 1;
-

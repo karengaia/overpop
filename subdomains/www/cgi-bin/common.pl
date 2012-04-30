@@ -15,6 +15,9 @@
 ## 2008 May 26 - added choppedline_convert: change back to normal: lines that are broken to make short lines (usually 72) for email
 ## 2006 Jan 07 - do_email fixed for anti-spam - from adminEmail address only
 
+use Cwd;
+use File::Basename;
+
 sub get_site_info
 {
  $contactEmail = "karen4329\@karengaia.net";
@@ -27,10 +30,17 @@ sub get_site_info
 ## public     => "subdomains/www",
   $slash = "\/";
 
+  $this_dir = dirname(getcwd . '/' . __FILE__);
+  $cgibin_dir = $this_dir;
+  $doc_root = dirname($this_dir);
+  $app_dir = dirname(dirname($doc_root));
+
  %TELANAsvr = (
+  environment => 'production',
   svrname    => "TELANA",
   IP         => "www.overpopulation.org",
-  home       => "/www/overpopulation.org",
+  app_dir    => $app_dir,
+  home       => $app_dir,
   public     => "subdomains/www",
   subdomain  => "www\.",
   sshpath    => "/usr/bin/ssh",
@@ -50,10 +60,12 @@ sub get_site_info
   ); 
   
   %KPMACsvr = (
+   environment => 'development',
    svrname    => "KPMac",
    IP         => "127.0.0.1",
-   home       => "/Users/karenpitts/Sites/web/www/overpopulation.org",
-   public     => "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www",
+   app_dir    => $app_dir,
+   home       => $app_dir,
+   public     => "subdomains/www",
    subdomain  => "",
    sshpath    => "/usr/bin/ssh",
    sendmail   => "|/usr/sbin/sendmail -t",
@@ -73,8 +85,7 @@ sub get_site_info
      
 ##              directory structure of the two servers is different
 
- if(-f "../../karenpittsMac.yes") {
-   $doc_root = "/Users/karenpitts/web/www/overpopulation.org/subdomains/www/";
+ if(-f "$app_dir/karenpittsMac.yes") {
    %SVRinfo = %KPMACsvr;
    %SVRdest = %TELANAsvr;
    $subdomain = $SVRinfo{subdomain};
@@ -90,6 +101,10 @@ sub get_site_info
     $subdomain = "telana";
   }
 
+  # Derived values
+  $SVRinfo{public_dir} = "$SVRinfo{home}/$SVRinfo{public}";
+  $SVRinfo{cgi_dir} = "$SVRinfo{public_dir}/$SVRinfo{cgiPath}";
+
   $svrname    = $SVRinfo{svrname};
   $sendmail   = $SVRinfo{sendmail};
   $pophome    = $SVRinfo{home};
@@ -99,12 +114,7 @@ sub get_site_info
   $publicUrl  = "$subdomain$cgiSite";
   $scriptpath = "$subdomain$cgiPath";
 
-  if($svrname eq 'TELANA') {
-      $publicdir  = "$pophome/$SVRinfo{public}";
-  }
-  else {
-      $publicdir  = "$SVRinfo{public}";
-  }
+  $publicdir  = $SVRinfo{public_dir};
   
   $autosubdir    = "$publicdir/autosubmit";
   $controlpath   = "$autosubdir/control";

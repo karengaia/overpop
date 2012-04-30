@@ -1,15 +1,10 @@
-<?php $qstring = $_SERVER['QUERY_STRING'];
+<?php
+require './../php/boostrap.php';
+$qstring = $_SERVER['QUERY_STRING'];
 list($pagename,$sectionname) = explode('%',$qstring);
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $sourcepage = "http://overpop/prepage/viewsection.php?$sectionname";
-  $targetfilename = "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/$pagename.html";
-}
-else {
-  $sourcepage = "http://www.overpopulation.org/prepage/viewsection.php?$sectionname";
-  $targetfilename = "/www/overpopulation.org/subdomains/www/$pagename.html";
-}
+$sourcepage = "http://{$CONFIG['servername']}/prepage/viewsection.php?$sectionname";
+$targetfilename = "$CONFIG['public_dir']/$pagename.html";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 

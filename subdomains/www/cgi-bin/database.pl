@@ -50,8 +50,8 @@ sub db_connect {
 use DBI;
 use DBD::mysql;
 
-if(-f "mactest.txt") {
-	$hostname = "localhost";
+if($SVRinfo{environment} == 'development') {
+	$host = "localhost";
 #	$port     = ":3000";
 	#$username = "root";
 	$pswd     = "";

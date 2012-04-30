@@ -1,20 +1,17 @@
 #!/usr/bin/perl --
 
-## put this in common.pl -- skip the push @INC
+require './bootstrap.pl';
 
-  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/";
-  push @INC, "/www/overpopulation.org/";  ## telana
+push @INC, $SVRinfo{app_dir}
 
 print "Content-type:"."text/"."html\n\n";
 
+# TODO This file doesn't exist in the Git repository
 require('DBsettings.pl');
 @DB = &init_db_settings;
 
 require ('settings.pl');   
 @DB = &set_config(@DB);
-	
-push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/cgi-bin/";
-push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin/cgiwrap/popaware/";  ## telana
 
 ###  anything after this is for testing
 

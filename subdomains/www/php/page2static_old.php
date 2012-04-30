@@ -1,13 +1,8 @@
 <?php
+require './bootstrap.php';
 $pagename = $_SERVER['QUERY_STRING'];
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $servername = "overpop";
-}
-else {
-  $servername = "www.overpopulation.org";
-}
+$servername = $CONFIG['servername'];
 
 echo "page = $pagename<br><br>";
 if(!$pagename) {
