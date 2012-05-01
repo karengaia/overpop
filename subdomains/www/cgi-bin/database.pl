@@ -63,7 +63,7 @@ if(-f "mactest.txt") {
 else {
 	$host = "db.telana.com";
 	$user = "overpop";
-	$pswd     = "fr00tfl1";
+	$pswd     = "";
 	$database = "overpop";
 	$platform = "mysql";
 }
