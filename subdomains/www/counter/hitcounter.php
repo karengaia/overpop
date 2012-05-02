@@ -65,7 +65,7 @@
 		function Hitcounter() {
 /*			 mysql_connect("localhost", "overpop", "") or die(mysql_error()); 
 		     mysql_select_db("overpop") or die(mysql_error()); */
-		     mysql_connect("db.telana.com", "overpop", "fr00tfl1") or die(mysql_error()); 
+		     mysql_connect("db.telana.com", "overpop", "xxxxxxx") or die(mysql_error()); 
 		     mysql_select_db("overpop") or die(mysql_error());
 		}
 
