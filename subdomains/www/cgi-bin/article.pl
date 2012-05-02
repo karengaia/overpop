@@ -33,7 +33,6 @@
 ##2010 May 5 - Added Karen's Mac access - push ENV path; tested for  if(-f "../../karenpittsMac.yes") on all opens for writing.
 ##             Change www.$cgiSite/cgi-bin/cgiwrap/popaware to $scriptpath
 
-use File::Basename;
 
 $args = $_[0];   # In case we do it from the command line
 if($args) {
@@ -43,8 +42,11 @@ if($args) {
 
 if(-f "debugit.yes") {}
 else {
-  my $cgibin = dirname(__FILE__);
-  push @INC, $cgibin;
+  push @INC, "/home/popaware/public_html/cgi-bin/";
+  push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
+  push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
+  push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
+##  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
 }
 
 require 'errors.pl';         # error display and termination or return
@@ -68,18 +70,14 @@ require 'smartdata.pl';  # extension of docitem.pl used to parse data from an em
 require 'send_email.pl';   # sends an email
 require 'selecteditems_crud.pl'; # processes items selected from a list.
 
-print "Content-type:"."text/"."html\n\n";
+print "Content-type: text/html\n\n";
+
+# print "Content-type:"."text/"."html\n\n";
 
 &get_site_info;        ## in common.pl
 &set_date_variables;   ## in date.pl
 &DB_get_switches_counts;  #in misc_dbtables.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl
-
-#$errorlogsw   = 'N';
-#$stop         = 'N';
-#$max_email_cnt = 45;
-#$part = 0;
-#$end_email    = 'N';
 
 &init_contributors;
 &init_paging_variables; # in indexes.pl
@@ -97,7 +95,7 @@ if(-f "debugit.yes") {
   print "art00 filename $email_filename<br>\n";
   &read_emailItem(2);       ## in docitem.pl
   &parse_popnews_email(2);  ## in docitem.pl
-      print "art00 FROM:: $fromEmail ehandle $ehandle eaccess $eaccess userid $euserid\n";
+      print "  FROM:: $fromEmail ehandle $ehandle eaccess $eaccess userid $euserid\n";
       print "  SENTDATE:: $sentdate\n";
       print "  SUBJECT:: $subject\n";
       print "  LINK:: $link\n";
@@ -185,7 +183,6 @@ if($aTemplate ne 'login') {
 ####
 #### Process the various commands
 ####
-
 if($cmd eq "list_sepmail") {
 	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
 	local(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
@@ -307,7 +304,7 @@ elsif($cmd eq "storeform") {
       
    }
 
-   &storeform;    ## this is in docitem.pl
+  &storeform;    ## this is in docitem.pl
 #print "art313 sectsubs $sectsubs<br>\n";
 #print "art314 http://$publicUrl/prepage/viewSimpleUpate.php?$docid%cswpReview;cswpUpdate%$thisSectsub\<br>\n";
 print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewSimpleUpate.php?$docid%cswpReview;cswpUpdate%$sectsubs\"<br>\n"
@@ -397,8 +394,8 @@ elsif($cmd eq "display") {
    if($aTemplate eq 'select_login') {
    	$access = 'A';
    }
-   &get_doc_form_values if($queryString ne 'Y');
-   &display_one('Y',$aTemplate);
+   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
+   &display_one('Y',$aTemplate); # in docitem.pl
 }
 
 ## art10  ########
