@@ -49,7 +49,7 @@ sub display_one
    $expdate = "$expyear-$expmonth-$expday";
  }
  elsif($docid =~ /[0-9]/) {
-   &get_doc_data($docid,N);
+   &get_doc_data($docid,$print_it);
 
    if($sectsubs =~ /$suggestedSS|$emailedSS/ and $access !~ /[ABCD]/
       and $cmd eq "processlogin") {
@@ -70,7 +70,7 @@ sub do_one_doc
       return;
   }	    	                                
 
-  &get_doc_data($docid,N);
+  &get_doc_data($docid,'N');
 
   $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
   $expired = "$expired;$docid"
@@ -139,7 +139,6 @@ sub storeform
 {
  &get_contributor_form_values if($ipform !~ /chaseLink/);
  &get_doc_form_values;
-
 #print "doc145 ..priority $priority docloc_news $docloc_news newsprocsectsub $newsprocsectsub<br>\n";
 
  &update_control_files;  # if add or update needed
@@ -166,12 +165,12 @@ sub storeform
 	&print_review('maidupreview');
  }
  else {
-	&print_review('review');
+    &print_review('review');
  }
 
  my ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
 
-print "doc168 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
+# print "doc168 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
 
  &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
 
@@ -246,7 +245,7 @@ sub do_updt_selected
 
   $temp = $FORM{"sectsubs$pgitemcnt"};
 
-  &get_doc_data($docid,N);  #in docitem.pl
+  &get_doc_data($docid,'N');  #in docitem.pl
 
   $doc_fullbody = $fullbody if($ipform =~ /chaseLink/);
 ##                   new priority overrides prior priority
@@ -333,7 +332,7 @@ sub log_volunteer
 sub process_popnews_email       # from article.pl when item selected from Suggested_emailedItem list
 {
  my $maildocid = $_[0];
- &get_doc_data($maildocid,N);
+ &get_doc_data($maildocid,'N');
 
  $docid = &get_docCount;        # replace emailed docid with new docid from the system
 
@@ -825,8 +824,9 @@ sub get_doc_form_values
 
 sub get_doc_data
 {
-  ($docid,$printit)  = @_;
-  return if($docid !~ /[0-9]/);
+  ($docid,$print_it)  = @_;
+
+  return unless($docid);
   &clear_doc_data;
 
   if($docid =~ /-/) {       ##  from emailed 
@@ -836,7 +836,6 @@ sub get_doc_data
 	  $filepath = "$itempath/$docid\.itm";
   }
   $docid =~ s/\s+$//mg;
-
   $found_it = "Y";
 
   $printout = "";
@@ -855,7 +854,7 @@ sub get_doc_data
          ($name, $value) = split(/\^/,$line);
          $DATA{$name} = $value;
        }
-       $printout .= "$line<br>\n" if($printit =~ /Y/);
+        $printout .= "$line<br>\n" if($printit =~ /Y/); # printit not the same as $print_it passed in as arg
     }
     close(DATA);
     
@@ -1378,6 +1377,16 @@ sub read_docCount
    $docCount = $_;
   }
   close(COUNT);
+}
+
+sub create_docitem_table {
+#	CREATE TABLE docitems (
+#		docid smallint unsigned not null,
+# author
+# subheadline
+# deleted
+#		PRIMARY KEY (docid)  # do this later, after conversion
+#		)
 }
 
 
