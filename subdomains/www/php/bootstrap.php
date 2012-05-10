@@ -21,7 +21,7 @@ $CONFIG['mysql_password'] = '';
 $CONFIG['mysql_database'] = 'overpop';
 
 // Override values for production
-$_development_file = $CONFIG['app_dir'] . "/karenpittsMac.yes";
+$_development_file = $CONFIG['app_dir'] . "/development.yes";
 if (!file_exists($_development_file)) {
   $CONFIG['environment'] = 'production';
   $CONFIG['cgi_path'] = 'cgi-bin/cgiwrap/popaware';

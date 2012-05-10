@@ -2,16 +2,9 @@
 
 require './bootstrap.pl';
 
-push @INC, $SVRinfo{app_dir}
+push @INC, $SVRinfo{app_dir};
 
 print "Content-type:"."text/"."html\n\n";
-
-# TODO This file doesn't exist in the Git repository
-require('DBsettings.pl');
-@DB = &init_db_settings;
-
-require ('settings.pl');   
-@DB = &set_config(@DB);
 
 ###  anything after this is for testing
 

@@ -47,38 +47,22 @@ sub print_query_results
 }
 
 sub db_connect {
-use DBI;
-use DBD::mysql;
+  use DBI;
+  use DBD::mysql;
 
-if($SVRinfo{environment} == 'development') {
-	$host = "localhost";
-#	$port     = ":3000";
-	#$username = "root";
-	$pswd     = "";
-	$database = "overpop";
-	#$dbdriver = "mysql";
-	$user = "root";
-	$platform = "mysql";
-}
-else {
-	$host = "db.telana.com";
-	$user = "overpop";
-	$pswd     = "";       # you will need to supply the password for production
-	$database = "overpop";
-	$platform = "mysql";
-}
-  my $dbh = DBI->connect ("DBI:$platform:$database:$host", 
-         $user,
-         $pswd)
+  my $dbh = DBI->connect ("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}",
+         $CONFIG{db_user},
+         $CONFIG{db_password})
       or die "Connection Error: $DBI::errstr\n";
   return($dbh);
 }
 
 sub OpenDB {
-use DBI;
-$dbh = DBI->connect("DBI:mysql:$mysql_db:$mysql_host","$mysql_u","$mysql_p");
-$mysqlopen = 1;
-return; }
+  use DBI;
+  $dbh = DBI->connect("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}", $CONFIG{db_user}, $CONFIG{db_password});
+  $mysqlopen = 1;
+  return;
+}
 
 sub CloseDB {
 $dbh->disconnect();

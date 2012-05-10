@@ -1,14 +1,14 @@
 <?php
 require('config.php');
+require 'lib.php';
+global $CONFIG;
 
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-$sql = "CREATE DATABASE IF NOT EXISTS " . SQL_DB . ";";
+$conn = DB::connect(false);
+$sql = "CREATE DATABASE IF NOT EXISTS {$CONFIG['db_name']};";
 
 $res = mysql_query($sql) or die(mysql_error());
 
-mysql_select_db(SQL_DB,$conn);
+mysql_select_db($CONFIG['db_name'], $conn);
 
 $sql1 = <<<EOS
  CREATE TABLE IF NOT EXISTS ml_lists (

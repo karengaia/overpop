@@ -1,13 +1,9 @@
 <?php
 require('config.php');
+require 'connect.php';
 $title = "Send Popnewsweekly";
 
 require('header.htm');
-
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
 
 $email_msg = file_get_contents(POPNEWS_FILE);
 $_POST['msg'] = $email_msg;

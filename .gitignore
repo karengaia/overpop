@@ -1,10 +1,13 @@
 .DS_Store
+settings_overrides.pl
+settings_overrides.php
 awstats/awstats*.txt
 logs/*
 popnews_bkp/*
 popnews_inbox/*
 popnews_mail/*
 popnews_mail_save/*
+sseeccuurriittyy/rsyncpwd
 subdomains/mobile/index.html
 subdomains/karenpittsMac.yes
 subdomains/www/.htaccess.swp

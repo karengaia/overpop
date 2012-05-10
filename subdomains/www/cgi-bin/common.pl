@@ -15,11 +15,11 @@
 ## 2008 May 26 - added choppedline_convert: change back to normal: lines that are broken to make short lines (usually 72) for email
 ## 2006 Jan 07 - do_email fixed for anti-spam - from adminEmail address only
 
-use Cwd;
-use File::Basename;
-
 sub get_site_info
 {
+  use Cwd;
+  use File::Basename;
+
  $contactEmail = "karen4329\@karengaia.net";
  $contactEmail_html = "karen4329&#64;karengaia.net";
  $adminEmail = "karen4329\@karengaia.net",
@@ -59,41 +59,40 @@ sub get_site_info
   maillistpath => "subdomains/www/mail-list",
   ); 
   
-  %KPMACsvr = (
-   environment => 'development',
-   svrname    => "KPMac",
-   IP         => "127.0.0.1",
-   app_dir    => $app_dir,
-   home       => $app_dir,
-   public     => "subdomains/www",
-   subdomain  => "",
-   sshpath    => "/usr/bin/ssh",
-   sendmail   => "|/usr/sbin/sendmail -t",
-   cgiPath    => "cgi-bin",
-   cgiSite    => "overpop",
-##  cgiSite    => "population-awareness.net",
-   acctID     => "overpop",
-   inboxpath => "popnews_inbox",
-   mailpath   => "popnews_mail",
-   mailbkppath => "popnews_bkp",
-   sepmailpath => "subdomains/www/popnews_sepmail",
-   nodupmailpath => "subdomains/www/popnews_nodupmail",
-   mailbkp     => "subdomains/www/popnews_bkp",
-   hitCntPath => "subdomains/www",
-   maillistpath => "subdomains/www/mail-list",
+  %DEVELOPMENTsvr = (
+    svrname    => "KPMac",
+    IP         => "127.0.0.1",
+    app_dir    => $app_dir,
+    home       => $app_dir,
+    public     => "subdomains/www",
+    subdomain  => "",
+    sshpath    => "/usr/bin/ssh",
+    sendmail   => "|/usr/sbin/sendmail -t",
+    cgiPath    => "cgi-bin",
+    cgiSite    => "overpop",
+    ## cgiSite    => "population-awareness.net",
+    acctID     => "overpop",
+    inboxpath => "popnews_inbox",
+    mailpath   => "popnews_mail",
+    mailbkppath => "popnews_bkp",
+    sepmailpath => "subdomains/www/popnews_sepmail",
+    nodupmailpath => "subdomains/www/popnews_nodupmail",
+    mailbkp     => "subdomains/www/popnews_bkp",
+    hitCntPath => "subdomains/www",
+    maillistpath => "subdomains/www/mail-list",
    );
-     
+
 ##              directory structure of the two servers is different
 
- if(-f "$app_dir/karenpittsMac.yes") {
-   %SVRinfo = %KPMACsvr;
-   %SVRdest = %TELANAsvr;
-   $subdomain = $SVRinfo{subdomain};
+  if(-f "$app_dir/development.yes") {
+    %SVRinfo = %DEVELOPMENTsvr;
+    %SVRdest = %TELANAsvr;
+    $subdomain = $SVRinfo{subdomain};
   }
   elsif(-f "/home/overpop/www/overpopulation.org/subdomains/www/Telana.yes") {
 	$doc_root = "subdomains/www";   
     %SVRinfo = %TELANAsvr;
-    %SVRdest = %KPMACsvr;
+    %SVRdest = %DEVELOPMENTsvr;
     $subdomain = $SVRinfo{subdomain};
   }
   elsif(-f "/home/overpop/www/overpopulation.org/subdomains/telana/Telana.yes") {

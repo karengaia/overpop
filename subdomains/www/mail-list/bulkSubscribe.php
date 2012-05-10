@@ -1,5 +1,6 @@
 <?php
 require('config.php');
+require 'connect.php';
 $title = "Bulk Subscribe";
 
 require('header.htm'); 
@@ -26,11 +27,6 @@ $email_list_orig = "ecabatu@ccmc.org,academycoach@gmail.com,bdenneen@slonet.org,
 $_POST['lastname'] = "";
 $_POST['firstname'] = "";
 $_POST['pending'] = 0;
-
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
-   or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
 
 require 'subscribe.php';
 
