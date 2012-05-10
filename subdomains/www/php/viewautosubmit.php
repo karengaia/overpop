@@ -10,7 +10,7 @@ $sourcepage = "http://$CONFIG['servername']/{$CONFIG['cgi_path']}/$qstring";
 
 <link rel="stylesheet" type="text/css" href="/css/woa_mauveindex.css" media="Screen">
 
-<link rel="shortcut icon" href="img//mauve/favicon/favicon.ico">
+<link rel="shortcut icon" href="img//mauve/favicon.ico">
 
 <style>
 #outermargin {margin-left:10px;}
