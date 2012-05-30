@@ -218,6 +218,8 @@ sub get_site_info
   $mAMP = '&amp;';
   $mCOPY = '&copy;'; ## copyright symbol
   $mBUL  = '&middot;';
+
+  $DELETELIST = "";
   
   $gContent_type_html = "Content-type:"."text/"."html\n\n";
   return();
@@ -297,7 +299,7 @@ sub tooMuchLooping
   if($secondsPassed > $timeLimit) {
     $errmsg = "$codeLocation - Excessive looping - over expected : $timeLimit seconds";
     
-    &printSysErrExit;
+    &printSysErrExit("$codeLocation - Excessive looping - over expected : $timeLimit seconds");
     
     return 1;
   }
@@ -433,7 +435,7 @@ sub separate_variable_into_parts
      $variable = &do_split_variable($variable,$sepsymbol,$partnum);	
   }
   return($variable);
-}
+} 
   
 
 sub do_split_variable

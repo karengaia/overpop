@@ -144,6 +144,9 @@ sub assign_msglines
 		    $msgline_anydate = $date if(!$msgline_anydate);
 		}
 	 }
+	 elsif($msgline =~ /^RR /) {
+		($rest,$region) = split(/SS /,$msgline,2);
+	 }
 	 elsif($msgline =~ /^SS /) {
 		($rest,$source) = split(/SS /,$msgline,2);
 	 }

@@ -5,21 +5,16 @@
 		header("Content-type: text/plain");
 	else
 		header("Content-type: text/javascript");
+		
+	$counter = new Counter();
+	$counter->increment();
+/*	$count = $counter->getCount(); */
 	
 	$hitcounter = new Hitcounter();
 	$hitcounter->hitincrement();
 	$hitcount = $hitcounter->getHitcount();
 	
 	print "document.write('".addslashes($hitcount)."');";
-	
-/* Now use the flatfile for backup */
-	$counter = new Counter();
-	if( $counter < 1900000 ) 
-	    $counter = $hitcount;
-	else
-	    $counter->increment();
-	
-/*	$count = $counter->getCount(); */
 		
 	class Counter {
 	
@@ -65,7 +60,7 @@
 		function Hitcounter() {
 /*			 mysql_connect("localhost", "overpop", "") or die(mysql_error()); 
 		     mysql_select_db("overpop") or die(mysql_error()); */
-		     mysql_connect("db.telana.com", "overpop", "fr00tfl1") or die(mysql_error()); 
+		     mysql_connect("db.telana.com", "overpop", "talkat1ve") or die(mysql_error()); 
 		     mysql_select_db("overpop") or die(mysql_error());
 		}
 

@@ -17,7 +17,7 @@
 sub process_template
 {
   my($print_it,$template) = @_;
-  &put_data_to_array;
+  &put_data_to_array;     # in docitem.pl
   if($print_it eq 'Y') {
      $nowPEH = 'P';
      $now_print = 'Y';
@@ -52,7 +52,7 @@ my $aTemplate = $_[0];
  $tTemplate = $dTemplate if($dTemplate and $cSectsubid !~ /$convertSS/);
  $tTemplate = $aTemplate if($aTemplate);
 
- if($template eq 'default') {
+ if($tTemplate eq 'default') {
      $tTemplate = $cTemplate;
  }
 
@@ -65,13 +65,12 @@ my $aTemplate = $_[0];
  else {
     @templates = $tTemplate;
  }
-## print "art1054 docid $docid ..aTemplate $aTemplate ..tTemplate $tTemplate<br>\n";
 
 $midfile = "$templatepath$slash$templfile.mid";
 
-open(MIDTEMPL, ">$midfile") or print "art991 cannot open midfile $midfile<br>\n";
+open(MIDTEMPL, ">$midfile") or print "temp72 cannot open midfile $midfile<br>\n";
    foreach $template (@templates) {
-##	print "art1064 aTemplate $aTemplate ..template $template<br>\n";
+#	print "art1064 aTemplate $aTemplate ..template $template<br>\n";
       &do_template;
 }
 close(MIDTEMPL);
@@ -146,6 +145,10 @@ unlink "$templatepath/$templfile.mid";
 sub do_template
 {
  $default_class = "";
+
+ unless($template) {
+	%template = $cTemplate;
+ }
  if($template =~ /:/) {
     ($template,$cStyleclass) = split(/:/,$template,2);
     ($rest,$cStyleclass) = split(/=/,$cStyleclass,2);
@@ -166,26 +169,26 @@ sub do_template
 
  $templatefile = "$templatepath/$template\.htm";
 
- if(-f "$templatefile") {
-##	print "art1176 found templatefile $templatefile<br>\n";
- }
- else {
-    $errmsg = "art1230 template= $template not found. ..templatepath $templatepath ..c $cTemplate ..d $dTemplate ..a $aTemplate cSectsubid $cSectsubid<br>\n";
+ unless(-f "$templatefile") {
+    $errmsg = "tem170 template= $template not found. ..templatepath $templatepath ..c $cTemplate ..d $dTemplate ..a $aTemplate ..cSectsubid $cSectsubid<br>\n";
     &printSysErrExit($errmsg);
  }
 
- if($template =~ /select_top|select_end/ and $cmd ne 'print_select') {
- }
- else {
+ unless($template =~ /select_top|select_end/ and $cmd ne 'print_select') {
    $javascript = 'N';
    open(TEMPLATE, "$templatefile") or die "art1081 cannot open template $templatefile";
    while(<TEMPLATE>)  {
      chomp;
      $line = $_;
 ##        Process IN-LINE TEMPLATE
-     if($line =~ /TEMPLATE=/) {
+     if($line =~ /TEMPLATE=/ or $line =~ /OWNERTEMPLATE=/) {
          ($rest, $intemplate) = split(/=/,$line);
          ($intemplate,$rest) = split(/]/,$intemplate);
+
+         if($owner and $line =~ /OWNERTEMPLATE/) {
+	         my $lc_owner = lc($owner);
+	         $intemplate = $lc_owner . $intemplate;
+	     }
 
          if($intemplate =~ /contactWOA/) {
              &do_intemplate if($cmd ne 'print_select');
@@ -200,7 +203,6 @@ sub do_template
              &do_intemplate;
          }
      }
-
      else {
           &process_imbedded_commands;
           last if($stop eq 'Y');
@@ -219,7 +221,7 @@ sub do_intemplate
 {
  ($intemplate, $rest) = split(/\]/, $intemplate);
 
- if($intemplate =~ /select_top|select_end/ and $cmd ne 'print_select') {
+if($intemplate =~ /select_top|select_end/ and $cmd ne 'print_select') {
  }
  else {
     if(-f "$templatepath/$intemplate.htm") {
@@ -250,7 +252,7 @@ sub do_intemplate
 
 sub process_imbedded_commands
 {
-              # cmd must be all caps & only one per line
+	             # cmd must be all caps & only one per line
 ##print "90 javascr-$javascript $line<br>\n" if($line =~ /onClick/);
    if($javascript =~ /N/ and ($line =~ /\[([A-Z0-9_]+)\]/ or $line =~ /\[([A-Z0-9_]+.*)\]/ ) ) {
    	$linecmd = $1;
@@ -269,7 +271,8 @@ sub process_imbedded_commands
    	}
    }
    else {
-   	print MIDTEMPL "$line\n";
+	print "$line\n" if($template =~ /delete_select_end/);
+    	print MIDTEMPL "$line\n";
    }
 }
 
@@ -650,11 +653,34 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[DOCLINK\]/) {
 	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%login%$docid%$qSectsub\">$docid</a>";
    }
-   elsif($linecmd =~ /\[CSWPDOCLINK\]/) {
+   elsif($linecmd =~ /\[CSWPDOCLINK\]/) {   # can get rid of this one
 	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%cswplogin%$docid%$sectsubs\">$docid</a>";
    }
-   elsif($linecmd =~ /\[MAIDUDOCLINK\]/) {
-	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%maidulogin%$docid%$qSectsub\">$docid</a>";
+   elsif($linecmd =~ /\[OWNERDOCLINK\]/) {
+	  my $lc_owner = lc($owner);
+	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%$lc_owner" . "login%$docid%$qSectsub\">$docid</a>";
+   }
+   elsif($linecmd =~ /\[OWNERCHANGEADD\]/) {
+	  if(!$docid) {
+		print MIDTEMPL "Add new item";
+		print MIDTEMPL "<input name=\"action\" type=\"hidden\" value=\"new\" > Change item below or ";
+	  }
+	  else {
+	     print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"> Change item below or ";
+		 print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"> Clear item and Add new one";
+      }
+   }
+
+   elsif($linecmd =~ /\[OWNER_CSS\]/) {
+	  my $owner_css = "";
+	  $owner_css = "http://motherlode.sierraclub.org/population/css/cswp.css" if($owner = "CSWP");
+	  print MIDTEMPL "$owner_css";
+   }
+
+   elsif($linecmd =~ /\[REFRESH_URL\]/) {
+#	  print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$aTemplate%$thisSectsub%$owner$user\"<br>\n";
+      ($userid,$rest) = split(/;/,$userid);
+	  print MIDTEMPL "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%ownerUpdate%$sectsubs%$owner%$userid";
    }
 
    elsif($linecmd =~ /\[PRIORITY_STAR\]/) {
@@ -706,11 +732,9 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[NEWS_ONLY_SECTIONS\]/) {
          &get_news_only_sections;     # in sectsubs.pl
    }
-   elsif($linecmd =~ /\[CSWP_SECTIONS\]/) {  #CSWP and Maidu
-         &get_cswp_sections;     # in sectsubs.pl
-   }
-   elsif($linecmd =~ /\[MAIDU_SECTIONS\]/) {  #CSWP and Maidu
-         &get_maidu_sections;     # in sectsubs.pl
+   elsif($linecmd =~ /\[OWNER_SECTIONS\]/) {  # CSWP and Maidu
+         &get_owner_sections($cswpSections)  if($owner =~ /CSWP/);   # in sectsubs.pl
+         &get_owner_sections($maiduSections) if($owner =~ /Maidu/);  # in sectsubs.pl
    }
 
    elsif($linecmd =~ /\[POINTS_SECTIONS\]/) {
@@ -763,8 +787,8 @@ sub do_imbedded_commands
 
    elsif($linecmd =~ /\[STD_ITEM_TOP\]/) {
 	print MIDTEMPL "<a name=\"$docid\"></a>\n";
-  	if($savecmd =~ /print_select/) {
-          print MIDTEMPL "<div style=\"float:left;margin-top:15px;width:25px;\"><input type=\"checkbox\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
+	 	if($savecmd =~ /print_select/ or $sectsubs =~ /Suggested_emailedItem/) {
+          print MIDTEMPL "<div style=\"float:left;vertical-align:top;margin-top:10px;width:25px;\"><input type=\"checkbox\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
           print MIDTEMPL "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\"><\/div>\n";
         }
    }
@@ -1026,28 +1050,27 @@ sub do_link
 }
 
 sub do_redarrow
-{	
- local($link) = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%" . $owner . "login%$docid%$sectsubs%" . "%$userid" . "\">";
- local($imgtag) = "<img src=\"";
- local($redarrow) = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\"></a>";
- local($invisibledot) = "/invisibledot.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
- local($greybutton) = "/plain_grey_button.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
+{
+ my $link = "";
+    $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
+ if($owner) {
+#	http://overpop/cgi-bin/article.pl?display%ownerlogin%026391%CSWP_Calendar%%xxxx%%%%%%CSWP
+    $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner\">";
+}
+ else {
+    $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
+ }
+ my $imgtag = "<img src=\"";
+ my $redarrow = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\"></a>";
+ my $invisibledot = "/invisibledot.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
+ my $greybutton = "/plain_grey_button.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
 
   if($nodata eq 'Y' or $cVisable =~ /[STB]/) {  ## non-article pieces
    	   print MIDTEMPL "$link$imgtag$invisibledot";
    }
-  elsif($cSectid =~ /[Hh]eadlines/ and $body !~ /[A-Za-z0-9]/) {
+  elsif($cSectid =~ /[Hh]eadlines/) {
        print MIDTEMPL "$link$imgtag$redarrow";
    }
-#  elsif($needsSum eq 'Y' or ($cSectid =~ /[Hh]eadlines/ and $body !~ /[A-Za-z0-9]/))) {
-#       print MIDTEMPL "$link$imgtag$redarrow";
-#   }
-#  elsif($cSectid eq $headlinesSectid) {
-#       print MIDTEMPL "$link$imgtag$redarrow";
-#   }
-#  elsif($cPage =~ /[A-Za-z0-9]/ and $cmd !~ /display_section|display_subsection/) {
-#       print MIDTEMPL "$link$imgtag$greybutton"; # was plain_grey_button.gif
-#   }
   else {
        print MIDTEMPL "$link$imgtag$greybutton";
    }

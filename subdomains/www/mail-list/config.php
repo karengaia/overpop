@@ -2,7 +2,7 @@
 
 define('SQL_HOST','db.telavant.com');
 define('SQL_USER','overpop');
-define('SQL_PASS','fr00tfl1');
+define('SQL_PASS','talkat1ve');
 define('SQL_DB','overpop');
 define('POPNEWS_MAIL', 'popnewsletter');
 define('POPNEWS_FILE', 'popnews.email');

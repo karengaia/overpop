@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+<title>[owner] Login</title>
+<meta http-equiv="expires" content="0">
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+</head>
+<body bgcolor="FFFFFF">
+<center>
+<form method="post" name="" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="from" value="ownerlogin">
+<input type="hidden" name="cmd"  value="processlogin">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="owner" value="[owner]">
+
+<br><br>
+<table width=400 border=5 cellspacing=2 cellpadding=20 
+bordercolor=#AFOF00><tr>
+<td colspan="2">
+<center>
+<font face="comic sans ms" size="3">[owner] Login</font>
+</center>
+<table>
+<tr>
+<td colspan=4>
+<font size=1 face="verdana">
+Please enter your</font></td>
+<tr>
+
+<td valign=top><font size=2 face=arial> User ID:</font></td>
+
+<td valign="top">  <input type="input" name="userid" size="10" maxlength="10" value="[userid]"></td>
+
+<td valign="top"><font size=2 face=arial> &nbsp;&nbsp;password: </font></td>
+
+<td valign=top>  <input type="password" id="pin" name="pin" size="10" maxlength="10"></td>
+<tr><td align=center colspan=4><font size="1" face="arial">(both case sensitive)</font>
+</table>
+
+<p>
+
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="action" value="update">
+
+<!-- <font size="2" face="arial">
+<input type="radio" name="action" value="update" checked> Change this item: <br>
+<font size=1 face=arial> [docid] </font>
+<b>"[headline]"</b><br>
+in this list: [sectsubs]
+<br><br>
+<input type="radio" name="action" value="delete"> Delete this item <br><br>
+
+<input type="radio" name="action" value="new"> Create a new item <br><br>
+-->
+<input type="submit" value="GO" name="submit">
+
+
+</TD></TABLE>
+</form>
+</center>
+</body>
+</html>
