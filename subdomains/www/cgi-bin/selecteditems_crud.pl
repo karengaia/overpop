@@ -42,14 +42,12 @@ sub updt_select_list_items
 			#      unlink $mailfile if($thisSectsub =~ /Suggested_emailedItem/); 
 		} 
     }
-	print "sel45 pre next item ..pgItemnbr $pgItemnbr ..pgitemcnt $pgitemcnt ..docid $docid ..selitem $selitem ..priority $priority<br>\n";
 
     if($pgItemnbr ne "" and $pgItemnbr > 0) {
        $pgItemnbr = $pgItemnbr + 1;
        $pgitemcnt = &padCount4($pgItemnbr);
        &get_select_form_values;   # in docitem.pl
        $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
-print "sel50 next item ..pgItemnbr $pgItemnbr ..pgitemcnt $pgitemcnt ..docid $docid ..selitem $selitem ..priority $priority<br>\n";
     }
 
     exit if(&tooMuchLooping($startTime,120,'art430')); #stop if > 1 minute

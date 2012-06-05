@@ -402,23 +402,6 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 }
 
 
-sub do_expired
-{
-## if($expired =~ /[A-Za-z0-9]/) {
-if($expired =~ /goofy/) {
-      @expired = split(/;/,$expired);
-      foreach $docid (@expired) {
-     	   &get_doc_data($docid,N);  ## in docitem.pl
-   	   $delsectsubs = $sectsubs;
-   	   $addsectsubs = $expiredSS;
-   	   $sectsubs    = $expiredSS;
-   	   &write_doc_item($docid);  ## in docitem.pl
-   	   &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
-     }
- }
-}
-
-
 
 ##  00310 RE-CREATE THE HTML PAGE IF IT HAS CHANGED
 

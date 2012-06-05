@@ -269,9 +269,8 @@ sub do_updt_selected
 #  }
   &add_new_source if($addsource =~ /Y/);
   &add_new_region if($addregion =~ /Y/);
-print "doc272 end $docid<br>\n";
 
- undef $FORM{"docid$pgitemcnt"};
+  undef $FORM{"docid$pgitemcnt"};
   undef $FORM{"priority$pgitemcnt"};
   undef $FORM{"headline$pgitemcnt"};
   undef $FORM{"link$pgitemcnt"};
