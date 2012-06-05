@@ -413,7 +413,7 @@ if($expired =~ /goofy/) {
    	   $addsectsubs = $expiredSS;
    	   $sectsubs    = $expiredSS;
    	   &write_doc_item($docid);  ## in docitem.pl
-   	   &hook_into_system;
+   	   &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
      }
  }
 }

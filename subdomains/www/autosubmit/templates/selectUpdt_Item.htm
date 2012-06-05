@@ -2,6 +2,8 @@
 <TABLE><TD width=50% valign=top  cellpadding=0 cellspacing=0>
 
 <font size=1 face=arial><b>#[pgitemcnt]</b> ... [docid]
+	
+<input type="hidden" name="selitem[pgitemcnt]" value="">
 
   <font face=verdana size=2 color="#666666">&nbsp;&nbsp;&nbsp;<b>Headline</b> &nbsp;
   <input name="titlize[pgitemcnt]" type=checkbox value="Y">
@@ -34,10 +36,10 @@ document.itemsSelect.pin)"></font>
 [ALINK]
 <font face=verdana size=2" color="#666666">  
     <b>Link</b></font></a> &nbsp;
-   <font size=1 face=verdana>
-    <input name="selflink[pgitemcnt]" type=checkbox value="Y">
-  <font size=1 face="comic sans ms"> self </font>
-  </font>
+   <cite>
+    <input name="selflink[pgitemcnt]" type=checkbox value="Y"> self &nbsp;&nbsp;
+
+  <a target="_blank" href="[link]">Open url</a></cite>
 
   &nbsp;<font face=verdana size=2 color="#666666">
 <b>PubDate: </b></font>
@@ -110,7 +112,7 @@ document.itemsSelect.pin)"></font>
   <font face=verdana size=2 color="#666666">
   <b>Source</b> </font>&nbsp;&nbsp;
     <font size=1 face=verdana color="#666666">
-  <input name="sourcelink[pgitemcnt]" type=radio value="Y">&nbsp;Get source from link <input name="sourcelink[pgitemcnt]" type=radio value="N" checked="checked">&nbsp;Clear
+  <input name="sourcelink[pgitemcnt]" type=radio value="Y">&nbsp;Get source from link <input name="sourcelink[pgitemcnt]" type=radio value="N" checked>&nbsp;Clear
   
         &nbsp;<input type="checkbox" name="addsource[pgitemcnt]" value="Y"> 
       <font size=1 face="comic sans ms" color=#666666>add</font>

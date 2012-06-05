@@ -639,8 +639,6 @@ sub add_subinfo
 sub change_sectsubs_for_updt_selected
 {
   if($priority  =~ /D/
-##            if chaseLink selected and = docid9998, we skipped it above
-##            if chaseLink selected and != 9998, delete it
    or ($ipform =~ /chaseLink/ and $selitem =~ /Y/ and $pgitemcnt !~ /9998/) ) {
      $delsectsubs = $sectsubs;
      $sectsubs    = $deleteSS;
@@ -666,13 +664,9 @@ sub change_sectsubs_for_updt_selected
      }
      $addsectsubs =~  s/^;+//;
      $delsectsubs =~  s/^;+//;
-
      $sectsubs = $fSectsubs;
      &add_extra_sections;
 	
-	 $redosectsubs = "";
-     &delete_sectsubs;
-     $sectsubs = $redosectsubs;
      &add_subinfo;
   }
 }

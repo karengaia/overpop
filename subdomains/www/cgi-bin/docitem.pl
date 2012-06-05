@@ -176,7 +176,7 @@ sub storeform
 
 # my ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
 
- &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
+ &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
 
  $sections="";
  $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
@@ -254,23 +254,24 @@ sub do_updt_selected
 
   &get_more_select_form_values;  ## overrides prior doc values
 
-  &change_sectsubs_for_updt_selected;   ## looks for delete if priority = D --  in sections.pl  
+  &change_sectsubs_for_updt_selected;   ## looks for delete if priority = D --  in sectsubs.pl  
 
  print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$headline </font><font size=1>ord-$sortorder $sectsubs</font><br>\n";
 
   &write_doc_item($docid);
  
-#  if($priority =~ /D/ and $sectsubs =~ /$suggestedSS|$emailedSS/) {
+#  if($priority =~ /D/ and $sectsubs =~ /Suggested_suggestedItem/ {
 #	 &delete_from_index($rSectsubid,$docid);
 #	 &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  }
 #  else {
-     &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sections.pl
+     &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
 #  }
   &add_new_source if($addsource =~ /Y/);
   &add_new_region if($addregion =~ /Y/);
+print "doc272 end $docid<br>\n";
 
-  undef $FORM{"docid$pgitemcnt"};
+ undef $FORM{"docid$pgitemcnt"};
   undef $FORM{"priority$pgitemcnt"};
   undef $FORM{"headline$pgitemcnt"};
   undef $FORM{"link$pgitemcnt"};
@@ -339,10 +340,25 @@ sub process_popnews_email       # from article.pl when item selected from Sugges
 #  &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  &write_index_straight($suggestedSS,$docid);  # in sections.pl
 # &index_suggested($docid);  # add to suggested index - in sections.pl
- &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
+ &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
 }
 
 
+sub do_expired
+{
+## if($expired =~ /[A-Za-z0-9]/) {
+if($expired =~ /goofy/) {
+      @expired = split(/;/,$expired);
+      foreach $docid (@expired) {
+     	   &get_doc_data($docid,N);  ## in docitem.pl
+   	   $delsectsubs = $sectsubs;
+   	   $addsectsubs = $expiredSS;
+   	   $sectsubs    = $expiredSS;
+   	   &write_doc_item($docid);  ## in docitem.pl
+   	   &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
+     }
+ }
+}
 
 
 ##  0000290   ##

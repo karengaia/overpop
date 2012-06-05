@@ -430,6 +430,7 @@ elsif($cmd =~ /parseNewItem/) {
          $docloc_news = "M"; 
          &storeform;    #in docitem.pl
 	     $aTemplate = 'newItemParse';
+	     $DOCARRAY{$fullbody} = "";
 	     $operator_access = 'A';
 	     &process_template('Y', $aTemplate);    # ($print_it, template) in template_ctrl.pl
 	     exit;       
@@ -485,13 +486,12 @@ elsif($cmd =~ /selectItems/) {
 ##     ($userdata, $access) = &check_user($userid,$pin);
      $thisSectsub = $FORM{thisSectsub};
      $owner       = $FORM{owner};
-
-     if($thisSectsub =~ /$emailedSS/) {
+    if($thisSectsub =~ /$emailedSS/) {
      	 &select_email;
      }
-     elsif(($thisSectsub =~ $suggestedSS and $access =~ /[ABCD]/) or
+     elsif(($thisSectsub =~ /Suggested_suggestedItem/) or
             $thisSectsub =~ /$volunteerSS/) {
-         &updt_select_list_items;
+         &updt_select_list_items($thisSectsub,$ipform);   # in selecteditems_crud.pl
      }
      else {
          &do_selected_items;  #in selecteditems_crud.pl

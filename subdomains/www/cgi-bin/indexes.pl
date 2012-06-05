@@ -606,7 +606,7 @@ sub delete_from_index_by_list
 ##                 Updates the appropriate index flatfiles and the indexes table on the DB
 sub hook_into_system
 {
-  my($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
+  my($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
   $pubdate = &conform_date($pubdate,'n',$sysdate);
   $sysdate = &conform_date($sysdate,'n');
 
@@ -691,6 +691,109 @@ sub updt_subsection_index
 		  unless($DB_indexes < 1 or $rSectsubid =~ /Volunteer/ or !$rSectsubid);   
 	#     If docid/sectsubid combo already in index, it will update instead of insert
  }
+}
+
+sub toDeleteList_open
+{
+   local($lSectsubid, $from_updt_subsec_idx)  = @_;
+   if($from_updt_subsec_idx =~ /[Yy]/) {
+   }     ## Don't lock if in the middle of &updt_subsection_index - already locked
+   else {
+     $lock_file = "$statuspath/$lSectsubid.del.busy";
+     &waitIfBusy($lock_file, 'lock');
+   }
+
+   local($delsectionfile) = "$sectionpath/$lSectsubid.del";
+
+   if(-f $delsectionfile) {
+   }
+   else {
+      system "touch $delsectionfile";
+   }
+   open(DELLIST, ">>$delsectionfile");
+}
+
+sub toDeleteList_write
+{
+ local($ldocid)  = $_[0];
+ print DELLIST "$ldocid\n";
+}
+
+
+sub toDeleteList_close
+{
+ close(DELLIST);
+ unlink $lock_file  if(-f $lock_file);
+}
+
+## not sure this ever worked - lDocid is a local - where does docid to be deleted come in????
+sub deleteFromIndex_2nd
+{
+ local($ldocid,$lSectsubid, $from_updt_subsec_idx)  = @_;
+ local($delsectionfile) = "$sectionpath/$lSectsubid.del";
+
+ if(-f $delsectionfile) {
+     if($from_updt_subsec_idx =~ /[Yy]/) {
+     }     ## Don't lock if in the middle of &updt_subsection_index - already locked
+     else {
+        $lock_file = "$statuspath/$lSectsubid.busy";
+        &waitIfBusy($lock_file, 'lock');
+     }
+
+     open(DEL2LIST, "$delsectionfile");
+ }
+ else {
+     &printDataErr_Continue("Sec645 missing list of deletions. Non-fatal error; continuing with processing. Notify admin. Thanks");
+     return;
+ }
+
+ $DELETELIST = "";
+
+ local($xDocid);
+ while(<DEL2LIST>)
+  {
+    chomp;
+    $xDocid = $_;
+    $DELETELIST = "$DELETELIST$xDocid^";
+  }
+ close(DEL2SECT);
+
+ $sectionfile    = "$sectionpath/$lSectsubid.idx";
+ $newsectionfile = "$sectionpath/$lSectsubid.new";
+ $bkpsectionfile = "$sectionpath/$lSectsubid.bkp";
+
+ if(-f $sectionfile) {
+    system "cp $sectionfile $bkpsectionfile";
+    unlink "$newsectionfile";
+
+    local($sDocid,$sDocloc);
+
+    open(INSUB2, "$sectionfile");
+    open(OUTSUB2, ">>$newsectionfile");
+
+    while(<INSUB2>) {
+       chomp;
+       ($sDocid,$sDocloc) = split(/\^/,$_,2);
+
+       if($DELETELIST =~ /$sDocid/) {
+       }
+       else {
+         print OUTSUB2 "$sDocid^$sDocloc\n";
+       }
+    } #endwhile
+
+    close(OUTSUB2);
+    close(INSUB2);
+    system "cp $newsectionfile $sectionfile" if(-f $newsectionfile);
+    unlink $newsectionfile;
+
+    unlink $lock_file  if(-f $lock_file);
+
+    unlink $delsectionfile;
+   }
+   else {
+      &printDataErr_Continue("Sec430 Can't find index for $rSectsubid: $sectionfile. Non-fatal error; continuing with processing. Notify admin. Thanks");
+   }
 }
 
 #### INFO ON AN INDEX ROW processing
