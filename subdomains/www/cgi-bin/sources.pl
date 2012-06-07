@@ -287,7 +287,8 @@ sub add_updt_source_values
   $date_format      = $FORM{"date_format$pgitemcnt"};
 
   if($addchgsource =~ /A/) {
-     my $srcadd_sth = $dbh->prepare("INSERT REPLACE INTO sources (sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format) 
+## TODO: add check for duplicates before inserting look for dup on linkmatch; also get rid of blank linkmatches: change to NULL and then make linkmatch unique
+     my $srcadd_sth = $dbh->prepare("INSERT INTO sources (sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 
      $sregionid = &get_regionid($sregionname) if($sregionname and (!$sregionid or $sregionid == 0));
