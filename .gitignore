@@ -1,4 +1,5 @@
 .DS_Store
+.htpasswd
 awstats/awstats*.txt
 logs/*
 popnews_bkp/*
@@ -72,3 +73,6 @@ subdomains/www/telana-index.php
 subdomains/www/woa.css
 subdomains/www/woatest.css
 subdomains/www/www.tmproj
+settings_overrides.php
+
+settings_overrides.pl
