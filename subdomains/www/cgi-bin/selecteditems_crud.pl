@@ -7,47 +7,48 @@
 ##### 00430 SELECT ITEMS FROM A LIST AND PROCESS ##########
 
 sub updt_select_list_items
-{
+{              # called by article.pl
+ my($thisSectsub,$ipform) = @_;
  $selected_found = 'N';
-
  if($ipform !~ /chaseLink/) {
     print "<h3>The following is a list of the items you have selected.</h3><br><br><br>\n";
  }
-
  $docid9998 = $FORM{docid9998};   # $ipform =~ /chaseLink/
  $pgItemnbr = 1;
  $pgitemcnt = &padCount4($pgItemnbr);
 
  &get_select_form_values;  # in docitem.pl
+ $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
 
  local($startTime) = time;
 
- while($selitem !~ /Z/) {
+ until($selitem =~ /Z/) {
 #### while($pgitemcnt ne '9998') {   ## dummy search - it will never reach 9998
 
-    if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and $priority !~ /[A-Za-z0-9]/) #there may not be any item 0001
-    {}
+    if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and !$priority) #there may not be any item 0001
+       {}
     elsif($ipform =~ /chaseLink/ and   ## skip if volunteer filled out the form and it has same docid
        $docid eq $docid9998 and
-       (   $FORM{headline9998} =~ /[A-Za-z0-9]/
-        or $FORM{fullbody9998} =~ /[A-Za-z0-9]/
-        or $FORM{body9998}     =~ /[A-Za-z0-9]/) )
-    {}
+       ($FORM{headline9998} or $FORM{fullbody9998} or $FORM{body9998}) )
+       {}
     elsif($priority =~ /[1-6D]/
        or ($ipform =~ /chaseLink/ and $selitem !~ /N/ and $docid !~ /$docid9998/)  ) {
-      $form_priority = $priority;   ## save for when we get doc and override
-      $selected_found = 'Y';
-## print "430 chaseLink $docid selected<br>\n" if ($ipform =~ /chaseLink/ and $selitem !~ /[ZN]/);
+        $form_priority = $priority;   ## save for when we get doc and override
+        if($selitem =~ /Y/) {
+            $selected_found = 'Y';
+            &do_updt_selected;  #in docitem.pl
 
-      &do_updt_selected if($selitem ne 'Z');  #in docitem.pl
-# print "art2489 After  do_updt_selected -- turning off mailfile $mailfile<br>\n";
-#      unlink $mailfile;    #????????? WHY HERE? SOMEWHERE ELSE
+			# Lets add this $mailfile to a list and unlink after all are processed or at start of next cycle.
+			#      unlink $mailfile if($thisSectsub =~ /Suggested_emailedItem/); 
+		} 
     }
+
     if($pgItemnbr ne "" and $pgItemnbr > 0) {
        $pgItemnbr = $pgItemnbr + 1;
        $pgitemcnt = &padCount4($pgItemnbr);
+       &get_select_form_values;   # in docitem.pl
+       $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
     }
-    &get_select_form_values;   # in docitem.pl
 
     exit if(&tooMuchLooping($startTime,120,'art430')); #stop if > 1 minute
 
@@ -63,9 +64,6 @@ sub updt_select_list_items
 
 print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpath/article.pl?display_section%%%$thisSectsub%%%10\">Back to $thisSectsub List</a><br></b></font>\n";
 
-## &do_ftp("quit,$ftp_printit");    ## finish up if any ftp'ing
-
-
  undef $FORM{thisSectsub};
  undef $FORM{addsectsubs};
 }
@@ -74,6 +72,7 @@ print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpa
 
 sub do_selected_items
 {
+ $DELETELIST = "";
  &prelim_select_items;   ## get action-selected, sort order
 
  $pgItemnbr = 1;
@@ -82,9 +81,9 @@ sub do_selected_items
  $selitem = $FORM{"selitem$pgitemcnt"};
  $docid   = $FORM{"sdocid$pgitemcnt"};
 
- local($startTime) = time;
+ my $startTime = time;
 
- while($selitem !~ /Z/) {
+ until($selitem eq 'Z') {
     if($selitem =~ /Y/
        or ($startselect =~ /Y/ and $selected_found =~ /Y/) ) {
       $selected_found = 'Y';
@@ -94,20 +93,15 @@ sub do_selected_items
        $pgItemnbr = $pgItemnbr + 1;
        $pgitemcnt = &padCount4($pgItemnbr);
     }
-
     $selitem = $FORM{"selitem$pgitemcnt"};
-    $docid   = $FORM{"sdocid$pgitemcnt"} if($selitem !~ /Z/);
-
-    exit if(&tooMuchLooping($startTime,120,'art450')); #stop if > 1 minute
- } #while
-
-print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpath/article.pl?display_section%%%$thisSectsub%%%10\">Back to $thisSectsub List</a><br></b></font>\n";
-
-## &do_ftp("quit,$ftp_printit"); ## finish up if any ftp'ing
+    goto endselitem if($selitem =~ /Z/);
+    $docid   = $FORM{"sdocid$pgitemcnt"};
+    exit if(&tooMuchLooping($startTime,120,'sel101')); #stop if > 1 minute
+ } #until
+endselitem:
 
  if($selected_found eq 'N' and ($moveselected eq 'Y' or $delselected eq 'Y')) {
-   $errmsg = "No item was selected";
-   &printInvalidExit;
+   &printUserMsg("No item was selected; Hit back button and select an item.");
  }
 
  if($moveselected eq 'Y') {
@@ -121,17 +115,17 @@ print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpa
     &end_mass_add2index;
  }
 
- if(%DELETEARRAY) {
+ if($DELETELIST) {
    if($deleteto eq 'Y') {
        $rSectsubid  = $FORM{addsectsubs};
-       &delete_from_index($rsectsubid,$docid);
-       &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
+       &delete_from_index_by_list($rSectsubid,$DELETELIST);  #in indexes.pl
+       &DB_delete_from_indexes_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
    }
 
    if($delselected eq 'Y') {
        $rSectsubid  = $FORM{thisSectsub};
-       &delete_from_index;
-       &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
+       &delete_from_index_by_list($rSectsubid,$DELETELIST);   # in indexes.pl
+       &DB_delete_from_indexes_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
    }
  }
 
@@ -161,7 +155,7 @@ sub prelim_select_items
  $addsectsubs    = "";
  $delflag        = 'N';
 
- $actionselected = $FORM{actionselected};
+ $actionselected = $FORM{actionselected} if($FORM{actionselected});
  $fix_selected   = 'Y' if($actionselected) =~ /fix/;
  $delselected    = 'Y' if($actionselected) =~ /delsource|move/;
  $moveselected   = 'Y' if($actionselected) =~ /move|copy/;
@@ -192,12 +186,8 @@ sub prelim_select_items
  &split_section_ctrlB($cSectsubid);
 
  $ipform = $FORM{ipform};
-
  if(($actionselected =~ /delsource|move|copy|deltarget/
-    and (
-       $addsectsubs =~ /[A-Za-z0-9]/
-       or $delselected =~ /[A-Za-z0-9]/
-       or $set_skiphandle eq 'Y'))
+    and ($addsectsubs or $delselected or $set_skiphandle eq 'Y'))
     or $actionselected =~ /fix/  )
    {}
  else {
@@ -213,17 +203,24 @@ sub prelim_select_items
  $selected_found = 'N';
  $newseqct       = 0;
  $count          = 0;
+ 
+ print "<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>$owner action on selected items $thisSectsub<\/title>\n";
+ print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
+ my $lc_owner = lc($owner);
+ $aTemplate = $lc_owner . "Update";
 
- print "<p><font size=2 face=\"arial\"><b>The following is a list of the items you have selected.</b><br>\n";
- print "<font size=2 face=\"arial\">&nbsp;They have been added to $addsectsubs. Sortorder is $sortorder and default is $dOrder</b></font><br>\n"
+ print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/ownerform.css\" media=\"Screen\" />\n" 
+   if($owner);
+ print "</head><body>\n";
+ print "<h3>The following is a list of the items you have selected.<h3>\n";
+ print "<p>&nbsp;They have been added to $addsectsubs. Sortorder is $sortorder and default is $dOrder</p>\n"
      if($addsectsubs =~ /[A-Za-z0-9]/ and $deleteto ne 'Y');
- print "<font size=2 face=\"arial\">&nbsp;They have been deleted from $thisSectsub</font><br>\n"
+ print "<p>&nbsp;They have been deleted from $thisSectsub</p>\n"
      if($delselected eq 'Y');
- print "<font size=2 face=\"arial\">&nbsp;They have been deleted from the target sectsub $delsectsubs</font><br>\n"
+ print "<p>&nbsp;They have been deleted from the target sectsub $delsectsubs</p>\n"
      if($deleteto eq 'Y');
- print "<font size=2 face=\"arial\">&nbsp;They have had skiphandle set to 'Y'</font><br>\n"
+ print "<p>&nbsp;They have had skiphandle set to 'Y'</p>\n"
      if($set_skiphandle eq 'Y');
- print "</b><p>\n";
 
 ##  get order of destination section
 
@@ -262,33 +259,23 @@ sub do_selected
 ##       $chkline = $fullbody;
 ##       &basic_date_parse;
   }
-
-  print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$headline deleted?-$delflag</font</font><br>\n";
-  &write_doc_item;
-
-  $DELETELIST = "$DELETELIST$docid^" if($delflag eq 'Y');
-## $DELETEARRAY{$docid} = $delflag if($add_error eq 'N');
-
-     ##      write to array for moving
+  my $deletedmsg = "";
+  $deletedmsg = 'Yes' if($delflag eq 'Y');
+  print "&nbsp;<small>$docid </small>$headline :: deleted?-$deletedmsg<br>\n";
+  $DELETELIST = $DELETELIST . "^$docid";
+  &write_doc_item($docid);
 
  if($moveselected eq 'Y' and $add_error eq 'N') {
         $kDocloc = &splitout_sectsub_info($rSectsubid)  if($itemstratus eq 'maintain');
     #     first push 'moved' items
         $kDocid  = $docid;
-##        $kDocloc = $fDocloc if($itemstratus eq 'maintain');
-##        $kDocloc = 'M' if($itemstratus eq 'normal');
-##        $kSeq = &calc_idxSeqNbr($newseqct);
-
-##        &pushdata_to_sortArray;
 
         &mass_add2index;
 
         undef $FORM{"selitem$pgitemcnt"};
         undef $FORM{"sdocid$pgitemcnt"};
   }
-
-##  &ftp_trans_elements;
-
+  
   &clear_doc_variables;
 }
 

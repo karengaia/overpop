@@ -1,8 +1,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml"	xml:lang="en">
-<title>WOA!! Article Submission - Email Similation</title>
-
 <head>
+<title>WOA!! Article Submission - Email Similation</title>
 	<style>
 	html {background-color:#969;}
 	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
@@ -32,49 +31,56 @@
   "http://[CGISITE]">
   <font face="arial" size="2" color="#000000"><b>Overpopulation.org</b></a>&nbsp;&nbsp;
 <br><cite style="color:darkred;">
-[TODAY] .. docid# [docid] <br> sysdate [sysdate]<br>
-[OPERATOR_NAME] ...
+[TODAY]<br>
+[OPERATOR_NAME]
 </cite></td>
 <td>
-   <div style="font-family:geneva;font-size:1.3em;text-align:center;"><strong>WOA Article/Item Submittal<br> (Parse/Separate New)</strong></div>
+   <div style="font-family:geneva;font-size:1.3em;text-align:center;"><strong>WOA Item Submittal</strong></div>
 </td>
 <td width="10%">&nbsp;</td>
 </tr></table>
-
+<br>
+<form method="post" id="article" name="article" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="parseNewItem">
+<input type="hidden" name="userid" value="[userid]">
+<input type="hidden" name="access" value="[access]">
+<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
+<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
+<input type="hidden" name="sysdate" value="[sysdate]">
+<input type="hidden" name="docid" value="[docid]">
+<input type="hidden" name="sectsubs" value="[sectsubs]">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="newItemParse">
 
 <table><tr valign="bottom" ><td>
-	<form method="post" id="article" name="article" action=
-	"http://[SCRIPTPATH]/article.pl">
-	<input type="hidden" name="cmd" value="parseNewItem">
-	<input type="hidden" name="userid" value="[userid]">
-	<input type="hidden" name="access" value="[access]">
-	<input type="hidden" name="sumAcctnum" value="[sumAcctnum]">
-	<input type="hidden" name="suggestAcctnum" value="[suggestAcctnum]">
-	<input type="hidden" name="sysdate" value="[sysdate]">
-	<input type="hidden" name="docid" value="[docid]">
-	<input type="hidden" name="sectsubs" value="[sectsubs]">
-	<input type="hidden" name="thisSectsub" value="[thisSectsub]">
-	<input type="hidden" name="ipform" value="newItemParse">
-<b>Full Article:</b> &nbsp;&nbsp;
-<cite> Cut and paste here. &nbsp; &nbsp; HH: headline SS: source &nbsp;&nbsp; 
- </td><td>
-	Handle: <select name="handle"><option value="push">push</option>
+
+<table><tr><td valign="bottom">
+	<b>Full Article:</b> <br>
+   <cite> Cut and paste here &nbsp;&nbsp;</cite>&nbsp;&nbsp;
+	</td><td valign="bottom"><cite>HH headline <br>
+	                                     RR region<br> DD date <br>http:// link &nbsp;&nbsp;</cite>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</td>
+	<td valign="bottom"> <cite>Handle:</cite><br> <select name="handle"><option value="push">push</option>
             <option value="pmc">pmc</option>
-           <option value="ippf">ippf</opnewItemParse.htm" title="newItemParsetion>
+           <option value="ippf">ippf</option>
            <option value="kgp">kgp</option>
            <option value="unk" selected>-</option></select>&nbsp;&nbsp;
- </td><td>
+ </td><td valign="bottom">
            <table border="1px"><tr><td><cite>
-           <input name="pdfline" type="radio" value="Y"> Pdf line spacing<br>
+           <input name="pdfline" type="radio" value="Y"> Pdf line spacing&nbsp;<br>
            <input name="pdfline" type="radio" value="N" checked="checked">or not</cite></td></tr></table>
   </td><td>
-			 <table border="1px"><tr><td><cite>Sectsub:<br><input type="radio" name="sectsubs" value="Headlines_sustainability" checked="checked">Headlines</input><br>
-				 <cite><input name="sectsubs" type="radio" value="Headlines_priority">Priority</cite></td></tr></table>
+			 <table border="1px"><tr><td><cite><input type="radio" name="sectsubs" value="Headlines_sustainability">Headlines</input><br>
+				 <cite><input name="sectsubs" type="radio" value="Headlines_priority">Priority</cite><br>
+				<cite><input name="sectsubs" type="radio" value="Suggested_suggestedItem" checked="checked">Suggested</cite>
+				</td></tr></table>
 
- </td><td>&nbsp;
+ </td><td valign="bottom">&nbsp;&nbsp;&nbsp;&nbsp;
 	<input type=submit value="SUBMIT" name="submit">
 	</td></tr></table>
-    <textarea name="fullbody" wrap="physical" rows=25 maxrows=300 cols=130>
+    <textarea name="fullbody" wrap="physical" rows="25" maxrows="300" cols="130">
+RR Global
+DD [TODAY] 
 [FULLBODY]
 </textarea>
 <br><br>

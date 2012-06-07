@@ -1,7 +1,8 @@
 	
 <div style="margin-left:10px;margin-right:7px;margin-bottom:10px;">  
 	
-   <div><table><tr><td><strong style="font-family:geneva;font-size:1.3em;">Webpage Item</strong></td><td>>&nbsp;&nbsp;</td><td><cite><big>[OWNERCHANGEADD]</big></cite></td></tr></table></div>
+   <div><strong class="red"><big>A. </big></strong><strong style="font-family:geneva;font-size:1.3em;">Webpage Item</strong> &nbsp;&nbsp;&nbsp;
+	<strong class="red">2. </strong><cite><big>[OWNERCHANGEADD]</big></cite></div>
 
 <form method="post" id="article" name="article" action=
 "http://[SCRIPTPATH]/article.pl">
@@ -19,7 +20,7 @@
 <br>
 <table width="50%"><tr>
 	
-   <td><label for="ownersectsub">List</label>&nbsp;<cite>Which list is it on?</cite><br>
+   <td><strong class="red">3. </strong><label for="ownersectsub">List</label>&nbsp;<cite>Which list is it on?</cite><br>
 		<select id="ownersectsub" name="ownersectsub" onChange="if (type(this.selectedIndex) != "undefined") moveSectsub();">
 		[OWNER_SECTIONS]	
 		</select><br>
@@ -29,7 +30,7 @@
 
 	<!-- - - PUB DATE  - - - - -->
 	<table width="350px"><tr><td width="200px">
-		<label for="pubmonth">Start date</label><br>
+		<strong class="red">4. </strong><label for="pubmonth">Date</label><br>
 		<select id="pubmonth" name="pubmonth">
 		[PUBMONTHS]
 		</select>
@@ -54,34 +55,33 @@
 <!--- HEADLINE -->
 <table>
 <tr><td valign="bottom">
-<b>Title:</b>&nbsp;&nbsp; <span style="font-family:arial;font-size:82%">i.e: April 30 Thurs - ECOS Showing of Mother</span>
+<strong class="red">5. </strong><b>Title:</b>&nbsp;&nbsp; <span style="font-family:arial;font-size:82%">i.e: April 30 Thurs - ECOS Showing of Mother</span>
 </td> </tr></table>
 <input type="input" id="headline" name="headline" size="100" maxlength="200" value="[headline]">
 <br><br>
 
 <!---  BODY -->
-    <label for='body'>Description:</label> &nbsp;   
+<strong class="red">6. </strong><label for='body'>Description:</label> &nbsp;   
 	<span style="font-family:arial;font-size:82%">i.e: 6:30pm Room SH111, Science Building, Sierra College, Rocklin </span><br>
     <textarea id="body" name="body" wrap="physical" rows="6" maxrows="150" cols="100">[body]</textarea>
 
 <!--- LINK AREA -->
 <br><br>
-<b>Link to event website, if needed:</b>
+<strong class="red">7. </strong><b>Link to event website, if needed:</b>
   <br>
 <input type="input" id="link" name="link" size="100" maxlength="200" value="[link]">
 <br><br>
 
 <table><tr>
 <td>
-<label for='userid'>Userid</label><br>
+<strong class="red">8. </strong><label for='userid'>Userid</label><br>
 <input type="input" name="userid" size="6" maxlength="10" value="[userid]">
 </td><td>
 <label for='password'>password</label>
 <br>
-<input type="password" id="password" name="password" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;
-</td>
-	<td>
-	<input type=submit value="SUBMIT" name="submit">
+<input type="password" id="pin" name="pin" size="6" maxlength="10">&nbsp;&nbsp;&nbsp;
+</td><td>&nbsp;&nbsp;&nbsp;</td>
+	<td> <strong class="red"> 9. </strong><input type=submit value="SUBMIT" name="submit">
 	</td>
 </tr></table>
 </form>
