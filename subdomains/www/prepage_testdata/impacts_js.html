@@ -1,0 +1,33 @@
+<script language="JavaScript">
+
+<!--
+var pop=1;
+var wild=1;
+var co2=1;
+
+function increasePop() {
+        pop=pop+ 1.4;
+        x=parseInt(pop);
+        document.statfrm1.population.value = x;
+ 
+        setTimeout("increasePop() ",500); }
+
+function increaseWilds() {
+        wild=wild+1.6;
+        y=parseInt(wild);
+        document.statfrm1.wilds.value = y;
+        setTimeout("increaseWilds() ",1000); }
+
+function increaseCo2() {
+        co2=co2+177;
+        v=parseInt(co2);
+        document.statfrm2.co2.value = v;
+
+        setTimeout("increaseCo2()",250); }
+//-->
+
+</script>
+
+</head>
+
+<body onLoad="increasePop(); increaseWilds(); increaseCo2();">
