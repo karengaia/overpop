@@ -1172,7 +1172,7 @@ sub write_doc_item
   else {
 	  $docpath = "$itempath/$docid\.itm";
 
-	  if(-f "../../karenpittsMac.yes") {
+	  if($SVRinfo{environment} == 'development') {
 		 if(-f "$docpath") {
 			  unlink $docpath or printDataErr_Continue("Could not delete $docpath : $! @ doc2800<br>\n");
 		 }
@@ -1189,7 +1189,7 @@ sub write_doc_item
 
     &write_doc_data_out;
     close (DATAOUT);
-    chmod 0777, $emailfile if(-f "../../karenpittsMac.yes");
+    chmod 0777, $emailfile if($SVRinfo{environment} == 'development');
     unlink $lock_file if($lock_file);
   }
   else {

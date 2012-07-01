@@ -1,26 +1,34 @@
 #!/usr/bin/perl --
 
+use Cwd;
 use File::Basename;
 
-# in overpopulation.org folder
+# All this just to get the full path to the
+# current directory
+if (__FILE__ =~ /^\.\/(.*)$/) {
+  $file = $1;
+} else {
+  $file = __FILE__;
+}
+my $app_dir;
+if ($file =~ /^\//) {
+  $app_dir = dirname($file);
+} else {
+  $app_dir = dirname(getcwd . '/' . $file);
+}
 
-sub set_config {
-  local @DB = @_;
-	
-  my $rootdir = dirname(__FILE__);
-  push @INC, "$rootdir/sseeccuurriittyy/";
-  require("conf.pl");
-  @DB = &config(@DB);
+%CONFIG = (
+  db_host       => 'localhost',
+  db_name       => 'overpop',
+  db_user       => 'root',
+  db_password   => '',
+);
 
-## do the following to override the password until we can get the secure one working
-
-  if(-f "mactest.txt") {
-    $DB{'pswd'} = '';  ## set to this until production
+if(-f "$app_dir/settings_overrides.pl") {
+  require "$app_dir/settings_overrides.pl";
+  while (my ($key, $value) = each(%CONFIG_OVERRIDES)) {
+    $CONFIG{$key} = $value;
   }
-  else {
-    $DB{'pswd'} = 'fr00tfl1';  ## set to this until production
-  }
-  return($DB);
 }
 
 1;

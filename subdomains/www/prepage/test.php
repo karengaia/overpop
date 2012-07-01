@@ -1,10 +1,6 @@
-<?php $mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-	$sourcepage = "http://overpop/cgi-bin/article.pl?print_select%%fly%%CSWP_events%%%%delete_select_end";
- }
- else {
-    $sourcepage = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?print_select%%fly%%CSWP_events%%%%delete_select_end";
-}
+<?php
+require './../php/boostrap.php';
+$sourcepage = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?print_select%%fly%%CSWP_events%%%%delete_select_end";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 

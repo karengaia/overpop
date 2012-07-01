@@ -1,17 +1,11 @@
 <?php
 $pagename = "index";
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $servername = "overpop";
-}
-else {
-  $servername = "www.overpopulation.org";
-}
+include dirname(__FILE__) . '/bootstrap.php';
 
-$sourcepage = "http://www.overpopulation.org/prepage/$pagename.php";
+$sourcepage = "http://{$CONFIG['servername']}/prepage/$pagename.php";
 
-$home = "/www/overpopulation.org/subdomains/www";
+$home = $CONFIG['public_dir'];
 
 $targetfilename = "$home/$pagename.html";
 

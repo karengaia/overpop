@@ -1,18 +1,13 @@
 <?php
 require('config.php');
+require 'connect.php';
 $title = "Truncate All Tables";
 ?>
 
 <?php require('header.htm'); ?>
 
 <?php
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
-
 $sql = "TRUNCATE TABLE ml_subscriptions";
-
 $result = mysql_query($sql,$conn);
 
 if ($result) {

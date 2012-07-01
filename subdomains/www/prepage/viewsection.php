@@ -1,11 +1,7 @@
-<?php $sectionname = $_SERVER['QUERY_STRING'];
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-	$sourcepage = "http://overpop/cgi-bin/article.pl?display_section%%%$sectionname";
- }
- else {
-    $sourcepage = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%$sectionname";
-}
+<?php
+require './../php/boostrap.php';
+$sectionname = $_SERVER['QUERY_STRING'];
+$sourcepage = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%$sectionname";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 

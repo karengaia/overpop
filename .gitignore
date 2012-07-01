@@ -1,4 +1,6 @@
 .DS_Store
+settings_overrides.pl
+settings_overrides.php
 .htpasswd
 awstats/awstats*.txt
 logs/*
@@ -6,6 +8,7 @@ popnews_bkp/*
 popnews_inbox/*
 popnews_mail/*
 popnews_mail_save/*
+sseeccuurriittyy/rsyncpwd
 subdomains/mobile/index.html
 subdomains/karenpittsMac.yes
 subdomains/www/.htaccess.swp
@@ -32,6 +35,7 @@ subdomains/www/cgi-bin/not_used*
 subdomains/www/cgi-bin/save_*
 subdomains/www/cgi-bin/test/*
 subdomains/www/clock/*
+subdomains/www/counter/count.txt
 subdomains/www/css/old_*
 subdomains/www/img/imagesNew/*.jpg
 subdomains/www/img/whatworks/*.jpg

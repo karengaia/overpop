@@ -3,11 +3,7 @@
 <body>
 <?php
 require('config.php');
-
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
+require 'connect.php';
 
 if ((isset($_GET['u'])) and (isset($_GET['ml'])))
 {

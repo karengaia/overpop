@@ -183,7 +183,7 @@ sub write_index_flatfile {
 ## $dSectsubs = $sectsubs;
 ###   $docloc = &splitout_sectsub_info($rSectsubid,$dSectsubs);
 
- if(-f "../../karenpittsMac.yes") {
+ if($SVRinfo{environment} == 'development') {
 #	system "touch $newsectionfile" or print "sec426 Mac - touch failed on temp new section index file: $newsectionfile<br>\n";
 #	system "chmod 0777 $newsectionfile"  or print "sec427 Mac -chmod failed on temp new section index file: $newsectionfile<br>\n";
     open(OUTSUB, ">$newsectionfile") or print "sec428 H Mac - failed to open temp new section index file: $newsectionfile<br>\n";

@@ -3,9 +3,7 @@
 
 # contactWOA.pl   August 25, 2003
   
-require 'common.pl';
-
-&get_site_info;  ## in common.pl
+require './bootstrap.pl';
 
 $email_std_end = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n P.O. Box 2533\n Placerville CA 95667\n $adminEmail\n";
 

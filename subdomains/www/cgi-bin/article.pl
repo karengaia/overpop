@@ -40,18 +40,10 @@ if($args) {
   local($cmd)  = $args[0];
 }
 
-if(-f "debugit.yes") {}
-else {
-  push @INC, "/home/popaware/public_html/cgi-bin/";
-  push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
-}
+require './bootstrap.pl';
 
 print "Content-type: text/html\n\n";
 
-# print "Content-type:"."text/"."html\n\n";
 require 'common.pl';        # sets up environment and paths; also has some common routines
 require 'errors.pl';         # error display and termination or return
 require 'display.pl';        # takes sectsub info for a particular section or subsection and uses it to create a page with html

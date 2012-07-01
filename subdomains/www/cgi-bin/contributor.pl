@@ -78,8 +78,6 @@ sub verify_new_acct
 
 sub write_acctapp
 {	
-	require 'common.pl';
-	&get_site_info;        ## in common.pl
   print "$Content_type_html";
   
   $std_variables =
@@ -577,7 +575,7 @@ sub write_new_contributor
  $access = 'P';
  $lastdate = $nowdate;
 
- if(-f "../../karenpittsMac.yes") {  ## set permissions if using Karen's Mac as the server
+ if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
 	if(-f '$contributors') {}
 	else {
 		system('touch $contributors');

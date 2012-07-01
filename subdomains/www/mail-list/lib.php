@@ -1,11 +1,14 @@
 <?php
 class DB {
-  static function connect() {
-    global $conn;
-    if (!@$conn) {
-      $conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
-	or die('Could not connect to MySQL database. ' . mysql_error());
-      mysql_select_db(SQL_DB, $conn) or die("Failed to select database: " . mysql_error());
+  static function connect($select_db=true) {
+    global $conn, $CONFIG;
+    if (!isset($conn)) {
+      $conn = mysql_connect($CONFIG['db_host'], $CONFIG['db_user'], $CONFIG['db_password'])
+        or die('Could not connect to MySQL database. ' . mysql_error());
+
+      if ($select_db) {
+        mysql_select_db($CONFIG['db_name'], $conn);
+      }
     }
     return $conn;
   }

@@ -4,16 +4,9 @@
 
 ## Added push @INC for Karens Mac Server
 
-push @INC, "/home/popaware/public_html/cgi-bin/";
-push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
- 
 print "Content-type:"."text/"."html\n\n";
- 
-require 'common.pl';
-&get_site_info;
+
+require './bootstrap.pl'
 require 'contributor.pl';
 
 if($ENV{QUERY_STRING})  {

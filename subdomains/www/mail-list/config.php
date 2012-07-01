@@ -1,9 +1,6 @@
 <?php
+require dirname(__FILE__) . '/../../../settings.php';
 
-define('SQL_HOST','db.telavant.com');
-define('SQL_USER','overpop');
-define('SQL_PASS','');
-define('SQL_DB','overpop');
 define('POPNEWS_MAIL', 'popnewsletter');
 define('POPNEWS_FILE', 'popnews.email');
 define('DOMAIN', 'overpopulation.org');

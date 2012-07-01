@@ -1,16 +1,10 @@
 <?php 
+require './../php/boostrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($pagename,$sectionname) = explode('%',$qstring);
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $sourcepage = "http://overpop/prepage/viewsection.php?$sectionname";
-  $targetfilename = "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/$pagename.html";
-}
-else {
-  $sourcepage = "http://www.overpopulation.org/prepage/viewsection.php?$sectionname";
-  $targetfilename = "/www/overpopulation.org/subdomains/www/$pagename.html";
-}
+$sourcepage = "http://{$CONFIG['servername']}/prepage/viewsection.php?$sectionname";
+$targetfilename = "$CONFIG['public_dir']/$pagename.html";
 
 if(!$pagename) {
     echo "<b>WOA!! says: You did not enter a page.</b><br>";

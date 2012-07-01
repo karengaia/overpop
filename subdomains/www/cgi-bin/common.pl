@@ -17,6 +17,9 @@
 
 sub get_site_info
 {
+  use Cwd;
+  use File::Basename;
+
  $contactEmail = "karen4329\@karengaia.net";
  $contactEmail_html = "karen4329&#64;karengaia.net";
  $adminEmail = "karen4329\@karengaia.net",
@@ -27,10 +30,17 @@ sub get_site_info
 ## public     => "subdomains/www",
   $slash = "\/";
 
+  $this_dir = dirname(getcwd . '/' . __FILE__);
+  $cgibin_dir = $this_dir;
+  $doc_root = dirname($this_dir);
+  $app_dir = dirname(dirname($doc_root));
+
  %TELANAsvr = (
+  environment => 'production',
   svrname    => "TELANA",
   IP         => "www.overpopulation.org",
-  home       => "/www/overpopulation.org",
+  app_dir    => $app_dir,
+  home       => $app_dir,
   public     => "subdomains/www",
   subdomain  => "www\.",
   sshpath    => "/usr/bin/ssh",
@@ -49,46 +59,50 @@ sub get_site_info
   maillistpath => "subdomains/www/mail-list",
   ); 
   
-  %KPMACsvr = (
-   svrname    => "KPMac",
-   IP         => "127.0.0.1",
-   home       => "/Users/karenpitts/Sites/web/www/overpopulation.org",
-   public     => "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www",
-   subdomain  => "",
-   sshpath    => "/usr/bin/ssh",
-   sendmail   => "|/usr/sbin/sendmail -t",
-   cgiPath    => "cgi-bin",
-   cgiSite    => "overpop",
-##  cgiSite    => "population-awareness.net",
-   acctID     => "overpop",
-   inboxpath => "popnews_inbox",
-   mailpath   => "popnews_mail",
-   mailbkppath => "popnews_bkp",
-   sepmailpath => "subdomains/www/popnews_sepmail",
-   nodupmailpath => "subdomains/www/popnews_nodupmail",
-   mailbkp     => "subdomains/www/popnews_bkp",
-   hitCntPath => "subdomains/www",
-   maillistpath => "subdomains/www/mail-list",
+  %DEVELOPMENTsvr = (
+    svrname    => "KPMac",
+    IP         => "127.0.0.1",
+    app_dir    => $app_dir,
+    home       => $app_dir,
+    public     => "subdomains/www",
+    subdomain  => "",
+    sshpath    => "/usr/bin/ssh",
+    sendmail   => "|/usr/sbin/sendmail -t",
+    cgiPath    => "cgi-bin",
+    cgiSite    => "overpop",
+    ## cgiSite    => "population-awareness.net",
+    acctID     => "overpop",
+    inboxpath => "popnews_inbox",
+    mailpath   => "popnews_mail",
+    mailbkppath => "popnews_bkp",
+    sepmailpath => "subdomains/www/popnews_sepmail",
+    nodupmailpath => "subdomains/www/popnews_nodupmail",
+    mailbkp     => "subdomains/www/popnews_bkp",
+    hitCntPath => "subdomains/www",
+    maillistpath => "subdomains/www/mail-list",
    );
-     
+
 ##              directory structure of the two servers is different
 
- if(-f "../../karenpittsMac.yes") {
-   $doc_root = "/Users/karenpitts/web/www/overpopulation.org/subdomains/www/";
-   %SVRinfo = %KPMACsvr;
-   %SVRdest = %TELANAsvr;
-   $subdomain = $SVRinfo{subdomain};
+  if(-f "$app_dir/development.yes") {
+    %SVRinfo = %DEVELOPMENTsvr;
+    %SVRdest = %TELANAsvr;
+    $subdomain = $SVRinfo{subdomain};
   }
   elsif(-f "/home/overpop/www/overpopulation.org/subdomains/www/Telana.yes") {
 	$doc_root = "subdomains/www";   
     %SVRinfo = %TELANAsvr;
-    %SVRdest = %KPMACsvr;
+    %SVRdest = %DEVELOPMENTsvr;
     $subdomain = $SVRinfo{subdomain};
   }
   elsif(-f "/home/overpop/www/overpopulation.org/subdomains/telana/Telana.yes") {
 	%SVRinfo = %TELANAsvr;
     $subdomain = "telana";
   }
+
+  # Derived values
+  $SVRinfo{public_dir} = "$SVRinfo{home}/$SVRinfo{public}";
+  $SVRinfo{cgi_dir} = "$SVRinfo{public_dir}/$SVRinfo{cgiPath}";
 
   $svrname    = $SVRinfo{svrname};
   $sendmail   = $SVRinfo{sendmail};
@@ -99,12 +113,7 @@ sub get_site_info
   $publicUrl  = "$subdomain$cgiSite";
   $scriptpath = "$subdomain$cgiPath";
 
-  if($svrname eq 'TELANA') {
-      $publicdir  = "$pophome/$SVRinfo{public}";
-  }
-  else {
-      $publicdir  = "$SVRinfo{public}";
-  }
+  $publicdir  = $SVRinfo{public_dir};
   
   $autosubdir    = "$publicdir/autosubmit";
   $controlpath   = "$autosubdir/control";

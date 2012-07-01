@@ -1,16 +1,10 @@
 <?php
+require './../php/bootstrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($pagename,$sectionname) = explode('%',$qstring);
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $sourcepage = "http://overpop/cgi-bin/article.pl?display_section%%%$sectionname";
-  $targetfilename = "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/$pagename.html";
-}
-else {
-  $sourcepage = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%$sectionname";
-  $targetfilename = "/www/overpopulation.org/subdomains/www/$pagename.html";
-}
+$sourcepage = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%$sectionname";
+$targetfilename = "{$CONFIG['public_dir']}/$pagename.html";
 
 echo "page = $pagename<br><br>";
 if(!$pagename) {

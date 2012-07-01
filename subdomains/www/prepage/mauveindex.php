@@ -1,11 +1,6 @@
 <?php
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $url = "http://overpop/cgi-bin/article.pl?display_section%%%";
-}
-else {
-  $url = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%";
-}
+require './../php/bootstrap.php';
+$url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 
