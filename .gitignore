@@ -1,4 +1,5 @@
 .DS_Store
+.gitignore
 .htpasswd
 awstats/awstats*.txt
 logs/*
@@ -6,6 +7,7 @@ popnews_bkp/*
 popnews_inbox/*
 popnews_mail/*
 popnews_mail_save/*
+subdomains/*.idx
 subdomains/mobile/index.html
 subdomains/karenpittsMac.yes
 subdomains/www/.htaccess.swp
@@ -45,6 +47,7 @@ subdomains/www/php/not_used/*
 subdomains/www/popnews_nodupmail/*
 subdomains/www/popnews_sepmail/*
 subdomains/www/prepage/maidu/*
+subdomains/www/prepage/cswp_index.php
 subdomains/www/prepage/*.bkup
 subdomains/www/prepage/*.html
 subdomains/www/prepage/*.txt

@@ -1137,20 +1137,33 @@ sub do_body_comment
 	 my $title = "";
 	 $bodycom = "";
 	foreach $bodycomline (@bodylines) {
-	    if($bodycomline =~ /#http/ or $bodycomline =~ /#[A-Z]/) { #link or acronym
+	    if($bodycomline =~ /#http/ or $bodycomline =~ /#[A-Z]/ or $bodycomline =~ /#mp3#http/) { #link or acronym
 		   my @words = split(/ /,$bodycomline);
 		   $bodycomline = "";
 		   foreach $word (@words) {
-		       if($word =~ /^#(http:\/\/.*)/) {
+		       if($word =~ /^#(http:\/\/.*)/ or $word =~ /^##(http:\/\/.*)/ or $word =~ /^#mp3#(http:\/\/.*)/) {
 				   $url = $1;
-                  if($template eq "newsalertItem") {
+				   if($word =~ /^##http:/) {   #   2 ##s = clickable url
+					  $word = "<small><a target=\"blank\" href=\"$url\">$url<\/a><\/small>";
+				   }
+                   elsif($template eq "newsalertItem") {
 				        $word = "Click left arrow ";
-                  }
-                  else {	
+                   }
+				   elsif($word =~ /^#mp3#http:/) {   #   2 ##s = clickable url
+					    $word .= "<object width=\"300\" height=\"42\"> <param name=\"src\" value=\"$url\">";
+$word = <<ENDWORD;
+<param name="autoplay" value="false">
+<param name="controller" value="true">
+<param name="bgcolor" value="#FFFFFF">
+<embed 
+ENDWORD
+                         $word .= "src=\"$url\" autostart=\"false\" loop=\"false\" width=\"300\" height=\"42\" controller=\"true\" bgcolor=\"#FFFFFF\"><\/embed><\/object>";	
+				   }
+                   else {	
 				        $word = "<a target=\"blank\" href=\"$url\">Click here<\/a>";
-                  }		      
+                   }	      
 		       }
-		       elsif($word =~ /^#([A-Za-z0-9]{2,30})/) {  
+		       elsif($word =~ /^#([A-Za-z0-9\-]{2,30})/) {  
 			      $acronym = $1;
 			      $title = &get_title($acronym);  # in misc_dbtables.pl
                   if($title) {

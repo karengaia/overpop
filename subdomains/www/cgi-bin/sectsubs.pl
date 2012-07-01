@@ -194,8 +194,6 @@ sub get_pages
  }
 }
 
-
-
 sub saveNewsSections
 {
   if($cCategory eq 'N') {
