@@ -144,6 +144,9 @@ sub assign_msglines
 		    $msgline_anydate = $date if(!$msgline_anydate);
 		}
 	 }
+	 elsif($msgline =~ /^RR /) {
+		($rest,$region) = split(/SS /,$msgline,2);
+	 }
 	 elsif($msgline =~ /^SS /) {
 		($rest,$source) = split(/SS /,$msgline,2);
 	 }
@@ -535,7 +538,7 @@ sub refine_headline
 sub refine_source
 { 
  my($msgline_source,$link) = @_;
- ($source,$sregionname) = &get_source_linkmatch($link) if($link);
+ ($source,$sregionname) = &get_source_linkmatch($link) if($link);  # in source.pl
  $source = $msgline_source unless($source);
  if($source and $pubyear) {
     ($rest,$source) = split(/$pubyear/,$source,2) if($source =~ /$pubyear/);

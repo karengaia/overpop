@@ -518,9 +518,8 @@ sub end_mass_add2index
 }
 
 
+## flatfile delete
 
-##     DELETE - Need more than one method ####
-##                     Old way, keep
 sub delete_from_index
 {
    my ($rSectsubname,$docid) = @_;
@@ -557,6 +556,141 @@ sub delete_from_index
 
       unlink $lock_file  if(-f $lock_file);
    }
+}
+
+
+sub delete_from_index_by_list
+{
+ my ($sectsubname, $deletelist)  = @_;
+ $sectionfile    = "$sectionpath/$sectsubname.idx";
+ $newsectionfile = "$sectionpath/$sectsubname.new";
+ $bkpsectionfile = "$sectionpath/$sectsubname.bkp";
+
+ if(-f $sectionfile) {
+    system "cp $sectionfile $bkpsectionfile";
+    unlink "$newsectionfile";
+    my $sDocid = "";
+    my $sDocloc = "";
+    open(INSUB2, "$sectionfile");
+    open(OUTSUB2, ">>$newsectionfile");
+
+    while(<INSUB2>) {
+       chomp;
+       ($sDocid,$sDocloc) = split(/\^/,$_,2);
+
+       if($deletelist =~ /$sDocid/) {
+       }
+       else {
+         print OUTSUB2 "$sDocid^$sDocloc\n";
+       }
+    } #endwhile
+
+    close(OUTSUB2);
+    close(INSUB2);
+    system "cp $newsectionfile $sectionfile" if(-f $newsectionfile);
+    unlink $newsectionfile;
+
+    unlink $lock_file  if(-f $lock_file);
+
+    unlink $delsectionfile;
+   }
+   else {
+      &printDataErr_Continue("Ind600 Delete failed: Can't find index for $sectionname: $sectionfile. Non-fatal error; continuing with processing. Notify admin. Thanks");
+   }
+}
+
+
+################
+
+##  ADD TO INDEX
+##                 Updates the appropriate index flatfiles and the indexes table on the DB
+sub hook_into_system
+{
+  my($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
+  $pubdate = &conform_date($pubdate,'n',$sysdate);
+  $sysdate = &conform_date($sysdate,'n');
+
+ if($sectsubs !~ /$deleteSS|$expiredSS/ and $cmd !~ /selectItems|updateCvrtItems/) {
+   &add_temporary_sectsubs;
+ }
+
+ if($addsectsubs =~ /$deleteSS|$expiredSS/) {
+   system "touch $deletepath/$docid.del" if($docid ne "");
+ }
+
+ ##   if delete is deleted and another section added
+ if($delsectsubs =~ /$deleteSS|$expiredSS/ and $addsectsubs =~ /[A-Za-z0-9]/) {
+   unlink "$deletepath/$docid.del";
+ }
+
+ ##      update subsection indexes by docid;
+
+ my $lifo_sth = &DB_prepare_lifonum unless ($DB_indexes < 1); #Prepare for execute in &updt_subsection_index
+ my $maxsth   = &DB_prepare_getnew_lifo unless ($DB_indexes < 1);
+
+ my @adddelsectsubs = split(/;/,"$addsectsubs;$delsectsubs;$chglocs");
+ my $saveCsectsub = $cSectsubid;
+
+ foreach $rSectsub (@adddelsectsubs)  {
+   if($rSectsub) {
+     my($sectsubname,$rSectid,$rSubid,$stratus,$lifonum) = &split_sectsub($rSectsub);
+     &split_section_ctrlB($sectsubname);
+     &updt_subsection_index($lifo_sth,$maxsth,$sectsubname,$cSSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum);
+   }
+ }
+
+## go back to thisSectsub
+ $cSectsubid = $saveCsectsub;
+ &split_section_ctrlB($cSectsubid);
+}
+
+
+##      Update docid index file - for each $rSectsubid
+
+sub updt_subsection_index
+{
+ my ($lifo_sth,$maxsth,$rSectsubid,$SSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum) = @_;
+	##   Since we have been having problems deleting, we are doing this as a backup
+ if($delsectsubs =~ /$rSectsubid/) {
+    &toDeleteList_open($rSectsubid,'Y');
+    &toDeleteList_write($docid);
+    &toDeleteList_close;
+ }
+	
+ $addchk = "$addsectsubs;$chglocs";
+ $delchk = "$delsectsubs;$chglocs";
+
+ ($rSectsubid,$rest) = split(/`/,$rSectsubid,2) if ($rSectsubid =~ /`/); #fix a bug from somewhere
+
+ $stratus = $default_docloc if($stratus !~ /[A-Z]/);
+
+ &write_index_flatfile($rSectsubid,$docid,$stratus,$cOrder); # in indexes.pl
+
+##                     Delete the docid we wrote before
+##                     - just in case it didn't delete above
+ &deleteFromIndex_2nd($docid,$rSectsubid,'Y') if($delsectsubs =~ /$rSectsubid/);
+
+ undef %iDocid;
+ undef %iDocloc;
+ undef %idx_written;
+ undef %newIdx_written;
+
+ if($delsectsubs =~ /$rSectsubid/) {
+    &DB_delete_from_indexes ($SSid,$docid) unless($DB_indexes < 1);
+	#	   return(); put a return here once we get rid of flatfile indexes
+ }
+ else {
+#	 @sectsubs = split(/\^/,$sectsubs);
+#	 foreach $sectsub (@sectsubs) {   ## get stratus
+#		my($xsectsub,$stratus) = split(/`/,$sectsub);
+#		last if($rSectsubid =~ /$sectsub/);
+#	 }
+#
+	    # skip volunteer log for now - add it later; put userid in sortchar, nowdate in pubdate
+	 &DB_add_to_indexes ($lifo_sth,$maxsth,$SSid,$docid,$stratus,$pubdate,$sysdate,$region,$headlines,$topic,$stratus,$lifonum)
+		  unless($DB_indexes < 1 or $rSectsubid =~ /Volunteer/ or !$rSectsubid);   
+	#     If docid/sectsubid combo already in index, it will update instead of insert
+ }
 }
 
 sub toDeleteList_open
@@ -660,101 +794,6 @@ sub deleteFromIndex_2nd
    else {
       &printDataErr_Continue("Sec430 Can't find index for $rSectsubid: $sectionfile. Non-fatal error; continuing with processing. Notify admin. Thanks");
    }
-}
-
-
-################
-
-##  ADD TO INDEX
-##                 Updates the appropriate index flatfiles and the indexes table on the DB
-sub hook_into_system
-{
-  my ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
-print "<br>Adding to $sectsubs index(es)<br><br>\n";
-  $pubdate = &conform_date($pubdate,'n',$sysdate);
-  $sysdate = &conform_date($sysdate,'n');
-
- if($sectsubs !~ /$deleteSS|$expiredSS/ and $cmd !~ /selectItems|updateCvrtItems/) {
-   &add_temporary_sectsubs;
- }
-
- if($addsectsubs =~ /$deleteSS|$expiredSS/) {
-   system "touch $deletepath/$docid.del" if($docid ne "");
- }
-
- ##   if delete is deleted and another section added
- if($delsectsubs =~ /$deleteSS|$expiredSS/ and $addsectsubs =~ /[A-Za-z0-9]/) {
-   unlink "$deletepath/$docid.del";
- }
-
- ##      update subsection indexes by docid;
-
- my $lifo_sth = &DB_prepare_lifonum unless ($DB_indexes < 1); #Prepare for execute in &updt_subsection_index
- my $maxsth   = &DB_prepare_getnew_lifo unless ($DB_indexes < 1);
-
- my @adddelsectsubs = split(/;/,"$addsectsubs;$delsectsubs;$chglocs");
- my $saveCsectsub = $cSectsubid;
-
- foreach $rSectsub (@adddelsectsubs)  {
-   if($rSectsub) {
-     my($sectsubname,$rSectid,$rSubid,$stratus,$lifonum) = &split_sectsub($rSectsub);
-     &split_section_ctrlB($sectsubname);
-     &updt_subsection_index($lifo_sth,$maxsth,$sectsubname,$cSSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum);
-   }
- }
-
-## go back to thisSectsub
- $cSectsubid = $saveCsectsub;
- &split_section_ctrlB($cSectsubid);
-}
-
-
-##      Update docid index file - for each $rSectsubid
-
-sub updt_subsection_index
-{
- my ($lifo_sth,$maxsth,$rSectsubid,$SSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum) = @_;
-	##   Since we have been having problems deleting, we are doing this as a backup
- if($delsectsubs =~ /$rSectsubid/) {
-    &toDeleteList_open($rSectsubid,'Y');
-    &toDeleteList_write($docid);
-    &toDeleteList_close;
- }
-	
- $addchk = "$addsectsubs;$chglocs";
- $delchk = "$delsectsubs;$chglocs";
-
- ($rSectsubid,$rest) = split(/`/,$rSectsubid,2) if ($rSectsubid =~ /`/); #fix a bug from somewhere
-
- $stratus = $default_docloc if($stratus !~ /[A-Z]/);
-
- &write_index_flatfile($rSectsubid,$docid,$stratus,$cOrder); # in indexes.pl
-
-##                     Delete the docid we wrote before
-##                     - just in case it didn't delete above
- &deleteFromIndex_2nd($docid,$rSectsubid,'Y') if($delsectsubs =~ /$rSectsubid/);
-
- undef %iDocid;
- undef %iDocloc;
- undef %idx_written;
- undef %newIdx_written;
-
- if($delsectsubs =~ /$rSectsubid/) {
-    &DB_delete_from_indexes ($SSid,$docid) unless($DB_indexes < 1);
-	#	   return(); put a return here once we get rid of flatfile indexes
- }
- else {
-#	 @sectsubs = split(/\^/,$sectsubs);
-#	 foreach $sectsub (@sectsubs) {   ## get stratus
-#		my($xsectsub,$stratus) = split(/`/,$sectsub);
-#		last if($rSectsubid =~ /$sectsub/);
-#	 }
-#
-	    # skip volunteer log for now - add it later; put userid in sortchar, nowdate in pubdate
-	 &DB_add_to_indexes ($lifo_sth,$maxsth,$SSid,$docid,$stratus,$pubdate,$sysdate,$region,$headlines,$topic,$stratus,$lifonum)
-		  unless($DB_indexes < 1 or $rSectsubid =~ /Volunteer/ or !$rSectsubid);   
-	#     If docid/sectsubid combo already in index, it will update instead of insert
- }
 }
 
 #### INFO ON AN INDEX ROW processing
@@ -1097,6 +1136,13 @@ sub DB_delete_from_indexes
     my($sectsubid,$docid) = @_;	
     my $query = "DELETE FROM indexes WHERE sectsubid = $sectsubid AND docid = $docid";
     $dbh->do($query) or die "DB Delete $docid from $sectsubid failed<br>\n";
+}
+
+sub DB_delete_from_indexes_by_list  # NEEDS TO HAVE SQL FIXED
+{
+    my($sectsubid,$deletelist) = @_;	
+    my $query = "DELETE FROM indexes WHERE sectsubid = $sectsubid AND docid IN $deletelist";
+    $dbh->do($query) or die "DB Delete $deletlist from $sectsubid failed<br>\n";
 }
 
 sub DB_add_docid_to_index

@@ -235,25 +235,25 @@ sub get_count
 
 sub getAddtoCount ## Gets the Count and adds to it - replaces get_count later
 {  
-  local($countcode) = $_[0];
+  my $countcode = $_[0];
   
-  local($count) = &getCount($countcode);
+  my $count = &getCount($countcode);
 
-  local($num) = $count + 1;
+  my $num = $count + 1;
   $count = &padCount6($num) if($countcode =~ /doc/);
   $count = &padCount4($num) if($countcode =~ /popnews/);
      
-  &writeCount($countfile,$count);  
+  &writeCount($countcode,$count);  
   return($count);
 }
 
 sub subtractFromCount
 {
-  local($countcode) = $_[0];
+  my $countcode = $_[0];
   
-  local($count) = &getCount($countcode);
+  my $count = &getCount($countcode);
 
-  local($num) = $count - 1;
+  my $num = $count - 1;
   $count = &padCount6($num) if($countcode =~ /doc/);
   $count = &padCount4($num) if($countcode =~ /popnews/);
      
@@ -264,8 +264,9 @@ sub subtractFromCount
 
 sub getCount
 {
-  local($countcode) = $_[0];
-  local($count);
+  my $countcode = $_[0];
+  my $count;
+  my $countfile;
   if($countcode =~ /doc/) {
     $countfile = $doccountfile;
   }
@@ -285,7 +286,14 @@ sub getCount
 
 sub writeCount
 {
- local($countfile,$count) = @_;
+ my($countcode,$count) = @_;
+ my $countfile = "";
+ if($countcode =~ /doc/) {
+   $countfile = $doccountfile;
+ }
+ elsif($countcode =~ /popnews/) {
+   $countfile = $popnews_countfile;
+ }
  open(NEWCOUNT, ">$countfile") or printSysErrExit("Could not open $countfile : $!<br>\n");
  print(NEWCOUNT "$count\n");
  close(NEWCOUNT);
@@ -298,7 +306,6 @@ sub clearPopCount ## clears the popnews count
   close(POPCOUNT);   	
 }
 
-
 sub add_pad_one
 {
  $pgItemnbr = $pgItemnbr+1; 
@@ -307,7 +314,7 @@ sub add_pad_one
     
 sub pad_count
 {
- local($count) = $_[0];
+ my $count = $_[0];
  $count =~  s/^0+//;     ## strip leading 0s
  if($count < 10)
   {$count = "000$count"; }
@@ -320,7 +327,7 @@ sub pad_count
 
 sub padCount4  ## replaces pad_count later
 {
-  local($count) = $_[0];
+  my $count = $_[0];
   $count =~  s/^0+//;     ## strip leading 0s
   return "000$count" if($count < 10);
   return "00$count" if($count < 100);
@@ -329,7 +336,7 @@ sub padCount4  ## replaces pad_count later
 
 sub padCount6
 {
-  local($count) = $_[0];
+  my $count = $_[0];
   $count =~  s/^0+//;      ## strip leading 0s
   return "00000$count" if($count < 10);
   return "0000$count" if($count < 100);
@@ -341,12 +348,14 @@ sub padCount6
 
 sub strip0s_fromCount
 {
-  local($count) = $_[0];
+  my $count = $_[0];
   $count =~  s/^0+//;
   return $count;
 }
 
 ### END COUNTS #####
+
+
 
 sub create_codes
 {   ## Easier to do this on Telavant interface
@@ -360,6 +369,27 @@ CODES
 
 $sth2 = $dbh->do($sql);
 }
+
+
+
+#KEYWORDS
+
+#Tie keywords to sections, not articles
+
+#Need keyword table: keyword_id and keyword
+
+#keywords_sectsubs table: column keyword_id (foreign key) sectsubs_id for many-to-many relationship
+
+
+#WEBUSER
+#webuser: table: userid, webuser_type, upassword, uemail, ulast name, ufirst name
+#webuser_type : o=owner, c=contributor (| separated), ml = maillist, 
+
+#OWNER (page owner)
+
+#owner: webuser_id (foreign key), ownerhandle, ownername contact info: oaddr, ocity ostate ozip ophone, 
+#owebsitepath, ocsspath x-ocrudtemplate, x-ologintemplate, ologopath, oftpinfo, odefaultSS
+
 
 
 sub create_projects {

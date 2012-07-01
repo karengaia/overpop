@@ -3,7 +3,4 @@
 # July, 2010
 #      controlfiles.pl
 
-
-
-
-1;
+*/ NOT USED - formerly for regions and sources */

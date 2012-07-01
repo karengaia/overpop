@@ -219,7 +219,8 @@ sub get_contributor_form_values
 {
   $userid        = $FORM{userid};
   $access        = $FORM{access};
-  $pin           = $FORM{pin};
+  $pin           = $FORM{pin} if($FORM{pin});
+  $pin           = $FORM{password} if($FORM{password});
   $useremail     = $FORM{email};
   $lastdate      = $FORM{lastdate};
   $firstname     = $FORM{fname};

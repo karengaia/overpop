@@ -181,10 +181,10 @@ sub do_subsection
      $aTemplate = "";
  }
 
- if($cFooter =~ /[A-Za-z0-9]/ or $qFooter =~ /[A-Za-z0-9]/) {
-     $aTemplate = $cFooter if($cFooter =~ /[A-Za-z0-9]/);
-     $aTemplate = $qFooter if($qFooter =~ /[A-Za-z0-9]/);
-     &process_template($print_it,$aTemplate);  #in template_ctrl.pl
+ if($cFooter or $qFooter) {
+     $aTemplate = $cFooter if($cFooter);
+     $aTemplate = $qFooter if($qFooter);
+     &process_template('Y',$aTemplate);  # $print_it = Y in template_ctrl.pl
      $aTemplate = "";
  }
 
@@ -196,7 +196,7 @@ sub do_subsection
 sub process_doclist
 {
  if($DB_doclist > 0 and $rSectsubid !~ /$emailedSS/ and $cAllOr1 =~ /all/) {
-	&do_doclist_sql($dFilename);     # in sections.pl
+	&do_doclist_sql($dFilename);     # in sectsubs.pl
    return;
  }
  $lock_file = "$dFilename.busy";
@@ -399,23 +399,6 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
      $prev_docid = $docid;
      last if($ckItemcnt > $stop_count);
   }
-}
-
-
-sub do_expired
-{
-## if($expired =~ /[A-Za-z0-9]/) {
-if($expired =~ /goofy/) {
-      @expired = split(/;/,$expired);
-      foreach $docid (@expired) {
-     	   &get_doc_data($docid,N);  ## in docitem.pl
-   	   $delsectsubs = $sectsubs;
-   	   $addsectsubs = $expiredSS;
-   	   $sectsubs    = $expiredSS;
-   	   &write_doc_item;  ## in docitem.pl
-   	   &hook_into_system;
-     }
- }
 }
 
 

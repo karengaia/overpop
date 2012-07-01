@@ -6,6 +6,10 @@ require dirname(__FILE__) . '/../php/bootstrap.php';
 		header("Content-type: text/plain");
 	else
 		header("Content-type: text/javascript");
+		
+	$counter = new Counter();
+	$counter->increment();
+/*	$count = $counter->getCount(); */
 	
 	$hitcounter = new Hitcounter();
 	$hitcounter->hitincrement();
@@ -13,8 +17,8 @@ require dirname(__FILE__) . '/../php/bootstrap.php';
 	
 	print "document.write('".addslashes($hitcount)."');";
 	
-/* Now use the flatfile for backup */
-	$counter = new Counter();
+	/* Now use the flatfile for backup */
+  $counter = new Counter();
   $count = $counter->getCount();
   if ($count < 1900000) {
     $count = $hitcount;
@@ -24,7 +28,6 @@ require dirname(__FILE__) . '/../php/bootstrap.php';
     $count = $counter->getCount();
   }
 	
-		
 	class Counter {
 	
 		var $count;

@@ -1,0 +1,51 @@
+<script language="JavaScript">
+
+<!--
+var pop=1;
+var wild=1;
+var co2=1;
+var starve=1;
+var topsoil=1;
+
+function increasePop() {
+        pop=pop+ 1.4;
+        x=parseInt(pop);
+        document.statfrm.population.value = x;
+
+        setTimeout("increasePop() ",500); }
+
+function increaseStarve() {
+        starve=starve+ 0.28;
+        z=parseInt(starve);
+        document.statfrm.starve.value = z;
+
+        setTimeout("increaseStarve() ",1000); }
+
+function increaseWilds() {
+        wild=wild+1.6;
+        y=parseInt(wild);
+        document.statfrm.wilds.value = y;
+        setTimeout("increaseWilds() ",1000); }
+
+function increaseCo2() {
+        co2=co2+177;
+        v=parseInt(co2);
+        document.statfrm.co2.value = v;
+
+        setTimeout("increaseCo2() ",250); }
+
+function increaseTopsoil() {
+        topsoil=topsoil+187;
+        w=parseInt(topsoil);
+        document.statfrm.topsoil.value = w;
+
+        setTimeout("increaseTopsoil() ",250); }
+
+//-->
+
+</script>
+
+</head>
+
+<body onLoad="increasePop(); increaseWilds(); increaseStarve();
+increaseCo2(); increaseTopsoil()">

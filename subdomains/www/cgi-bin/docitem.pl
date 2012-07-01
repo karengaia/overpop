@@ -17,7 +17,7 @@
 ## 2010 Jul30 - fixed removal of NA from sectsubs (was NR)
 ## 2010 May 7 - Set permissions to 777 for open with write on Mac Server (Karens Mac)
 ## 2010 Apr12 - addsectsubs & updsectsubs - remove NR; - the deselect option on dropdowns and radio button;
-##               fixed region in storeform sub - checked for alphanumeric first ????
+##               fixed region in   sub - checked for alphanumeric first ????
 ## 2008 Dec28 - added $fix to form and $fixfullbody - forces &apple_convert.
 ## 2008 Dec27 - moved $fullbody and $body apple converts to &apple_convert and moved &apple_convert from common to here
 ## 2008 May26 - eliminated angle brackets from link; changed * to = in Grist links
@@ -57,7 +57,7 @@ sub display_one
      &printInvalidExit;
    }
  }
-  &process_template('Y',$aTemplate);
+  &process_template('Y',$aTemplate);  #in template_ctrl.pl
 }
 
 
@@ -78,7 +78,7 @@ sub do_one_doc
 
   if($cmd eq 'init_section') {
        $sectsubs = $thisSectsub;
- ##    &write_doc_item;   DISABLED UNTIL NEEDED
+ ##    &write_doc_item($docid);   DISABLED UNTIL NEEDED
   }
   else {
      &do_we_select_item;
@@ -133,10 +133,10 @@ sub do_we_select_item
 }
 
 
-### 0060 ########  STOREFORM   ###########
+### ########  STOREFORM   ###########
 
 sub storeform
-{
+{	
  &get_contributor_form_values if($ipform !~ /chaseLink/);
  &get_doc_form_values;
 #print "doc145 ..priority $priority docloc_news $docloc_news newsprocsectsub $newsprocsectsub<br>\n";
@@ -150,7 +150,7 @@ sub storeform
 
 # 0070  Do sections (most sections logic is in sections.pl)
 
- &do_sectsubs;     # in sections.pl
+ &do_sectsubs;     # in sectsubs.pl
 ## &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
 
  &write_doc_item($docid);
@@ -158,11 +158,18 @@ sub storeform
  &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
  my @save_sort = ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic);
- if($sectsubs =~ /CSWP/) {
-#	&print_review('cswppreview;cswpUpdate');
+
+ &ck_popnews_weekly 
+    if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl
+
+ if($owner) {
+   &print_review('ownerReview');
  }
- elsif($sectsubs =~ /MAIDU/) {
-	&print_review('maidupreview');
+ elsif($sectsubs =~ /Suggested_suggestedItem/ and $ipform =~ /newItemParse/) {
+	print "<div style=\"font-family:arial;font-size:1.2em;margin-top:13px;margin-left:7px;\">&nbsp;&nbsp;Item has been submitted; Ready for next item:</div>\n";
+	$fullbody = "";
+	$DOCARRAY = "";   # get ready for the next one
+	return;    # return to article.pl to print next page: another newItemParse form
  }
  else {
     &print_review('review');
@@ -172,21 +179,16 @@ sub storeform
 
 # print "doc168 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
 
- &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
+ &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
 
  $sections="";
  $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
  $chgsectsubs =~  s/^;+//;  #get rid of leading semi-colons
  
- &do_html_page; ## create HTML - this is in article.pl
+ &do_html_page; ## create HTML file - this is in display.pl
 
-   
-## Need to make this be invoked by a meta refresh in article.pl
-
- &ck_popnews_weekly 
-    if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl  
-  
 }  ## END SUB
+
 
 sub update_control_files {
  $addchgsource = $FORM{"addchgsource$pgitemcnt"};
@@ -255,18 +257,18 @@ sub do_updt_selected
 
   &get_more_select_form_values;  ## overrides prior doc values
 
-  &change_sectsubs_for_updt_selected;   ## looks for delete if priority = D --  in sections.pl  
+  &change_sectsubs_for_updt_selected;   ## looks for delete if priority = D --  in sectsubs.pl  
 
  print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$headline </font><font size=1>ord-$sortorder $sectsubs</font><br>\n";
 
   &write_doc_item($docid);
  
-#  if($priority =~ /D/ and $sectsubs =~ /$suggestedSS|$emailedSS/) {
+#  if($priority =~ /D/ and $sectsubs =~ /Suggested_suggestedItem/ {
 #	 &delete_from_index($rSectsubid,$docid);
 #	 &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  }
 #  else {
-     &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sections.pl
+     &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
 #  }
   &add_new_source if($addsource =~ /Y/);
   &add_new_region if($addregion =~ /Y/);
@@ -307,14 +309,6 @@ sub print_review
  $print_it = 'N';
 }
 
-sub print_article_control
-{
- $print_it = 'Y';
- &process_template('Y','article_control'); 
- $aTemplate = $qTemplate;
- $print_it = 'N';
-}
-
 
 sub log_volunteer
 {
@@ -348,10 +342,25 @@ sub process_popnews_email       # from article.pl when item selected from Sugges
 #  &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  &write_index_straight($suggestedSS,$docid);  # in sections.pl
 # &index_suggested($docid);  # add to suggested index - in sections.pl
- &hook_into_system($sectsubs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
+ &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
 }
 
 
+sub do_expired
+{
+## if($expired =~ /[A-Za-z0-9]/) {
+if($expired =~ /goofy/) {
+      @expired = split(/;/,$expired);
+      foreach $docid (@expired) {
+     	   &get_doc_data($docid,N);  ## in docitem.pl
+   	   $delsectsubs = $sectsubs;
+   	   $addsectsubs = $expiredSS;
+   	   $sectsubs    = $expiredSS;
+   	   &write_doc_item($docid);  ## in docitem.pl
+   	   &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
+     }
+ }
+}
 
 
 ##  0000290   ##
@@ -419,6 +428,8 @@ sub check_for_skip
 
 sub titlize_headline
 {
+	# TODO : read these in from acronym table
+	
  @acronyms = ("ACLU","aclu","AGI","agi","AIDS","aids","ALL","CD-ROM","BMJ","CEDAW","CEDPA","CRLP","EC","EPA","epa",
 "FAO","fao","FDA","GAO","GOP","ICDP","IPPF","ippf","II","III","IUD","iud","HHS","H1-B","H1B","HIV","hiv","HIV/AIDS","hiv/aids",
 "LA","L.A.","NARAL","NCPTP","NGO","NGOs","N.J.","NPG","npg","NPR","NPR's","NWLC","OK",
@@ -630,7 +641,7 @@ sub get_more_select_form_values
  $pubmonth       = $FORM{"pubmonth$pgitemcnt"};
  $pubyear        = $FORM{"pubyear$pgitemcnt"};
  &assemble_pubdate;
- $link           = $FORM{"link$pgitemcnt"}       if($FORM{"link$pgitemcnt"}     =~ /[A-Za-z0-9]/);
+ $link           = $FORM{"link$pgitemcnt"}       if($FORM{"link$pgitemcnt"});
  $selflink       = $FORM{"selflink$pgitemcnt"};
  $headline       = $FORM{"headline$pgitemcnt"}   if($FORM{"headline$pgitemcnt"} =~ /[A-Za-z0-9]/);
  $topic          = $FORM{"topic$pgitemcnt"}      if($FORM{"topic$pgitemcnt"}    =~ /[A-Za-z0-9]/);
@@ -641,7 +652,9 @@ sub get_more_select_form_values
  $addregion      = $FORM{"addregion$pgitemcnt"}  if($FORM{"addregion$pgitemcnt"} =~ /[AU]/);
  $fSectsubs      = $FORM{"sectsubs$pgitemcnt"}   if($FORM{"sectsubs$pgitemcnt"} =~ /[A-Za-z0-9]/);
  $source         = $FORM{"source$pgitemcnt"}     if($FORM{"source$pgitemcnt"}   =~ /[A-Za-z0-9]/);
+ ($source,$sregionname) = &get_source_linkmatch($link) if($sourcelink eq 'Y' and $link);
  $addsource      = $FORM{"addsource$pgitemcnt"}  if($FORM{"addsource$pgitemcnt"} =~ /[AU]/);
+ $sourcelink     = $FORM{"sourcelink$pgitemcnt"} if($FORM{"sourcelink$pgitemcnt"});
  $body           = $FORM{"body$pgitemcnt"}       if($FORM{"body$pgitemcnt"}     =~ /[A-Za-z0-9]/);
  $points         = $FORM{"points$pgitemcnt"}     if($FORM{"points$pgitemcnt"}     =~ /[A-Za-z0-9]/);
  $fullbody       = $FORM{"fullbody$pgitemcnt"};
@@ -720,6 +733,7 @@ sub get_doc_form_values
   $docfullbody    =~ s/&quote\;/\"/g;
   $fullbody       = "$docfullbody\n\nFULLARTICLE:\n$fullbody" if($ipform =~ /chaseLink/ and $docfullbody =~ /[A-Za-z0-9]/);
 
+  $owner          = $FORM{"owner$pgitemcnt"};   ## temporary variable
   $fixfullbody    = $FORM{"fix$pgitemcnt"};   ## temporary variable
   $freeview       = $FORM{"freeview$pgitemcnt"};
   $linknote       = $FORM{"linknote$pgitemcnt"};
@@ -740,10 +754,9 @@ sub get_doc_form_values
   $addsectsubs     = $FORM{"addsectsubs$pgitemcnt"};
   $newsprocsectsub = $FORM{"newsprocsectsub$pgitemcnt"} unless $newsprocsectsub;
   $pointssectsub   = $FORM{"pointssectsub$pgitemcnt"};
-  $cswpsectsub     = $FORM{"cswpsectsub$pgitemcnt"};
-  $maidusectsub    = $FORM{"maidusectsub$pgitemcnt"};
+  $ownersectsub     = $FORM{"ownersectsub$pgitemcnt"};
 
-   $sectsubs = 'CSWP_events' if($sectsubs =~ /CSWP_event/); #fix a problem
+   $sectsubs = 'CSWP_Calendar' if($sectsubs =~ /CSWP_event/ or $ownersectsub =~ /CSWP_event/); #fix a problem
 
   if($addsectsubs =~ /;/) {
     ($first_addsectsub,$rest) = split(/;/,$addsectsubs,2);
@@ -931,9 +944,9 @@ sub get_doc_data
     }
     if($aTemplate =~ /docUpdate/) {
        ($regionid,$seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$members_ids,$continent_grp,$location,$extended_name,$regionid,$seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$continent_grp,$location,$extended_name,$f1st2nd3rd_world,$fertility_rate,$population,$pop_growth_rate,$sustainability_index,$humanity_index)
-          = &get_regions($printit,$region);   #in controlfile.pl
+          = &get_regions($printit,$region);   #in regions.pl
     	($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$regionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format) 
-          = &get_sources($printit,$source);   #in controlfile.pl
+          = &get_sources($printit,$source);   #in sources.pl
     }
  }
  else {
@@ -1047,6 +1060,7 @@ sub clear_work_variables
              
 sub put_data_to_array
 {
+ $DOCARRAY{owner}          = $owner;
  $DOCARRAY{dir}            = $dir;
  $DOCARRAY{action}         = $action;
  $DOCARRAY{filedir}        = $filedir;
@@ -1152,7 +1166,7 @@ sub write_doc_item
   my $docid = $_[0];   # if not in items directory, it is in popnews_mail
   $docid =~ s/\s+$//mg;
 
- if($docid =~ /-/) {       ##  from emailed 
+  if($docid =~ /-/) {       ##  from emailed 
 	  $docpath = "$mailpath/$docid\.itm";
   }
   else {
@@ -1179,7 +1193,7 @@ sub write_doc_item
     unlink $lock_file if($lock_file);
   }
   else {
-    print "Invalid sysdate=$sysdate or docid-$docid; Could not write out docitem at doc2795 Error message: $!<br>\n";
+    print "Invalid sysdate=$sysdate or docid-$docid; Could not write out docitem at doc1185 Error message: $! <br>\n";
   }
   if($docid =~ /-/) {
      &write_index_straight($emailedSS,$docid);     # in sections.pl
@@ -1202,7 +1216,7 @@ sub write_doc_data_out
        print DATAOUT "suggestAcctnum\^$suggestAcctnum\n" ;
    }
 
-   &titlize_headline if($docaction =~ /N/ or $titlize =~ /Y/);
+   &titlize_headline if( ($docaction =~ /N/ and !$owner)  or $titlize =~ /Y/);
 
    if($docaction =~ /N/ and $region !~ /[A-Za-z0-9]/) {
 	  $region = &get_regions('N',"",$headline,$fullbody,$link);  # print_regions=N, region="", # controlfiles.pl                
@@ -1290,6 +1304,7 @@ sub write_doc_data_out
 
    $sectsubs =~ s/NA`M;//;
    $sectsubs =~ s/NA;//;
+   $sectsubs =~ s/`+$//;  # get rid of trailing tic marks
 
    print DATAOUT "sectsubs\^$sectsubs\n";
 }
@@ -1388,6 +1403,5 @@ sub create_docitem_table {
 #		PRIMARY KEY (docid)  # do this later, after conversion
 #		)
 }
-
 
 1;

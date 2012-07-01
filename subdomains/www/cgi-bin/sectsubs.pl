@@ -227,12 +227,27 @@ sub saveNewsSections
 ###### ADD, SUBTRACT SECTSUBS ON A DOCITEM  #####
 
 sub do_sectsubs
-{		
+{			
 	# 1st, add missing sectsub (from doclist this docitem was on)
-
-  if($docaction ne 'N' and $sectsubs !~ /$thisSectsub/ and !$newsprocsectsub and !$pointssectsub and !$cswpsectsub and !$maidusectsub) {
+ if($docaction ne 'N' and $sectsubs !~ /$thisSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
       $sectsubs = "$sectsubs;$thisSectsub`M";
   }
+
+ #1.5 If New
+ if(!$docid) {
+    $docation = 'N';	
+ }
+ if($docaction eq 'N') {
+     $addsectsubs = $sectsubs;
+     $delsectsubs = "";
+     return;
+ }
+
+ if($owner) {
+     &do_ownersectsub;     # CSWP population stuff
+     return;
+  }
+
 
  # 2nd, delete if 'Delete' requested
 
@@ -248,7 +263,7 @@ sub do_sectsubs
   $expdate = "0000-00-00" if($expdate !~ /[0-9]/);
   if($expdate > "0000-00-00" and $expdate lt $nowdate and $sectsubs !~ /$expiredSS/) {
      if($docaction eq 'N') {
-       $errmsg = "This date has expired - $expdate. Please correct if you wish it to be published.";
+      $errmsg = "This date has expired - $expdate. Please correct if you wish it to be published.";
        &printBadContinue;
      }
      $delsectsubs = $sectsubs;
@@ -268,17 +283,6 @@ sub do_sectsubs
   }
 
 # 5th - Process News sectsubs - Headlines, Summarize, Suggested, Archives, etc
-
- if($ipform =~ /cswpUpdate/) {
-     &do_cswpsectsub;     # CSWP population stuff
-#print "ss275 sectsubs $sectsubs<br>\n";
-#exit;
-     return;
-  }
-  elsif($ipform =~ /maiduUpdate/) {
-     &do_maidusectsub;     # Maidu population stuff
-     return;
-  }
      
    &do_newsprocsectsub;  # uses oldsectsubs from above
    &do_pointssectsub;    # uses sectsubs from do_newsprocsectsub
@@ -411,43 +415,23 @@ sub do_pointssectsub { # Talking Points: Impacts and Solutions
  $delsectsubs =~  s/^;+//;    #remove leading ;
 }
 
-##   NEED TO CHANGE cswp and maidu to simple i.e. $simple sectsub; then can eliminate redundancy.
-sub do_cswpsectsub { # CSWP population calendars, etc
- if($oldsectsubs) {
-     if($cswpsectsub =~ /$oldsectsubs/) {
+sub do_ownersectsub { # CSWP, Maidu, any owner other than WOA
+if($sectsubs) {
+     if($ownersectsub =~ /$sectsubs/) {
       # no change
      }
      else {
-        $delsectsubs = $oldsectsubs;
-	    $addsectsubs = $cswpsectsub;
+        $delsectsubs = $sectsubs;
+	    $addsectsubs = $ownersectsub;
 	 }
  }
  else {
-	   $addsectsubs = $cswpsectsub;
+	   $addsectsubs = $ownersectsub;
  }
- $sectsubs = "$cswpsectsub;
- $sectsubs = $sectsubs`$docloc if($docloc);
- $sectsubs = $sectsubs`$lifonum" if($lifonum);
+ $sectsubs = $ownersectsub;
+ $sectsubs = "$sectsubs`$docloc" if($docloc);
+ $sectsubs = "$sectsubs`$lifonum" if($lifonum);
 }
-
-sub do_maidusectsub { # CSWP population calendars, etc
- if($oldsectsubs) {
-     if($maidusectsub =~ /$oldsectsubs/) {
-      # no change
-     }
-     else {
-        $delsectsubs = $oldsectsubs;
-	    $addsectsubs = $maidusectsub;
-	 }
- }
- else {
-	   $addsectsubs = $maidusectsub;
- }
- $sectsubs = "$maidusectsub;
- $sectsubs = $sectsubs`$docloc if($docloc);
- $sectsubs = $sectsubs`$lifonum" if($lifonum);
-}
-
 
 #### 640 SECTSUBS    simplified version used for selected items
 
@@ -655,8 +639,6 @@ sub add_subinfo
 sub change_sectsubs_for_updt_selected
 {
   if($priority  =~ /D/
-##            if chaseLink selected and = docid9998, we skipped it above
-##            if chaseLink selected and != 9998, delete it
    or ($ipform =~ /chaseLink/ and $selitem =~ /Y/ and $pgitemcnt !~ /9998/) ) {
      $delsectsubs = $sectsubs;
      $sectsubs    = $deleteSS;
@@ -682,13 +664,9 @@ sub change_sectsubs_for_updt_selected
      }
      $addsectsubs =~  s/^;+//;
      $delsectsubs =~  s/^;+//;
-
      $sectsubs = $fSectsubs;
      &add_extra_sections;
 	
-	 $redosectsubs = "";
-     &delete_sectsubs;
-     $sectsubs = $redosectsubs;
      &add_subinfo;
   }
 }
@@ -978,52 +956,36 @@ sub get_points_sections
   } # end outer foreach
 }
 
-sub get_cswp_sections
+
+sub get_owner_sections
 {
-  my (@xsects) = split(/\|/,$cswpSections);  #newsSections created in sub read_sectCtrl_to_array
-  my $checked = "";
-  my $current_cswpSS = "";
-  my $docloc = ""; 
+  my $ownerSections = $_[0];
+### change this to get_owner_sections and $ownerSections; put owner code in sectsubs table (sections flatfile)
+### where category is.
+  my $expSections = "$ownerSections|$deleteSS";
+  my (@xsects) = split(/\|/,$expSections);  #newsSections created in sub read_sectCtrl_to_array
+  my $currentSS = "";
+  my $docloc = "";
+  $ownerDefaultSS = "CWSP_Calendar";
+  $dSectsubs = $ownerDefaultSS unless($dSectsubs);
   foreach $xsect (@xsects) {
-	$selected = "";
-    if($dSectsubs =~ /$xsect/ ) {	
+    $xsect =~ s/`+$//;  #get rid of trailing tic marks
+    if($dSectsubs =~ /$xsect/ or $xsect =~ /$dSectsubs/ or $dSectsubs eq $xsect) {	
 	   $selected = "selected";
-	   $current_cswpSS = $xsect;
+	   $currentSS = $xsect;
 	} # end if
-	
-	print MIDTEMPL "<option value=\"$xsect\" $selected >$xsect</option>\n";
+	my $option = $xsect;
+	$option = 'Deleted' if($xsect =~ /delete/);
+	print MIDTEMPL "<option value=\"$xsect\" $selected >$option</option>\n";
+	$selected = "";
+
   } # end outer foreach
 
-  if($current_cswpSS and $action ne 'new' and $lifonum and $lifonum > 0) {
-	  $SSid = &get_SSid($current_cswpSS);
+  if($currentSS and $action ne 'new' and $lifonum and $lifonum > 0) {
+	  $SSid = &get_SSid($currentSS);
 	  my($docloc,$lifonum) = &DB_get_lifo_stratus($SSid,$docid); #For now we won't use stratus; later move this up to do docloc
-      print MIDTEMPL "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$current_cswpSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n";
+      print MIDTEMPL "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$currentSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n";
       print MIDTEMPL "<cite>Cannot change Lifonum if changing CSWP Section above</cite><br>\n";
-  }
-}
-
-sub get_maidu_sections
-{
-  my (@xsects) = split(/\|/,$maiduSections);  #newsSections created in sub read_sectCtrl_to_array
-  my $checked = "";
-  my $current_maiduSS = "";
-  my $docloc = ""; 
-  foreach $xsect (@xsects) {
-	$checked = "";
-	
-    if($dSectsubs =~ /$xsect/ ) {	
-	   $checked = "checked";
-	   $current_maiduSS = $xsect;
-	} # end if
-	
-	print MIDTEMPL "<option value=\"$xsect\" $checked >$xsect</option>\n";
-  } # end outer foreach
-
-  if($current_maiduSS and $action ne 'new' and $lifonum and $lifonum > 0) {
-	  $SSid = &get_SSid($current_maiduSS);
-	  my($docloc,$lifonum) = &DB_get_lifo_stratus($SSid,$docid); #For now we won't use stratus; later move this up to do docloc
-      print MIDTEMPL "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$current_maiduSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n";
-      print MIDTEMPL "<cite>Cannot change Lifonum if changing Maidu Section above</cite><br>\n";
   }
 }
 
