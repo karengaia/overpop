@@ -1,5 +1,5 @@
 <?php 
-require './../php/boostrap.php';
+require './../php/bootstrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($docid,$template,$sectionname) = explode('%',$qstring);
 

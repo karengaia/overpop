@@ -10,7 +10,6 @@ sub parse_popnews
   $fullbody = $emessage;
   $sectsubs = "$emailedSS" unless($sectsubs);
   $headline = "";
-
 ##  print "doc120 ehandle $ehandle emessage $emessage<br>\n";    	   
   $emessage = &apple_convert($emessage);
   $emessage = &choppedline_convert($emessage); 
@@ -60,7 +59,7 @@ sub parse_popnews
      }
   } #end foreach
 
-  $max_linecnt = $linecnt;
+ $max_linecnt = $linecnt;
   &finish_msglines;  # assigns $msglineN and $msglineN1
   &assign_msglines($msglineN);
   &assign_msglines($msglineN1);
@@ -133,14 +132,15 @@ sub assign_msglines
 
  &assign_std_variables($msgline); #Use keywords to fill field variables; like Opinion: , then it is a headline
  
- if($linecnt < 9 or $linecnt = $max_linecnt) {
+ if($linecnt < 9 or $linecnt eq $max_linecnt) {  ## CHANGED = to eq in GIT_PATHS
 	 $link = &chk_linkline($msgline) if(!$link);
      my $date ="";
 	 if($msgline =~ /^HH /) {
-		($rest,$headline) = split(/HH /,$msgline,2);
-		if($headline =~ /[DATE|date]:/) {
+        ($rest,$headline) = split(/HH /,$msgline,2);
+		if($headline =~ /[DATE:|date:|DD ]/) {
 			($headline,$date) = split(/DATE:/,$headline,2) if $headline =~ /DATE:/;
 			($headline,$date) = split(/Date:/,$headline,2) if $headline =~ /Date:/;
+			($headline,$date) = split(/DD /,$headline,2) if $headline =~ /DD /;
 		    $msgline_anydate = $date if(!$msgline_anydate);
 		}
 	 }
@@ -152,6 +152,9 @@ sub assign_msglines
 	 }
 	 elsif($msgline =~ /^DD /) {
 		($rest,$msgline_anydate) = split(/DD /,$msgline,2);
+		if($msgline_anydate =~ /HH /) {
+			($msgline_anydate, $headline) = split(/HH /,$$msgline_anydate,2);
+		}
 	 }
 	 elsif($hdkey and $msgline =~ /$hdkey/) { 
 	    $head = $msgline;
@@ -979,8 +982,8 @@ sub apple_convert
  $datafield =~ s/=3D([a-z])/$1/g;   ## next line starts with lower case - not a paragraph
  $datafield =~ s/=0D=0A([a-z])/$1/g;
   
- $datafield =~ s/([a-z0-9] )\n\n/$1/ig;
- $datafield =~ s/([a-z0-9] )\n/$1/ig;
+# $datafield =~ s/([a-z0-9] )\n\n/$1/ig;  ## THIS SHOULD BE DONE ELSEWHERE  -- GIT_PATHS
+# $datafield =~ s/([a-z0-9] )\n/$1/ig;
  
  $datafield =~ s/ = $/ /g;  #end of line
       

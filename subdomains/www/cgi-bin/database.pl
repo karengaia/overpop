@@ -49,7 +49,6 @@ sub print_query_results
 sub db_connect {
   use DBI;
   use DBD::mysql;
-
   my $dbh = DBI->connect ("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}",
          $CONFIG{db_user},
          $CONFIG{db_password})

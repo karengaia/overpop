@@ -235,7 +235,7 @@ sub do_sectsubs
 
  #1.5 If New
  if(!$docid) {
-    $docation = 'N';	
+    $docaction = 'N';	
  }
  if($docaction eq 'N') {
      $addsectsubs = $sectsubs;

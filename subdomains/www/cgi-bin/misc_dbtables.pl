@@ -238,26 +238,21 @@ sub getAddtoCount ## Gets the Count and adds to it - replaces get_count later
   my $countcode = $_[0];
   
   my $count = &getCount($countcode);
-
   my $num = $count + 1;
   $count = &padCount6($num) if($countcode =~ /doc/);
   $count = &padCount4($num) if($countcode =~ /popnews/);
-     
   &writeCount($countcode,$count);  
   return($count);
 }
 
 sub subtractFromCount
 {
-  my $countcode = $_[0];
-  
+  my $countcode = $_[0]; 
   my $count = &getCount($countcode);
-
   my $num = $count - 1;
   $count = &padCount6($num) if($countcode =~ /doc/);
-  $count = &padCount4($num) if($countcode =~ /popnews/);
-     
-  &writeCount($countfile,$count);
+  $count = &padCount4($num) if($countcode =~ /popnews/);     
+  &writeCount($countcode,$count);                    ## This read &writeCount($countcode,$count); Why??? Worked before GIT_PATHS 
   
   return($count);
 }
@@ -274,7 +269,7 @@ sub getCount
     $countfile = $popnews_countfile;
   }
 
-  open(COUNT, "$countfile");
+  open(COUNT, "$countfile") or printSysErrExit("Could not open $countfile : @ 278 misc_dbtables ..countcode $countcode<br>\n");;
   while(<COUNT>)
   {
    chomp;
@@ -293,8 +288,8 @@ sub writeCount
  }
  elsif($countcode =~ /popnews/) {
    $countfile = $popnews_countfile;
- }
- open(NEWCOUNT, ">$countfile") or printSysErrExit("Could not open $countfile : $!<br>\n");
+ }  
+ open(NEWCOUNT, ">$countfile") or printSysErrExit("Could not open $countfile : @ 299 misc_dbtables ..countcode $countcode<br>\n"); 
  print(NEWCOUNT "$count\n");
  close(NEWCOUNT);
 }

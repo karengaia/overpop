@@ -607,6 +607,7 @@ sub delete_from_index_by_list
 sub hook_into_system
 {
   my($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
+
   $pubdate = &conform_date($pubdate,'n',$sysdate);
   $sysdate = &conform_date($sysdate,'n');
 

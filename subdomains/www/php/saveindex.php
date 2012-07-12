@@ -5,9 +5,7 @@ include dirname(__FILE__) . '/bootstrap.php';
 
 $sourcepage = "http://{$CONFIG['servername']}/prepage/$pagename.php";
 
-$home = $CONFIG['public_dir'];
-
-$targetfilename = "$home/$pagename.html";
+$targetfilename = "{$CONFIG['public_dir']}/$pagename.html";
 
 $webpage = file_get_contents($sourcepage);
 

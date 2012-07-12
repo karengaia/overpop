@@ -17,9 +17,6 @@
 
 sub get_site_info
 {
-  use Cwd;
-  use File::Basename;
-
  $contactEmail = "karen4329\@karengaia.net";
  $contactEmail_html = "karen4329&#64;karengaia.net";
  $adminEmail = "karen4329\@karengaia.net",
@@ -30,17 +27,20 @@ sub get_site_info
 ## public     => "subdomains/www",
   $slash = "\/";
 
-  $this_dir = dirname(getcwd . '/' . __FILE__);
-  $cgibin_dir = $this_dir;
-  $doc_root = dirname($this_dir);
-  $app_dir = dirname(dirname($doc_root));
+  my $base_dir       = $PATHS{'base_dir'};   # PATHS is set in bootstrap.pl
+  my $subdomains_dir = $PATHS{'subdomains_dir'};
+  my $public_dir     = $PATHS{'public_dir'};
+  my $cgi_dir        = $PATHS{'cgi_dir'};
+
+  $doc_root = dirname($public_dir);
+
 
  %TELANAsvr = (
   environment => 'production',
   svrname    => "TELANA",
   IP         => "www.overpopulation.org",
-  app_dir    => $app_dir,
-  home       => $app_dir,
+  app_dir    => $base_dir,
+  home       => $base_dir,
   public     => "subdomains/www",
   subdomain  => "www\.",
   sshpath    => "/usr/bin/ssh",
@@ -62,29 +62,28 @@ sub get_site_info
   %DEVELOPMENTsvr = (
     svrname    => "KPMac",
     IP         => "127.0.0.1",
-    app_dir    => $app_dir,
-    home       => $app_dir,
+    app_dir    => $base_dir,
+    home       => $base_dir,
     public     => "subdomains/www",
     subdomain  => "",
     sshpath    => "/usr/bin/ssh",
     sendmail   => "|/usr/sbin/sendmail -t",
     cgiPath    => "cgi-bin",
     cgiSite    => "overpop",
-    ## cgiSite    => "population-awareness.net",
-    acctID     => "overpop",
-    inboxpath => "popnews_inbox",
-    mailpath   => "popnews_mail",
-    mailbkppath => "popnews_bkp",
-    sepmailpath => "subdomains/www/popnews_sepmail",
+    acctID        => "overpop",
+    inboxpath     => "popnews_inbox",
+    mailpath      => "popnews_mail",
+    mailbkppath   => "popnews_bkp",
+    sepmailpath   => "subdomains/www/popnews_sepmail",
     nodupmailpath => "subdomains/www/popnews_nodupmail",
-    mailbkp     => "subdomains/www/popnews_bkp",
-    hitCntPath => "subdomains/www",
-    maillistpath => "subdomains/www/mail-list",
+    mailbkp       => "subdomains/www/popnews_bkp",
+    hitCntPath    => "subdomains/www",
+    maillistpath  => "subdomains/www/mail-list",
    );
 
 ##              directory structure of the two servers is different
 
-  if(-f "$app_dir/development.yes") {
+  if(-f "$base_dir/development.yes") {
     %SVRinfo = %DEVELOPMENTsvr;
     %SVRdest = %TELANAsvr;
     $subdomain = $SVRinfo{subdomain};

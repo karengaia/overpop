@@ -3,19 +3,8 @@
 use Cwd;
 use File::Basename;
 
-# All this just to get the full path to the
-# current directory
-if (__FILE__ =~ /^\.\/(.*)$/) {
-  $file = $1;
-} else {
-  $file = __FILE__;
-}
-my $app_dir;
-if ($file =~ /^\//) {
-  $app_dir = dirname($file);
-} else {
-  $app_dir = dirname(getcwd . '/' . $file);
-}
+
+my $base_dir = $PATHS{'base_dir'};
 
 %CONFIG = (
   db_host       => 'localhost',
@@ -24,11 +13,12 @@ if ($file =~ /^\//) {
   db_password   => '',
 );
 
-if(-f "$app_dir/settings_overrides.pl") {
-  require "$app_dir/settings_overrides.pl";
+if(-f "$base_dir/settings_overrides.pl") {
+  require "$base_dir/settings_overrides.pl";
   while (my ($key, $value) = each(%CONFIG_OVERRIDES)) {
     $CONFIG{$key} = $value;
   }
 }
+
 
 1;

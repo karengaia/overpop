@@ -34,6 +34,14 @@
 ## 2005 Sep10 - restored missing code to parse_popnews_email subroutine where $msgbody = "$msgbody$msgline\n";
 ##              and to $fullbody = $msgbody; in subroutine &refine_fullbody
 
+sub init_docitem_variables
+{
+   $DOCARRAY = "";
+   &clear_doc_data; 
+   &clear_doc_variables;
+   &clear_helper_variables;
+   &clear_msgline_variables;
+}
 
 sub display_one
 {
@@ -102,7 +110,7 @@ sub do_one_doc
  ##   &fix_fullbody;       
     &write_doc_item($docid);
   }
-  &clear_doc_variables;
+#  &clear_doc_variables;
 }
 
 
@@ -136,11 +144,10 @@ sub do_we_select_item
 ### ########  STOREFORM   ###########
 
 sub storeform
-{	
+{
+#  &clear_doc_variables;
  &get_contributor_form_values if($ipform !~ /chaseLink/);
  &get_doc_form_values;
-#print "doc145 ..priority $priority docloc_news $docloc_news newsprocsectsub $newsprocsectsub<br>\n";
-
  &update_control_files;  # if add or update needed
 # &add_new_source;  #in sources.pl
 
@@ -150,10 +157,10 @@ sub storeform
 
 # 0070  Do sections (most sections logic is in sections.pl)
 
- &do_sectsubs;     # in sectsubs.pl
+&do_sectsubs;     # in sectsubs.pl
 ## &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
 
- &write_doc_item($docid);
+&write_doc_item($docid);
 
  &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
@@ -162,28 +169,29 @@ sub storeform
  &ck_popnews_weekly 
     if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl
 
- if($owner) {
+ my ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
+
+# print "doc168 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
+
+&hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
+
+ $sections="";
+ $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
+ $chgsectsubs =~  s/^;+//;  #get rid of leading semi-colons
+
+if($owner) {
    &print_review('ownerReview');
  }
  elsif($sectsubs =~ /Suggested_suggestedItem/ and $ipform =~ /newItemParse/) {
 	print "<div style=\"font-family:arial;font-size:1.2em;margin-top:13px;margin-left:7px;\">&nbsp;&nbsp;Item has been submitted; Ready for next item:</div>\n";
 	$fullbody = "";
 	$DOCARRAY = "";   # get ready for the next one
+	$FORM = "";
 	return;    # return to article.pl to print next page: another newItemParse form
  }
  else {
     &print_review('review');
  }
-
- my ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
-
-# print "doc168 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
-
- &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
-
- $sections="";
- $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
- $chgsectsubs =~  s/^;+//;  #get rid of leading semi-colons
  
  &do_html_page; ## create HTML file - this is in display.pl
 
@@ -215,9 +223,8 @@ sub update_sectsubs {
 
 sub get_docid
 { 
-  local($oldDocid) = $docid;
-
-  if( ($action eq 'clone') 
+  my $oldDocid = $docid;
+ if( ($action eq 'clone') 
      or ($docaction eq 'N') 
      or ($oldDocid !~ /[0-9]{6}/ and $action ne 'clone')
      or ($action eq 'new') ) {
@@ -998,6 +1005,7 @@ sub clear_doc_data
 
 sub clear_doc_variables
 {
+	$docid              = "";
     $advance            = "";
     $ipform             = "";
     $sumAcctnum         = "";
@@ -1165,6 +1173,7 @@ sub write_doc_item
 { 
   my $docid = $_[0];   # if not in items directory, it is in popnews_mail
   $docid =~ s/\s+$//mg;
+  return if(!$headline and $pubdate eq '-00-00');
 
   if($docid =~ /-/) {       ##  from emailed 
 	  $docpath = "$mailpath/$docid\.itm";
@@ -1172,7 +1181,7 @@ sub write_doc_item
   else {
 	  $docpath = "$itempath/$docid\.itm";
 
-	  if($SVRinfo{environment} == 'development') {
+	  if($SVRinfo{environment} == 'development') {   ## GITHUB_PATHS
 		 if(-f "$docpath") {
 			  unlink $docpath or printDataErr_Continue("Could not delete $docpath : $! @ doc2800<br>\n");
 		 }
@@ -1189,7 +1198,7 @@ sub write_doc_item
 
     &write_doc_data_out;
     close (DATAOUT);
-    chmod 0777, $emailfile if($SVRinfo{environment} == 'development');
+    chmod 0777, $emailfile if($SVRinfo{environment} == 'development');  ## GIT_HUB PATHS
     unlink $lock_file if($lock_file);
   }
   else {
@@ -1199,6 +1208,7 @@ sub write_doc_item
      &write_index_straight($emailedSS,$docid);     # in sections.pl
      &DB_add_docid_to_index ($emailedSS,$docid) unless($DB_indexes < 1);    # in sections.pl
   }
+  return($docid);
 }
 
 sub write_doc_data_out
@@ -1350,7 +1360,7 @@ sub get_doc_data_for_DB
 
 sub get_docCount
  {
-  $docCount = "";
+  my $docCount = "";
 
  open(COUNT, "$doccountfile") or die;
   while(<COUNT>)
@@ -1359,12 +1369,11 @@ sub get_docCount
    $docCount = $_;
   }
   close(COUNT);
-  
   open(NEWCOUNT, ">$doccountfile");
   $num = $docCount+1;
   print(NEWCOUNT"$num\n");
   close(NEWCOUNT);
-
+  $docCount = $num;     ## ADDED THIS LINE IN GIT_PATHS
 if($docCount < 10)
  {$docCount = "00000$docCount";
  }

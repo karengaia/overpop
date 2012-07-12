@@ -1,5 +1,5 @@
 <?php
-require './../php/boostrap.php';
+require './../php/bootstrap.php';  /* FIXED THIS MISSPELLING in GIT_PATHS - was boostrap.php*/
 $sectionname = $_SERVER['QUERY_STRING'];
 $sourcepage = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%$sectionname";
 ?>
