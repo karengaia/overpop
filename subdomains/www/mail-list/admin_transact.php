@@ -1,5 +1,6 @@
 <?php
 require('config.php');
+require 'connect.php';
 $title = "Admin Transaction";
 require('header.htm'); 
 ?>
@@ -13,12 +14,6 @@ $articles = "";
 $paragraphs = "";
 $lines = "";
 $sentences = "";
-
-global $conn;
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
 
 if (isset($_POST['action']))
 {

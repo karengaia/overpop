@@ -379,7 +379,7 @@ sub open_op_email {
 	
 	$emailpath = "$mailpath/$filename.email";
 		
-	if(-f "../../karenpittsMac.yes") {  ## set permissions if using Karen's Mac as the server
+	if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
 		if(-f '$emailpath') {}
 		else {
 			system('touch $emailpath');

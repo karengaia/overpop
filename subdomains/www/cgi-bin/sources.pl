@@ -224,7 +224,7 @@ sub add_new_source
 {
  $sourcenew = $FORM{source};
  if($FORM{source} and $sourcenew =~ /[A-Za-z0-9]/) {
-	if(-f "../../karenpittsMac.yes") {  ## set permissions if using Karen's Mac as the server
+	if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
 		if(-f '$newsources') {}
 		else {
 			system('touch $newsources');

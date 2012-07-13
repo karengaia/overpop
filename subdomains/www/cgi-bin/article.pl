@@ -40,18 +40,8 @@ if($args) {
   local($cmd)  = $args[0];
 }
 
-if(-f "debugit.yes") {}
-else {
-  push @INC, "/home/popaware/public_html/cgi-bin/";
-  push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
-}
-
 print "Content-type: text/html\n\n";
-
-# print "Content-type:"."text/"."html\n\n";
+require './bootstrap.pl';
 require 'common.pl';        # sets up environment and paths; also has some common routines
 require 'errors.pl';         # error display and termination or return
 require 'display.pl';        # takes sectsub info for a particular section or subsection and uses it to create a page with html
@@ -73,7 +63,7 @@ require 'smartdata.pl';  # extension of docitem.pl used to parse data from an em
 require 'send_email.pl';   # sends an email
 require 'selecteditems_crud.pl'; # processes items selected from a list.
 
-&get_site_info;        ## in common.pl
+&get_site_info;        ## in common.pl	
 &set_date_variables;   ## in date.pl
 &DB_get_switches_counts;  #in misc_dbtables.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl
@@ -81,6 +71,7 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 &init_contributors;
 &init_paging_variables; # in indexes.pl
 &init_email;  #in send_email.pl
+&init_docitem_variables;
 
 $userCount    = "";
 $hitCount     = "";
@@ -337,7 +328,7 @@ elsif($cmd eq "storeform") {
   $newsprocsectsub = $FORM{"newsprocsectsub"};
   $newsprocsectsub = $FORM{"newsprocsectsub"};
   $owner = $FORM{"owner"};
-
+  $ipform = $FORM{"ipform"};
    if($newsprocsectsub =~ /$emailedSS/) {
 	   $emessage = $fullbody;
 	   $filepath = "$inboxpath/$sysdatetm.email";
@@ -430,12 +421,12 @@ elsif($cmd =~ /parseNewItem/) {
 	  $handle   = $FORM{handle};
 	  $sectsubs = $FORM{sectsubs};
 	  $pdfline  = $FORM{pdfline};
-	  $save_sectsubs = $sectsubs;
+	  $ipform   = $FORM{ipform};
+	  my $save_sectsubs = $sectsubs;
 	
       &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
-	  $sectsubs = $save_sectsubs;
-	
-     if($sectsubs =~ /Headlines_priority/) {
+	  $sectsubs = $save_sectsubs;	
+      if($sectsubs =~ /Headlines_priority/) {
 	     $sectsubs = $headlinesSS;
 	     $priority = "6";
 	     $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
@@ -448,10 +439,12 @@ elsif($cmd =~ /parseNewItem/) {
       }
 	  elsif($sectsubs =~ /Suggested_suggestedItem/) {
          $priority = "5";
-         $docloc_news = "M"; 
+         $docloc_news = "M";
          &storeform;    #in docitem.pl
 	     $aTemplate = 'newItemParse';
-	     $DOCARRAY{$fullbody} = "";
+	     $DOCARRAY{fullbody} = "";
+	     $DOCARRAY{sectsubs} = "";
+	     $FORM{sectsubs} = "";
 	     $operator_access = 'A';
 	     &process_template('Y', $aTemplate);    # ($print_it, template) in template_ctrl.pl
 	     exit;       
@@ -783,12 +776,11 @@ sub print_article_control
 sub ck_popnews_weekly
 {
  if($delsectsubs =~ /$newsdigestSectid/) {
-    &subtractFromCount('popnews'); ## in common.pl;
+    &subtractFromCount('popnews'); ## in misc_dbtables.pl;
     return;
  }
 
  my $popnews_cnt = &getAddtoCount('popnews'); # in misc_dbtables.pl
-
  $cSectsubid = $rSectsubid = $newsWeeklySS;
  &split_section_ctrlB($rSectsubid);    #get count from sections
 

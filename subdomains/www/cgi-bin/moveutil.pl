@@ -8,17 +8,13 @@
 ## 2005 Oct 2  - one 'move', do move for all files first, then do ftp for all files 2nd
 ## 2005 Aug 11 - added move from 'new' directory - to start a new version
 
-push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
+require './bootstrap.pl';
 
 print "Content-type: text/html\n\n";
-require 'common.pl';
 ##require 'ftpSync.pl';
 
 $senderEmail = "minnie\@population-awareness.net";
 $adminCode   = "purrl3491";
-
-&get_site_info;
 
 $lastFTPfile = "$statuspath/lastFTP.date";
 $aLastFTPdate = "";
@@ -300,7 +296,7 @@ sub movefile
 
  $bkp = "$prepagepath/$filename.bkup";
  $pre = "$prepagepath/$filename.html";
- if(-f "../../karenpittsMac.yes") {
+ if($SVRinfo{environment} == 'development') {
 	if(-f $bkp) {
 		unlink $bkp or print"mov304 error in unlink<br>\n";
 		## system('chmod 0777, $bkp') or print"mov304 error in chmod<br>\n";
@@ -313,7 +309,7 @@ sub movefile
  print "<li>Backup $filename.html complete.</li>\n"
     if($printit eq 'P');
 
- if(-f "../../karenpittsMac.yes") {
+ if($SVRinfo{environment} == 'development') {
     if(-f $tofilepath) {
 		unlink $tofilepath or print"mov314 error in unlink<br>\n";
 		## system "touch $pub";

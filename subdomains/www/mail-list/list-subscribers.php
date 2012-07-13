@@ -1,16 +1,12 @@
 <?php
 require('config.php');
+require 'connect.php';
 $title = "List Subscribers";
 ?>
 
 <?php require('header.htm'); ?>
 
-<?php 
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
-
+<?php
 $ml_id = '1';
 
 $sql = "SELECT DISTINCT usr.e_mail, usr.lastname, usr.firstname, usr.user_id ".

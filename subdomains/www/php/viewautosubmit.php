@@ -1,11 +1,6 @@
-<?php $qstring = $_SERVER['QUERY_STRING'];
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-    $sourcepage = "http://overpop/cgi-bin/$qstring";
- }
- else {
-    $sourcepage = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/$qstring";
- }
+<?php
+$qstring = $_SERVER['QUERY_STRING'];
+$sourcepage = "http://$CONFIG['servername']/{$CONFIG['cgi_path']}/$qstring";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 
@@ -15,7 +10,7 @@ if (file_exists($mactestfile)) {
 
 <link rel="stylesheet" type="text/css" href="/css/woa_mauveindex.css" media="Screen">
 
-<link rel="shortcut icon" href="img//mauve/favicon/favicon.ico">
+<link rel="shortcut icon" href="img//mauve/favicon.ico">
 
 <style>
 #outermargin {margin-left:10px;}

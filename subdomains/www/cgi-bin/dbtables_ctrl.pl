@@ -9,10 +9,9 @@
 ##    d. do export before doing indexes so the foreign key will be correct
 ##    e. thereafter, import will only be used if reloading DB from a flatfile backup
 
-print "Content-type: text/html\n\n";
+require './bootstrap.pl';
 
-  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/cgi-bin/";
-  push @INC, "/www/overpopulation.org/cgi-bin/cgiwrap/popaware/";  ## telana
+print "Content-type: text/html\n\n";
 
 $query_string = $ENV{QUERY_STRING};
 
@@ -24,8 +23,6 @@ require 'sectsubs.pl';
 require 'indexes.pl';
 require 'regions.pl';
 require 'sources.pl';
-require 'common.pl';
-&get_site_info;
 
 # $sectionctrl   = "$controlpath/sections.html";
 # $contributors  = "$controlpath/contributors.html";

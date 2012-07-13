@@ -1,5 +1,6 @@
 <?php
 require('config.php');
+require 'connect.php';
 $title = "Quick Message";
 ?>
 
@@ -11,11 +12,6 @@ $title = "Quick Message";
  Choose Mailing List:<br />
  <select name="ml_id">
 <?php
-
-$conn = mysql_connect(SQL_HOST, SQL_USER, SQL_PASS)
- or die('Could not connect to MySQL database. ' . mysql_error());
-
-mysql_select_db(SQL_DB,$conn);
 
 $sql = "SELECT * FROM ml_lists ORDER BY listname;";
 $result = mysql_query($sql)

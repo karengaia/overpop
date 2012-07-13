@@ -1,13 +1,6 @@
 #!/usr/bin/perl --
 
-if(-f "debugit.yes") {}
-else {
-	push @INC, "/home/popaware/public_html/cgi-bin/";
-	push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-	push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-	push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-}
-
+require './bootstrap.pl';
 require 'errors.pl';
 require 'display.pl';
 require 'template_ctrl.pl';  # merges data with template

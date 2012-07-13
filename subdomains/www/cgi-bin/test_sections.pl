@@ -1,13 +1,11 @@
 #!/usr/bin/perl --
 
-push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-require 'common.pl';
+require './bootstrap.pl';
 require 'contributor.pl';
 require 'sepmail.pl';
 require 'docitem.pl';
 require 'controlfiles.pl';
 
-&get_site_info;        ## in common.pl
 &set_date_variables;
 
  $sectsubs = "NewsDigest_NewsItem`M;NewsDigest_NewsItem`M;WhatWorks_healthCare`M";

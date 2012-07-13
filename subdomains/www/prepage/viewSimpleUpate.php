@@ -1,16 +1,10 @@
 <?php 
+require './../php/bootstrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($docid,$template,$sectionname) = explode('%',$qstring);
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) { 
-  $sourcepage1 = "http://overpop/cgi-bin/article.pl?display%$template%$docid%";
-  $sourcepage2 = "http://overpop/cgi-bin/article.pl?print_select%%fly%%$sectionname%%%%delete_select_end";
-}
-else {
-  $sourcepage1 = "http://www.overpopulation.org/cgi-bin/cgiwrap/overpop?article.pl?display%$template%$docid%";
-  $sourcepage2 = "http://www.overpopulation.org/cgi-bin/cgiwrap/overpop?article.pl?print_select%%fly%%$sectionname%%%%delete_select_end";
-}
+$sourcepage1 = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display%$template%$docid%";
+$sourcepage2 = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?print_select%%fly%%$sectionname%%%%delete_select_end";
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" 
  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">

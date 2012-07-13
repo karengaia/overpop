@@ -1,11 +1,6 @@
 <?php
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $url = "http://overpop/cgi-bin/article.pl?display_section%%%";
-}
-else {
-  $url = "http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%";
-}
+require './../php/bootstrap.php';
+$url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 
@@ -66,7 +61,6 @@ else {
 			<div id="quotetext" >
 				If we don't halt population growth with justice and compassion, it will be done for us by nature, brutally and without pity - and will leave a ravaged world. <span>Nobel Laureate Dr. Henry W. Kendall</span>
 			<!-- be sure to leave above quote in place for users with no javascript. -->
-
 									<script type="text/javascript" >
 									var myquotes = new Array(
       <?php readfile("./quotes.html"); ?> 

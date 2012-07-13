@@ -1,4 +1,5 @@
 <?php  // saves a page part to /www/prepage
+require './../php/bootstrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($pagename,$sectionname) = explode('%',$qstring);
 
@@ -8,15 +9,11 @@ if(!$sectionname) {
     exit();
 }
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $scriptpath = "overpop/cgi-bin/";
-  $home = "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www";
-}
-else {
-  $scriptpath = "www.overpopulation.org/cgi-bin/cgiwrap/popaware/";
-  $home = "/www/overpopulation.org/subdomains/www";
-}
+$thisdir = dirname(__FILE__);
+$publicdir = dirname($thisdir);
+$phpdir = "$publicdir/php";
+$scriptpath = "{$CONFIG['servername']}/{$CONFIG['cgi_path']}/";
+$home = $publicdir;
 
 $sourcepage = "http://$scriptpath/article.pl?display_section%%%$sectionname";
 $targetfilename = "$home/prepage/$pagename.html";

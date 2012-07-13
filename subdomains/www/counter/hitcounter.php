@@ -1,10 +1,14 @@
 <?php
 
+if( $testing )
+	header("Content-type: text/plain");
+else
+	header("Content-type: text/javascript");
+	
+require dirname(__FILE__) . '/../php/bootstrap.php';
+
 	$testing = 0;
-	if( $testing )
-		header("Content-type: text/plain");
-	else
-		header("Content-type: text/javascript");
+
 		
 	$counter = new Counter();
 	$counter->increment();
@@ -15,7 +19,9 @@
 	$hitcount = $hitcounter->getHitcount();
 	
 	print "document.write('".addslashes($hitcount)."');";
-		
+	
+echo "dir_FILE " . dirname(__FILE__) . '/../php/bootstrap.php';
+	
 	class Counter {
 	
 		var $count;
@@ -29,9 +35,9 @@
 			$this->count = "";
 			while( !feof($fp) )
 			{
-				$count .= fread($fp, 100);
+				$this->count .= fread($fp, 100);
 			}
-			$this->count = intval($count);
+			$this->count = intval($this->count);
 			fclose($fp);
 			
 			return $this->count;
@@ -58,10 +64,7 @@
 		var $hitcount;
 		
 		function Hitcounter() {
-/*			 mysql_connect("localhost", "overpop", "") or die(mysql_error()); 
-		     mysql_select_db("overpop") or die(mysql_error()); */
-		     mysql_connect("db.telana.com", "overpop", "xxxxxxx") or die(mysql_error()); 
-		     mysql_select_db("overpop") or die(mysql_error());
+           db_conn();
 		}
 
 		function getHitcount() {

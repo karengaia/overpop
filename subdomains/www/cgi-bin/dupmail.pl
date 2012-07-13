@@ -8,17 +8,9 @@
 ## CHANGES
 ## 2010 May 7 - pushed path to INC for Karens Mac server
 
-  push @INC, "/home/popaware/public_html/cgi-bin/";
-  push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-  push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-  push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
-
-  require 'common.pl';
+require './bootstrap.pl';
   
   print "Content-type:"."text/"."html\n\n";
-  
-  &get_site_info;        ## in common.pl
 
   $MAXemailCount = '0200';  ## must be padded to 4 places
   $email_count   = 0;

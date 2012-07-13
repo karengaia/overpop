@@ -14,20 +14,17 @@
 #              chopped off excess at top and bottom; added sepmail functionality
 # 2010 July 22 - buffer too small; broke into lines while reading in
 
-my $filename = &calc_date;             #sysdatetm
-my $inboxfilepath = "";
+require './bootstrap.pl';
 
-if(-f "../../karenpittsMac.yes") { #Karens Mac
-  print "Mac server\n";
-  $inboxfilepath       = "/Users/karenpitts/Sites/web/www/overpopulation.org/popnews_inbox/$filename.email";
-}
-else {  #telavant
-  $inboxfilepath       = "/www/overpopulation.org/popnews_inbox/$filename.email";
-}
+$pophome       = $SVRinfo{home};
+$publicdir     = $SVRinfo{public};
+
+my $filename = &calc_date;             #sysdatetm
+my $inboxfilepath = "$app_dir/popnews_inbox/$filename.email";
 
 my $line = "";
 
-open(EMAILBKP, ">>$inboxfilepath") or die();  #save entire email in bkp
+open(EMAILBKP, ">>$inboxfilepath") or die("Failed to open inbox");  #save entire email in bkp
 
 #   File Slurping
 # my $holdTerminator = $/;
@@ -37,13 +34,13 @@ open(EMAILBKP, ">>$inboxfilepath") or die();  #save entire email in bkp
 # my @lines = split /$holdTerminator/, $buf;
 # foreach $line (@lines) {
 
- while (<STDIN>) 
- {          #      first pass
-	$line = $_;
-    exit(0) if($line =~ /^quit$/);	
- 	chomp($line);
-	print EMAILBKP "$line\n";
- }
+while (<STDIN>) 
+{          #      first pass
+  $line = $_;
+  exit(0) if($line =~ /^quit$/);
+  chomp($line);
+  print EMAILBKP "$line\n";
+}
 close(EMAILBKP);
 exit;
 
@@ -84,7 +81,4 @@ my  $syshh  = "$syshour";
   return("$sysyear-$sysmm-$sysdd-$syshh$sysmin$syssec");
 }
 
-
-
 1;
-

@@ -4,15 +4,7 @@
 
 ## 2010 May 7 -- Karens Mac Server changes: Added push @INC for Karen's Mac Server
 
-push @INC, "/home/popaware/public_html/cgi-bin/";
-push @INC, "/home/httpd/vhosts/overpopulation.org/cgi-bin/cgiwrap/popaware";
-push @INC, "/home/vwww/overpopulation.org/cgi-bin/cgiwrap/popaware";
-push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
-push @INC, "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/www/cgi-bin"; ## Karen's Mac
-
-require 'common.pl';
-
-&get_site_info;
+require './bootstrap.pl';
 
 print "Content-type:text/html\n\n";
  

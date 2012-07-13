@@ -283,8 +283,8 @@ print "em280 $ehandle *****  SKIP ON <br>\n";
  $uSeparator = "\^$uSeparator" if($ehandle =~ /npg|grist|kgp|push/ or $uSeparator =~ /#####/); 
 
 print "<br>***INBOX $inboxfilename ..gEPtype $gEPtype ..h-$ehandle subj-$subject  ..sent $sentdate ..from $fromemail<br>\n" 
-  if($gEPtype eq 'E');
-#print "<br><br>em201 **** HANDLE $ehandle uStart $uStart ..uSkipon $uSkipon ..uStop $uStop uSep $uSeparator .uBlanks $uBlanks uLocSep $uLocSep ..uDateloc $uDateloc ..sub $subject <br>  f $inboxfilename ..sent $sentdate ..from $fromemail<br>\n";
+        if($gEPtype eq 'E');
+
  @emsglines = split(/\n/,$message);
  foreach $emsgline (@emsglines) {
     chomp $emsgline;
@@ -298,9 +298,10 @@ print "<br>***INBOX $inboxfilename ..gEPtype $gEPtype ..h-$ehandle subj-$subject
 	   $top_lines2 = "$top_lines2$emsgline\n";
 #	   print"em226 2ND TOPLINES $ehandle $line_cnt2 **$emsgline<br>\n" if($line_cnt2 < 8);
 	} 
-	&parse_email;   #separates the emails, among other things   
+    &parse_email;   #separates the emails, among other things   
  } # end foreach
-    &close_it;   #write last op file under certain conditions (separation)
+
+ &close_it;   #write last op file under certain conditions (separation)
 }
 
 ## 100
@@ -530,7 +531,7 @@ sub get_fromemail {
 
 sub close_it
 {
-##              write the email if there is a separator
+	#              write the email if there is a separator
   if($msgbody and (($separator_cnt > 0 and $uLocSep =~ /first|pre/) or $separator_cnt eq 0) ){
       $separator_cnt = $separator_cnt + 1;
 #    		print "good ..$msgbody<br><br><br>\n" if($line_cnt < 4); 	
@@ -561,7 +562,7 @@ sub close_it
 
 sub write_email 
 {
-  if($gEPtype eq 'P') {
+ if($gEPtype eq 'P') {
 	    $save_sectsubs = $sectsubs;
 	    $msgbody = &parse_popnews($pdfline,$msgbody);  #in smartdata.pl
 	    $sectsubs = $save_sectsubs;
@@ -572,6 +573,7 @@ sub write_email
 		$sectsubs = $save_sectsubs;
 		return();
 	}
+# else comes here
 	my $op_filename = "$sentdatetm-$ehandle";	
 	if($msgbody =~ /[A-Za-z0-9]/) {
 	   $email_cnt = $email_cnt + 1;
@@ -579,7 +581,7 @@ sub write_email
 	     $emailfile = "$mailpath/$op_filename-$separator_cnt.itm";
 	
 	     $msgbody = &parse_popnews($pdfline,$msgbody);  # in smartdata.pl this is where we switch to $emessage
-	
+
 	   if($skip_item =~ /Y/) { 
 #	      unlink "$inboxfilepath"; 
 		  print "**** SKIP WRITE_EMAIL -> $op_filename -$separator_cnt from inbox $inboxfilename<br>\n";

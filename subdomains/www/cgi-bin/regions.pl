@@ -235,7 +235,7 @@ sub print_likely_regions
 sub add_new_region
 {
   if($region =~ /[A-Za-z0-1]/) {
-	 if(-f "../../karenpittsMac.yes") {  ## set permissions if using Karen's Mac as the server
+	 if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
 		if(-f '$regions') {}
 		else {
 			system('touch $regions');

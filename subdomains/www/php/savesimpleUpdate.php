@@ -1,16 +1,12 @@
 <?php 
+require './bootstrap.php';
+
 $qstring = $_SERVER['QUERY_STRING'];
 list($docid,$sectionname,$pagename) = explode('%',$qstring);
 
-$mactestfile = "macserver.txt";
-if (file_exists($mactestfile)) {
-  $sourcepage = "http://overpop/prepage/viewSimpleUpdate.php?$docid%$sectionname";
-  $targetfilename = "/Users/karenpitts/Sites/web/www/overpopulation.org/subdomains/prepage/$pagename.html";
-}
-else {
-  $sourcepage = "http://www.overpopulation.org/prepage/viewSimpleUpdate.php?$docid%$sectionname";
-  $targetfilename = "/www/overpopulation.org/subdomains/prepage/$pagename.html";
-}
+$sourcepage = "http://{$CONFIG['servername']}/prepage/viewSimpleUpdate.php?$docid%$sectionname";
+// TODO This is pointing to subdomains/prepage. But prepage is in subdomains/www/prepage. Which should it be?
+$targetfilename = "{$CONFIG['public_dir']}/../prepage/$pagename.html";
 
 if(!$pagename) {
     echo "<b>WOA!! says: You did not enter a page.</b><br>";
