@@ -27,7 +27,7 @@ subdomains/www/autosubmit/items/*
 subdomains/www/autosubmit/sections/*.idx
 subdomains/www/autosubmit/sections/*.bak
 subdomains/www/autosubmit/sections/*.cnt
-subdomains/www/autosubmit/sections/*.*
+subdomains/www/autosubmit/sections/*
 subdomains/www/autosubmit/sepmail/*
 subdomains/www/autosubmit/volunteerEmail.txt
 subdomains/www/cgi-bin/_save/*
