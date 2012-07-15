@@ -263,7 +263,6 @@ sub do_selected
   $deletedmsg = 'Yes' if($delflag eq 'Y');
   print "&nbsp;<small>$docid </small>$headline :: deleted?-$deletedmsg<br>\n";
   $DELETELIST = $DELETELIST . "^$docid";
- print "sel266 before write_doc_item PATHS<br>\n";
   &write_doc_item($docid);
 
  if($moveselected eq 'Y' and $add_error eq 'N') {
