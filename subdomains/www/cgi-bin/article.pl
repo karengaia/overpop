@@ -147,6 +147,7 @@ if($ENV{QUERY_STRING} or -f 'debugit.yes') {
    $qMobidesk   = $info[10];
    $qOwner      = $info[11];
    $owner = $qOwner;
+   $listnum = $info[12];
 # http://overpop/cgi-bin/article.pl?display%ownerlogin%026391%cswp_events%%%%%%%%CSWP
 # overpop/cgi-bin/article.pl?display%ownerlogin%026391%cswp_events%%%%%%%%cswp
 }
@@ -159,25 +160,44 @@ else {
    if($aTemplate =~ /;/) {
      ($qHeader,$aTemplate,$qFooter) = split(/;/,$aTemplate);
    }
-   $action    = $FORM{action};
-   $docid     = $FORM{docid};
-   $userid    = $FORM{userid} if $FORM{userid};
-   $pin       = $FORM{pin};
-   $password  = $FORM{password};
-   $ipform    = $FORM{ipform};
+   $action      = $FORM{action};
+   $docid       = $FORM{docid};
+   $userid      = $FORM{userid} if $FORM{userid};
+   $pin         = $FORM{pin};
+   $password    = $FORM{password};
+   $ipform      = $FORM{ipform};
    $thisSectsub = $FORM{thisSectsub};
-   $owner     = $FORM{owner};
+   $owner       = $FORM{owner};
 }
+($userid,$rest) = split(/;/,$userid,2) if($userid =~ /;/);
 
 $op_userid = $userid;
+
+if($owner) {
+  require 'owner.pl'; 
+  &get_owner($owner);
+  my  $o_updt_template   = $OWNER{'oupdatetemplate'};
+  my  $o_review_template = $OWNER{'oreviewtemplate'};
+  $ownerSections = "";
+  $ownerSubs = "";
+}
+
 if($aTemplate ne 'login') {
-   &read_sectCtrl_to_array;
+   &read_sectCtrl_to_array;  # in sectsubs.pl
    &read_sources_to_array;
    &read_regions_to_array;
 }
-####
-#### PROCESS THE VARIOUS COMMANDS
-####
+
+if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets ownersections and ownersubs
+   &owner_set_update_return($docid,$thisSectsub,$userid,$owner);
+   $ownerSections     = $OWNER{'ownersections'};
+   $ownerSubs         = $OWNER{'ownersubs'};
+   $viewOwnerUpdt     = $OWNER{'viewOwnerUpdt'};
+   $metaViewOwnerUpdt = $OWNER{'metaViewOwnerUpdt'};
+}
+		
+#        ##### PROCESS THE VARIOUS COMMANDS
+
 if($cmd eq "list_sepmail") {
 	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
 	local(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
@@ -193,16 +213,13 @@ if($cmd eq "list_sepmail") {
 	exit(0);
 }
 
-elsif($cmd eq "display") {  # used to display login, form, template, or docitem 
- my $otemplate = 'ownerUpdate';
-  if($aTemplate =~ /docUpdate/ or ($owner and $aTemplate =~ /$otemplate/) ) {
+elsif($cmd eq "display") {  # used to display login, form, template, or docitem 		
+# my $otemplate = 'ownerUpdate';
+  if($aTemplate =~ /docUpdate/ or ($owner and $aTemplate =~ /$OWNER{'oupdatetemplate'}/) ) {   #$o_updt_template
 	  $firstname     = "";
 	  $lastname      = "";
 	  $action = "new" unless($action or $docid);
 	  $operator_access = 'A' if($userid =~ /A/);
-#	  $qFooter     = $info[8];
-#	  $qOrder      = $info[9];
-#	  $qMobidesk   = $info[10];
   }
   else {
 	   if($aTemplate eq 'select_login') {
@@ -210,20 +227,22 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 	   }
 	   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
    }
-  &display_one('Y',$aTemplate); # in docitem.pl
+  &display_one('Y','N','N',$aTemplate); # in docitem.pl
 }
 
 elsif($cmd eq "processlogin") {
-   $firstname     = "";
+  $firstname     = "";
    $lastname      = "";
    $pin = $password if($password and !$pin);
   ($userdata, $access,$permissions) = &check_user($userid,$pin);  ## in common.pl
    $operator_access  = $access;
    $op_permissions   = $permissions;
+
    if($owner) { 
-       $aTemplate = "ownerUpdate";
+       $$o_updt_template = $OWNER{'oupdatetemplate'};       
 # print "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$aTemplate%$thisSectsub%$owner\"<br>\n";
-       print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$aTemplate%$thisSectsub%$owner%$userid\"<br>\n";
+exit;
+       print "$metaViewOwnerUpdt"; 
 	   exit(0); 
    }
    elsif($action eq "emailit") {
@@ -247,7 +266,7 @@ elsif($cmd eq "processlogin") {
            $aTemplate = "suggest"     if($action eq "new");
            $aTemplate = "fullArticle" if($action eq "view");
         }
-       &display_one('Y',$aTemplate);
+       &display_one('Y','N','N',,$aTemplate);
    }
 	exit(0);
 }
@@ -256,11 +275,12 @@ elsif($cmd eq "display_section"
    or $cmd eq "print_select"
    or $cmd eq "display_subsection"
    or $cmd eq "process_select_login") {
+	
    $ss_ctr = 0;
    $savecmd = $cmd;   # we change it below  
-#  http://overpop/cgi-bin/article.pl?print_select%%fly%%CSWP_Calendar%%%cswp_top%delete_select_end%%%CSWP
    $access = ""; 
-  if($owner) {   # http://overpop/cgi-bin/article.pl?display_section%%%CSWP_Calendar%%%%%%%%CSWP
+
+   if($owner) {   # http://overpop/cgi-bin/article.pl?display_section%%%CSWP_Calendar%%%%%%%%CSWP
       $access = "A";
    }
    else {
@@ -279,6 +299,7 @@ elsif($cmd eq "display_section"
          if($action =~ /fix_sectsub/) {
                $cmd = "display_subsection";
                $fix_sectsub = 'Y';
+         }
     }
          
     if($action =~ /move_webpage/) {
@@ -286,8 +307,8 @@ elsif($cmd eq "display_section"
            &do_html_page;     # do this to get pagenames
 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.pl?move%$pagenames\">";
            exit;
-         }
      }
+
      $supress_nonsectsubs = 'N';
      $supress_nonsectsubs = 'Y'
               if($cmd =~ /print_select|display_subsection/);
@@ -320,12 +341,10 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 ##        $stop_count = '0060';
      }
     $print_it = 'Y';
-
-     &create_html;  #in display.pl
+    &create_html;  #in display.pl
 }
 
 elsif($cmd eq "storeform") {
-  $newsprocsectsub = $FORM{"newsprocsectsub"};
   $newsprocsectsub = $FORM{"newsprocsectsub"};
   $owner = $FORM{"owner"};
   $ipform = $FORM{"ipform"};
@@ -340,7 +359,6 @@ elsif($cmd eq "storeform") {
 
    if($ipform eq 'newArticle' or $ipform eq 'docUpdate' or $ipform eq 'volunteerDocForm') {
       ($userdata, $access, $permissions) = &check_user($userid,$pin);  ## in contributor.pl
-       $newsprocsectsub = $FORM{"newsprocsectsub"};
        if($newsprocsectsub =~ /Headlines_priority/) {
           $newsprocsectsub = $headlinesSS;
           $priority = "6";
@@ -368,17 +386,17 @@ elsif($cmd eq "storeform") {
    }
    elsif($owner) {
 	    ($userdata, $access, $permissions) = &check_user($userid,$pin);  ## in contributor.pl
+	
 	    $ownersectsub = $FORM{"ownersectsub"};
-   }
-
+  }
   &storeform;    ## this is in docitem.pl
-  #print "art313 sectsubs $sectsubs<br>\n";
-  #print "art314 http://$publicUrl/prepage/viewSimpleUpate.php?$docid%cswpReview;cswpUpdate%$thisSectsub\<br>\n";
-  print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewSimpleUpate.php?$docid%cswpReview;cswpUpdate%$sectsubs\"<br>\n"
-    if($ipform eq 'cswpUpdate');
+print "temporary exit before redirect<br>\n";
+exit;
+   print "$metaViewOwnerUpdt" if($owner);
 
-  print "<a href=\"http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%cswpUpdate%$sectsubs%$owner\"><br><br></a><br>\n"
-    if($owner);
+#  print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewSimpleUpate.php?$docid%cswpReview;cswpUpdate%$sectsubs\"<br>\n"
+#    if($ipform eq 'cswpUpdate');
+
 }
 
 elsif($cmd eq 'storesectsubs') {  # from article_control form
@@ -408,7 +426,7 @@ elsif($cmd eq "adminlogin") {
   if ($access =~ /[ABCD]/) {
 #     $aTemplate = "select_prelim";
 #     $print_it = 'Y';
-     &display_one('Y',"select_prelim");
+     &display_one('Y','N','N',"select_prelim");
   }
   else {
      &printInvalidExit("Sorry, you cannot access this function without authorization.");
@@ -446,7 +464,7 @@ elsif($cmd =~ /parseNewItem/) {
 	     $DOCARRAY{sectsubs} = "";
 	     $FORM{sectsubs} = "";
 	     $operator_access = 'A';
-	     &process_template('Y', $aTemplate);    # ($print_it, template) in template_ctrl.pl
+	     &process_template('Y', 'N','N',$aTemplate);    # ($print_it, template) in template_ctrl.pl
 	     exit;       
       }
 	   $aTemplate = 'docUpdate';
@@ -454,7 +472,7 @@ elsif($cmd =~ /parseNewItem/) {
 	   $print_it = 'Y';
 	   $dSectsubs = $sectsubs;
 	   $operator_access = 'A';
-	   &process_template('Y', $aTemplate);    # ($print_it, template) in template_ctrl.pl
+	   &process_template('Y', 'N','N',$aTemplate);    # ($print_it, template) in template_ctrl.pl
 	   exit;
 }
 
@@ -487,29 +505,31 @@ elsif($cmd eq "emailsimulate--notused") {   #not used; instead use ParseNewItem
 		  $action = "new" unless($action or $docid);
 		  $operator_access = 'A' if($userid =~ /A/);
 		  $sectsubs = "Headlines_sustainability"
-		  &display_one('Y','docUpdate');   #found in docitem.pl  (print_it,template)		
+		  &display_one('Y','N','N','docUpdate');   #found in docitem.pl  (print_it,template)		
 	   }
 	   exit;
 }
 
-elsif($cmd eq "display" and ($aTemplate =~ /docUpdate/ or $aTemplate =~ /([cswp|maidu])Update/) ) {
-  $owner = $1;
+#     #####  TODO: THIS $cmd eq "display" IS REDUNDANT AND NEEDS TO BE REMOVED!!!!!
+
+elsif($cmd eq "display" and ($aTemplate =~ /docUpdate/ or $aTemplate =~ /$o_update_template/) ) {
   $firstname     = "";
   $lastname      = "";
   $action = "new" unless($action or $docid);
   $operator_access = 'A' if($userid =~ /A/);
-  &display_one('Y',$aTemplate);   #found in docitem.pl  (print_it,template)
+  &display_one('Y','N','N',$aTemplate);   #found in docitem.pl  (print_it,template)
 }
+#     #####  TODO : DITTO : THIS $cmd eq "display" IS REDUNDANT AND NEEDS TO BE REMOVED!!!!!
 
 elsif($cmd eq "display") {
    if($aTemplate eq 'select_login') {
    	$access = 'A';
    }
    &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
-   &display_one('Y',$aTemplate); # in docitem.pl
+   &display_one('Y','N','N',$aTemplate); # in docitem.pl
 }
 
-## art10  ########
+#     #####  NEED TO ADD OWNER TO THE QUERY STRING
 
 elsif($cmd eq "display_section"
    or $cmd eq "print_select"
@@ -519,8 +539,8 @@ elsif($cmd eq "display_section"
    $savecmd = $cmd;   # we change it below
    $access = "";
 
-   if($doclist =~ /(CSWP)/ or $doclist =~ /(MAIDU)/) {
-	 $owner = lc($1);
+   if($owner) {
+	 my $lc_owner = lc($owner);
      $access = "A";
 	  $thisSectsub = $doclist;
    }
@@ -590,8 +610,8 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 elsif($cmd =~ /selectItems/) {
 	#     &check_user($userid,98989);
 ##     ($userdata, $access) = &check_user($userid,$pin);
-     $thisSectsub = $FORM{thisSectsub};
-     $owner       = $FORM{owner};
+#     $thisSectsub = $FORM{thisSectsub};
+#     $owner       = $FORM{owner};
     if($thisSectsub =~ /$emailedSS/) {
      	 &select_email;
      }
@@ -604,8 +624,9 @@ elsif($cmd =~ /selectItems/) {
 	    
 #	     &delete_from_index_by_list($thisSectsub,$DELETELIST) if($delflag eq 'Y'); #in indexes.pl
 
-   	    if($owner) {
- 			print "<br><a href=\"http://overpop/prepage/viewOwnerUpdate.php?$docid%ownerUpdate%$thisSectsub%$owner%$userid\">Click here to go to next page</a><br>\n";       }
+   	    if($owner) {   
+ 			print "<br><a href=\"$viewOwnerUpdt\">Click here to go to next page</a><br>\n";
+        }
 	    else { 
 	        print "<br><a href=\"http://$scriptpath/article.pl?display_section%%%$thisSectsub%%$userid%10\">Back to $thisSectsub List</a><br>\n";	    
 	    }
@@ -623,7 +644,7 @@ elsif($cmd eq 'display_article') {   # not tested; use viewarticle.php in prepag
  $filepath = "$itempath/$docid.itm";
 
  if(-f $filepath) {
-    &display_one('Y',$aTemplate);  # maybe it's ("") ??   in docitem.pl
+    &display_one('Y','N','N',$aTemplate);  # maybe it's ("") ??   in docitem.pl
  }
  else {
     print "$docid not found<br>\n";
@@ -651,7 +672,7 @@ elsif($cmd eq 'displayRange') {
    $filepath = "$itempath/$docid.itm";
 
    if(-f $filepath) {
-      &display_one('Y',$aTemplate);  #in docitem.pl
+      &display_one('Y','N','N',$aTemplate);  #in docitem.pl
    }
    else {
       print "$docid not found<br>\n";
@@ -660,6 +681,10 @@ elsif($cmd eq 'displayRange') {
  }
 }
 
+
+elsif($cmd eq "getownerinfo") {
+	 print "$OWNER{'owebsitepath'},$OWNER{'ocsspath'},$OWNER{'ocssformpath'}"; #for viewOwnerUpdate.php
+}
 
 elsif($cmd eq "updateCvrtItems") {
      ($userdata, $access) = &check_user($userid,98989);
@@ -758,13 +783,14 @@ else {
   &printUserMsgExit("Command $cmd not found. Terminating. (location:art741)");
 }
 
+
 exit;
 
 
 sub print_article_control
 {
  $print_it = 'Y';
- &process_template('Y','article_control'); 
+ &process_template('Y','N','N','article_control'); 
  $aTemplate = $qTemplate;
  $print_it = 'N';
 }

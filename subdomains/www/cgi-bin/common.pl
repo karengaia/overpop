@@ -17,10 +17,17 @@
 
 sub get_site_info
 {
+ %GLVARS = ();
+ $GLVARS{'contactEmail'}      = "karen4329\@karengaia.net";
+ $GLVARS{'contactEmail_html'} = "karen4329&#64;karengaia.net";
+ $GLVARS{'adminEmail'}        = "karen4329\@karengaia.net";
+ $GLVARS{'email_std_end'}     = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n 6610 Folsom Auburn Rd. Ste 5-4\n Folsom CA 95630-2146\n $adminEmail\n";
+ $GLVARS{'std_headtop'}       = "<html xmlns=\"http://www.w3.org/1999/xhtml\" >\n<head>\n";
+ $GLVARS{'std_meta'}          = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
  $contactEmail = "karen4329\@karengaia.net";
  $contactEmail_html = "karen4329&#64;karengaia.net";
- $adminEmail = "karen4329\@karengaia.net",
- 
+ $contactEmail = "karen4329\@karengaia.net";
+ $adminEmail = "karen4329\@karengaia.net";
  $email_std_end = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n 6610 Folsom Auburn Rd. Ste 5-4\n Folsom CA 95630-2146\n $adminEmail\n";
 
 ## Maybe just need public => "/www" in Telana server
@@ -319,6 +326,15 @@ sub tooMuchLooping
 
 
 ### 460 DATA MANIPULATION
+
+sub trim
+{
+ my $string = shift;
+ $string =~ s/^\s+//;
+ $string =~ s/\s+$//;
+ return $string;
+} 
+
 
 sub prep_for_regexp
 {

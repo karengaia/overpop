@@ -45,7 +45,7 @@ sub init_docitem_variables
 
 sub display_one
 {
- my ($print_it,$aTemplate) = @_;
+ my ($print_it,$email_it,$html_it,$aTemplate) = @_;
  if($action eq 'new') {
    $pubday   = $nowdd;
    $pubmonth = $nowmm;
@@ -65,7 +65,7 @@ sub display_one
      &printInvalidExit;
    }
  }
-  &process_template('Y',$aTemplate);  #in template_ctrl.pl
+  &process_template('Y','N','N',$aTemplate);  #in template_ctrl.pl
 }
 
 
@@ -91,7 +91,7 @@ sub do_one_doc
   else {
      &do_we_select_item;
      if($skip_item !~ /Y/ and $select_item eq 'Y') {
-        &process_template('Y',$aTemplate);
+        &process_template('Y','N','N',$aTemplate);
      }                           
   } #end else
 
@@ -157,10 +157,10 @@ sub storeform
 
 # 0070  Do sections (most sections logic is in sections.pl)
 
-&do_sectsubs;     # in sectsubs.pl
+ &do_sectsubs;     # in sectsubs.pl
 ## &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
 
-&write_doc_item($docid);
+ &write_doc_item($docid);
 
  &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
@@ -179,8 +179,8 @@ sub storeform
  $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
  $chgsectsubs =~  s/^;+//;  #get rid of leading semi-colons
 
-if($owner) {
-   &print_review('ownerReview');
+ if($owner) {
+    &print_review($OWNER{oreviewtemplate});
  }
  elsif($sectsubs =~ /Suggested_suggestedItem/ and $ipform =~ /newItemParse/) {
 	print "<div style=\"font-family:arial;font-size:1.2em;margin-top:13px;margin-left:7px;\">&nbsp;&nbsp;Item has been submitted; Ready for next item:</div>\n";
@@ -311,7 +311,7 @@ sub print_review
  $sectsubs = "$sectsubs;$mobileSS" if($sectsubs =~ /$newsdigestSS/);
  &get_pages;
 ##         print the receipt
- &process_template('Y',$template);
+ &process_template('Y','N','N',$template);
  $aTemplate = $qTemplate;
  $print_it = 'N';
 }
@@ -741,6 +741,8 @@ sub get_doc_form_values
   $fullbody       = "$docfullbody\n\nFULLARTICLE:\n$fullbody" if($ipform =~ /chaseLink/ and $docfullbody =~ /[A-Za-z0-9]/);
 
   $owner          = $FORM{"owner$pgitemcnt"};   ## temporary variable
+  &get_owner($owner) if($owner);
+
   $fixfullbody    = $FORM{"fix$pgitemcnt"};   ## temporary variable
   $freeview       = $FORM{"freeview$pgitemcnt"};
   $linknote       = $FORM{"linknote$pgitemcnt"};
@@ -1066,7 +1068,7 @@ sub clear_work_variables
    
 ## 00560
              
-sub put_data_to_array
+sub put_data_to_array    #used in template_ctrl to marry templates with data
 {
  $DOCARRAY{owner}          = $owner;
  $DOCARRAY{dir}            = $dir;
@@ -1411,6 +1413,51 @@ sub create_docitem_table {
 # deleted
 #		PRIMARY KEY (docid)  # do this later, after conversion
 #		)
+$RAILS_CREATE = <<ENDDOCITEM
+create_table :docitems do |t|
+  t.column :docid,      			:primary_key
+	t.column :docaction, 			:string,      :limit => 1,   	:null => false, :default => "N"
+	t.column :delete				:boolean,       				:default => 0   ##                        1= expire 2=delete 3=purge
+	t.column :nextdocid				:number       :limit=> 9999999, :null => false, :default => 0
+	t.column :priority, 			:number,      :limit => 2,      :null => false, :default => "5"
+	t.column :headline, 			:string,      :limit => 150,    :default => ""
+	t.column :regioninheadline, 	:boolean,       				:default => 0
+	t.column :skipheadline, 		:boolean,        				:default => 0
+	t.column :unique,           :string,      :limit => 150,    :default => ""
+	t.column :link,					:string,      :limit => 150,	:default => ""
+	t.column :skiplink,				:boolean,        				:default => 0
+	t.column :selflink, 			:boolean,        				:default => 0
+	t.column :link2					:string,      :limit => 150,   	:default => ""
+	t.column :linktext2				:string,      :limit => 150,    :default => ""
+	t.column :pubdate,				:date
+	t.column :pubyear,				:integer
+	t.column :woadate			:datetime
+	t.column :skippubdate, 			:boolean,        				:default => 0    	
+	t.column :sysdate,            	:date,
+	t.column :expdate,            	:date,
+	t.column :reappeardate,       	:date,
+	t.column :regionfk,		 		:integer, :default => 1
+ 	t.column :region_in_countries, 	:boolean,        				:default => 1 
+ 	t.column :other_regionfks:string,      :limit => 150,	:default => ""   	
+	t.column :skipregion, 			:boolean,        				:default => 0   
+	t.column :sourcefk,		 		:integer,   :default => 0
+	t.column :skipsource, 			:boolean,        				:default => 0   
+	t.column :author,		 		:string,      :limit => 150,   	:default => ""
+	t.column :skipauthor, 			:boolean,        				:default => 0       	
+	t.column :body, 		    	:text,                         	:default => ""    	
+	t.column :fullbody, 			:text,      					:default => ""
+	t.column :comment,	 			:text,							:default => ""
+	t.column :note, 				:text,   						:default => ""     	
+	t.column :miscinfo, 			:text,   						:default => "" 
+	t.column :skiphandle, 			:boolean,        				:default => 0      	
+	t.column :template,           	:string,      :limit => 40,   	:default => ""
+	t.column :imagename,  	      	:string,      :limit => 40,   	:default => ""
+	t.column :imagealt,           	:string,      :limit => 40,   	:default => ""
+	t.column :summarizerid,       	:number,      :limit => 9999999, :null => false, :default => 0
+	t.column :suggesterid,        	:number,      :limit => 9999999, :null => false, :default => 0    	
+	t.column :changebyid,         	:number,      :limit => 9999999, :null => false, :default => 0    	  	
+	t.column :changedate,   		:timestamp
+ENDDOCITEM
 }
 
 1;

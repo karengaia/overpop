@@ -97,8 +97,8 @@ sub do_subsection
 {
  $savetemplate = $aTemplate;
  $aTemplate = "";
-
  $save_printit = $print_it;
+ $htmlfile_it = 'N';
  if($cVisable eq 'E'){
     $email_it = 'Y'
  }
@@ -115,12 +115,12 @@ sub do_subsection
      if($cHeader or $qHeader) {
            $aTemplate = $cHeader if($cHeader);
            $aTemplate = $qHeader if($qHeader);
-           &process_template($print_it,$aTemplate);  #in template_ctrl.pl
+           &process_template('Y',$email_it,$htmlfile_it,$aTemplate);  #in template_ctrl.pl
            $aTemplate = "";
      }
      if($cmd eq 'print_select' and !$qHeader) {
          $aTemplate = "select_top";
-         &process_template($print_it,$aTemplate) if($thisSectsub !~ /[$suggestedSS|CSWP|MAIDU]/);  #in template_ctrl.pl
+         &process_template('Y',$email_it,$htmlfile_it,$aTemplate) unless($thisSectsub =~ /[$suggestedSS|CSWP|MAIDU]/ or $owner);  #in template_ctrl.pl
          $aTemplate = "";
      }
 
@@ -147,7 +147,7 @@ sub do_subsection
        $aTemplate  = "smallWOATop";
    }
  }
- &process_template($print_it,$aTemplate) if($aTemplate);
+ &process_template('Y',$email_it,$htmlfile_it,$aTemplate) if($aTemplate);
 
  $aTemplate = $qTemplate;  #time to do detail
  if($cIdxSectsubid) {
@@ -169,22 +169,22 @@ sub do_subsection
 
 #                          do template even if no items
  if($nodata eq 'Y' and $cTemplate) {
-   &process_template($print_it,$aTemplate) if($cTemplate !~ /Item/); #in template_ctrl.pl
+   &process_template('Y',$email_it,$htmlfile_it,$aTemplate) if($cTemplate !~ /Item/); #in template_ctrl.pl
  }
  else {
     &process_doclist;
  }
 
  if($cmd =~ /print_select/ and $thisSectsub !~ /$suggestedSS/ and !$qFooter) {
-     $aTemplate = 'select_end';
-     &process_template($print_it,$aTemplate);  #in template_ctrl.pl
+    $aTemplate = 'select_end';
+     &process_template('Y',$email_it,$htmlfile_it,$aTemplate);  #in template_ctrl.pl
      $aTemplate = "";
  }
 
  if($cFooter or $qFooter) {
      $aTemplate = $cFooter if($cFooter);
      $aTemplate = $qFooter if($qFooter);
-     &process_template('Y',$aTemplate);  # $print_it = Y in template_ctrl.pl
+     &process_template('Y',$email_it,$htmlfile_it,$aTemplate);  # $print_it = Y in template_ctrl.pl
      $aTemplate = "";
  }
 

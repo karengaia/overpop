@@ -2,6 +2,7 @@
 
 ### testing:   cat ippf.email |./getmail.pl
 
+## July 21 -- removed bootstrap.pl to simplify getmail. Can never test from development. Need getmail to be very fast.
 ## May 29  -- reversed to sip
 ## May 28, 2012 - changed from a sip to a slurp to accomodate CMCC
 ## Jul 1, 2011 - pulled out everything except getting the email; moved everything else to sepmail.pl; no use for parsemail.pl
@@ -14,10 +15,15 @@
 #              chopped off excess at top and bottom; added sepmail functionality
 # 2010 July 22 - buffer too small; broke into lines while reading in
 
-require './bootstrap.pl';
+#require './bootstrap.pl';
 
-$pophome       = $SVRinfo{home};
-$publicdir     = $SVRinfo{public};
+#$pophome       = $SVRinfo{home};
+#$publicdir     = $SVRinfo{public};
+
+$pophome       = "/www/overpopulation.org";  # Telavant setup
+$publicdir     = "$pophome/subdomains/www";
+
+$bkppath  = "$pophome/popnews_bkp";
 
 my $filename = &calc_date;             #sysdatetm
 my $inboxfilepath = "$app_dir/popnews_inbox/$filename.email";

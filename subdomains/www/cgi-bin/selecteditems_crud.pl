@@ -203,13 +203,15 @@ sub prelim_select_items
  $selected_found = 'N';
  $newseqct       = 0;
  $count          = 0;
- 
- print "<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>$owner action on selected items $thisSectsub<\/title>\n";
- print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
- my $lc_owner = lc($owner);
- $aTemplate = $lc_owner . "Update";
-
- print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/ownerform.css\" media=\"Screen\" />\n" 
+ print $GLVARS{'std_headtop'} . "<title>$owner action on selected items $thisSectsub<\/title>\n";
+ print $GLVARS{'std_meta'};
+# print "<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>$owner action on selected items $thisSectsub<\/title>\n";
+# print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
+# my $lc_owner = lc($owner);
+# $aTemplate = $lc_owner . "Update";
+ $aTemplate = $OWNER{oupdatetemplate}; 
+ my $ownerformcss = $OWNER{ocsspath};
+ print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/$ownerformcss.css\" media=\"Screen\" />\n" 
    if($owner);
  print "</head><body>\n";
  print "<h3>The following is a list of the items you have selected.<h3>\n";
@@ -263,7 +265,6 @@ sub do_selected
   $deletedmsg = 'Yes' if($delflag eq 'Y');
   print "&nbsp;<small>$docid </small>$headline :: deleted?-$deletedmsg<br>\n";
   $DELETELIST = $DELETELIST . "^$docid";
- print "sel266 before write_doc_item PATHS<br>\n";
   &write_doc_item($docid);
 
  if($moveselected eq 'Y' and $add_error eq 'N') {
