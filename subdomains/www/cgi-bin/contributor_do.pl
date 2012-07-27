@@ -3,6 +3,8 @@
 # July 18, 2009
 #        contributor_do.pl
 
+# 2012-07-27 THIS IS REPLACED BY ARTICLE.PL
+
 require './bootstrap.pl';
 require 'contributor.pl';
 

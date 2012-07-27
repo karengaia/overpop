@@ -17,6 +17,7 @@ subdomains/karenpittsMac.yes
 subdomains/www/.htaccess.swp
 subdomains/www/*.html
 subdomains/www/*.htm
+!subdomains/www/volunteers.html
 *.bak
 *.bkp
 subdomains/www/autosubmit/elists/*.elist

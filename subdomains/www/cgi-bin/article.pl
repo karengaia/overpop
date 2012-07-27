@@ -390,12 +390,9 @@ elsif($cmd eq "storeform") {
 	    $ownersectsub = $FORM{"ownersectsub"};
   }
   &storeform;    ## this is in docitem.pl
-print "temporary exit before redirect<br>\n";
-exit;
-   print "$metaViewOwnerUpdt" if($owner);
 
-#  print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewSimpleUpate.php?$docid%cswpReview;cswpUpdate%$sectsubs\"<br>\n"
-#    if($ipform eq 'cswpUpdate');
+  exit;
+#   print "$metaViewOwnerUpdt" if($owner);  # NOT NEEDED FOR STOREFORM
 
 }
 
@@ -692,6 +689,14 @@ elsif($cmd eq "updateCvrtItems") {
      	$thisSectsub = $convertSS;
      	&updt_select_list_items;
      }
+}
+
+if($cmd eq "start_acctapp") {
+   &verify_new_acct;          # in contributor.pl
+}
+
+elsif($cmd eq "write_acctapp") { 
+  &write_acctapp;             # in contributor.pl
 }
 
 elsif($cmd eq "contactWOA") {

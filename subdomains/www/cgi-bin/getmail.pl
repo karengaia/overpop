@@ -20,13 +20,18 @@
 #$pophome       = $SVRinfo{home};
 #$publicdir     = $SVRinfo{public};
 
-$pophome       = "/www/overpopulation.org";  # Telavant setup
-$publicdir     = "$pophome/subdomains/www";
-
-$bkppath  = "$pophome/popnews_bkp";
 
 my $filename = &calc_date;             #sysdatetm
-my $inboxfilepath = "$app_dir/popnews_inbox/$filename.email";
+
+if(-f "/Users/karenpitts/Sites/web/www/overpopulation.org/development.yes") { #Karens Mac
+  $inboxfilepath = "/Users/karenpitts/Sites/web/www/overpopulation.org/popnews_inbox/$filename.email"; 
+  $bkppath       = "/Users/karenpitts/Sites/web/www/overpopulation.org/popnews_bkp"; 
+  print "DEVELOPMENT ... type 'quit' to end .... $inboxfilepath\n";
+}
+else {  #telavant
+  $inboxfilepath = "/www/overpopulation.org/popnews_inbox/$filename.email"; 
+  $bkppath       = "/www/overpopulation.org/popnews_bkp";
+}
 
 my $line = "";
 

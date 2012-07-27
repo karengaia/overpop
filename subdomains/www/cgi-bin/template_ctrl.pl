@@ -729,8 +729,6 @@ sub do_imbedded_commands
    }
    elsif($linecmd =~ /\[OWNER_SECTIONS\]/) {  # CSWP and Maidu
          &get_owner_sections($ownerSections);   # in sectsubs.pl	
-#         &get_owner_sections($cswpSections)  if($owner =~ /CSWP/);   # in sectsubs.pl
-#         &get_owner_sections($maiduSections) if($owner =~ /Maidu/);  # in sectsubs.pl
    }
 
    elsif($linecmd =~ /\[POINTS_SECTIONS\]/) {
