@@ -16,7 +16,7 @@
 
 sub process_template
 {
-  my($print_it,$email_it, $htmlfile_it,$template) = @_;
+  my($template,$print_it,$email_it,$htmlfile_it) = @_;
   &put_data_to_array;     # in docitem.pl
   if($print_it eq 'Y') {
      $nowPEH = 'P';
@@ -69,7 +69,7 @@ $midfile = "$templatepath$slash$templfile.mid";
 
 open(MIDTEMPL, ">$midfile") or print "temp72 cannot open midfile $midfile<br>\n";
    foreach $template (@templates) {	
-      &do_template;
+      &do_template($template);
 }
 close(MIDTEMPL);
 
@@ -140,6 +140,7 @@ unlink "$templatepath/$templfile.mid";
 
 sub do_template
 {
+ my $template = $_[0];
  $default_class = "";
 
  unless($template) {
@@ -161,7 +162,7 @@ sub do_template
 
  $templatefile = "$templatepath/$template\.htm";
 
- unless(-f "$templatefile") {
+unless(-f "$templatefile") {
     $errmsg = "tem170 template= $template not found. ..templatepath $templatepath ..c $cTemplate ..d $dTemplate ..a $aTemplate ..cSectsubid $cSectsubid<br>\n";
     &printSysErrExit($errmsg);
  }

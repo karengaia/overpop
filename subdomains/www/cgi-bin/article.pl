@@ -461,7 +461,7 @@ elsif($cmd =~ /parseNewItem/) {
 	     $DOCARRAY{sectsubs} = "";
 	     $FORM{sectsubs} = "";
 	     $operator_access = 'A';
-	     &process_template('Y', 'N','N',$aTemplate);    # ($print_it, template) in template_ctrl.pl
+	     &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
 	     exit;       
       }
 	   $aTemplate = 'docUpdate';
@@ -469,7 +469,7 @@ elsif($cmd =~ /parseNewItem/) {
 	   $print_it = 'Y';
 	   $dSectsubs = $sectsubs;
 	   $operator_access = 'A';
-	   &process_template('Y', 'N','N',$aTemplate);    # ($print_it, template) in template_ctrl.pl
+	   &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
 	   exit;
 }
 
@@ -691,7 +691,7 @@ elsif($cmd eq "updateCvrtItems") {
      }
 }
 
-if($cmd eq "start_acctapp") {
+elsif($cmd eq "start_acctapp") {
    &verify_new_acct;          # in contributor.pl
 }
 
@@ -795,7 +795,7 @@ exit;
 sub print_article_control
 {
  $print_it = 'Y';
- &process_template('Y','N','N','article_control'); 
+ &process_template('article_control','Y','N','N'); 
  $aTemplate = $qTemplate;
  $print_it = 'N';
 }

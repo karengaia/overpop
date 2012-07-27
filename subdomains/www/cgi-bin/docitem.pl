@@ -65,7 +65,7 @@ sub display_one
      &printInvalidExit;
    }
  }
-  &process_template('Y','N','N',$aTemplate);  #in template_ctrl.pl
+  &process_template($aTemplate,'Y','N','N');  #in template_ctrl.pl
 }
 
 
@@ -91,7 +91,7 @@ sub do_one_doc
   else {
      &do_we_select_item;
      if($skip_item !~ /Y/ and $select_item eq 'Y') {
-        &process_template('Y','N','N',$aTemplate);
+        &process_template($aTemplate,'Y','N','N');
      }                           
   } #end else
 
@@ -311,7 +311,7 @@ sub print_review
  $sectsubs = "$sectsubs;$mobileSS" if($sectsubs =~ /$newsdigestSS/);
  &get_pages;
 ##         print the receipt
- &process_template('Y','N','N',$template);
+ &process_template($template,'Y','N','N');
  $aTemplate = $qTemplate;
  $print_it = 'N';
 }
