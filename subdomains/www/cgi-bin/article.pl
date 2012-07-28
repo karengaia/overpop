@@ -16,28 +16,11 @@
 ##               controlfiles.pl; Added smartdata.pl and date.pl
 ## 2011 Nov    - pulled out template_ctrl.pl and display.pl; now article.pl is just a controller.
 
-## 2010 Nov 20 - $cDoclink - don't print red arrow or grey button if not = "doclink"
-## 2010 Nov11 - $cMobidesk = mobi: get rid of target= in <a tag
-## 2010 Sep11 - Added Box Styles dropdown; added to Styles dropdown: sidebar;
-##            - Also Call to sections.pl get_addl_sections more direct
-## 2010 Aug26 - Added index to drop-down list of styles
-## 2010 Aug26 - Added suggested_summarized (from doclist name)(or other) sectsub to sectsubs
-##              if missing from sectsubs. This ensures it is deleted from originating sectsub, like
-##              suggested_summarized.
-## 2010 Aug11 - removed the following at bottom of sub template_merge_print:
-##              die if($line =~ /\/html>/);  ## this was causing sub storeform not to finish, no idx written to
-##2010 Aug 9 - subtracted 1 from totalItems because it started with 1 instead of 0.
-##2010 Aug 4 - fixed [PUBYEARS] to start from 1990;  added 'SmallWOATop' header in two places.
-##2010 Jul   - Added NEWS_ONLY_SECTION template command for News Processing Sections;
-##             Caught numberous changes from May 2010 that were not merged in
-##2010 May 5 - Added Karen's Mac access - push ENV path; tested for  if(-f "../../karenpittsMac.yes") on all opens for writing.
-##             Change www.$cgiSite/cgi-bin/cgiwrap/popaware to $scriptpath
-
 
 $args = $_[0];   # In case we do it from the command line
 if($args) {
-  local(@args) = split(/,/,$args);
-  local($cmd)  = $args[0];
+  my @args = split(/,/,$args);
+  my $cmd  = $args[0];
 }
 
 print "Content-type: text/html\n\n";
@@ -172,7 +155,6 @@ else {
 ($userid,$rest) = split(/;/,$userid,2) if($userid =~ /;/);
 
 $op_userid = $userid;
-
 if($owner) {
   require 'owner.pl'; 
   &get_owner($owner);
@@ -194,8 +176,7 @@ if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets 
    $ownerSubs         = $OWNER{'ownersubs'};
    $viewOwnerUpdt     = $OWNER{'viewOwnerUpdt'};
    $metaViewOwnerUpdt = $OWNER{'metaViewOwnerUpdt'};
-}
-		
+}		
 #        ##### PROCESS THE VARIOUS COMMANDS
 
 if($cmd eq "list_sepmail") {
@@ -215,6 +196,7 @@ if($cmd eq "list_sepmail") {
 
 elsif($cmd eq "display") {  # used to display login, form, template, or docitem 		
 # my $otemplate = 'ownerUpdate';
+
   if($aTemplate =~ /docUpdate/ or ($owner and $aTemplate =~ /$OWNER{'oupdatetemplate'}/) ) {   #$o_updt_template
 	  $firstname     = "";
 	  $lastname      = "";
@@ -227,7 +209,7 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 	   }
 	   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
    }
-  &display_one('Y','N','N',$aTemplate); # in docitem.pl
+  &display_one($aTemplate,'Y','N','N'); # in docitem.pl
 }
 
 elsif($cmd eq "processlogin") {
@@ -266,7 +248,7 @@ exit;
            $aTemplate = "suggest"     if($action eq "new");
            $aTemplate = "fullArticle" if($action eq "view");
         }
-       &display_one('Y','N','N',,$aTemplate);
+       &display_one($aTemplate,'Y','N','N');
    }
 	exit(0);
 }
@@ -300,15 +282,20 @@ elsif($cmd eq "display_section"
                $cmd = "display_subsection";
                $fix_sectsub = 'Y';
          }
-    }
-         
-    if($action =~ /move_webpage/) {
+         elsif($action =~ /display_subsection/) {
+               $cmd = "display_subsection";
+               my $selectsectsub = $FORM{'selectsectsub'};
+               my ($x,$y,$sectsub,$rest) = split(/\^/,$selectsectsub,4);
+               $thisSectsub = $sectsub;
+               $addsectsubs = $thisSectsub;
+         }
+    }    
+    elsif($action =~ /move_webpage/) {
            $chgsectsubs = $addsectsubs;
            &do_html_page;     # do this to get pagenames
 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.pl?move%$pagenames\">";
            exit;
      }
-
      $supress_nonsectsubs = 'N';
      $supress_nonsectsubs = 'Y'
               if($cmd =~ /print_select|display_subsection/);
@@ -423,7 +410,7 @@ elsif($cmd eq "adminlogin") {
   if ($access =~ /[ABCD]/) {
 #     $aTemplate = "select_prelim";
 #     $print_it = 'Y';
-     &display_one('Y','N','N',"select_prelim");
+     &display_one("select_prelim",'Y','N','N');
   }
   else {
      &printInvalidExit("Sorry, you cannot access this function without authorization.");
@@ -473,135 +460,6 @@ elsif($cmd =~ /parseNewItem/) {
 	   exit;
 }
 
-
-elsif($cmd eq "emailsimulate--notused") {   #not used; instead use ParseNewItem
-	   $fullbody = $FORM{fullbody};
-	   $fullbody =~ s/\r\n/\n/g;                       # eliminate DOS line-endings
-	   $fullbody =~ s/\n\r/\n/g;
-	   $fullbody =~ s/\r/\n/g;
-#	   &refine_fullbody;
-	   @lines = split(/\r/,$fullbody);
-	   $filename = "$sysdatetm\.email";
-	   $filepath = "$inboxpath/$filename";
-	   open(EMAIL, ">$filepath") or die;   #writes to the inbox
-	   foreach $line (@lines) {
-	   	 print EMAIL "$line\n";
-       }
-	   close(EMAIL);
-	                                  # P for parse (simulate email) vs E for email
-	   &do_one_email('P',$filename);  # in email2docitem.pl where it writes to popnews_mail
-	   if($separator_cnt > 1) {
-		   $cmd="print_select";     # to read in emails docitems from popnews_mail to a selection list
-	       $rSectsubid = "$emailedSS";
-		   $supress_nonsectsubs = 'Y';
-		   $print_it = 'Y';
-		   &create_html;   #in display.pl
-	   }
-	   else {
-		  $cmd = "display";
-		  $action = "new" unless($action or $docid);
-		  $operator_access = 'A' if($userid =~ /A/);
-		  $sectsubs = "Headlines_sustainability"
-		  &display_one('Y','N','N','docUpdate');   #found in docitem.pl  (print_it,template)		
-	   }
-	   exit;
-}
-
-#     #####  TODO: THIS $cmd eq "display" IS REDUNDANT AND NEEDS TO BE REMOVED!!!!!
-
-elsif($cmd eq "display" and ($aTemplate =~ /docUpdate/ or $aTemplate =~ /$o_update_template/) ) {
-  $firstname     = "";
-  $lastname      = "";
-  $action = "new" unless($action or $docid);
-  $operator_access = 'A' if($userid =~ /A/);
-  &display_one('Y','N','N',$aTemplate);   #found in docitem.pl  (print_it,template)
-}
-#     #####  TODO : DITTO : THIS $cmd eq "display" IS REDUNDANT AND NEEDS TO BE REMOVED!!!!!
-
-elsif($cmd eq "display") {
-   if($aTemplate eq 'select_login') {
-   	$access = 'A';
-   }
-   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
-   &display_one('Y','N','N',$aTemplate); # in docitem.pl
-}
-
-#     #####  NEED TO ADD OWNER TO THE QUERY STRING
-
-elsif($cmd eq "display_section"
-   or $cmd eq "print_select"
-   or $cmd eq "display_subsection"
-   or $cmd eq "process_select_login") {
-   $ss_ctr = 0;
-   $savecmd = $cmd;   # we change it below
-   $access = "";
-
-   if($owner) {
-	 my $lc_owner = lc($owner);
-     $access = "A";
-	  $thisSectsub = $doclist;
-   }
-   else {
-	   ($userdata,$access) = &read_contributors(N,N,_,_,$userid,98989) if($userid ne "");  ## args=print?, html file?, handle, email, acct#
-	   if(($userdata =~ /BAD/ or $access !~ /[ABCD]/)
-	        and $cmd =~ /print_select|process_select_login/) {
-	          &printInvalidExit("You are not authorized to use admin functions");
-       }
-    }
-    $operator_access  = $access;
-
-    $addsectsubs = $FORM{addsectsubs};
-
-    if($cmd =~ /process_select_login/) {
-         $cmd = "print_select"    if($action =~ /print_select/);
-         if($action =~ /fix_sectsub/) {
-               $cmd = "display_subsection";
-               $fix_sectsub = 'Y';
-    }
-         
-    if($action =~ /move_webpage/) {
-           $chgsectsubs = $addsectsubs;
-           &do_html_page;     # do this to get pagenames
-print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.pl?move%$pagenames\">";
-           exit;
-         }
-     }
-     $supress_nonsectsubs = 'N';
-     $supress_nonsectsubs = 'Y'
-              if($cmd =~ /print_select|display_subsection/);
-
-     $select_kgp  = $FORM{select_kgp};
-     $chk_pubdate = $FORM{chk_pubdate};
-     $startDocid  = $FORM{start_docid};
-     $sortorder   = $FORM{sortorder};
-     $start_found = 'N';
-
-     &printInvalidExit("Nothing was selected - hit your Back button and correct") 
-       if($addsectsubs !~ /[A-Za-z0-9]/ and $ipform =~ /select_prelim|select_login/);
-     
-     if($ipform =~ /select_prelim|select_login/) {
-         ($thisSectsub,$rest) = split(/;/,$addsectsubs,2);  # <--- maybe need to find sectsub, not sectsubid
-     }
-
-     $rSectsub    = $thisSectsub;
-     ($rSectsubid,$rSectid,$rSubid,$stratus,$lifonum) = &split_sectsub($rSectsub);
-#     &split_rSectsub;
-     if($rSectsubid =~/$emailedSS/ and $operator_access =~ /[ABC]/) {
-        &separate_email_files;    # in email2docitem.pl -- Takes intake emails from popnews_bkup and processes 
-                                  # to popnews_mail which are docitem.item format; create_html (below) reads them 
-                                  # from popnews_mail and prints a selection list; no index needed
-#     	&separate_out_email;        ##OLD  sepmail.pl; Will be mixed: email, apps, and convert
-#     	&index_suggested_email;     ## in sections.pl -- will read from popnews_mail directory instead
-        undef $emailpath;
-        $cmd="print_select";     # to read in emails docitems from popnews_mail to a selection list
-        $supress_nonsectsubs = 'Y';
-##        $stop_count = '0060';
-     }
-    $print_it = 'Y';
-
-     &create_html;  #in display.pl
-}
-
 ##       Comes here after items have been selected from a list
 
 elsif($cmd =~ /selectItems/) {
@@ -641,7 +499,7 @@ elsif($cmd eq 'display_article') {   # not tested; use viewarticle.php in prepag
  $filepath = "$itempath/$docid.itm";
 
  if(-f $filepath) {
-    &display_one('Y','N','N',$aTemplate);  # maybe it's ("") ??   in docitem.pl
+    &display_one($aTemplate,'Y','N','N');  # maybe it's ("") ??   in docitem.pl
  }
  else {
     print "$docid not found<br>\n";
@@ -669,7 +527,7 @@ elsif($cmd eq 'displayRange') {
    $filepath = "$itempath/$docid.itm";
 
    if(-f $filepath) {
-      &display_one('Y','N','N',$aTemplate);  #in docitem.pl
+      &display_one($aTemplate,'Y','N','N');  #in docitem.pl
    }
    else {
       print "$docid not found<br>\n";
@@ -795,7 +653,7 @@ exit;
 sub print_article_control
 {
  $print_it = 'Y';
- &process_template('article_control','Y','N','N'); 
+ &process_template('article_control','Y','N','N');  #in template_ctrl.pl
  $aTemplate = $qTemplate;
  $print_it = 'N';
 }

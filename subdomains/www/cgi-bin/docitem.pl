@@ -45,7 +45,7 @@ sub init_docitem_variables
 
 sub display_one
 {
- my ($print_it,$email_it,$html_it,$aTemplate) = @_;
+ my ($aTemplate,$print_it,$email_it,$html_it) = @_;
  if($action eq 'new') {
    $pubday   = $nowdd;
    $pubmonth = $nowmm;
