@@ -1,41 +1,62 @@
 <p>
-<TABLE><TD width=50% valign=top  cellpadding=0 cellspacing=0>
+<TABLE><TD width=40% valign=top  cellpadding=0 cellspacing=0>
 
 <font size=1 face=arial><b>#[pgitemcnt]</b> ... [docid]
 	
-<input type="hidden" name="selitem[pgitemcnt]" value="">
-
-  <font face=verdana size=2 color="#666666">&nbsp;&nbsp;&nbsp;<b>Headline</b> &nbsp;
+<input type="hidden" name="pgitemcnt[pgitemcnt]" value="[pgitemcnt]">
+  <label>&nbsp;&nbsp;&nbsp;<b>Headline</b></label> &nbsp;
   <input name="titlize[pgitemcnt]" type=checkbox value="Y">
-  <font size=1 face="comic sans ms"> Titlize </font>
+  <cite> Titlize </cite>&nbsp;&nbsp;&nbsp;
+
+  <cite>
+      <input type="checkbox" name="regionhead[pgitemcnt]" 
+[REGIONHEAD]
+    value="Y"> <cite>Region</cite>
   
   <font size=1 face=verdana>
-  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols=60">[headline]</textarea>
+  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols="90">[headline]</textarea>
   </font>
 [REDARROW]
  
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
+<br>
+<label for="subheadline">Subhead:</label>
+<input type="text" name="subheadline" size="80" maxlength="150"
+value="
+[subheadline]
+">
+<br>
 
-<br><font size=1 face=arial>
-<textarea name="fullbody[pgitemcnt]" wrap="physical" rows=20 maxrows=300 cols=62>
+<label for="subheadline">By:</label>&nbsp;&nbsp;
+<input type="text" name="author" size="75" maxlength="150"
+value="
+[author]
+">
+<br>
+
+<cite>
+<textarea id="fullbody[pgitemcnt]" name="fullbody[pgitemcnt]" wrap="physical" rows=15 maxrows=300 cols=90>
 [fullbody]
 </textarea>
-</font> 
+</cite> 
 
 <br>
-  <font face=verdana size=1 color="666666"><input type=submit value="GO" name="submit[pgitemcnt]"
-onClick="parent.dropdowns.useridPush(document.itemsSelect.userid,
-document.itemsSelect.pin)"></font>
+  <font face=verdana size=1 color="666666"><input type=submit value="GO" name="submit[pgitemcnt]"></font>
+&nbsp;&nbsp;&nbsp;&nbsp;<label for="unique">Unique:</label>&nbsp;
+<input type="text" name="unique[pgitemcnt]" size="50" maxlength="50"
+value="
+[unique]
+">
+<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+   <label><b>Notation</b></label>&nbsp; <input type="text" name="note[pgitemcnt]" size=70 maxsize=300 value="[note]">
 
- &nbsp;<font face=verdana size=2 color="#666666">
- <b>Misc info</b>&nbsp; <font size=1>
-  <input type="text" name="miscinfo[pgitemcnt]" size=65 maxsize=100 value="[miscinfo]">
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<label><b>Misc info</b></label>&nbsp;<input type="text" name="miscinfo[pgitemcnt]" size=70 maxsize=100 value="[miscinfo]">
+
  
- 
-</TD><TD>&nbsp;</TD><TD width=50% valign=top>
+</TD><TD width=50% valign=top>
 [ALINK]
-<font face=verdana size=2" color="#666666">  
-    <b>Link</b></font></a> &nbsp;
+<label><b>Link</b></label></a> &nbsp;
    <cite>
     <input name="selflink[pgitemcnt]" type=checkbox value="Y"> self &nbsp;&nbsp;
 
@@ -57,16 +78,12 @@ document.itemsSelect.pin)"></font>
 </select></font>
 
   <br><font size=1 face=verdana>
-         <input type="text" name="link[pgitemcnt]" size="63" maxlength="200" value="[link]">
+         <input type="text" name="link[pgitemcnt]" size="85" maxlength="200" value="[link]">
 
 <table><td>
-<font size=1 face=verdana  color="#666666">
-<b>Priority</b></font><br>
-<font size=1 face=arial>
+<label><b>Priority</b></label><br>
   <select size=4 name="priority[pgitemcnt]" 
-  onClick="document.itemsSelect.sectsubs[pgitemcnt].value = 'Headlines_sustainability'"
-  onBlur="sourcePush(document.itemsSelect.source[pgitemcnt])"
-  onChange="sectsubsPush(document.itemsSelect.sectsubs[pgitemcnt])">
+  onClick="setvar('sectsubs[pgitemcnt]', 'Headlines_sustainability');">
   <option value="D">D</option>
   <option value="_">_</option>
   <option value="6">6</option>
@@ -75,73 +92,62 @@ document.itemsSelect.pin)"></font>
   <option value="3">3</option>
   <option value="2">2</option>
   <option value="1">1</option>
-  </select>
-</font>
+
 
 </td><td>&nbsp;</td><td valign=top>
 
-
-  <font face=verdana size=2 color="#666666">
-  <b>Region</b> </font>
-  
-[LIKELYREGIONS]
-  
-  <font size=1 face=verdana color="#666666">&nbsp;
-      <input type="checkbox" name="regionhead[pgitemcnt]" 
-[REGIONHEAD]
-    value="Y"> <font size=1 face="comic sans ms" color=#666666>Headline</font>
-  
-      &nbsp;&nbsp;
-      
-  <input name="regionpull[pgitemcnt]" type=radio value="" 
-  onClick="parent.dropdowns.regionChoose(document.itemsSelect.region[pgitemcnt])">
-   </font><font size=1 face="comic sans ms" color=#666666> pull
-    &nbsp;&nbsp;
-    <input type="checkbox" name="addregion[pgitemcnt]" value="Y"> 
-      <font size=1 face="comic sans ms" color=#666666>add</font>
-    <br>
-  <font size=1 face=verdana>
-<input type="text" name="region[pgitemcnt]" size="53" maxlength="150" value="
+  <table><tr><td valign="bottom">
+  <label><b>Region</b></label><br>
+        
+    &nbsp;&nbsp;<cite>
+  <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">&nbsp;Clear&nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="P" onclick="loadRegion('region[pgitemcnt]');">&nbsp; Pull &nbsp;
+  </cite>
+   </td><td>&nbsp;&nbsp;</td><td>
+[LIKELYREGIONS]	
+   </td></tr></table>
+   <input type="text" id="region[pgitemcnt]" name="region[pgitemcnt]" size="53" maxlength="150" value="
 [REGION]
-">
-  
+"> 
 </td></table>
  
-
-<br>
-  <font face=verdana size=2 color="#666666">
-  <b>Source</b> </font>&nbsp;&nbsp;
-    <font size=1 face=verdana color="#666666">
-  <input name="sourcelink[pgitemcnt]" type=radio value="Y">&nbsp;Get source from link <input name="sourcelink[pgitemcnt]" type=radio value="N" checked>&nbsp;Clear
-  
-        &nbsp;<input type="checkbox" name="addsource[pgitemcnt]" value="Y"> 
-      <font size=1 face="comic sans ms" color=#666666>add</font>
+  <label>Source</label>&nbsp;&nbsp;
+    <cite>
+  <input name="sourcelink[pgitemcnt]" type=radio value="Y">&nbsp;Get source from link&nbsp;
+  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');">&nbsp;Clear&nbsp;
+  <input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">&nbsp; Pull &nbsp;
+  <input type="checkbox" name="addsource[pgitemcnt]" value="Y">&nbsp;Add &nbsp; Linkmatch:
+   </cite>
+   <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="20" maxlength="150" value="">
     <br>
-  <input type="text" name="source[pgitemcnt]" size="63" maxlength="100" value="[source]"> 
+  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="90" maxlength="100" value="[source]"> 
 
 <br>
 
-  <font face=verdana size=2 color="#666666">
-  <b>Sectsubs</b> &nbsp;&nbsp;
+  <label>Sectsubs</label> &nbsp;
+<small><cite><input name="sspull[pgitemcnt]" type=radio value="N" onClick="setvar('sectsubs[pgitemcnt]', 'NewsDigest_newsItem')">News &nbsp
+	     <input name="sspull[pgitemcnt]" type=radio value="S" onClick="setvar('sectsubs[pgitemcnt]', 'Suggested_suggestedItem')"> Sum &nbsp
+        <input name="sspull[pgitemcnt]" type=radio value="A" onclick="loadSectsub('N','sectsubs[pgitemcnt]');">Reg &nbsp;
+        <input name="sspull[pgitemcnt]" type=radio value="B" onclick="loadSectsub('C','sectsubs[pgitemcnt]');">Country &nbsp;
+        <input name="sspull[pgitemcnt]" type=radio value="C" onclick="loadSectsub('A','sectsubs[pgitemcnt]');">Admin &nbsp;
+	    <input name="sspull[pgitemcnt]" type=radio value="c" onClick="setvar('sectsubs[pgitemcnt]', '')"> Clear &nbsp
+</cite></small>
 <br>
-  <textarea name="sectsubs[pgitemcnt]" wrap="physical" rows="1" cols=45">[sectsubs]</textarea>
+  <input type="text" id="sectsubs[pgitemcnt]"  name="sectsubs[pgitemcnt]" size="90" maxlength="200" value="[sectsubs]">
 
 
 <br>
-  <font face=verdana size=2 color="#666666">
-  <b>Summarize here:</b> 
-  <br>  <font face=verdana size=1>
-  <textarea name="body[pgitemcnt]" wrap="physical" rows="9" cols=45">[body]</textarea></font>
+  <label>Summarize here:</label> 
+	<input type="radio" name="getfullbody" value="A" 
+	   onclick="var2var( 'body[pgitemcnt]',
+	'fullbody[pgitemcnt]');"><cite>Get full article</cite>
+  <br>
+  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="physical" rows="8" cols=90">[body]</textarea>
 
 
 
    <br>
-    <font face=verdana size=2 color="#666666">
-  <b>Notation</b>&nbsp; <input type="text" name="note[pgitemcnt]" size=50 maxsize=100 value="[note]">
-  
- <br>
-  
-  
+    <label>Com</label>&nbsp;<textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="physical" rows="2" cols=85">[comment]</textarea></font>  
 </TD></TABLE>
 
 <hr>

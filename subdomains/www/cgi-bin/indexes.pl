@@ -920,7 +920,7 @@ sub clean_popnews_bkup
 
 ## DATABASE SQL ALTERNATIVE TO FLAT FILE INDEX
 
-sub do_doclist_sql {
+sub do_doclist_sql {    ## for the import
   my $dSectsub = $_[0];
   local ($counts) = &get_start_stop_count($pg_num);  #in sections.pl
   ($start_count,$stop_count) = split(/:/,$counts,2);
@@ -1033,6 +1033,20 @@ sub DB_getlastpg2_lifo {
 	   print" Couldn't prepare DB_getlastpg2_lifo query<br>\n";
 	}
 	return ($lastpg2lifo);
+}
+
+sub if_exists_DBindex
+{
+   my($SSid,$docid) = @_;
+
+  my $idxexists_sql = "SELECT COUNT(*) FROM indexes  WHERE docid = ? and sectsubname = ?";
+  my $idxexists_sth = $dbh->prepare($idxexists_sql) or die("Couldn't prepare statement: " . $idxexists_sth->errstr);	
+  $idxexists_sth->execute($docid,$SSid);
+  my @row = $idxexists_sth->fetchrow_array();
+  $idxexists_sth->finish;
+
+  return(1) if($row);
+  return(0);
 }
 
 sub DB_add_to_indexes    # updates if sectsubid/docid combo already there

@@ -23,6 +23,7 @@ sub init_display_variables
 
 sub create_html
 {
+  $rSectsubid = $_[0];
   &split_section_ctrlB($rSectsubid);
   $rPage   = $cPage;
   $rSubdir = $cSubdir;
@@ -55,11 +56,12 @@ sub create_html
      &clear_doc_variables;
      @DOCARRAY = "";
      undef %DOCARRAY;
+
      if($cmd =~ /display_subsection/)  {
-         &generate_WOA_webpage if($rSubid eq $cSubid);
+         &generate_WOA_webpage($rSectsubid) if($rSubid eq $cSubid);
      }
      elsif($rSectid eq $cSectid)  {	
-         &generate_WOA_webpage;
+          &generate_WOA_webpage($rSectsubid);
      }
 
 	 if(($cSectid ne $rSectid and $found_it =~ /Y/)
@@ -82,19 +84,24 @@ sub create_html
 ## 00440 ###  GENERATE WOA WEBPAGE ###
 
 sub generate_WOA_webpage
-{	
-   &split_section_ctrlB($cSectsubid);
+{
+   my $rSectsubid = $_[0];
+
+   &split_section_ctrlB($rSectsubid);
+
 ##      will work even if no page
   $supress_nonsectsubs = 'Y' if($pg_num > 1);
   if(($cPage eq $rPage) and ($cSectid eq $rSectid)) {
 	if($rSectsubid =~ /$cSectsubid/ or $supress_nonsectsubs !~ /Y/) {
-       &do_subsection;
+       &do_subsection($rSectsubid);
     }
   }
 }
 
 sub do_subsection
 {
+ my $rSectsubid = $_[0];
+
  $savetemplate = $aTemplate;
  $aTemplate = "";
  $save_printit = $print_it;
@@ -147,6 +154,7 @@ sub do_subsection
        $aTemplate  = "smallWOATop";
    }
  }
+
  &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
 
  $aTemplate = $qTemplate;  #time to do detail
@@ -159,7 +167,7 @@ sub do_subsection
     $dFilename = $cSectsubid;
  }
 
- if(-f $doclistname) {
+if(-f $doclistname) {
     $nodata = 'N';
     $nodata = 'Y' if(-z $doclistname);
  }
@@ -169,10 +177,10 @@ sub do_subsection
 
 #                          do template even if no items
  if($nodata eq 'Y' and $cTemplate) {
-   &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($cTemplate !~ /Item/); #in template_ctrl.pl
+    &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($cTemplate !~ /Item/); #in template_ctrl.pl
  }
  else {
-    &process_doclist;
+    &process_doclist($rSectsubid,$doclistname);
  }
 
  if($cmd =~ /print_select/ and $thisSectsub !~ /$suggestedSS/ and !$qFooter) {
@@ -195,6 +203,9 @@ sub do_subsection
 
 sub process_doclist
 {
+  my ($rSectsubid,$doclistname) = @_;
+#		$SSARRAY{'cPage'}
+
  if($DB_doclist > 0 and $rSectsubid !~ /$emailedSS/ and $cAllOr1 =~ /all/) {
 	&do_doclist_sql($dFilename);     # in sectsubs.pl
    return;
@@ -1367,6 +1378,7 @@ sub choppedline_convert
 
 sub push_items_to_sort
 {
+ $qOrder = $SSARRAY{'qOrder'};
  if($qOrder =~ /[A-Za-z0-9]/) {
    $sortorder = $qOrder;
  }

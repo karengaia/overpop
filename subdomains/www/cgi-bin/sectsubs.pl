@@ -5,6 +5,10 @@
 
 sub read_sectCtrl_to_array
 {
+ my $qOrder = $_[0];    #query string qOrder - overrides sectsubs table cOrder
+ @SSARRAY = ();
+ $SSARRAY{'qOrder'} = $qOrder;
+
  &read_sections_control_2array; 
 
 ##   special sections that we work with
@@ -188,7 +192,7 @@ sub get_pages
     foreach $rSectsub (@chksectsubs) {
        &split_rSectsub;
        $cSectsubid = $rSectsubid;
-       &split_section_ctrlB;
+       &split_section_ctrlB($cSectsubid);
        $pagenames = "$pagenames;$cPage" if($pagenames !~ /$cPage/ and $PAGEINFO{$cPage} =~ /ftpdefault/);
     }
   $pagenames =~  s/^;+//;  #get rid of leading semi-colons
@@ -1150,7 +1154,8 @@ sub get_addl_sections
 SELECTEND
  }
 
- $saveCsectsub = $cSectsub;
+ $save_sectsubinfo = $CSINDEX{$rSectsubid};
+
  foreach $cSectsub (@CSARRAY) {
       &split_sectionCtrl($cSectsub);
       if(($catCode eq 'X' and $cCategory eq 'X')
@@ -1169,9 +1174,6 @@ SELECTEND
       }
  } #end foreach
 
-  $cSectsub = $saveCsectsub;  ## restore previous sectsub and split it
-  &split_sectionCtrl($cSsectsub);
-
  if($info eq 'I') {
  }
  else {
@@ -1184,6 +1186,8 @@ ENDSELECT
 	     &print_stratus_add;
 	}
  }
+
+ &split_sectionCtrl($save_sectsubinfo);
 
 } #end sub
 
@@ -1418,11 +1422,11 @@ sub split_sectionCtrl
 	  $cSSid = $id;
 		
 #print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..fromsectsubid $fromsectsubid ..fromsectsub $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";	
-	  $cPg2Items = $cPg1Items if($cPg2Items == 0);
+	$cPg2Items = $cPg1Items if($cPg2Items == 0);
 	
-	  if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
+	if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
 		$cMaxItems = $cPg1Items;
-	  }
+	}
 	  elsif($pg_num > 1 and $cPg2Items =~ /[A-Za-z0-9]/) {
 		$cMaxItems = $cPg2Items;
 		$cOrder = $cPg2order;
@@ -1435,6 +1439,36 @@ sub split_sectionCtrl
 #          $cOrder = $default_order ;
       }
       $cCategory = &trim($cCategory);
+ 
+	$SSARRAY{'id'}            = $id;
+	$SSARRAY{'seq'}           = $seq;
+	$SSARRAY{'cSectsubid'}    = $cSectsubid;
+	$SSARRAY{'fromsectsubid'} = $fromsectsubid;
+	$SSARRAY{'cIdxSectsubid'} = $cIdxSectsubid;
+	$SSARRAY{'cSubdir'}       = $cSubdir;
+	$SSARRAY{'cPage'}         = $cPage;
+	$SSARRAY{'cCategory'}     = $cCategory;
+	$SSARRAY{'cVisable'}      = $cVisable;
+	$SSARRAY{'cPreview'}      = $cPreview;
+	$SSARRAY{'cOrder'}        = $cOrder;
+	$SSARRAY{'cPg2order'}     = $cPg2order;
+	$SSARRAY{'cTemplate'}      = $cTemplate;
+	$SSARRAY{'cTitleTemplate'} = $cTitleTemplate;
+	$SSARRAY{'cTitle'}         = $cTitle;
+	$SSARRAY{'cAllOr1'}        = $cAllOr1;
+	$SSARRAY{'cMobidesk'}      = $cMobidesk;
+	$SSARRAY{'cDocLink'}       = $cDocLink;
+	$SSARRAY{'cHeader'}        = $cHeader;
+	$SSARRAY{'cFooter'}        = $cFooter;
+	$SSARRAY{'cFTPinfo'}       = $cFTPinfo;
+	$SSARRAY{'cPg1Items'}      = $cPg1Items;
+	$SSARRAY{'cPg2Items'}      = $cPg2Items;
+	$SSARRAY{'cPg2Header'}     = $cPg2Header;
+	$SSARRAY{'cMore'}          = $cMore;
+	$SSARRAY{'cSubtitle'}      = $cSubtitle;
+	$SSARRAY{'cSubtitletemplate'} = $cSubtitletemplate;
+	$SSARRAY{'cMenuTitle'}     = $cMenuTitle;
+	$SSARRAY{'cKeywordsmatch'} = $cKeywordsmatch;
 }
 
 
@@ -1492,6 +1526,36 @@ print "Goes to $sections_import, then to sectsubs.rb (import)<br><br>\n";
 }
 
 sub clear_sectsubs_variables {
+	$cSectsubid = "";
+	$fromsectsubid = "";
+	$cIdxSectsubid = "";
+	$cSubdir = "";
+	$cPage = "";
+	$cCategory = "";
+	$cVisable = "";
+	$cPreview = "";
+	$cOrder = "";
+	$cPg2order = "";
+	$cTemplate = "";
+	$cTitleTemplate = "";
+	$cTitle = "";
+	$cAllOr1 = "";
+	$cMobidesk = "";
+	$cDocLink = "";
+	$cHeader = "";
+	$cFooter = "";
+	$cFTPinfo = "";
+	$cPg1Items = "";
+	$cPg2Items = "";
+	$cPg2Header = "";
+	$cMore = "";
+	$cSubtitle = "";
+	$cSubtitletemplate = "";
+	$cMenuTitle = "";
+	$cKeywordsmatch = "";
+}
+
+sub old_clear_sectsubs_variables {
 	$id = 0;
 	$fromsectsubid = 0;
 	$subdir = "";

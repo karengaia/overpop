@@ -240,6 +240,8 @@ sub do_selected
 
   &get_more_select_form_values if($ipform =~ /[Uu]pdate|[Uu]pdt/);  ## overrides prior doc values
 
+  &add_new_source if($addsource eq 'Y' and $source);  #in source.pl
+
   $add_error = 'N';
   &add_del_selected_sectsubs if($addsectsubs =~ /[A-Za-z0-9]/ or $delsectsubs =~ /[A-Za-z0-9]/);
 

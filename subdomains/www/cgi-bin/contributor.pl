@@ -3,6 +3,8 @@
 # May 7, 2010
 #        contributor.pl
 
+## 2012 Aug 3 - strip out user.pl contributor.pl will get form values if coming in through contributor.pl
+
 ##  When cmd = "start_acctapp", this routine sends out the message to verify
 ##  the info entered by the applicant. 
 ##  When applicant replies, the info will be sent to the admin email addr for approval
@@ -808,6 +810,47 @@ sub get_payrole
   } #end foreach
     
  return($xroles);	
+}
+
+sub create_contributor_table  # contact = name, handle, addr, zip, city, state, phone
+                              # user = userid, pin, email updated_on
+{
+ $CONTRIBUTOR_SQL = <<ENDCONTRIBUTOR
+CREATE TABLE `contributors` (
+  `id` tinyint NOT NULL AUTO_INCREMENT,
+  'uidfk'    tinyint NOT NULL;
+  `uaccess` varchar(1) NOT NULL DEFAULT 'P',
+  `ulastname` varchar(30) DEFAULT '',
+  `ufirstname` varchar(30) DEFAULT '',
+  `umiddle` varchar(2) DEFAULT '',
+  `uaddr` varchar(32) DEFAULT '',
+  `ucity` varchar(32) DEFAULT '',
+  `ustate` varchar(2) DEFAULT '',
+  `uzip` varchar(10) DEFAULT '',
+  `uphone` varchar(35) DEFAULT '',
+  `uemail` varchar(100) DEFAULT '',
+  `upayrole` varchar(3) DEFAULT '',
+  `uhandle` varchar(6) DEFAULT '',
+  `upermissions` varchar(60) DEFAULT '',
+  `ucomment` tinytext,   <--------- text
+  `uBlanks` varchar(1) DEFAULT '',
+  `uSeparator` varchar(20) DEFAULT '',
+  `uLocSep` varchar(40) DEFAULT '',
+  `uSkipon` varchar(50) DEFAULT '',
+  `uSkipoff` varchar(50) DEFAULT '',
+  `uSkip` varchar(50) DEFAULT '',
+  `uEmpty` varchar(15) DEFAULT '',
+  `uDateloc` varchar(40) DEFAULT '',
+  `uDateFormat` varchar(40) DEFAULT '',
+  `uHeadlineloc` varchar(40) DEFAULT '',
+  `uSourceloc` varchar(40) DEFAULT '',
+  `uSingleLineFeeds` varchar(1) DEFAULT '',
+  `uEnd` varchar(40) DEFAULT '',
+  `created_on` datetime DEFAULT NULL,
+  `updated_on` datetime DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=latin1;
+ENDCONTRIBUTOR
 }
 
 1;

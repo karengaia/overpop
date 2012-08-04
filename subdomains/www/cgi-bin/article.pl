@@ -51,6 +51,7 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 &DB_get_switches_counts;  #in misc_dbtables.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl
 
+&clear_sectsubs_variables;
 &init_contributors;
 &init_paging_variables; # in indexes.pl
 &init_email;  #in send_email.pl
@@ -165,7 +166,7 @@ if($owner) {
 }
 
 if($aTemplate ne 'login') {
-   &read_sectCtrl_to_array;  # in sectsubs.pl
+   &read_sectCtrl_to_array($qOrder);  # in sectsubs.pl
    &read_sources_to_array;
    &read_regions_to_array;
 }
@@ -328,7 +329,7 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 ##        $stop_count = '0060';
      }
     $print_it = 'Y';
-    &create_html;  #in display.pl
+    &create_html($rSectsubid);  #in display.pl
 }
 
 elsif($cmd eq "storeform") {
@@ -536,9 +537,14 @@ elsif($cmd eq 'displayRange') {
  }
 }
 
-
 elsif($cmd eq "getownerinfo") {
 	 print "$OWNER{'owebsitepath'},$OWNER{'ocsspath'},$OWNER{'ocssformpath'}"; #for viewOwnerUpdate.php
+}
+
+elsif($cmd eq "import_docitems") {
+  &clear_doc_data;     # bring $DATA and variables into global scope
+  &clear_doc_variables;
+  &import_docitems;    # in docitems.pl  
 }
 
 elsif($cmd eq "updateCvrtItems") {
@@ -600,7 +606,7 @@ elsif($cmd eq "init_section") {
      $rSectsubid = $thisSectsub;
      $doclistname = "$sectionpath/$thisSectsub.idx";
      $dFilename = "$thisSectsub";
-     &process_doclist;   # in display.pl
+     &process_doclist($thisSectsub);   # in display.pl
 }
 
 elsif($cmd eq 'print_users') {
@@ -680,7 +686,7 @@ sub ck_popnews_weekly
 
  if($popcnt > $max) {
 
-   &create_html;   #in display.pl
+    &create_html($rSectsubid);  #in display.pl
 
 print "&nbsp;&nbsp;Sending Population News Weekly ... don't forget to zero the counter<br>\n";
    $recipient = "$adminEmail";

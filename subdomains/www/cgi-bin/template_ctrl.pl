@@ -18,6 +18,7 @@ sub process_template
 {
   my($template,$print_it,$email_it,$htmlfile_it) = @_;
   &put_data_to_array;     # in docitem.pl
+
   if($print_it eq 'Y') {
      $nowPEH = 'P';
      $now_print = 'Y';
@@ -578,6 +579,10 @@ sub do_imbedded_commands
       }
    }
 
+   elsif($linecmd =~ /\[SUBHEADLINE\]/ and $subheadline) {
+       print MIDTEMPL "<h5>$subheadline</h5>";
+   }
+
    elsif($linecmd =~ /\[BODY\]/) {
         $body = &do_body_comment($body);
         print MIDTEMPL "$body";
@@ -1005,11 +1010,7 @@ sub get_borderbkgrnd
  print MIDTEMPL "<\/select><br>\n";
 }
 
-## 0140
 
-
-
-## 0145
 
 sub do_link
 {

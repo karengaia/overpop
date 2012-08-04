@@ -1,6 +1,9 @@
 .DS_Store
 .htpasswd
 awstats/awstats*.txt
+go-up-to-home-overpop/gaias.procmailrc
+go-up-to-home-overpop/procmail.txt
+go-up-to-home-overpop/0.procmailrc
 logs/*
 settings_overrides.php
 settings_overrides.pl
@@ -29,7 +32,6 @@ subdomains/www/autosubmit/items/*.itm
 subdomains/www/autosubmit/sections/*.idx
 subdomains/www/autosubmit/sections/*.bak
 subdomains/www/autosubmit/sections/*.cnt
-subdomains/www/autosubmit/sections/*
 subdomains/www/autosubmit/sepmail/*
 subdomains/www/autosubmit/templates/*.mid
 subdomains/www/autosubmit/volunteerEmail.txt
