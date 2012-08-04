@@ -19,6 +19,7 @@ subdomains/mobile/index.html
 subdomains/karenpittsMac.yes
 subdomains/www/.htaccess.swp
 subdomains/www/*.html
+!volunteers.html
 subdomains/www/*.htm
 !subdomains/www/volunteers.html
 *.bak
