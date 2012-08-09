@@ -8,18 +8,14 @@
   <input name="titlize[pgitemcnt]" type=checkbox value="Y">
   <cite> Titlize </cite>&nbsp;&nbsp;&nbsp;
 
-  <cite>
-      <input type="checkbox" name="regionhead[pgitemcnt]" 
+  <cite><input type="checkbox" name="regionhead[pgitemcnt]" 
 [REGIONHEAD]
-    value="Y"> <cite>Region</cite>
-  
-  <font size=1 face=verdana>
-  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols="90">[headline]</textarea>
-  </font>
+   value="Y"> <cite>Region in headline</cite>
+
+  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols="86">[headline]</textarea>
 [REDARROW]
- 
+
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
-<br>
 <label for="subheadline">Subhead:</label>
 <input type="text" name="subheadline" size="80" maxlength="150"
 value="
@@ -27,7 +23,7 @@ value="
 ">
 <br>
 
-<label for="subheadline">By:</label>&nbsp;&nbsp;
+<label>By:</label>&nbsp;&nbsp;
 <input type="text" name="author" size="75" maxlength="150"
 value="
 [author]
@@ -80,8 +76,8 @@ value="
   <br><font size=1 face=verdana>
          <input type="text" name="link[pgitemcnt]" size="85" maxlength="200" value="[link]">
 
-<table><td>
-<label><b>Priority</b></label><br>
+<table><td valign="top">
+<label><b>Priority</b></label>&nbsp;
   <select size=4 name="priority[pgitemcnt]" 
   onClick="setvar('sectsubs[pgitemcnt]', 'Headlines_sustainability');">
   <option value="D">D</option>
@@ -103,7 +99,7 @@ value="
   <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">&nbsp;Clear&nbsp;
   <input name="regionlink[pgitemcnt]" type=radio value="P" onclick="loadRegion('region[pgitemcnt]');">&nbsp; Pull &nbsp;
   </cite>
-   </td><td>&nbsp;&nbsp;</td><td>
+   </td><td>
 [LIKELYREGIONS]	
    </td></tr></table>
    <input type="text" id="region[pgitemcnt]" name="region[pgitemcnt]" size="53" maxlength="150" value="
@@ -111,21 +107,21 @@ value="
 "> 
 </td></table>
  
-  <label>Source</label>&nbsp;&nbsp;
+  <label>Source</label>&nbsp;
     <cite>
-  <input name="sourcelink[pgitemcnt]" type=radio value="Y">&nbsp;Get source from link&nbsp;
-  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');">&nbsp;Clear&nbsp;
-  <input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">&nbsp; Pull &nbsp;
-  <input type="checkbox" name="addsource[pgitemcnt]" value="Y">&nbsp;Add &nbsp; Linkmatch:
+  <input name="sourcelink[pgitemcnt]" type=radio value="Y"> Get src from link&nbsp;
+  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');"> Clear&nbsp;
+  <input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');"> Pull &nbsp;
+  <input type="checkbox" name="addsource[pgitemcnt]" value="Y"> Add &nbsp; Linkmatch:
    </cite>
-   <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="20" maxlength="150" value="">
+   <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="17" maxlength="150" value="">
     <br>
-  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="90" maxlength="100" value="[source]"> 
+  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="85" maxlength="100" value="[source]"> 
 
 <br>
 
   <label>Sectsubs</label> &nbsp;
-<small><cite><input name="sspull[pgitemcnt]" type=radio value="N" onClick="setvar('sectsubs[pgitemcnt]', 'NewsDigest_newsItem')">News &nbsp
+<small><cite><input name="sspull[pgitemcnt]" type=radio value="N" onClick="setvar('sectsubs[pgitemcnt]', 'NewsDigest_NewsItem')">News &nbsp
 	     <input name="sspull[pgitemcnt]" type=radio value="S" onClick="setvar('sectsubs[pgitemcnt]', 'Suggested_suggestedItem')"> Sum &nbsp
         <input name="sspull[pgitemcnt]" type=radio value="A" onclick="loadSectsub('N','sectsubs[pgitemcnt]');">Reg &nbsp;
         <input name="sspull[pgitemcnt]" type=radio value="B" onclick="loadSectsub('C','sectsubs[pgitemcnt]');">Country &nbsp;
@@ -133,7 +129,7 @@ value="
 	    <input name="sspull[pgitemcnt]" type=radio value="c" onClick="setvar('sectsubs[pgitemcnt]', '')"> Clear &nbsp
 </cite></small>
 <br>
-  <input type="text" id="sectsubs[pgitemcnt]"  name="sectsubs[pgitemcnt]" size="90" maxlength="200" value="[sectsubs]">
+  <input type="text" id="sectsubs[pgitemcnt]"  name="sectsubs[pgitemcnt]" size="85" maxlength="200" value="[sectsubs]">
 
 
 <br>
@@ -147,7 +143,7 @@ value="
 
 
    <br>
-    <label>Com</label>&nbsp;<textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="physical" rows="2" cols=85">[comment]</textarea></font>  
+    <label>Comment</label>&nbsp;<textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="physical" rows="2" cols=85">[comment]</textarea></font>  
 </TD></TABLE>
 
 <hr>

@@ -24,13 +24,16 @@ subdomains/www/*.htm
 !subdomains/www/volunteers.html
 *.bak
 *.bkp
+subdomains/www/autosubmit/control/count.txt
 subdomains/www/autosubmit/elists/*.elist
 subdomains/www/autosubmit/itemsSave/*
+subdomains/www/autosubmit/itemsBkp/*
 subdomains/www/autosubmit/popmail/*
 subdomains/www/autosubmit/deleted/*.del
 subdomains/www/autosubmit/items/*
 subdomains/www/autosubmit/items/*.itm
 subdomains/www/autosubmit/sections/*.idx
+subdomains/www/autosubmit/sections_Backup_prod_2012-08-09/*
 subdomains/www/autosubmit/sections/*.bak
 subdomains/www/autosubmit/sections/*.cnt
 subdomains/www/autosubmit/sepmail/*

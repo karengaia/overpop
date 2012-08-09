@@ -23,13 +23,21 @@ sub init_display_variables
 
 sub create_html
 {
-  $rSectsubid = $_[0];
+  my ($rSectsubid,$aTemplate,$pg_num) = @_;
+
+  if($rSectsubid =~ /Volunteer_log/) {
+		$doclistname = "$sectionpath/$rSectsubid.idx";
+		&process_doclist($rSectsubid,$doclistname);
+		exit;
+  }
+
   &split_section_ctrlB($rSectsubid);
   $rPage   = $cPage;
   $rSubdir = $cSubdir;
   $rSectid = $cSectid;
   $rSubid  = $cSubid;
   $rDoclink = $cDocLink;
+
   $email_it = 'Y' if($cVisable eq 'E');
 
   if($cPage) {
@@ -47,7 +55,7 @@ sub create_html
   $pgitemcnt = "";
   $pgItemnbr = 1;
   $pgitemcnt = &padCount4($pgItemnbr);
-		
+
   foreach $cSectsub (@CSARRAY) {
      ($SSid,$SSseq,$cSectsubid,$rest) = split(/\^/,$cSectsub);
      $cSectsubInfo = "$SSid^$SSseq^$cSectsubid^$rest";
@@ -57,11 +65,8 @@ sub create_html
      @DOCARRAY = "";
      undef %DOCARRAY;
 
-     if($cmd =~ /display_subsection/)  {
-         &generate_WOA_webpage($rSectsubid) if($rSubid eq $cSubid);
-     }
-     elsif($rSectid eq $cSectid)  {	
-          &generate_WOA_webpage($rSectsubid);
+     if($cmd =~ /display_subsection/ or $rSectid eq $cSectid)  {
+         &generate_WOA_webpage($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num) if($rSubid eq $cSubid);
      }
 
 	 if(($cSectid ne $rSectid and $found_it =~ /Y/)
@@ -85,7 +90,7 @@ sub create_html
 
 sub generate_WOA_webpage
 {
-   my $rSectsubid = $_[0];
+   my ($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num) = @_;
 
    &split_section_ctrlB($rSectsubid);
 
@@ -93,19 +98,18 @@ sub generate_WOA_webpage
   $supress_nonsectsubs = 'Y' if($pg_num > 1);
   if(($cPage eq $rPage) and ($cSectid eq $rSectid)) {
 	if($rSectsubid =~ /$cSectsubid/ or $supress_nonsectsubs !~ /Y/) {
-       &do_subsection($rSectsubid);
+       &do_subsection($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num);
     }
   }
 }
 
 sub do_subsection
 {
- my $rSectsubid = $_[0];
+  my ($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num) = @_;
 
  $savetemplate = $aTemplate;
  $aTemplate = "";
  $save_printit = $print_it;
- $htmlfile_it = 'N';
  if($cVisable eq 'E'){
     $email_it = 'Y'
  }
@@ -1465,7 +1469,7 @@ sub do_html_page
      &split_section_ctrlB($rSectsubid);
 #                  if we didn't already do this section
       if($didsections !~ /$rSectid/ and $cPage =~ /[A-Za-z0-9]/)   {
-        &create_html if($action !~ /move_webpage/);
+        &create_html($rSectsub,$aTemplate,$pg_num) if($action !~ /move_webpage/);
 
         $pagenames = "$cPage;$pagenames" if($pagenames !~ /$cPage/ and $PAGEINFO{$cPage} =~ /ftpdefault/);
         $didsections = "$didsections;$rSectsubid";

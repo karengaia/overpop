@@ -234,7 +234,8 @@ sub saveNewsSections
 
 sub do_sectsubs
 {			
-	# 1st, add missing sectsub (from doclist this docitem was on)
+
+# 1st, add missing sectsub (from doclist this docitem was on)
  if($docaction ne 'N' and $sectsubs !~ /$thisSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
       $sectsubs = "$sectsubs;$thisSectsub`M";
   }
@@ -1250,22 +1251,22 @@ sub php_do_pages {
       if($tVisable eq 'Y' and ($tPreview eq 'Y')) {
           if($cPage and $cPage ne $prev_pagename) {
               if($cSectsubid =~ /$newsdigestSS/) { #news digest has both newsItem and index
-                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%$cSectsubid\">News fly</a></td>\n";
+                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid\">News fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
 
                    print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/index.php?$cSectsubid\">Index view</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/php/saveindex.php?$cPage\">Save index</a></td></tr>\n";
               }
               elsif($cVisable =~ /mo/) { # mobile does not go through php 
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n";
+	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$scriptpath/moveutil.pl?move%$cPage\">Move $cPage</a></td></tr>\n";
               }
               elsif($cVisable =~ /hd/) {   # head info is invisible unless it is in a textbox box - But it doesn't work because TB becomes part of meta or cssjs
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
+	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
               }
               elsif($cVisable =~ /pp/) {   # page parts other than head parts (mostly Page 1) 
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
+	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
               }
               else {            # all sections (page 2) 
@@ -1438,7 +1439,7 @@ sub split_sectionCtrl
 	  else {
 #          $cOrder = $default_order ;
       }
-      $cCategory = &trim($cCategory);
+      $cCategory = &trim($cCategory);  #found in common.pl
  
 	$SSARRAY{'id'}            = $id;
 	$SSARRAY{'seq'}           = $seq;

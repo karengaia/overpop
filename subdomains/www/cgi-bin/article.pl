@@ -263,7 +263,7 @@ elsif($cmd eq "display_section"
    $savecmd = $cmd;   # we change it below  
    $access = ""; 
 
-   if($owner) {   # http://overpop/cgi-bin/article.pl?display_section%%%CSWP_Calendar%%%%%%%%CSWP
+  if($owner) {   # http://overpop/cgi-bin/article.pl?display_section%%%CSWP_Calendar%%%%%%%%CSWP
       $access = "A";
    }
    else {
@@ -274,7 +274,6 @@ elsif($cmd eq "display_section"
        }
     }
     $operator_access  = $access;
-
     $addsectsubs = $FORM{addsectsubs};
 
     if($cmd =~ /process_select_login/) {
@@ -293,7 +292,7 @@ elsif($cmd eq "display_section"
     }    
     elsif($action =~ /move_webpage/) {
            $chgsectsubs = $addsectsubs;
-           &do_html_page;     # do this to get pagenames
+           &do_html_page($rSectsubid,$aTemplate,$pg_num);     # do this to get pagenames
 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.pl?move%$pagenames\">";
            exit;
      }
@@ -316,7 +315,7 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 
      $rSectsub    = $thisSectsub;
      ($rSectsubid,$rSectid,$rSubid,$stratus,$lifonum) = &split_sectsub($rSectsub);
-#     &split_rSectsub;
+
      if($rSectsubid =~/$emailedSS/ and $operator_access =~ /[ABC]/) {
         &separate_email_files;    # in email2docitem.pl -- Takes intake emails from popnews_bkup and processes 
                                   # to popnews_mail which are docitem.item format; create_html (below) reads them 
@@ -329,7 +328,8 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 ##        $stop_count = '0060';
      }
     $print_it = 'Y';
-    &create_html($rSectsubid);  #in display.pl
+
+    &create_html($rSectsubid,$aTemplate,$pg_num);  #in display.pl
 }
 
 elsif($cmd eq "storeform") {
@@ -420,45 +420,47 @@ elsif($cmd eq "adminlogin") {
 
 
 elsif($cmd =~ /parseNewItem/) {
+	  $docid    = "";
 	  $fullbody = $FORM{fullbody};
 	  $handle   = $FORM{handle};
 	  $sectsubs = $FORM{sectsubs};
 	  $pdfline  = $FORM{pdfline};
-	  $ipform   = $FORM{ipform};
-	  my $save_sectsubs = $sectsubs;
-	
+	  $ipform   = $FORM{ipform};	
+
       &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
-	  $sectsubs = $save_sectsubs;	
-      if($sectsubs =~ /Headlines_priority/) {
-	     $sectsubs = $headlinesSS;
-	     $priority = "6";
-	     $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
-	         # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
-	  }
-	  elsif($sectsubs =~ /Headlines_sustainability/) {
-         $priority = "5";
-         $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
-      # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
-      }
-	  elsif($sectsubs =~ /Suggested_suggestedItem/) {
-         $priority = "5";
-         $docloc_news = "M";
-         &storeform;    #in docitem.pl
-	     $aTemplate = 'newItemParse';
-	     $DOCARRAY{fullbody} = "";
-	     $DOCARRAY{sectsubs} = "";
-	     $FORM{sectsubs} = "";
-	     $operator_access = 'A';
-	     &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
+
+  $sectsubs = $save_sectsubs;	
+	
+#      if($sectsubs =~ /Headlines_priority/) {
+#	     $sectsubs = $headlinesSS;
+#	     $priority = "6";
+#	     $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
+#	         # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
+#	  }
+#	  elsif($sectsubs =~ /Headlines_sustainability/) {
+#         $priority = "5";
+#         $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
+#      }
+	  if($sectsubs =~ /Suggested_suggestedItem/) {
+#         $priority = "5";
+#         $docloc_news = "M";
+#         &storeform;    #in docitem.pl
+#	     $DOCARRAY{'docitem'} = "";
+#	     $DOCARRAY{'fullbody'} = "";
+#	     $DOCARRAY{'sectsubs'} = "";
+#	     $FORM{'sectsubs'} = "";
+#	     $operator_access = 'A';
+		 $aTemplate = 'newItemParse';
+         &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
 	     exit;       
       }
-	   $aTemplate = 'docUpdate';
-	   $action = "update";
-	   $print_it = 'Y';
-	   $dSectsubs = $sectsubs;
-	   $operator_access = 'A';
-	   &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
-	   exit;
+
+	  $action = "update";
+	  $dSectsubs = $sectsubs;
+	  $operator_access = 'A';
+	  $aTemplate = 'docUpdate';
+	  &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
+	  exit;
 }
 
 ##       Comes here after items have been selected from a list
@@ -686,7 +688,7 @@ sub ck_popnews_weekly
 
  if($popcnt > $max) {
 
-    &create_html($rSectsubid);  #in display.pl
+    &create_html($rSectsubid,$pg_num);  #in display.pl
 
 print "&nbsp;&nbsp;Sending Population News Weekly ... don't forget to zero the counter<br>\n";
    $recipient = "$adminEmail";

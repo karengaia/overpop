@@ -606,9 +606,8 @@ sub delete_from_index_by_list
 ##                 Updates the appropriate index flatfiles and the indexes table on the DB
 sub hook_into_system
 {
-  my($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
-
-  $pubdate = &conform_date($pubdate,'n',$sysdate);
+  my($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
+ $pubdate = &conform_date($pubdate,'n',$sysdate);
   $sysdate = &conform_date($sysdate,'n');
 
  if($sectsubs !~ /$deleteSS|$expiredSS/ and $cmd !~ /selectItems|updateCvrtItems/) {

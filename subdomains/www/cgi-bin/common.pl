@@ -322,10 +322,7 @@ sub tooMuchLooping
 }
 
 
-
-
-
-### 460 DATA MANIPULATION
+### DATA MANIPULATION
 
 sub trim
 {

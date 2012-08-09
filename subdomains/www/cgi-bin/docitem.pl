@@ -150,40 +150,45 @@ sub storeform
  &get_doc_form_values;
  &update_control_files;  # if add or update needed
 # &add_new_source;  #in sources.pl
+ &main_storeform;
+}
 
+sub main_storeform {
+
+ $docaction = 'N' unless($docid);
  &get_docid;
-##          for sysdate if new
+#          for sysdate if new
  $sysdate = &calc_date('sys',0,'+');
 
-# 0070  Do sections (most sections logic is in sections.pl)
-
  &do_sectsubs;     # in sectsubs.pl
-## &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
 
+# &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
  &write_doc_item($docid);
 
- &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
+&log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
- my @save_sort = ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic);
+ my @save_sort = ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
 
  &ck_popnews_weekly 
     if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl
 
- my ($sectsubs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
+ my ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
 
-# print "doc168 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
+# print "doc174 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
 
-&hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files
+ &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files in index.pl
 
  $sections="";
  $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
  $chgsectsubs =~  s/^;+//;  #get rid of leading semi-colons
 
+ my $ipform = $FORM{'ipform'};
+
  if($owner) {
     &print_review($OWNER{oreviewtemplate});
  }
  elsif($sectsubs =~ /Suggested_suggestedItem/ and $ipform =~ /newItemParse/) {
-	print "<div style=\"font-family:arial;font-size:1.2em;margin-top:13px;margin-left:7px;\">&nbsp;&nbsp;Item has been submitted; Ready for next item:</div>\n";
+	print "<div style=\"font-family:arial;font-size:1.2em;margin-top:13px;margin-left:7px;\">&nbsp;&nbsp;Item -- $docid -- has been submitted; Ready for next item:</div>\n";
 	$fullbody = "";
 	$DOCARRAY = "";   # get ready for the next one
 	$FORM = "";
@@ -193,7 +198,7 @@ sub storeform
     &print_review('review');
  }
  
- &do_html_page; ## create HTML file - this is in display.pl
+ &do_html_page(thisSectsub,$aTemplate,1); ## create HTML file - this is in display.pl
 
 }  ## END SUB
 
@@ -224,14 +229,13 @@ sub update_sectsubs {
 sub get_docid
 { 
   my $oldDocid = $docid;
+
  if( ($action eq 'clone') 
      or ($docaction eq 'N') 
      or ($oldDocid !~ /[0-9]{6}/ and $action ne 'clone')
      or ($action eq 'new') ) {
     $docaction = 'N';
     $docid = &get_docCount;
-
-#print "320  oldDocid $oldDocid docid $docid action $action docaction $docaction<br>\n";
   }
   elsif ( ($action eq 'update') 
           or ($action eq 'summarize') ) { 
@@ -275,10 +279,12 @@ sub do_updt_selected
 #	 &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  }
 #  else {
-     &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
+     &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
 #  }
   &add_new_source if($addsource =~ /Y/);
   &add_new_region if($addregion =~ /Y/);
+
+  $FORM = ();   #maybe this makes the following unnecessary
 
   undef $FORM{"docid$pgitemcnt"};
   undef $FORM{"priority$pgitemcnt"};
@@ -298,35 +304,36 @@ sub do_updt_selected
   undef $FORM{"addregion$pgitemcnt"};
   undef $temp;
 
-undef  $FORM{deleted};   ## New variables
-undef  $FORM{outdated};
-undef  $FORM{nextdocid};
+undef  $FORM{'docid'};
+undef  $FORM{'deleted'};   ## New variables
+undef  $FORM{'outdated'};
+undef  $FORM{'nextdocid'};
 
-undef  $FORM{skippubdate};
-undef  $FORM{woadate};
-undef  $FORM{reappeardate};
+undef  $FORM{'skippubdate'};
+undef  $FORM{'woadate'};
+undef  $FORM{'reappeardate'};
 
-undef  $FORM{sourcefk};
-undef  $FORM{skipsource};
-undef  $FORM{author};
-undef  $FORM{skipauthor};
+undef  $FORM{'sourcefk'};
+undef  $FORM{'skipsource'};
+undef  $FORM{'author'};
+undef  $FORM{'skipauthor'};
 
-undef  $FORM{dtemplate};
+undef  $FORM{'dtemplate'};
 
-undef  $FORM{skiplink};
+undef  $FORM{'skiplink'};
 
-undef  $FORM{skipheadline};
-undef  $FORM{subheadline};
+undef  $FORM{'skipheadline'};
+undef  $FORM{'subheadline'};
 
-undef  $FORM{regionfk};
-undef  $FORM{skipregion};
+undef  $FORM{'regionfk'};
+undef  $FORM{'skipregion'};
 
-undef  $FORM{imagealt};
-undef  $FORM{skipregion};
-undef  $FORM{summarizerfk};
-undef  $FORM{suggesterfk};
-undef  $FORM{changebyfk};
-undef  $FORM{updated_on};   ## End NEW VARIABLES
+undef  $FORM{'imagealt'};
+undef  $FORM{'skipregion'};
+undef  $FORM{'summarizerfk'};
+undef  $FORM{'suggesterfk'};
+undef  $FORM{'changebyfk'};
+undef  $FORM{'updated_on'};   ## End NEW VARIABLES
 
   &clear_doc_variables;
 }
@@ -348,10 +355,10 @@ sub print_review
 sub log_volunteer
 {
  if($sumAcctnum =~ /[A-Za-z0-9]/) {	
-     $addsectsubs .= ";Volunteer_log$sumAcctnum"; 
+     $addsectsubs = "$addsectsubs;Volunteer_log$sumAcctnum"; 
  }
  elsif($userid =~ /[A-Za-z0-9]/) {
-     $addsectsubs .= ";Volunteer_log$userid";
+     $addsectsubs = "$addsectsubs;Volunteer_log$userid";
  }
 }
 
@@ -377,7 +384,7 @@ sub process_popnews_email       # from article.pl when item selected from Sugges
 #  &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  &write_index_straight($suggestedSS,$docid);  # in sections.pl
 # &index_suggested($docid);  # add to suggested index - in sections.pl
- &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
+ &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
 }
 
 
@@ -392,7 +399,7 @@ if($expired =~ /goofy/) {
    	   $addsectsubs = $expiredSS;
    	   $sectsubs    = $expiredSS;
    	   &write_doc_item($docid);  ## in docitem.pl
-   	   &hook_into_system($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
+   	   &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
      }
  }
 }
@@ -770,20 +777,20 @@ sub get_more_select_form_values
  &assemble_pubdate;
  $link           = $FORM{"link$pgitemcnt"}       if($FORM{"link$pgitemcnt"});
  $selflink       = $FORM{"selflink$pgitemcnt"};
- $headline       = $FORM{"headline$pgitemcnt"}   if($FORM{"headline$pgitemcnt"} =~ /[A-Za-z0-9]/);
- $topic          = $FORM{"topic$pgitemcnt"}      if($FORM{"topic$pgitemcnt"}    =~ /[A-Za-z0-9]/);
+ $headline       = $FORM{"headline$pgitemcnt"}   if($FORM{"headline$pgitemcnt"});
+ $topic          = $FORM{"topic$pgitemcnt"}      if($FORM{"topic$pgitemcnt"});
  $titlize        = $FORM{"titlize$pgitemcnt"};
  $selflink       = $FORM{"selflink$pgitemcnt"};
- $region         = $FORM{"region$pgitemcnt"}     if($FORM{"region$pgitemcnt"}   =~ /[A-Za-z0-9]/);
+ $region         = $FORM{"region$pgitemcnt"}     if($FORM{"region$pgitemcnt"});
  $regionhead     = $FORM{"regionhead$pgitemcnt"} if($FORM{"regionhead$pgitemcnt"} =~ /[YN]/);
  $addregion      = $FORM{"addregion$pgitemcnt"}  if($FORM{"addregion$pgitemcnt"} =~ /[AU]/);
- $fSectsubs      = $FORM{"sectsubs$pgitemcnt"}   if($FORM{"sectsubs$pgitemcnt"} =~ /[A-Za-z0-9]/);
- $source         = $FORM{"source$pgitemcnt"}     if($FORM{"source$pgitemcnt"}   =~ /[A-Za-z0-9]/);
+ $fSectsubs      = $FORM{"sectsubs$pgitemcnt"}   if($FORM{"sectsubs$pgitemcnt"});
+ $source         = $FORM{"source$pgitemcnt"}     if($FORM{"source$pgitemcnt"});
  ($source,$sregionname) = &get_source_linkmatch($link) if($sourcelink eq 'Y' and $link);
  $addsource      = $FORM{"addsource$pgitemcnt"}  if($FORM{"addsource$pgitemcnt"} =~ /[AU]/);
  $sourcelink     = $FORM{"sourcelink$pgitemcnt"} if($FORM{"sourcelink$pgitemcnt"});
- $body           = $FORM{"body$pgitemcnt"}       if($FORM{"body$pgitemcnt"}     =~ /[A-Za-z0-9]/);
- $points         = $FORM{"points$pgitemcnt"}     if($FORM{"points$pgitemcnt"}     =~ /[A-Za-z0-9]/);
+ $body           = $FORM{'body$pgitemcnt'}       if($FORM{'body$pgitemcnt'});
+ $points         = $FORM{'points$pgitemcnt'}     if($FORM{'points$pgitemcnt'}     =~ /[A-Za-z0-9]/);
  $fullbody       = $FORM{"fullbody$pgitemcnt"};
  $miscinfo       = $FORM{"miscinfo$pgitemcnt"};
   
@@ -1148,8 +1155,7 @@ sub get_doc_data
     }
  }
  else {
-    &printSysErrExit(" File not found at filepath $filepath <small>doc2595 - docid *$docid*  ....itempath $itempath</small>");
-    $found_it = "N";
+   $headline =  "File not found at filepath $filepath <small>doc2595 - docid *$docid*  ....itempath $itempath</small>";
  }
 }
 

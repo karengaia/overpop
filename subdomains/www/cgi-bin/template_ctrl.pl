@@ -18,7 +18,6 @@ sub process_template
 {
   my($template,$print_it,$email_it,$htmlfile_it) = @_;
   &put_data_to_array;     # in docitem.pl
-
   if($print_it eq 'Y') {
      $nowPEH = 'P';
      $now_print = 'Y';
@@ -500,7 +499,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[LIKELYREGIONS\]/ and $region =~ /;/) {
-      	print MIDTEMPL "<select size=3 multiple name=\"region$pgitemcnt\">\n";
+      	print MIDTEMPL "<select size=2 multiple name=\"region$pgitemcnt\">\n";
         &print_likely_regions;              # in controlfile.pl
         print MIDTEMPL "<\/select><br>\n";
    }
