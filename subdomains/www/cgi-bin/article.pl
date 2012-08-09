@@ -30,7 +30,7 @@ require 'errors.pl';         # error display and termination or return
 require 'display.pl';        # takes sectsub info for a particular section or subsection and uses it to create a page with html
 require 'template_ctrl.pl';  # merges data with template; processes template commands for what to do with data.
 require 'database.pl';       # basic database functions
-require 'misc_dbtables.pl';  # maintains and retrieves miscellaneous tables: acronyms, switches_codes, list_imports_export links
+require 'dbtables_ctrl.pl';  # maintains and retrieves miscellaneous tables: acronyms, switches_codes, list_imports_export links
 ## require 'db_controlfiles.pl'; # not used - rolled into controlfiles.pl
 require 'date.pl';         # parses and processes date data in docitems
 # require 'sections.pl';      # replaced by sectsubs.pl or indexes.pl
@@ -620,6 +620,10 @@ elsif($cmd eq 'print_users') {
 ## $userdata = &read_contributors(Y,N,H,E,$acctnum);
 }
 
+elsif($cmd eq "DBctrl") {
+	&DB_controller($info[1],$info[2]);
+}
+
 elsif($cmd eq "convert_old_subsection") {
    $woapage = $doclist;
    $rSectsubid = $thisSectsub;
@@ -673,11 +677,11 @@ sub print_article_control
 sub ck_popnews_weekly
 {
  if($delsectsubs =~ /$newsdigestSectid/) {
-    &subtractFromCount('popnews'); ## in misc_dbtables.pl;
+    &subtractFromCount('popnews'); ## in dbtables_ctrl.pl;
     return;
  }
 
- my $popnews_cnt = &getAddtoCount('popnews'); # in misc_dbtables.pl
+ my $popnews_cnt = &getAddtoCount('popnews'); # in dbtables_ctrl.pl
  $cSectsubid = $rSectsubid = $newsWeeklySS;
  &split_section_ctrlB($rSectsubid);    #get count from sections
 

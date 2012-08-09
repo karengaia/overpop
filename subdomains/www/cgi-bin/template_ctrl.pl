@@ -329,8 +329,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[DBTABLES\]/) {
-	print MIDTEMPL "DBTABLES calls list_functions<br>\n";
-      &list_functions;
+      &list_functions;  #in dbtables_ctrl.pl
    }
 
    elsif($linecmd =~ /\[RTCOL_TOP\]/ and $cRtCol eq 'R') {
@@ -715,8 +714,8 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[ACRONYMS\]/) {
-	require 'misc_dbtables.pl';
-      &prt_acronym_list;       #in misc_dbtables.pl;
+	require 'dbtables_ctrl.pl';
+      &prt_acronym_list;       #in dbtables_ctrl.pl;
    }
 
    elsif($linecmd =~ /\[THISSECTION\]/) {
@@ -743,7 +742,6 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[NEWS_SECTION\]/) {
          &get_news_section if($sectsubs =~ /$summarizedSS/);  # in sectsubs.pl
    }
-
    elsif($linecmd =~ /\[ADD_SECTIONS\]/) {
          &get_addl_sections(_,_,'');  # in sectsubs.pl
    }
@@ -1162,7 +1160,7 @@ ENDWORD
 		       }
 		       elsif($word =~ /^#([A-Za-z0-9\-]{2,30})/) {  
 			      $acronym = $1;
-			      $title = &get_title($acronym);  # in misc_dbtables.pl
+			      $title = &get_title($acronym);  # in dbtables_ctrl.pl
                   if($title) {
 			          $word = "<acronym title=\"$title\">$acronym<\/acronym>";
                   }
