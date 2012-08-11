@@ -48,7 +48,7 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 
 &get_site_info;        ## in common.pl	
 &set_date_variables;   ## in date.pl
-&DB_get_switches_counts;  #in misc_dbtables.pl - Sets switches for using database - Yes or No?	
+&DB_get_switches_counts;  #in dbtables_ctrl.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl
 
 &clear_sectsubs_variables;
@@ -60,7 +60,7 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 $userCount    = "";
 $hitCount     = "";
 $docCount     = "";
-&read_docCount;     # In misc_dbtables.pl
+&read_docCount;     # In dbtables_ctrl.pl
 &read_hitCount;
 &read_userCount;
 
