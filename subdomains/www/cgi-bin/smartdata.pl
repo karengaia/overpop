@@ -7,7 +7,9 @@
 sub parse_popnews 
 {
   my($pdfline,$emessage) = @_;
-  $fullbody = $emessage;
+  
+  &clear_doc_variables;   # establish variables
+
   $sectsubs = "$emailedSS" unless($sectsubs);
   $headline = "";
 ##  print "doc120 ehandle $ehandle emessage $emessage<br>\n";    	   
@@ -15,7 +17,7 @@ sub parse_popnews
   $emessage = &choppedline_convert($emessage); 
   $emessage = &strip_leadingSPlineBR($emessage);
 ##               use $save_emessage for $fullbody - before line feeds gone
-  $save_emessage = $emessage;
+  my $save_emessage = $emessage;
   
   $emessage =~ s/\(/&#40;/g;    # helps parsing since () and [] are part of regexpr's
   $emessage =~ s/\)/&#41;/g;
@@ -53,7 +55,7 @@ sub parse_popnews
          }
          $blankcount = $blankcount + 1;
      }
-## print "em614 blankcount $blankcount linecnt $linecnt ** $msgline<br>\n";
+
      if($linecnt < 4 and $msgtop !~ /\n\n/) {
         $msgtop = "$msgtop$msgline\n";
      }
@@ -89,16 +91,27 @@ sub parse_popnews
   $region = &refine_region($src_region) if(!$region);   # found in regions.pl
 
   &refine_fullbody;  
-
+  
   $fullbody = &byebye_singleLF($pdfline,$fullbody); #do this after parsing for headline, date, etc
-
-#  print "doc120b ehandle $ehandle headline $headline \n\n fullbody $fullbody\n";
-
-  $miscinfo = "$handle $emailpath";
 
   $suggestAcctnum = $uUserid  if(!$suggestAcctnum);
 
   $sectsubs = "$emailedSS"  unless($sectsubs);
+
+  if($sectsubs =~ /Headlines_priority/) {
+     $sectsubs = $headlinesSS;
+     $priority = "6";
+     $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
+         # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
+  }
+  elsif($sectsubs =~ /Headlines_sustainability/) {
+     $priority = "5";
+     $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
+  }
+  elsif($sectsubs =~ /Suggested_suggestedItem/) {
+     $priority = "5";
+     $docloc_news = "M";
+  }
 
   $note = "handle: $handle" if($handle);
 
@@ -267,7 +280,7 @@ sub refine_nonstd_variables
 
      $region = &refine_region($src_region) if(!$region);   # found in regions.pl
 
-     $fullbody = "$save_emessage";
+     $fullbody = $save_emessage;
 
      &refine_fullbody;
 
@@ -617,8 +630,7 @@ sub find_source
 
 sub refine_fullbody
 { 
- local($fulbdy1,$fulbdy2);
-    	 
+ my($fulbdy1,$fulbdy2);  	 
  if($fullbody =~ /$headline/) {
    ($fulbdy1,$fulbdy2) = split(/$headline/,$fullbody);
    $fullbody = "$fulbdy1 $fulbdy2";
@@ -629,14 +641,14 @@ sub refine_fullbody
 
 sub fix_fullbody
 {
- local($firstline,$restofbody) = split(/\n/,$fullbody,2);
+ my($firstline,$restofbody) = split(/\n/,$fullbody,2);
  if($firstline =~ /Content-Type:/) {
      $fullbody = $restofbody if($restofbody =~ /[A-Za-z0-9]/);
  }
 
 ## we have to go through hoops because of the parens
 ## local($endsource) = "";
- local($first);
+ my($first);
 
  if($source =~ /\(/  or $fullbody =~ /\(/ ) { }
  elsif ($source =~ /[A-Za-z0-9]/ 
@@ -644,13 +656,11 @@ sub fix_fullbody
    ($fulbdy1,$fulbdy2) = split(/$source/,$fullbody,2);
        	     	 
    $fullbody = "$fulbdy1 $fulbdy2";     
- }
-    	  
+ }    	  
 ## $source = "$source$endsource";
  $fullbody = &strip_leadingSPlineBR($fullbody);
  $fullbody =~ s/^\n//;
- $fullbody =~ s/^\n//;
-    	 
+ $fullbody =~ s/^\n//;	 
  $fullbody = &apple_convert($fullbody);
 }
 
@@ -805,6 +815,7 @@ if($body !~ /<li|<td|<tr|dd|dt/) {
   $body = "<p>$body";
   $body = "$body<\/p>";
 }
+
 $template = $sv_template if($sv_template =~ /[A-Za-z0-9]/);
 
 $body = &apple_convert($body);  # takes care of encoding
@@ -970,7 +981,7 @@ sub byebye_singleLF {
 ##                converts quotes, hyphens and other wayword perversions
 sub apple_convert
 {
- local($datafield) = $_[0];
+ my $datafield = $_[0];
  
  ##                             line feeds, returns
  $datafield =~ s/=20\n/\n/g;
@@ -1023,7 +1034,6 @@ sub apple_convert
  $datafield =~ s/=3F/-/g;    # 95    hyphen
  $datafield =~ s/â€“/-/g;    #hyphen
  $datafield =~ s/–/-/g;    #hyphen
- 
  return($datafield);  	
 }
 

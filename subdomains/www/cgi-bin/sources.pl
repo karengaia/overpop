@@ -184,6 +184,18 @@ sub get_sources
  }
 }
 
+
+sub get_sourceid  ##used in sources table import- may want to move to controlfiles.pl for adds
+{
+ my($source) = $_[0];
+ my $sourceid = 0;
+ my $sth_source = $dbh->prepare( 'SELECT sourceid FROM sources where sourcename = ?' );
+ $sth_source->execute($source);
+ $sourceid = $sth_source->fetchrow_array();
+ $sth_source->finish();
+ return($sourceid);
+}
+
 sub get_source_linkmatch
 {
  my $url = $_[0];

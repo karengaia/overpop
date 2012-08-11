@@ -45,7 +45,7 @@
 #        to print an select/update form list of all items on 'suggested' index.
 #  4. article.pl - receives 'post' from #3, parses the list for selected & updated items
 #  5. From there the article usually goes to the Headlines list, where the summarizer picks it; then to the summarized list;
-#     then to the NewsDigest_newsItem list (which is published as the front page of WOA)
+#     then to the NewsDigest_NewsItem list (which is published as the front page of WOA)
 #*******************************************************************************
 
 sub separate_email_files {
@@ -318,7 +318,7 @@ sub ck_end_headers_not_used  {
 
 ## 300  PARSE THE EMAIL BODY FOR SEPARATORS, ETC
 
-sub parse_email   # variables already initialized in separate_email_files
+sub parse_email   #parse line-by-line - variables already initialized in separate_email_files
 { 
   $msg_on = 'Y' if($emsgline =~ /$uStart/ and ($uStart or $uStart !~ /%NA/) );  # Used to be $uSkipoff and $uEnd
   $msg_off = 'Y' if($msg_on eq 'Y' and $uStop and $uStop !~ /%NA/ and $emsgline =~ /$uStop/);
@@ -567,11 +567,14 @@ sub write_email
 	    $msgbody = &parse_popnews($pdfline,$msgbody);  #in smartdata.pl
 	    $sectsubs = $save_sectsubs;
 	    $addsectsubs = $sectsubs;
-        $docid = &get_docCount;   # in docitem.pl
-        $sysdate = &calc_date('sys',0,'+');
-		&write_doc_item($docid);   # in docitem.pl
-		$sectsubs = $save_sectsubs;
-		return();
+        &main_storeform;   #in docitem.pl
+	    return();
+	
+#       $docid = &get_docCount;   # in docitem.pl
+#        $sysdate = &calc_date('sys',0,'+');
+#		&write_doc_item($docid);   # in docitem.pl
+#		$sectsubs = $save_sectsubs;
+#		return();
 	}
 # else comes here
 	my $op_filename = "$sentdatetm-$ehandle";	

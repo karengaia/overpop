@@ -203,13 +203,15 @@ sub prelim_select_items
  $selected_found = 'N';
  $newseqct       = 0;
  $count          = 0;
- 
- print "<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>$owner action on selected items $thisSectsub<\/title>\n";
- print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
- my $lc_owner = lc($owner);
- $aTemplate = $lc_owner . "Update";
-
- print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/ownerform.css\" media=\"Screen\" />\n" 
+ print $GLVARS{'std_headtop'} . "<title>$owner action on selected items $thisSectsub<\/title>\n";
+ print $GLVARS{'std_meta'};
+# print "<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>$owner action on selected items $thisSectsub<\/title>\n";
+# print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
+# my $lc_owner = lc($owner);
+# $aTemplate = $lc_owner . "Update";
+ $aTemplate = $OWNER{oupdatetemplate}; 
+ my $ownerformcss = $OWNER{ocsspath};
+ print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/$ownerformcss.css\" media=\"Screen\" />\n" 
    if($owner);
  print "</head><body>\n";
  print "<h3>The following is a list of the items you have selected.<h3>\n";
@@ -237,6 +239,8 @@ sub do_selected
   &get_doc_data($docid,N);  #in docitem.pl
 
   &get_more_select_form_values if($ipform =~ /[Uu]pdate|[Uu]pdt/);  ## overrides prior doc values
+
+  &add_new_source if($addsource eq 'Y' and $source);  #in source.pl
 
   $add_error = 'N';
   &add_del_selected_sectsubs if($addsectsubs =~ /[A-Za-z0-9]/ or $delsectsubs =~ /[A-Za-z0-9]/);

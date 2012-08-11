@@ -16,7 +16,7 @@
 
 sub process_template
 {
-  my($print_it,$template) = @_;
+  my($template,$print_it,$email_it,$htmlfile_it) = @_;
   &put_data_to_array;     # in docitem.pl
   if($print_it eq 'Y') {
      $nowPEH = 'P';
@@ -65,13 +65,11 @@ my $aTemplate = $_[0];
  else {
     @templates = $tTemplate;
  }
-
 $midfile = "$templatepath$slash$templfile.mid";
 
 open(MIDTEMPL, ">$midfile") or print "temp72 cannot open midfile $midfile<br>\n";
-   foreach $template (@templates) {
-#	print "art1064 aTemplate $aTemplate ..template $template<br>\n";
-      &do_template;
+   foreach $template (@templates) {	
+      &do_template($template);
 }
 close(MIDTEMPL);
 
@@ -84,7 +82,7 @@ close(MIDTEMPL);
   open(MIDTEMP2, "$templatepath/$templfile.mid");
   }
  else {
-	die "ERROR: reason: art template_merge $templatepath/$templfile\.mid not found .. could not open<br>\n";
+	die "ERROR: reason: template_merge $templatepath/$templfile\.mid not found .. could not open<br>\n";
  }
 
  local($img_ctr = 0);
@@ -92,12 +90,11 @@ close(MIDTEMPL);
  {
      chomp;
      $line = $_;
-## Javascripts bracket used for indexes CONFLICTS
+
+# Javascripts bracket used for indexes CONFLICTS
 ##      with brackets used for data substitution
      $javascript = 'Y' if($line =~ /\<[sS][cC][rR][iI][pP][tT]/ or $line =~ /\[JS_ON\]/);
      $javascript = 'N' if($line =~ /\<\/[sS][cC][rR][iI][pP][tT]/ or $line =~ /\[JS_OFF\]/);
-
-##print "<p><font size=1 face=verdana color=#666666>50 **$line**</font>";
 
      if($line =~ /docfullbody/) {
      	$docfullbody = $DOCARRAY{fullbody};
@@ -121,7 +118,6 @@ close(MIDTEMPL);
      $email_msg = "$email_msg$line\n" if($now_email =~ /Y/);
 
      if($line !~ /\[JS_ON\]/) {
-
         print OUTFILE "$line\n" if($outfile and $now_htmlfile =~ /Y/);
         print"$line\n" if($now_print eq 'Y');
      }
@@ -144,14 +140,11 @@ unlink "$templatepath/$templfile.mid";
 
 sub do_template
 {
+ my $template = $_[0];
  $default_class = "";
 
  unless($template) {
 	%template = $cTemplate;
- }
- if($template =~ /:/) {
-    ($template,$cStyleclass) = split(/:/,$template,2);
-    ($rest,$cStyleclass) = split(/=/,$cStyleclass,2);
  }
 
  if($cStyleclass =~ /[A-Za-z0-9]/) {
@@ -169,7 +162,7 @@ sub do_template
 
  $templatefile = "$templatepath/$template\.htm";
 
- unless(-f "$templatefile") {
+unless(-f "$templatefile") {
     $errmsg = "tem170 template= $template not found. ..templatepath $templatepath ..c $cTemplate ..d $dTemplate ..a $aTemplate ..cSectsubid $cSectsubid<br>\n";
     &printSysErrExit($errmsg);
  }
@@ -182,7 +175,7 @@ sub do_template
      $line = $_;
 ##        Process IN-LINE TEMPLATE
      if($line =~ /TEMPLATE=/ or $line =~ /OWNERTEMPLATE=/) {
-         ($rest, $intemplate) = split(/=/,$line);
+        ($rest, $intemplate) = split(/=/,$line);
          ($intemplate,$rest) = split(/]/,$intemplate);
 
          if($owner and $line =~ /OWNERTEMPLATE/) {
@@ -271,7 +264,6 @@ sub process_imbedded_commands
    	}
    }
    else {
-	print "$line\n" if($template =~ /delete_select_end/);
     	print MIDTEMPL "$line\n";
    }
 }
@@ -337,8 +329,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[DBTABLES\]/) {
-	print MIDTEMPL "DBTABLES calls list_functions<br>\n";
-      &list_functions;
+      &list_functions;  #in dbtables_ctrl.pl
    }
 
    elsif($linecmd =~ /\[RTCOL_TOP\]/ and $cRtCol eq 'R') {
@@ -507,7 +498,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[LIKELYREGIONS\]/ and $region =~ /;/) {
-      	print MIDTEMPL "<select size=3 multiple name=\"region$pgitemcnt\">\n";
+      	print MIDTEMPL "<select size=2 multiple name=\"region$pgitemcnt\">\n";
         &print_likely_regions;              # in controlfile.pl
         print MIDTEMPL "<\/select><br>\n";
    }
@@ -586,6 +577,10 @@ sub do_imbedded_commands
       }
    }
 
+   elsif($linecmd =~ /\[SUBHEADLINE\]/ and $subheadline) {
+       print MIDTEMPL "<h5>$subheadline</h5>";
+   }
+
    elsif($linecmd =~ /\[BODY\]/) {
         $body = &do_body_comment($body);
         print MIDTEMPL "$body";
@@ -653,34 +648,38 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[DOCLINK\]/) {
 	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%login%$docid%$qSectsub\">$docid</a>";
    }
-   elsif($linecmd =~ /\[CSWPDOCLINK\]/) {   # can get rid of this one
-	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%cswplogin%$docid%$sectsubs\">$docid</a>";
-   }
+#   elsif($linecmd =~ /\[CSWPDOCLINK\]/) {   # can get rid of this one
+#	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%cswplogin%$docid%$sectsubs\">$docid</a>";
+#   }
+
    elsif($linecmd =~ /\[OWNERDOCLINK\]/) {
-	  my $lc_owner = lc($owner);
-	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%$lc_owner" . "login%$docid%$qSectsub\">$docid</a>";
+	  my $o_logintemplate = $OWNER{ologintemplate};
+	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%$o_logintemplate%$docid%$qSectsub\">$docid</a>";
    }
    elsif($linecmd =~ /\[OWNERCHANGEADD\]/) {
 	  if(!$docid) {
-		print MIDTEMPL "Add new item";
-		print MIDTEMPL "<input name=\"action\" type=\"hidden\" value=\"new\" > Change item below or ";
+		print MIDTEMPL "<strong class=\"red\"><big>A. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\">Add new webpage item<\/strong>";
+		print MIDTEMPL "<input name=\"action\" type=\"hidden\" value=\"new\" >";
 	  }
 	  else {
-	     print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"> Change item below or ";
-		 print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"> Clear item and Add new one";
+	     print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"><strong class=\"red\"><big>A. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\"> CHANGE item below or";
+		 print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"> Clear item and ADD a new one<\/strong> ";
       }
    }
 
    elsif($linecmd =~ /\[OWNER_CSS\]/) {
-	  my $owner_css = "";
-	  $owner_css = "http://motherlode.sierraclub.org/population/css/cswp.css" if($owner = "CSWP");
-	  print MIDTEMPL "$owner_css";
+	  if($owner) {
+	     my $owner_csspath = $OWNER{'ocsspath'};
+	     print MIDTEMPL "$owner_csspath";
+      }
    }
 
    elsif($linecmd =~ /\[REFRESH_URL\]/) {
 #	  print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$aTemplate%$thisSectsub%$owner$user\"<br>\n";
       ($userid,$rest) = split(/;/,$userid);
-	  print MIDTEMPL "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%ownerUpdate%$sectsubs%$owner%$userid";
+      my $oupdatetemplate  = $OWNER{'oupdatetemplate'};
+      $ownersectsub = $OWNER{'odefaultSS'} unless($ownersectsub);
+	  print MIDTEMPL "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$oupdatetemplate%$ownersectsub%$owner%$userid%$ownerSubs";
    }
 
    elsif($linecmd =~ /\[PRIORITY_STAR\]/) {
@@ -715,8 +714,8 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[ACRONYMS\]/) {
-	require 'misc_dbtables.pl';
-      &prt_acronym_list;       #in misc_dbtables.pl;
+	require 'dbtables_ctrl.pl';
+      &prt_acronym_list;       #in dbtables_ctrl.pl;
    }
 
    elsif($linecmd =~ /\[THISSECTION\]/) {
@@ -733,8 +732,7 @@ sub do_imbedded_commands
          &get_news_only_sections;     # in sectsubs.pl
    }
    elsif($linecmd =~ /\[OWNER_SECTIONS\]/) {  # CSWP and Maidu
-         &get_owner_sections($cswpSections)  if($owner =~ /CSWP/);   # in sectsubs.pl
-         &get_owner_sections($maiduSections) if($owner =~ /Maidu/);  # in sectsubs.pl
+         &get_owner_sections($ownerSections);   # in sectsubs.pl	
    }
 
    elsif($linecmd =~ /\[POINTS_SECTIONS\]/) {
@@ -744,7 +742,6 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[NEWS_SECTION\]/) {
          &get_news_section if($sectsubs =~ /$summarizedSS/);  # in sectsubs.pl
    }
-
    elsif($linecmd =~ /\[ADD_SECTIONS\]/) {
          &get_addl_sections(_,_,'');  # in sectsubs.pl
    }
@@ -788,8 +785,8 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[STD_ITEM_TOP\]/) {
 	print MIDTEMPL "<a name=\"$docid\"></a>\n";
 	 	if($savecmd =~ /print_select/ or $sectsubs =~ /Suggested_emailedItem/) {
-          print MIDTEMPL "<div style=\"float:left;vertical-align:top;margin-top:10px;width:25px;\"><input type=\"checkbox\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
-          print MIDTEMPL "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\"><\/div>\n";
+          print MIDTEMPL "<input type=\"checkbox\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
+          print MIDTEMPL "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\">\n";
         }
    }
 
@@ -1010,11 +1007,7 @@ sub get_borderbkgrnd
  print MIDTEMPL "<\/select><br>\n";
 }
 
-## 0140
 
-
-
-## 0145
 
 sub do_link
 {
@@ -1052,11 +1045,13 @@ sub do_link
 sub do_redarrow
 {
  my $link = "";
-    $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
+   $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
  if($owner) {
 #	http://overpop/cgi-bin/article.pl?display%ownerlogin%026391%CSWP_Calendar%%xxxx%%%%%%CSWP
-    $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner\">";
-}
+    my $ownerlogin = $OWNER{ologintemplate};
+    my $ownersubs  = $OWNER{ownersubs};
+    $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
+ }
  else {
     $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
  }
@@ -1141,15 +1136,15 @@ sub do_body_comment
 		   my @words = split(/ /,$bodycomline);
 		   $bodycomline = "";
 		   foreach $word (@words) {
-		       if($word =~ /^#(http:\/\/.*)/ or $word =~ /^##(http:\/\/.*)/ or $word =~ /^#mp3#(http:\/\/.*)/) {
+		       if($word =~ /^#(http:\/\/.*)/ or $word =~ /##(http:\/\/.*)/ or $word =~ /#mp3#(http:\/\/.*)/) {
 				   $url = $1;
-				   if($word =~ /^##http:/) {   #   2 ##s = clickable url
+				   if($word =~ /##http:/) {   #   2 ##s = clickable url
 					  $word = "<small><a target=\"blank\" href=\"$url\">$url<\/a><\/small>";
 				   }
                    elsif($template eq "newsalertItem") {
 				        $word = "Click left arrow ";
                    }
-				   elsif($word =~ /^#mp3#http:/) {   #   2 ##s = clickable url
+				   elsif($word =~ /#mp3#http:/) {   #   2 ##s = clickable url
 					    $word .= "<object width=\"300\" height=\"42\"> <param name=\"src\" value=\"$url\">";
 $word = <<ENDWORD;
 <param name="autoplay" value="false">
@@ -1165,7 +1160,7 @@ ENDWORD
 		       }
 		       elsif($word =~ /^#([A-Za-z0-9\-]{2,30})/) {  
 			      $acronym = $1;
-			      $title = &get_title($acronym);  # in misc_dbtables.pl
+			      $title = &get_title($acronym);  # in dbtables_ctrl.pl
                   if($title) {
 			          $word = "<acronym title=\"$title\">$acronym<\/acronym>";
                   }

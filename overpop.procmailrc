@@ -1,8 +1,0 @@
-PATH=/usr/local/bin:/usr/bin:/bin
-
-:0 c
-* !^X-Spam-Status: Yes
-popaware
-* ^To: popnews@.*$
-| /www/overpopulation.org/subdomains/www/cgi-bin/cgiwrap/popaware/getmail.pl
-

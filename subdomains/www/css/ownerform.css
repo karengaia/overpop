@@ -1,17 +1,19 @@
-	html {background-color:#969;}
-	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	html {background-color:#969;} 
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #000; background:#fff;}
 	b    {font-family: verdana;font-size:12px;font-weight:bold;}
-	table tr td {font-size:100%;}
+	table tr td {font-size:100%;color:#000}
 	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
 	span  {font-family:verdana; font-size:10px;}
 	label {font-family:verdana; font-size:12px; font-weight:bold;}
 	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
 	select {font-size: 12px; font-family: arial; border: 1px solid #ccc; background: #fff;}
 	p     {font-family:arial font-size:9px;font-weight:normal;}
-	h6    {font-family:arial font-size:9px;font-weight:bold;}
+	h6    {font-family:arial font-size:11px;font-weight:bold;}
 	small {font-family:arial font-size:7px;font-weight:normal;}
 	.grey {color:#666666;}
 	.verdana {font-family:arial;font-size:85%;}
-	#leftcol {width:460px; margin: 0; padding: 0; border-right:solid 2px #d0d0d0; border-top: solid 2px #d0d0d0;vertical-align:top;}
+	#leftcol {width:500px; margin: 0; padding: 0; border-right:solid 2px #d0d0d0; border-top: solid 2px #d0d0d0;vertical-align:top;}
+	.box {width:600px; margin: 0; padding: 5px; border:solid 1px #d0d0d0;}
 	#rightcol {width:450px; margin: 0; padding: 5px; border-top: solid 2px #d0d0d0;vertical-align:top;}
-	.red {color:#DC143C;}
+	.red {color:#DC143C;font-family:arial;font-size:100%;}
+	.comment {color: #609090;font-family:comic sans MS;font-size:75%;}

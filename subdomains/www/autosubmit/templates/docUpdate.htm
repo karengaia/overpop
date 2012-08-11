@@ -241,7 +241,8 @@ document.getElementById('mm' + mmstr).selected = true;
   "http://[CGISITE]">
   <font face="arial" size="2" color="#000000"><b>Overpopulation.org</b></a>&nbsp;&nbsp;
 <br><cite style="color:darkred;">
-[TODAY] .. docid# [docid] <br> sysdate [sysdate]<br>
+[TODAY] .. docid# [docid] <br> sysdate [sysdate]
+&nbsp; &nbsp; ..updated [updated_on]<br>
 [OPERATOR_NAME] ...
 [SUMMARIZER_NAME] ...
 [SUGGESTOR_NAME]
@@ -352,9 +353,9 @@ Add region</cite><input type="radio" name="regioncrud" value="A" onclick="addreg
 </td>
 </table>
 <!-- DATE/SOURCE two cols -->
-<table id="sourceheadline"><tr>
-
+<table id="source"><tr>
 <td id="sourcecol2" valign=top>
+	
     <label for="selectsource"><span style="color:red">*</span> Article Source :</label>&nbsp;&nbsp;
     <cite>Publication or organization&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Update source</cite><input type="radio" name="sourcecrud" value="U" onclick="loadSource();showhide('hiddensource')">
   <br>
@@ -369,23 +370,38 @@ Add region</cite><input type="radio" name="regioncrud" value="A" onclick="addreg
 value="
 [OTHERSOURCE]
 "> &nbsp;
-<input type="radio" name="sourcecrud" value="-" checked="checked" onclick="clearSourceUpdtAdd();showhide('hiddensource')">
-<br><br>
+<input type="radio" name="sourcecrud" value="-" checked="checked" onclick="clearSourceUpdtAdd();showhide('hiddensource')"><br>
+
+&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="skipauthor" 
+[SKIPAUTHOR]
+    value="Y"> <cite>Skip author</cite></br>
+<label for="author">Author :</label>&nbsp;&nbsp;
+<input type="text" name="author" size="65" maxlength="70"
+value="
+[author]
+">
+<br><label for="unique">Unique :</label>&nbsp;&nbsp;
+<input type="text" name="unique" size="50" maxlength="50"
+value="
+[unique]
+">
+<br>
 
 <!--- HEADLINE -->
 <table>
 <tr><td valign="bottom">
 <b><span style="color:red">*</span> Article Headline:</b>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-</td><td>&nbsp;&nbsp;&nbsp;</td>
+</td><td>&nbsp;&nbsp;</td>
 <td valign=bottom><input type="checkbox" name="regionhead" 
 [REGIONHEAD]
     value="Y"> <cite>Put region in headline &nbsp; &nbsp; &nbsp;
-  <input name="titlize" type=radio value="Y">
-    Titlize headline. </cite><br>
+  <input name="titlize" type=radio value="Y">Titlize</cite>&nbsp; &nbsp;  
+<input type="checkbox" name="skipheadline" 
+[SKIPHEADLINE]
+    value="Y"> <cite>Skip</cite></br>
 </td>   
 </table>
-
-<textarea name="headline" wrap="physical" rows="2" cols=70">
+<textarea name="headline" wrap="physical" rows="2" cols="75">
 [headline]</textarea>
 </td>
 
@@ -416,17 +432,28 @@ value="
 		
 </td></tr>	
 </table>
-<br>
 <!--- LINK AREA -->
 
-<div id="linksummarycomment">
+<div id="authorlinksummarycomment">
+	
+	<label for="subheadline">Subheadline :</label>&nbsp;&nbsp;
+	<input type="text" name="subheadline" size="90" maxlength="150"
+	value="
+	[subheadline]
+	">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="checkbox" name="skipsubheadline" 
+	[skipsubheadline]
+	    value="Y"> <cite>skip</cite><br><br>
+	
 <b><span style="color:red">*</span> Link to article (URL):</b>
 <cite> &nbsp;(Please provide if there is a live link)</b> &nbsp;&nbsp;&nbsp;&nbsp;</cite>
     <input name="selflink" type=checkbox value="Y"
 [SELFLINK_CHECK]
 > <cite>self&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<a target="_blank" href="[link]">Open url</a></cite>
   <br>
-<textarea name="link" wrap="physical" rows="2" cols=100">[link]</textarea>
+<input type="text" name="link" size="130" maxlength="200"
+value="
+[link]
+">
 <br><br>
 
 
@@ -459,7 +486,6 @@ value="
 	    <textarea name="title" wrap="physical" rows="2" cols=25"></textarea></cite>
 
 </td></tr></table>
-<br><br>
 <table><td>
     <label for="comment">Comments:</label> &nbsp;&nbsp;
    <cite>Use sparingly</cite><br>
@@ -481,7 +507,7 @@ value="
 [POINTS]
 </textarea>
 </div> <!-- end of linksummarycomment -->
-<br><br>
+
 
 <table><tr><td>
     <b>Full Article:</b> &nbsp;&nbsp;
@@ -494,7 +520,6 @@ value="
     <textarea id="fullbody" name="fullbody" wrap="physical" rows=15 maxrows=300 cols=100>
 [FULLBODY]
 </textarea>
-<br><br>
 </td></tr></table>
 
 <table><tr>
@@ -516,11 +541,11 @@ value="[imagefile]"><br>
 	<input type="radio" value="L" name="imageloc">left &nbsp
 	<input type="radio" value="T" name="imageloc">top &nbsp
 	<input type="radio" value="B" name="imageloc">btm &nbsp </cite><br>
-	<label for="imagealt">alt:</label>&nbsp;<input type="text" name="imagealt" size="63" maxlength="300"
+	<label for="imagealt">alt:</label>&nbsp;<input type="text" name="imagealt" size="63" maxlength="300" value="[imagealt]">
 </td>
 </tr></table>
 
-<br><input type="checkbox" name="skipsections" value="Y"> <cite>Skip Section processing</cite><br>
+<input type="checkbox" name="skipsections" value="Y"> <cite>Skip Section processing</cite><br>
 
 <!-- SECTIONS ->
 

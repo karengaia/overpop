@@ -1,14 +1,148 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
+	<meta http-equiv="Content-type" content="text/html;charset=UTF-8">
 <title>[cTitle]</title>
+<script language="javascript" type="text/javascript">
+<!--
+
+function setvar(varname,fromvar)
+{	
+eval("document.getElementById('" + varname + "').value = fromvar;");
+}
+
+function var2var(varname1, varname2) {
+  eval("document.getElementById('" + varname1 + "').value = document.getElementById('" + varname2 + "').value;");
+}
+
+function loadRegion(region)
+{
+if(!document.getElementById('selectregion')) {
+	alert('loadSource No selectregion found');
+    return(0);
+}
+var reg = document.getElementById('selectregion');
+if(reg.options.selectedIndex < 0) {
+reg.options.selectedIndex = 0;
+}
+if(!reg.options[reg.options.selectedIndex].value) {
+	alert("null region selected");
+	return(0);
+}
+var rstr = reg.options[reg.options.selectedIndex].value;
+var r = rstr.split("^",17);
+
+eval("document.getElementById('" + region + "').value = r[3];");
+}
+
+function loadSource(source)
+{
+if(!document.getElementById('selectsource')) {
+	alert('loadSource No selectsource found');
+    return(0);
+}
+var src = document.getElementById('selectsource');
+if(src.options.selectedIndex < 0) {
+src.options.selectedIndex = 0;
+}
+if(!src.options[src.options.selectedIndex].value) {
+	alert("null source selected");
+	return(0);
+}
+var sstr = src.options[src.options.selectedIndex].value;
+var s = sstr.split("^",19);
+
+eval("document.getElementById('" + source + "').value = s[1];");
+}
+
+function loadSectsub(catnum,sectsub)
+{
+if(!document.getElementById('selectsectsubN') || !document.getElementById('selectsectsubC') || !document.getElementById('selectsectsubA')) {
+	return(0);
+}
+if(catnum == 'N') {
+  var ss = document.getElementById('selectsectsubN');
+}
+if(catnum == 'C') {
+  var ss = document.getElementById('selectsectsubC');
+}
+if(catnum == 'A') {
+  var ss = document.getElementById('selectsectsubA');
+}
+if(ss.options.selectedIndex < 0) {
+ss.options.selectedIndex = 0;
+}
+if(!ss.options[ss.options.selectedIndex].value) {
+	alert('null sectsub selected');
+	return(0);
+}
+var ssstr = ss.options[ss.options.selectedIndex].value;
+var s = ssstr.split("^",29);
+
+eval("document.getElementById('" + sectsub + "').value = document.getElementById('" + sectsub + "').value + ';' + s[0];");
+}
+//-->
+</script>
+
+<style>
+	html {background-color:#969;}
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	h1   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	h3   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	b    {font-family: verdana;font-size:12px;font-weight:bold;}
+	table tr td {font-size:100%;font-family:arial;}
+	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
+	span  {font-family:verdana; font-size:10px;}
+	label {font-family:verdana; font-size:12px; font-weight:bold;}
+	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
+	select {font-size: 10px; font-family: arial; border: 1px solid #ccc; background: #fff;}
+	p     {font-family:arial font-size:12px;}
+	.grey {color:#666666;}
+	cite.verdana {font-family:verdana;}
+	div#hiddenregion {border: 2px solid #ccc; margin-left:4px; padding:5px;visibility:hidden;}
+	div#hiddensource {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	div#hiddenacronym {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	div#sectsub {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+</style>
+	
 </head>
 <body>
 	
-<form method="post" name="itemsSelect" action=
+<form method="post" id="itemsSelect" name="itemsSelect" action=
 "http://[SCRIPTPATH]/article.pl">
 <input type="hidden" name="cmd" value="selectItems">
 <input type="hidden" name="thisSectsub" value="[thisSectsub]">
 <input type="hidden" name="ipform" value="itemsSelect">
 <small>ID</small><input type="input" name="userid" size="5" maxlength="10" value="[userid]">&nbsp;
 <small>pwd</small><input type="password" name="pin" size="5" maxlength="10" value="">
+&nbsp;&nbsp;<small>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Suggested_summarizedItem%">
+Summarized</a>
+&nbsp;&nbsp;
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Headlines_sustainability%">
+Headlines</a>
+&nbsp;&nbsp;</small>
+
+<small>
+<b>Region:</b> 
+<select id="selectregion" name="selectregion">
+[REGIONS]
+</select>
+
+
+<b>Sources:</b>
+<select id="selectsource" name="selectsourcen">
+[SOURCES] 
+ <option value=""></option>
+</select><br>
+<b>Sectsub: Regular:</b><select id="selectsectsubN" name="selectsectsubN">
+[ADD_NON_COUNTRIES]
+</select>&nbsp;
+<b>Country:</b><select id="selectsectsubC" name="selectsectsubC">
+[ADD_COUNTRIES]
+</select>&nbsp;
+<b>Other:</b><select id="selectsectsubA" name="selectsectsubA">
+[OTHER_SECTIONS]
+</select>&nbsp;
 <br><h3>[cTitle]</h3>

@@ -5,6 +5,10 @@
 
 sub read_sectCtrl_to_array
 {
+ my $qOrder = $_[0];    #query string qOrder - overrides sectsubs table cOrder
+ @SSARRAY = ();
+ $SSARRAY{'qOrder'} = $qOrder;
+
  &read_sections_control_2array; 
 
 ##   special sections that we work with
@@ -52,8 +56,7 @@ sub read_sections_control_2array
   %CSINDEX = {};
   @CSARRAY = ();
   $newsSections = "";
-  $cwspSections = "";
-  $maiduSections = "";
+
   if($DB_sectsubs eq 1) {
 	 &DB_getrows_2array;
   }
@@ -61,6 +64,8 @@ sub read_sections_control_2array
 	 &flatfile_getrows_2array;
   }
   $pointsSections = "NewsDigest_pointsSolutions|NewsDigest_pointsImpacts";
+  require 'owner.pl';
+  &owner_set_sectsubs($ownerSections,$ownerSubs);  # in owner.pl - set globals for $ownerSections,$ownerSubs derived in sub saveNewsSections
 }
 
 sub flatfile_getrows_2array
@@ -187,7 +192,7 @@ sub get_pages
     foreach $rSectsub (@chksectsubs) {
        &split_rSectsub;
        $cSectsubid = $rSectsubid;
-       &split_section_ctrlB;
+       &split_section_ctrlB($cSectsubid);
        $pagenames = "$pagenames;$cPage" if($pagenames !~ /$cPage/ and $PAGEINFO{$cPage} =~ /ftpdefault/);
     }
   $pagenames =~  s/^;+//;  #get rid of leading semi-colons
@@ -195,7 +200,9 @@ sub get_pages
 }
 
 sub saveNewsSections
-{
+{ 
+  my $oSScategory = $OWNER{'oSScategory'}; 
+  $oSScategory = trim($oSScategory);
   if($cCategory eq 'N') {
 	if($newsSections) {
 	   $newsSections .= '|'.$cSectsubid;
@@ -204,21 +211,22 @@ sub saveNewsSections
 	   $newsSections .= $cSectsubid;
     }
   }
-  elsif($cCategory eq 'c') {
-	if($cswpSections) {
-	   $cswpSections .= '|'.$cSectsubid;
-    }
-    else {
-	   $cswpSections .= $cSectsubid;
-    }
-  }
-  elsif($cCategory eq 'm') {
-	if($maiduSections) {
-	   $maiduSections .= '|'.$cSectsubid;
-    }
-    else {
-	   $maiduSections .= $cSectsubid;
-    }
+  elsif($cCategory eq $oSScategory) {
+	 my $l_owner = "";
+	 if($ownerSections) {
+	    $ownerSections .= ';'.$cSectsubid;
+     }
+     else {
+	    $ownerSections .= $cSectsubid;
+     }
+
+     ($l_owner, $sub) = split(/_/,$cSectsubid,2);
+	 if($ownerSubs) {
+	     $ownerSubs = "$ownerSubs;$sub";
+	 }
+	 else {
+		   $ownerSubs = $sub;
+	 } 
   }
 }
 
@@ -226,26 +234,33 @@ sub saveNewsSections
 
 sub do_sectsubs
 {			
-	# 1st, add missing sectsub (from doclist this docitem was on)
+
+# 1st, add missing sectsub (from doclist this docitem was on)
  if($docaction ne 'N' and $sectsubs !~ /$thisSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
       $sectsubs = "$sectsubs;$thisSectsub`M";
   }
 
- #1.5 If New
- if(!$docid) {
-    $docaction = 'N';	
- }
+ # If New
+ $docaction = 'N' unless($docid);
+
+
  if($docaction eq 'N') {
-     $addsectsubs = $sectsubs;
+	 if($owner) {
+		$addsectsubs = $ownersectsub; 
+		$sectsubs = $ownersectsub;
+	 }
+	 else {$addsectsubs = $sectsubs;
+	 }
      $delsectsubs = "";
      return;
  }
 
+#  If not new - a change or delete
+
  if($owner) {
-     &do_ownersectsub;     # CSWP population stuff
+     &do_ownersectsub;     # outside user stuff
      return;
   }
-
 
  # 2nd, delete if 'Delete' requested
 
@@ -414,7 +429,11 @@ sub do_pointssectsub { # Talking Points: Impacts and Solutions
 }
 
 sub do_ownersectsub { # CSWP, Maidu, any owner other than WOA
-if($sectsubs) {
+ $ownerchg = 'Y';                                               # Do we need?
+ if($dSectsubname =~ /$ownersectsub/) { #If no change,
+	$ownerchg = 'N';
+ }
+ if($sectsubs) {
      if($ownersectsub =~ /$sectsubs/) {
       # no change
      }
@@ -425,6 +444,7 @@ if($sectsubs) {
  }
  else {
 	   $addsectsubs = $ownersectsub;
+	
  }
  $sectsubs = $ownersectsub;
  $sectsubs = "$sectsubs`$docloc" if($docloc);
@@ -532,6 +552,9 @@ sub add_extra_sections
 sub delete_sectsubs
 {
 ##          current sectsubs
+
+ my $oSScategory = $OWNER{oSScategory}; 
+
  my @sectsubs = split(/;/,$sectsubs);
  foreach $xsectsub (@sectsubs) {
    my $sectsub = $xsectsub;
@@ -540,10 +563,10 @@ sub delete_sectsubs
    my($sectsubname,$subinfo) = split(/`/, $sectsub);
    &split_section_ctrlB($sectsubname);    # get $cCategory
    if(($cmd eq "storeform" and $updsectsubs !~ /$sectsubname/ 
-           and $newsSections !~ /$sectsubname/ and $cswpSections !~ /$sectsubname/ and $maiduSections !~ /$sectsubname/)
+#           and $newsSections !~ /$sectsubname/ and $cswpSections !~ /$sectsubname/ and $maiduSections !~ /$sectsubname/)
+           and $newsSections !~ /$sectsubname/ and $ownerSections !~ /$sectsubname/)
      or ($cCategory eq 'N' and $newschg eq 'Y' and $newsprocsectsub !~ /$sectsubname/)
-     or ($cCategory eq 'c' and $cswpchg eq 'Y' and $cswpprocsectsub !~ /$sectsubname/)
-     or ($cCategory eq 'm' and $maiduchg eq 'Y' and $ maidusectsub !~ /$sectsubname/)
+     or ($cCategory eq $oSScategory and $ownerchg eq 'Y' and $ownerprocsectsub !~ /$sectsubname/) ## NO $ownerchg or $ownerprocsectsub FOUND
      or ( $pointschg eq 'Y' and $pointssectsub !~ /$sectsubname/)) {
    }
    else {
@@ -960,23 +983,25 @@ sub get_owner_sections
   my $ownerSections = $_[0];
 ### change this to get_owner_sections and $ownerSections; put owner code in sectsubs table (sections flatfile)
 ### where category is.
-  my $expSections = "$ownerSections|$deleteSS";
-  my (@xsects) = split(/\|/,$expSections);  #newsSections created in sub read_sectCtrl_to_array
+  my $expSections = "$ownerSections;$deleteSS";
+  my (@xsects) = split(/\;/,$expSections);  #newsSections created in sub read_sectCtrl_to_array
   my $currentSS = "";
   my $docloc = "";
-  $ownerDefaultSS = "CWSP_Calendar";
-  $dSectsubs = $ownerDefaultSS unless($dSectsubs);
+
+#  $ownerDefaultSS = "CWSP_Calendar";
+
+  $dSectsubs = trim($OWNER{odefaultSS}) unless($dSectsubs);
   foreach $xsect (@xsects) {
     $xsect =~ s/`+$//;  #get rid of trailing tic marks
+    $xsect = trim($xsect);
+    $selected = "";
     if($dSectsubs =~ /$xsect/ or $xsect =~ /$dSectsubs/ or $dSectsubs eq $xsect) {	
-	   $selected = "selected";
+	   	$selected = "selected=\"selected\"";
 	   $currentSS = $xsect;
 	} # end if
 	my $option = $xsect;
 	$option = 'Deleted' if($xsect =~ /delete/);
 	print MIDTEMPL "<option value=\"$xsect\" $selected >$option</option>\n";
-	$selected = "";
-
   } # end outer foreach
 
   if($currentSS and $action ne 'new' and $lifonum and $lifonum > 0) {
@@ -1130,7 +1155,8 @@ sub get_addl_sections
 SELECTEND
  }
 
- $saveCsectsub = $cSectsub;
+ $save_sectsubinfo = $CSINDEX{$rSectsubid};
+
  foreach $cSectsub (@CSARRAY) {
       &split_sectionCtrl($cSectsub);
       if(($catCode eq 'X' and $cCategory eq 'X')
@@ -1149,9 +1175,6 @@ SELECTEND
       }
  } #end foreach
 
-  $cSectsub = $saveCsectsub;  ## restore previous sectsub and split it
-  &split_sectionCtrl($cSsectsub);
-
  if($info eq 'I') {
  }
  else {
@@ -1164,6 +1187,8 @@ ENDSELECT
 	     &print_stratus_add;
 	}
  }
+
+ &split_sectionCtrl($save_sectsubinfo);
 
 } #end sub
 
@@ -1226,22 +1251,22 @@ sub php_do_pages {
       if($tVisable eq 'Y' and ($tPreview eq 'Y')) {
           if($cPage and $cPage ne $prev_pagename) {
               if($cSectsubid =~ /$newsdigestSS/) { #news digest has both newsItem and index
-                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%$cSectsubid\">News fly</a></td>\n";
+                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid\">News fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
 
                    print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/index.php?$cSectsubid\">Index view</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/php/saveindex.php?$cPage\">Save index</a></td></tr>\n";
               }
               elsif($cVisable =~ /mo/) { # mobile does not go through php 
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n";
+	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$scriptpath/moveutil.pl?move%$cPage\">Move $cPage</a></td></tr>\n";
               }
               elsif($cVisable =~ /hd/) {   # head info is invisible unless it is in a textbox box - But it doesn't work because TB becomes part of meta or cssjs
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
+	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
               }
               elsif($cVisable =~ /pp/) {   # page parts other than head parts (mostly Page 1) 
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_section%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
+	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
                    print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
               }
               else {            # all sections (page 2) 
@@ -1398,11 +1423,11 @@ sub split_sectionCtrl
 	  $cSSid = $id;
 		
 #print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..fromsectsubid $fromsectsubid ..fromsectsub $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";	
-	  $cPg2Items = $cPg1Items if($cPg2Items == 0);
+	$cPg2Items = $cPg1Items if($cPg2Items == 0);
 	
-	  if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
+	if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
 		$cMaxItems = $cPg1Items;
-	  }
+	}
 	  elsif($pg_num > 1 and $cPg2Items =~ /[A-Za-z0-9]/) {
 		$cMaxItems = $cPg2Items;
 		$cOrder = $cPg2order;
@@ -1414,6 +1439,37 @@ sub split_sectionCtrl
 	  else {
 #          $cOrder = $default_order ;
       }
+      $cCategory = &trim($cCategory);  #found in common.pl
+ 
+	$SSARRAY{'id'}            = $id;
+	$SSARRAY{'seq'}           = $seq;
+	$SSARRAY{'cSectsubid'}    = $cSectsubid;
+	$SSARRAY{'fromsectsubid'} = $fromsectsubid;
+	$SSARRAY{'cIdxSectsubid'} = $cIdxSectsubid;
+	$SSARRAY{'cSubdir'}       = $cSubdir;
+	$SSARRAY{'cPage'}         = $cPage;
+	$SSARRAY{'cCategory'}     = $cCategory;
+	$SSARRAY{'cVisable'}      = $cVisable;
+	$SSARRAY{'cPreview'}      = $cPreview;
+	$SSARRAY{'cOrder'}        = $cOrder;
+	$SSARRAY{'cPg2order'}     = $cPg2order;
+	$SSARRAY{'cTemplate'}      = $cTemplate;
+	$SSARRAY{'cTitleTemplate'} = $cTitleTemplate;
+	$SSARRAY{'cTitle'}         = $cTitle;
+	$SSARRAY{'cAllOr1'}        = $cAllOr1;
+	$SSARRAY{'cMobidesk'}      = $cMobidesk;
+	$SSARRAY{'cDocLink'}       = $cDocLink;
+	$SSARRAY{'cHeader'}        = $cHeader;
+	$SSARRAY{'cFooter'}        = $cFooter;
+	$SSARRAY{'cFTPinfo'}       = $cFTPinfo;
+	$SSARRAY{'cPg1Items'}      = $cPg1Items;
+	$SSARRAY{'cPg2Items'}      = $cPg2Items;
+	$SSARRAY{'cPg2Header'}     = $cPg2Header;
+	$SSARRAY{'cMore'}          = $cMore;
+	$SSARRAY{'cSubtitle'}      = $cSubtitle;
+	$SSARRAY{'cSubtitletemplate'} = $cSubtitletemplate;
+	$SSARRAY{'cMenuTitle'}     = $cMenuTitle;
+	$SSARRAY{'cKeywordsmatch'} = $cKeywordsmatch;
 }
 
 
@@ -1471,6 +1527,36 @@ print "Goes to $sections_import, then to sectsubs.rb (import)<br><br>\n";
 }
 
 sub clear_sectsubs_variables {
+	$cSectsubid = "";
+	$fromsectsubid = "";
+	$cIdxSectsubid = "";
+	$cSubdir = "";
+	$cPage = "";
+	$cCategory = "";
+	$cVisable = "";
+	$cPreview = "";
+	$cOrder = "";
+	$cPg2order = "";
+	$cTemplate = "";
+	$cTitleTemplate = "";
+	$cTitle = "";
+	$cAllOr1 = "";
+	$cMobidesk = "";
+	$cDocLink = "";
+	$cHeader = "";
+	$cFooter = "";
+	$cFTPinfo = "";
+	$cPg1Items = "";
+	$cPg2Items = "";
+	$cPg2Header = "";
+	$cMore = "";
+	$cSubtitle = "";
+	$cSubtitletemplate = "";
+	$cMenuTitle = "";
+	$cKeywordsmatch = "";
+}
+
+sub old_clear_sectsubs_variables {
 	$id = 0;
 	$fromsectsubid = 0;
 	$subdir = "";

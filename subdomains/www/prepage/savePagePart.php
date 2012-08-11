@@ -15,7 +15,7 @@ $phpdir = "$publicdir/php";
 $scriptpath = "{$CONFIG['servername']}/{$CONFIG['cgi_path']}/";
 $home = $publicdir;
 
-$sourcepage = "http://$scriptpath/article.pl?display_section%%%$sectionname";
+$sourcepage = "http://$scriptpath/article.pl?display_subsection%%%$sectionname";
 $targetfilename = "$home/prepage/$pagename.html";
 
 $webpage = file_get_contents($sourcepage);

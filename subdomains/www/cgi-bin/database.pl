@@ -1,6 +1,55 @@
 #!/usr/bin/perl  --
 
 ## for select statements 
+
+sub get_print_query_results  #Replace sub below with this
+{
+ my ($print_it,$dbh,$sql_query,@colheaders) = @_;   # get arguments: sql and array of column names
+ 
+ $dbh = &db_connect if(!$dbh);
+  
+ my $sth = $dbh->prepare_cached($sql_query)
+     or die "Error in preparing the query; must quit now: $dbh->errstr db12\n";
+
+ $sth->execute( )
+     or die "Error executing query; must quit now: $sth->errstr  db15\n";
+ 
+ if ($sth->rows == 0) {
+    if($print_it) {print "No matching rows found.<br>\n\n";}
+    else {return(0);}
+ }
+ else {
+	unless($print_it) {
+		$number = $sth->rows;
+		return($number,$sth);
+	}
+
+    print "Query results:<br>\n================================================<br>\n";
+    print"<table>\n";
+
+    if(@colheaders) {
+         print"<tr>\n";
+         foreach $colheader (@colheaders) {  # print column headers
+            print "<td>$colheader</td>\n";
+         }
+         print"</tr>\n";
+      }
+
+      while (my @row = $sth->fetchrow_array()) { # print data retrieved         
+         print"<tr>\n";
+#         @row = $sth->fetchrow_array( );
+         foreach $field (@row) {
+           print "<td>$field</td>\n";
+         }
+         print"</tr>\n";
+      }
+      print"</table>\n";
+
+	  warn "Problem in retrieving results", $sth->errstr( ), "\n" if($sth->err( ));
+	  $sth->finish();
+ }
+}
+
 sub print_query_results
 {
  local($dbh,$sql_query,@colheaders) = @_;   # get arguments: sql and array of column names
@@ -42,8 +91,6 @@ sub print_query_results
         if $sth->err( );
  
  $sth->finish();
-
-# $dbh->disconnect or warn "Disconnection error: $DBI::errstr\n";
 }
 
 sub db_connect {
