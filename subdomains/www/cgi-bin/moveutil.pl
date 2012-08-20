@@ -9,6 +9,7 @@
 ## 2005 Aug 11 - added move from 'new' directory - to start a new version
 
 require './bootstrap.pl';
+require 'common.pl';
 
 print "Content-type: text/html\n\n";
 ##require 'ftpSync.pl';
@@ -59,7 +60,6 @@ else {
 
 if($cmd !~ /[A-Za-z0-9]/) {    ## get email command
    $printit = 'E';
-##   &read_email; # CHANGE THIS TO ACCEPT EMAIL from minnie@population-awareness.net
    ($msg1,$rest) = split(/\n/,$message,2);
 
    if($msg1 =~ /(MOVE|move):/) {

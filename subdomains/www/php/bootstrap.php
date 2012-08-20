@@ -35,7 +35,7 @@ function db_conn() {
 	 $user = $CONFIG['mysql_user'];
 	 $pwd  = $CONFIG['mysql_password'];
 	 $database = $CONFIG['mysql_database'];
-
+// echo "bootstrap.php host " . $host . " ...usr " . $user . " ...pwd " . $pwd . " ..db " . $database;
     $db_conn = mysql_connect($host, $user, $pwd)
      or die('Could not connect to MySQL database. ' . mysql_error());	
 

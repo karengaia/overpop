@@ -12,7 +12,7 @@ require dirname(__FILE__) . '/../php/bootstrap.php';
 		
 	$counter = new Counter();
 	$counter->increment();
-/*	$count = $counter->getCount(); */
+	$count = $counter->getCount(); 
 	
 	$hitcounter = new Hitcounter();
 	$hitcounter->hitincrement();
@@ -20,7 +20,7 @@ require dirname(__FILE__) . '/../php/bootstrap.php';
 	
 	print "document.write('".addslashes($hitcount)."');";
 	
-echo "dir_FILE " . dirname(__FILE__) . '/../php/bootstrap.php';
+// echo "dir_FILE " . dirname(__FILE__) . '/../php/bootstrap.php';
 	
 	class Counter {
 	
@@ -45,6 +45,7 @@ echo "dir_FILE " . dirname(__FILE__) . '/../php/bootstrap.php';
 		
 		function setCount()
 		{		
+	echo "setCount " . $this->count . " ..file " . $this->file; 
 			$fp = fopen($this->file, "w");
 			fwrite($fp, "".$this->count);
 			fclose($fp);

@@ -119,11 +119,20 @@ sub get_sort_sysdate
     }
 }
 
+sub get_sort_woadateitme   ## still need to add woadatetime to index for summarized, suggested, news
+{                          ## this is just for conversion of flat to DB (do we need?)
+	$kSysdate = &conform_date($woadatetime,'n',$pubdate); # if no woadatetime, use $pubdate + hhmmss = 000000
+    if($sortorder eq 'W') {
+        $kSysdate = (30000000000000 - $kSysdate);
+        $kSysdate = "0$kSysdate" if($kSysdate =~ /^9/);
+    }
+}
+
 sub conform_date    # format yyyy-mm-dd
 {
   my ($date,$format,$date2) = @_;
 
-  ($yyyy,$mm,$dd) = split(/-/,$date,3);
+  ($yyyy,$mm,$dd) = split(/-/,$date,3);  ## need to add split on space and : if datetime
 
   if(($yyyy !~ /^[0-9]{4}$/ or $yyyy =~ /0000/) and $sysdate) {
 	 $date = $date2;
@@ -366,7 +375,7 @@ sub total_pages
  if($tot_items > 0 and tot_items =~ /0-9/) {
  }
  else {
-    $tot_items = &total_items($doclistname);
+    $tot_items = &total_items($doclistname) + 1;
  }
 
  if($tot_items !~ /[0-9]/ or $tot_items < 2 or $tot_items <= $pg1max ) {
@@ -388,8 +397,8 @@ sub total_pages
 
 sub total_items
 {
- local($doclistname) = $_[0];
- local($tot_items) = 0;
+ my $doclistname = $_[0];
+ my $tot_items = 0;
 
   if(-f "debugit.yes") {
      $cntfilename = "testitem.txt"
@@ -398,9 +407,9 @@ sub total_items
      ($cntfilename,$rest) = split(/\.idx/,$doclistname);
      $cntfilename = "$cntfilename.cnt";
   }
-
-  if(-f  $cntfilename) {
-    open(CNTFILE,"$cntfilename");
+  $cntfilepath = "$sectionpath/$cntfilename";
+  if(-f  $cntfilepath) {
+    open(CNTFILE,"$cntfilepath");
     while(<CNTFILE>) {
       chomp;
       $tot_items = $_;
@@ -410,7 +419,7 @@ sub total_items
   }
   else {
 	 ($doclistname,$rest) = split(/\.idx/,$cntfilename,2);
-	 $tot_items = 1;
+	 $tot_items = 0;
 	 &set_item_count(2,$doclistname);
   }
 ##   print "sec500a cntfilename $cntfilename tot_items $tot_items<br>\n";
@@ -418,10 +427,10 @@ sub total_items
 }
 
 
-sub set_item_count
+sub set_item_count  #comes here from display; count is calculated on display before sort
 {
- local($ckItemnbr,$doclistname) = @_;
- local($cntfilename) = "";
+ my ($ckItemnbr,$doclistname) = @_;
+ my $cntfilename = "";
  if(-f "debugit.yes") {
     $cntfilename = "testitem.txt";
  }
@@ -440,6 +449,7 @@ sub set_item_count
  print(CNTFILE "$ckItemcnt\n");
  close(CNTFILE);
 }
+
 
 ### set default top of page and bottom - but use both sectsub and subsect titles
 ### called from article.pl
@@ -472,7 +482,7 @@ sub print_pages_index
       }
    }
    $totalPages = $totalPages -1 if($totalPages > 19);
-   print MIDTEMPL ".. <a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$sectsubid%%$totalPages\">$totalPages<\/a>\n";
+#   print MIDTEMPL ".. <a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$sectsubid%%$totalPages\">$totalPages<\/a>\n";
 }
 }
 
@@ -976,6 +986,9 @@ sub do_doclist_sql {    ## for the import
   elsif($sortorder == 'D') { #docloc, sysdate (in pubdate)
 	 $orderby = "i.pubdate DESC";
   }
+  elsif($sortorder == 'W') { #docloc, sysdate (in pubdate)
+	 $orderby = "i.stratus, i.woadatetime DESC";
+  }
   elsif($sortorder =~ /[rL]/) {    #reverse physical order
 	 $orderby = "i.stratus, i.lifo DESC";
   }
@@ -1179,6 +1192,7 @@ $sql = <<ENDINDEXES;
 		docid char(6) not null, 
 		stratus char(1)  not null default 'M',
 		lifonum integer unsigned not null default 0,
+		woadatetime datetime default null,
 		pubdate varchar(8) default "",
 		sortchar varchar(40) default "",
 		PRIMARY KEY (sectsubid,docid))

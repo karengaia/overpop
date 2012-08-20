@@ -48,6 +48,7 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 
 &get_site_info;        ## in common.pl	
 &set_date_variables;   ## in date.pl
+
 &DB_get_switches_counts;  #in dbtables_ctrl.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl
 
@@ -169,6 +170,8 @@ if($aTemplate ne 'login') {
    &read_sectCtrl_to_array($qOrder);  # in sectsubs.pl
    &read_sources_to_array;
    &read_regions_to_array;
+   $summarizedCnt = &total_items($summarizedSS); #in indexes.pt
+   $suggestedCnt  = &total_items($suggestedSS); #in indexes.pt
 }
 
 if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets ownersections and ownersubs

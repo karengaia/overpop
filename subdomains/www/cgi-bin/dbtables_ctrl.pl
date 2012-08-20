@@ -82,8 +82,8 @@ sub DB_get_switches_counts
 	$DB_others   = 0;	
 	
 	$dbh = &db_connect() or die("could not connect");
-	
-	if(!$dbh or -f "$pophome/dbconnect.off") {
+
+ 	if(!$dbh or -f "$pophome/dbconnect.off") {
 	    print "<span style=\"color:#aaf;\">*</span>	<span style=\"color:#fff;\">DB connection failed - using flatfiles</span><br>\n";
 	    return();
     }
@@ -95,7 +95,7 @@ sub DB_get_switches_counts
 	    else {
 		   while ( ($name,$switch_count) = $switch_sth->fetchrow_array() )  {
 		        $DB_indexes = $switch_count if($name =~ /DB_indexes/);
-				$DB_doclist = $switch_count if($name =~ /DB_doclist/);
+				$DB_docitems = $switch_count if($name =~ /DB_docitems/);
 				$DB_regions = $switch_count if($name =~ /DB_regions/);
 				$DB_sources = $switch_count if($name =~ /DB_sources/);
 				$DB_sectsubs = $switch_count if($name =~ /DB_sectsubs/);

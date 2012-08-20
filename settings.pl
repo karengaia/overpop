@@ -1,4 +1,4 @@
-#!/usr/bin/perl --
+	#!/usr/bin/perl --
 
 use Cwd;
 use File::Basename;
@@ -7,7 +7,7 @@ use File::Basename;
 my $base_dir = $PATHS{'base_dir'};
 
 %CONFIG = (
-  db_host       => 'localhost',
+  db_host       => 'overpop',
   db_name       => 'overpop',
   db_user       => 'root',
   db_password   => '',

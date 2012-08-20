@@ -6,7 +6,10 @@
 
 sub set_date_variables   # from article.pl
 {                                         
-  $todaydate = &get_nowdate;    #in date.pl
+  $todaydate = &get_nowdate;
+
+  ($nowyyyy,$nowmm,$nowdd) = &getnowdate_elements;
+
   $t3monthsago = &get_3monthsago;
   
   $chkmonth = "January|February|March|April|May|June|July|August|September|October|November|December";
@@ -19,9 +22,9 @@ sub set_date_variables   # from article.pl
   
   @abbrvmonths = ("Jan","Feb","Mar","Apr","May","Jun","Jul","Aug","Sep","Oct","Nov","Dec");
   
-  $chkyear = "1990|1991|1992|1993|1994|1995|1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013";
+  $chkyear = "1990|1991|1992|1993|1994|1995|1996|1997|1998|1999|2000|2001|2002|2003|2004|2005|2006|2007|2008|2009|2010|2011|2012|2013|2014|2015";
   @pubyears = 
-  ("1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011");
+  ("1990","1991","1992","1993","1994","1995","1996","1997","1998","1999","2000","2001","2002","2003","2004","2005","2006","2007","2008","2009","2010","2011,2012,2013");
   $chkday = "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29|30|31";
   $nums_to29 = "1|2|3|4|5|6|7|8|9|10|11|12|13|14|15|16|17|18|19|20|21|22|23|24|25|26|27|28|29";
 
@@ -59,6 +62,29 @@ sub set_date_variables   # from article.pl
  @ckOrder = split(//,$ckOrder);
 }
 
+sub find_date_in_line {    #comes here from smartdata.pl
+	($dtkey,$msgline_anydate,$msgline_date,$msgline) = @_;
+	my $head = "";
+	if($dtkey and $msgline =~ /$dtkey/ and !$msgline_anydate and !$msgline_date) {
+	       $msgline_date = $msgline;
+	}
+	elsif($msgline =~ /^DD /) {
+		$msgline_date = $msgline;
+		$msgline_date =~ s/DD //;
+	}
+	elsif($msgline =~ /.{5,}?DATE:/) {
+		($head,$msgline_anydate) = split(/DATE:/,$msgline,2);
+	}
+	elsif($msgline =~ /^([DATE:|date:|DATELINE])/) {
+		my $datetag = $1;
+		$msgline_anydate =~ s/$datetag // unless($msgline_anydate);
+	}
+	elsif( ($msgline =~ /$chkyear/ and $msgline =~ /$chkmonth/)
+		  or $msgline =~ /[0-9]{1,4}[\/-][0-9]{1,4}[\/-][0-9]{1,4}/) {
+		   $msgline_anydate = $msgline unless($msgline_anydate);
+	}
+	return($msgline_anydate,$msgline_date,$head);
+}
 
 sub assemble_pubdate  # from docitem.pl
 {
@@ -108,35 +134,37 @@ sub print_srcdate
 
 sub refine_date
 {
- $pubdate = "";
+ my($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc) = @_;
+
+ my $pubdate = "0000-00-00";
+
  if($msgline_date) {
-	$pubdate = &basic_date_parse($msgline_date);
+	($pubdate,$pubyear) = &basic_date_parse($msgline_date,$uDateloc);
  }	
  elsif($msgline_anydate) {
-   $pubdate = &basic_date_parse($msgline_anydate);	
+	($pubdate,$pubyear) = &basic_date_parse($msgline_anydate,$uDateloc);	
  }
  elsif($msgline_link) {
-   $pubdate = &basic_date_parse($msgline_link);		
+	($pubdate,$pubyear) = &basic_date_parse($msgline_link,$uDateloc);	
  }
 
- if(($pubyear =~ /0000/ or !pubyear) and !$pubdate) {
+ if(($pubyear =~ /0000/ or !pubyear) and (!$pubdate or $pubdate =~ /0000-00-00/) ) {
 	 if($uDateloc !~ /linesrc/ and $msgline_source =~ /[A-Za-z0-9]/) {
-	   $pubdate =  &basic_date_parse($msgline_source);	
+	  ($pubdate,$pubyear) = &basic_date_parse($msgline_source,$uDateloc);
 	 }
 	 elsif($uDateloc !~ /parasrc/ and $paragr_source =~ /[A-Za-z0-9]/) {
-	   $pubdate =  &basic_date_parse($paragr_source);
+	   ($pubdate,$pubyear) = &basic_date_parse($paragr_source,$uDateloc);
 	 }
 	 elsif($uDateloc) {
-	    $locname = $uDateloc;
 	    &set_std_parseVars;
-	    $pubdate =  &basic_date_parse($locline);
+		($pubdate,$pubyear) = &basic_date_parse($uDateloc,$uDateloc);
 	 }
 	 elsif($link) {
 	    $uDateloc = 'link';
-	    $pubdate = &basic_date_parse($link);
+		($pubdate,$pubyear) = &basic_date_parse($link,$uDateloc);
 	 }
 	 elsif($paragr_month =~ /[A-Za-z0-9]/) {
-	    $pubdate = &basic_date_parse($paragr_month);
+		($pubdate,$pubyear) = &basic_date_parse($paragr_month,$uDateloc);
 	 }
      elsif($sentdate) {
 	     $pubdate = $sentdate;
@@ -275,6 +303,7 @@ sub refine_year
  }
 }
 
+
 #   OLD OLD
 
 sub calc_sentmm
@@ -286,11 +315,206 @@ sub calc_sentmm
 }
 
 
+
+sub chk_link_date
+{
+my $domain, $formatexpr;
+
+foreach $linkdate (@linkDateTable) {
+    ($domain,$dDateformat,$formatexpr) = split(/\^/,$linkdate);
+
+    if($chkline =~ /$domain/) {
+    	if($chkline =~ /$formatexpr/) {
+            $ymd1 = $1;
+            $ymd2 = $2;
+            $ymd3 = $3;
+            &do_formatted_date;
+        }
+      last;
+    }
+ }
+ $dDateformat = "";
+}
+
+sub chk_month_date
+{
+  if($chkline =~ /($chkmonths) +([0-9]{1,2}),? +'?[0-9]{2,4}/ ) {
+  	$pubmonth = $1;
+  	$pubday = $2;
+##  	$pubyear = "$3";
+##print "  mdy yy-$pubmonth-$pubday ";
+  	if($chkline =~ /$pubmonth +$pubday,? +'?([0-9]{2,4})/ ) {
+    	    $pubyear = "$1";
+##    	print " mdy yr-$pubyear ";
+       }
+  }
+
+  elsif($chkline =~ /([0-9]{1,2}) {0,2}($chkmonths) {0,2}'?[0-9]{2,4}/)
+  {
+   	$pubmonth = $2;
+   	$pubday = $1;
+   	if($chkline =~ /$pubday {0,2}$pubmonth {0,2}'?([0-9]{2,4})/ ) {
+            $pubyear = "$1";
+        }
+##   print " dmy $pubyear-$pubmonth-$pubday ";
+  }
+}
+  
+##00820
+  
+sub chk_formatted_date
+{                                
+  if($chkline =~ /($alphanum{1,4})[-\/]($alphanum{1,4})[-\/]($alphanum{1,4})/ ) {
+       $ymd1 = $1;
+       $ymd2 = $2;
+       $ymd3 = $3;
+       if($dDateformat !~ /[a-z]/) {
+            $dDateformat = 'ymd' if($ymd1 =~ /^[0-9]{4}$/);
+            if($ymd1 =~ /[A-Za-z]/ or 
+                 ($ymd1 =~ /../ and $ymd =~ /nums_to12/) or
+                 ($ymd1 =~ /./ and $ymd =~ /[1-9]/) or
+                  $ymd3 =~ /[0-9]{4}/) {
+                     $dDateformat = 'mdy';
+            }
+            $dDateformat = 'dmy' if($dDateformat !~ /ymd|mdy/);       
+       }
+       
+       &do_formatted_date if($dDateformat =~ /[A-Za-z]/);
+  }
+}
+
+
+
+sub chk_year_date
+{
+  if($chkline =~ /($chkyear)/ and $chkline !~ /copyright ?($chkyear)/i) {
+  	$pubyear = $1;
+
+      if($chkline =~ /($chkmonth) ?([0-9]{0,2}),? ?$pubyear/ 
+      or $chkline =~ /($chk_abbrvmonth) ?([0-9]{0,2}),? ?$pubyear/ ) {
+              $pubmonth = $1;
+              $pubday = $2;
+      }
+      elsif($chkline =~ /([0-9]{0,2}) ?($chkmonth),? ?$pubyear/ or
+            $chkline =~ /([0-9]{0,2}) ?($chk_abbrvmonth),? ?$pubyear/) {
+              $pubmonth = $2;
+              $pubday = $1;
+      }
+      
+      &get_pubmm if($pubmonth =~ /[A-Za-z]/);
+      $pubday = '--' if($pubday =~ /[0-9]{3,}/ or $pubday !~ /$nums_to29|30|31/);
+  }
+}
+
+## 0825
+
+sub do_formatted_date
+{
+##	print "$dDateformat ";
+    if($dDateformat =~ /ymd/) {
+    	$pubyear  = $ymd1;
+    	$pubmonth = $ymd2;
+    	$pubday   = $ymd3;
+    }
+    elsif($dDateformat =~ /mdy/) {
+    	$pubyear  = $ymd3;
+    	$pubmonth = $ymd1;
+    	$pubday   = $ymd2;
+    }
+    elsif($dDateformat =~ /dmy/) {
+    	$pubyear  = $ymd3;
+    	$pubday   = $ymd1;
+    	$pubmonth = $ymd2;
+    }
+ }
+
+sub do_yyyymmdd
+{
+  $pubyear  =~ s/\D//g;
+  &Y2K if($pubyear =~ /^[0-9]{2}$/);
+  
+  if($pubyear =~ /[0-9]{4}/) {
+      &get_pubmm if($pubmonth =~ /[A-Za-z]/);
+      &ck_pubmm;    
+      &ck_pubdd if($pubmonth =~ /^[0-9]{2}$/);
+  }
+  else {
+     $pubyear = "00";
+  }
+ 
+  if($ckOrder =~ /LMFY/ and $pubyear =~ /[0-9]{4}/ and $holdyear !~ /^[0-9]{4}$/ ) {
+     $holdyear  = $pubyear;
+     $holdmonth = $pubmonth;
+  }
+}
+
+sub Y2K 
+{
+  my @yr_digits;
+  
+  $pubyear =~ s/'//;
+  @yr_digits = split(//, $pubyear);
+  if(@yr_digits[0] =~ /[0-3]/) {
+     $pubyear = "20$pubyear";
+  }
+  else {
+     $pubyear = "19$pubyear";
+  }
+  
+  $pubyear = "00" if($pubyear !~ /^[0-9]{4}$/);
+}
+     
+## 00830
+
+sub get_pubmm
+{
+  $short = lc(substr($pubmonth,0,3));
+  $pubmonth = $rshMonths{$short};
+  undef $short;
+}
+
+sub ck_pubmm
+{
+ $pubmonth =~ s/[^0-9]//g;
+ $pubmonth = "0$pubmonth" if($pubmonth !~ /[0-9]{2,}/);
+ if($pubmonth =~ /01|02|03|04|05|06|07|08|09|10|11|12/)  
+ { }
+ else {
+   $pubmonth = "00";
+ }
+}
+
+
+sub ck_pubdd
+{
+ $pubday =~ s/\D//g;  
+ $pubday = "0$pubday" if($pubday =~ /^[0-9]$/);
+ if(($pubday =~ /$nums_to29/ and $pubmonth =~ /02/)
+    or ($pubday =~ /$nums_to29|30/    and $pubmonth =~ /04|06|09|11/ )
+    or ($pubday =~ /$nums_to29|30|31/ and $pubmonth =~ /01|03|05|07|08|10|12/ ) )
+      {  }
+ else {
+   $pubday = "00";
+ }
+}
+
+
+sub get_7daysago_old
+  { 	 
+   $addsecs  = (-7 * 3600 * 24);
+   &calc_date('sys',$addsecs);
+   $pubyear  = $sysyear;
+   $pubmonth = $sysmm;
+   $pubday   = $sysdd;
+}
+
+
+
 # 500 ############# COMMON DATE ROUTINES ##################3
 ### from article.pl when processing email data 
 ### also from convert.pl 
 
-sub init_dateparse_varibles
+sub init_dateparse_varibles_old_not_used
 {
  $todaydate = &get_nowdate;
  
@@ -330,7 +554,7 @@ $ckOrder = "MFYLSNH";
 
 sub basic_date_parse
  {
-  my $chkline = $_[0];
+  my($chkline,$uDateloc) = @_;
 ##  line to be parsed should be in $chkline
  my $slash = '\/';
  my $dash  = '-';
@@ -338,8 +562,9 @@ sub basic_date_parse
  my $pubmm     = '--';
  my $pubday    = '--';
  my $pubmonth  = '--';
- my $pubyear   = '--';
+ my $pubyear   = '0000';
  my $pubdate = "0000-00-00";
+ my $chktype = "";
  $holdmonth = "--";
  $holdyear  = "--";
  $firstyear = 'N';
@@ -350,7 +575,7 @@ sub basic_date_parse
    $cktype = "S";  ## else go with the default
  }
  if($chkline =~ /($chkmonths)/) {
-   $pubmonth = $1;
+  $pubmonth = $1;
    $cktype = 'M';
    if($chkline =~ /($chkyear)/) {
      $pubyear = $1;
@@ -391,7 +616,7 @@ sub basic_date_parse
 	$lastmoth = &get_30daysago;
  }
 
- return($pubdate);
+ return($pubdate,$pubyear);
 }
 
 sub obsolete_was_in_above {
@@ -663,11 +888,23 @@ sub get_last_month
 sub get_nowdate
 {
  $sysdt = &calc_date('now',0,'+');
-($nowyyyy,$nowmm,$nowdd,$nowhh,$nowmn,$nowss) = split(/-/,$nowdate,6);
- $todaydate = "$nowyyyy-$nowmm-$nowdd";
- return($todaydate);
+ my($nowyyyy,$nowmm,$nowdd,$nowhh,$nowmn,$nowss) = split(/-/,$nowdate,6);
+ return("$nowyyyy-$nowmm-$nowdd");
 }
 
+sub getnowdate_elements
+{
+ $sysdt = &calc_date('now',0,'+');
+ my($nowyyyy,$nowmm,$nowdd,$nowhh,$nowmn,$nowss) = split(/-/,$nowdate,6);
+ return($nowyyyy,$nowmm,$nowdd);
+}
+
+sub get_nowdatetime
+{
+ $sysdt = &calc_date('now',0,'+');
+ my($nowyyyy,$nowmm,$nowdd,$nowhh,$nowmn,$nowss) = split(/-/,$nowdate,6);
+ return("$nowyyyy-$nowmm-$nowdd $nowhh:$nowmn:$nowss");
+}
 
 sub get_futuredate
 {

@@ -937,7 +937,7 @@ sub get_pubyears
  print MIDTEMPL "<option value=\"no date\"";
  print MIDTEMPL " selected" if($pubyear eq '0000');
  print MIDTEMPL ">no date</option>\n";
- for($yr=$yearsago;$yr<$nextyr;$yr++) {
+ for($yr=$nextyr;$yr>$$yearsago;$yr--) {
     print MIDTEMPL "<option id=\"yyyy$yr\" value=\"$yr\"";
     print MIDTEMPL " selected" if($yr eq $pubyear);
     print MIDTEMPL ">$yr</option>\n";
@@ -1211,16 +1211,15 @@ ENDWORD
 
 sub do_points
 {
-##print "art155 now_email $now_email body $body\n";
-    local($save) = $points;
+    my $save = $points;
 
 	$points =~ s/ {1-9}\n/\n/g;  # get rid of trailing spaces
-	if ($points =~ /\n\n/) {
-	    $points =~ s/\n\n/<\/p><p>\n/g;
-	}
-	else {
-	    $points =~ s/\n/<br>\n/g;
-	}
+#	if ($points =~ /\n\n/) {
+#	    $points =~ s/\n\n/<\/p><p>\n/g;
+#	}
+#	else {
+#	    $points =~ s/\n/<br>\n/g;
+#	}
 	$points =~ s/\r/<br>/g;
 	$points =~ s/<\/p><p>$//g;   ## delete last paragraph
 	$points =~ s/<\/p><p>\n/<\/p>\n\n<p>/g;

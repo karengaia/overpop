@@ -140,18 +140,22 @@ sub read_regions_to_array
 
 sub refine_region
 {
-  $src_region = $_[0];
-  $region = &get_regions("A","",$headline);
+  my ($region,$src_region) = @_;
+
+  $region = &get_regions("A","",$headline) if(!$region or $region =~ /Global/);
+
             # Use regionname from source if no region found. But not from US or UK source
   $region = $src_region unless($region or $src_region =~ /U\.S\.|U\.K\./);
+
   if(!$region) {
-    my ($fullbody1,$fullbody2,$rest) = split(/\n/,$fullbody,3);
-    my $fullbodyTop = "$fullbody1\n$fullbody2";
+    my ($fullbody1,$fullbody2,$fullbody3,$fullbody4,$fullbody5,$fullbody6,$rest) = split(/\n/,$fullbody,7);
+    my $fullbodyTop = "$fullbody1\n$fullbody2\n$fullbody3\n$fullbody4\n$fullbody5\n$fullbody6";
     $region = &get_regions("A","",$fullbodyTop);
   }
   $region = $src_region if(!$region and $src_region); #Use regionname from source if no region found.
   $region = "Global" if(!$region);
-  return($region);
+  $regionhead = "Y" if($headline !~ /$region/);
+  return($region,$regionhead);
 }
 
 sub get_regions
@@ -187,22 +191,18 @@ sub get_regions
 	}
 	
 	else {  # find regions for new article
-		$reg_match = $regionname;
-		if($regionmatch) {
-			$reg_match = "$reg_match|$regionmatch";
-		}			
-		if($chkarea and $chkarea =~ /$reg_match/) {
+		if($chkarea and ($chkarea =~ /$regionname/ or ($regionmatch and $chkarea =~ /$regionmatch/) ) ) {
 		    if($rnotmatch and $chkarea =~ /$rnotmatch/) {
 			}
 			else {
-				$region1 = "$region1;$regionname";
+				$region1 = "$region1;$regionname" if($regionname !~ /$region1/);
 				$region1 =~ s/^;+//;
             }
 		}
 	}
  } # END foreach
  $region1 = "U\.S\.;$region1" 
-     if($region1 !~ /Global/ and $r_type eq 'p' and $location eq 'US' and ($region1 !~ 'U\.S\.' or !$region));
+     if($region1 !~ /Global/ and $r_type eq 'p' and $location eq 'US' and ($region1 !~ /U\.S\./ or !$region));
  $region1 =~ s/^;+//;  #get rid of leading semi-colons
  $region1 =~ s/^;//;
  $region1 =~ s/;;/;/;

@@ -33,6 +33,8 @@ sub parse_popnews
 	 $link = "htt$link" if($link !~ /http/);
   }
 
+  $suggestAcctnum = $uUserid  if(!$suggestAcctnum);
+
   @msglines = split(/\n/,$emessage);    # switch to $msgline and @msglines to match docitem.pl
   $emsgbody = "";
   $linecnt += 1;   #start with 1
@@ -82,19 +84,20 @@ sub parse_popnews
 
   &refine_link;
 
-  $pubdate = &refine_date unless($pubdate);
+# print "sm85 chkmonths $chkmonths chkyear $chkyear todaydate $todaydate suggestAcctnum $suggestAcctnumm<br>\n";
+
+  $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc) 
+    if($pubdate =~ /0000-00-00/ or !$pubdate);
 
   $fullbody = $save_emessage;  #Need to do before &refine_source
 
   ($source,$src_region) = &refine_source($msgline_source,$link) if(!$source);
 
-  $region = &refine_region($src_region) if(!$region);   # found in regions.pl
-
-  &refine_fullbody;  
+  ($region,$regionhead) = &refine_region($region,$src_region);   # found in regions.pl
+ 
+  $fullbody = &refine_fullbody($fullbody);  
   
   $fullbody = &byebye_singleLF($pdfline,$fullbody); #do this after parsing for headline, date, etc
-
-  $suggestAcctnum = $uUserid  if(!$suggestAcctnum);
 
   $sectsubs = "$emailedSS"  unless($sectsubs);
 
@@ -113,7 +116,7 @@ sub parse_popnews
      $docloc_news = "M";
   }
 
-  $note = "handle: $handle" if($handle);
+  $miscinfo = "$miscinfo\nhandle: $handle" if($handle and $handle !~ /unk/);
 
   if($skip_item eq 'Y') {
     if(-f  "debugit.yes") {}
@@ -144,61 +147,56 @@ sub assign_msglines
  my $head = "";
 
  &assign_std_variables($msgline); #Use keywords to fill field variables; like Opinion: , then it is a headline
- 
+
  if($linecnt < 9 or $linecnt eq $max_linecnt) {  ## CHANGED = to eq in GIT_PATHS
-	 $link = &chk_linkline($msgline) if(!$link);
-     my $date ="";
-	 if($msgline =~ /^HH /) {
+	
+	$link = &chk_linkline($msgline) if(!$link);
+	
+    my $date ="";
+##               A LOT OF THIS IS REDUNDANT WITH &assign_std_variables
+	if($msgline =~ /^HH /) {
         ($rest,$headline) = split(/HH /,$msgline,2);
-		if($headline =~ /[DATE:|date:|DD ]/) {
+		if($headline =~ /[DATE:|date:|DATELINE|DD ]/) {
 			($headline,$date) = split(/DATE:/,$headline,2) if $headline =~ /DATE:/;
 			($headline,$date) = split(/Date:/,$headline,2) if $headline =~ /Date:/;
 			($headline,$date) = split(/DD /,$headline,2) if $headline =~ /DD /;
+			($headline,$date) = split(/DATELINE/,$headline,2) if $headline =~ /DATELINE/;
 		    $msgline_anydate = $date if(!$msgline_anydate);
 		}
-	 }
-	 elsif($msgline =~ /^RR /) {
-		($rest,$region) = split(/SS /,$msgline,2);
-	 }
-	 elsif($msgline =~ /^SS /) {
+	}
+	elsif($msgline =~ /^RR /) {
+		($rest,$region) = split(/RR /,$msgline,2);
+		$region = "" if($region eq 'Global');  #This is the default; if not found elsewhere, will set to 'Global'
+	}
+	elsif($msgline =~ /^SS /) {
 		($rest,$source) = split(/SS /,$msgline,2);
-	 }
-	 elsif($msgline =~ /^DD /) {
-		($rest,$msgline_anydate) = split(/DD /,$msgline,2);
-		if($msgline_anydate =~ /HH /) {
+	}
+    else {
+	    ($msgline_anydate,$msgline_date,$head) = &find_date_in_line($dtkey,$msgline_anydate,$msgline_date,$msgline); #in date.pl
+	 	if($msgline_date =~ /HH /) {
+			($msgline_date, $headline) = split(/HH /,$$msgline_date,2);
+		}
+		elsif($msgline_anydate =~ /HH /) {
 			($msgline_anydate, $headline) = split(/HH /,$$msgline_anydate,2);
 		}
-	 }
-	 elsif($hdkey and $msgline =~ /$hdkey/) { 
+	}
+	if($hdkey and $msgline =~ /$hdkey/) { 
 	    $head = $msgline;
-	 }
-	 elsif($msgline =~ /$link/) {
-	 }
-	 elsif($msgline =~ /^SOURCE:/i) {
+	}
+	elsif($msgline =~ /$link/) {
+	}
+	elsif($msgline =~ /^SOURCE:/i) {
 	    $msgline_source = $msgline if(!$source);
-	 }
-	 elsif($msgline =~ /^DATE:/i) {
-	    $msgline_anydate = $msgline if(!$msgline_anydate);
-	 }
-	 elsif($msgline =~ /.{5,}?SOURCE:/) {
+	}
+	elsif($msgline =~ /.{5,}?SOURCE:/) {
 		($head,$msgline_source) = split(/SOURCE:/,$msgline,2);
-	 }
-	 elsif($msgline =~ /.{5,}?DATE:/) {
-			($head,$msgline_anydate) = split(/DATE:/,$msgline,2);
-	 }
-	 elsif( ($msgline =~ /$chkyear/ and $msgline =~ /$chkmonth/)
-		  or $msgline =~ /[0-9]{1,4}[\/-][0-9]{1,4}[\/-][0-9]{1,4}/) {
-		   $msgline_anydate = $msgline if(!$msgline_anydate);
-		}
-	 else {
+	}
+	else {
 		$head = $msgline;
-	 }
-     $headline = $head if($head and !$headline);
+	}
+    $headline = $head if($head and !$headline);
  }
 
- if($dtkey and $msgline =~ /$dtkey/ and !$msgline_anydate and !$msgline_date) {
-       $msgline_date     = $msgline;
- }
  if($srckey and $msgline =~ /$srckey/ and !$msgline_source) {
       $msgline_source   = $msgline;
  }
@@ -274,19 +272,20 @@ sub refine_nonstd_variables
      &refine_link;
      ##and $msgline_link =~ /[A-Za-z0-9]/);
 
-     &refine_date if($pubdate !~ /[0-9]/);
+     $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc,$sentdate,$todaydate) if($pubdate !~ /[0-9]/);
 
      ($source,$src_region) = &refine_source($msgline_source,$link) if(!$source);
 
-     $region = &refine_region($src_region) if(!$region);   # found in regions.pl
+     $region = &refine_region($region,$src_region) if(!$region or $region eq 'Global');   # found in regions.pl
 
      $fullbody = $save_emessage;
 
-     &refine_fullbody;
+     $fullbody = &refine_fullbody($fullbody); 
 
 ##  print "doc120b ehandle $ehandle headline $headline \n\n fullbody $fullbody\n";
 
-     $miscinfo = "$handle $emailpath";
+     $miscinfo = "$miscinfo\n$handle $emailpath";
+     $miscinfo = &strip_leadingSPlineBR($miscinfo);
 
 	 $region = &get_regions('N',"",$headline,"","") if($region !~ /[A-Za-z0-9]/);  # print_regions=N, region="", # controlfiles.pl                
 
@@ -305,7 +304,7 @@ sub assign_std_variables
  my $msgline = $_[0];
 	#     for newsclip email parsing - need to do this with hashed pairs
  $std_variables =
-"docid^DOCID::`docaction^DOCACTION::`handle^HANDLE::`headline^HH|HEADLINE:|HEADLINE :|HEADLINE::|Headline :|Review:|Blog:|Opinion:`source^SS|SOURCE:|Source:|Source :|SOURCE :|SOURCE::`pdate^DD|DATE::|Date :|DATE:`userid^USERID:|USERID::`body^SUMMARY::`fullbody^FULL_ARTICLE::`author^AUTHOR:|AUTHOR :|Author :|AUTHOR::`priority^PRIORITY::`";
+"docid^DOCID::`docaction^DOCACTION::`handle^HANDLE::`headline^HH |HEADLINE:|HEADLINE :|HEADLINE::|Headline :|Review:|Blog:|Opinion:|EDITORIAL:|OPINION:`source^SS |SOURCE:|Source:|Source :|SOURCE :|SOURCE::`region^RR `pdate^DD |DATE::|Date :|DATE:`userid^USERID:|USERID::`body^SUMMARY::`fullbody^FULL_ARTICLE::`author^AA |By |By: |AUTHOR:|AUTHOR :|Author :|AUTHOR::`priority^PRIORITY::`";
 
   @stdVariables = split(/`/, $std_variables);
  $splitter = "";
@@ -327,7 +326,7 @@ sub assign_std_variables
    $EITEM{$name} = "$EITEM{$name}$msgline";
  }
  
- &fill_email_variables;  #in docitem.pl
+  &fill_email_variables;  #in docitem.pl --- we don't use email variables anymore
 
  if($msgline =~ /EDITORIAL:/) {
     ($rest,$head)= split(/EDITORIAL:/,$msgline,2);
@@ -629,14 +628,25 @@ sub find_source
 
 
 sub refine_fullbody
-{ 
- my($fulbdy1,$fulbdy2);  	 
- if($fullbody =~ /$headline/) {
-   ($fulbdy1,$fulbdy2) = split(/$headline/,$fullbody);
-   $fullbody = "$fulbdy1 $fulbdy2";
- }
-    	  
- &fix_fullbody;
+{
+  my $fullbody = $_[0];
+  @fullbodylines = split(/\n/,$fullbody);    # switch to $msgline and @msglines to match docitem.pl
+  $fullbody = "";
+  my $line = "";
+  my $linecnt += 1;   #start with 1
+
+  foreach $line (@fullbodylines) {
+     chomp $line;
+     if($line =~ /^HH / or $line =~ /^RR / or $line =~ /^DD / or $line =~ /^SS / or $line =~ /^http:/ or $line =~ /^MI /) {
+	    $miscinfo = "$miscinfo\n\n$line";
+	    next;
+     }
+     $fullbody = "$fullbody\n$line";
+  }  
+
+  &fix_fullbody;  
+
+  return($fullbody);
 }
 
 sub fix_fullbody
