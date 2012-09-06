@@ -66,26 +66,24 @@ my $aTemplate = $_[0];
     @templates = $tTemplate;
  }
 $midfile = "$templatepath$slash$templfile.mid";
-
-open(MIDTEMPL, ">$midfile") or print "temp72 cannot open midfile $midfile<br>\n";
+open(MIDTEMPL, ">$midfile") or print "tem72 cannot open midfile $midfile<br>\n";
    foreach $template (@templates) {	
       &do_template($template);
 }
 close(MIDTEMPL);
-
  open(OUTFILE, ">>$outfile") if($outfile);
  $javascript = 'N';
  $template_path1 = "$templatepath/$templfile.mid";
  $template_path2 = "$templatepath/$templfile\.mid";
 
  if (-f "$template_path2") {
-  open(MIDTEMP2, "$templatepath/$templfile.mid");
+    open(MIDTEMP2, "$templatepath/$templfile.mid");
   }
  else {
-	die "ERROR: reason: template_merge $templatepath/$templfile\.mid not found .. could not open<br>\n";
+    &printUserMsgExit ("ERROR: reason: template_merge $templatepath/$templfile\.mid not found .. could not open<br>\n");
  }
 
- local($img_ctr = 0);
+ my $img_ctr = 0;
  while(<MIDTEMP2>)
  {
      chomp;
@@ -144,7 +142,7 @@ sub do_template
  $default_class = "";
 
  unless($template) {
-	%template = $cTemplate;
+	$template = $cTemplate;
  }
 
  if($cStyleclass =~ /[A-Za-z0-9]/) {
@@ -159,7 +157,6 @@ sub do_template
  $default_2nd_class = "";
 
  $template =~ s/\s+//g;    ## remove spaces
-
  $templatefile = "$templatepath/$template\.htm";
 
 unless(-f "$templatefile") {
@@ -203,7 +200,6 @@ unless(-f "$templatefile") {
    }     ## end while
    close(TEMPLATE);
  }
-## print "art1216 docid $docid end of do_template<br>\n"; 
 }
 
 
@@ -249,13 +245,10 @@ sub process_imbedded_commands
 ##print "90 javascr-$javascript $line<br>\n" if($line =~ /onClick/);
    if($javascript =~ /N/ and ($line =~ /\[([A-Z0-9_]+)\]/ or $line =~ /\[([A-Z0-9_]+.*)\]/ ) ) {
    	$linecmd = $1;
-##print "90A javascr-$javascript linecmd-$linecmd $line<br>\n" if($line =~ /onClick/);
    	if($linecmd =~ /[a-z]/ and $linecmd !~ /=/) {  #data plugins are lowercase or mixed case
-#print "90B javascr-$javascript linecmd-$linecmd $line<br>\n";
    	   print MIDTEMPL "$line\n";
    	}
    	else {
-##print "90C javascr-$javascript linecmd-$linecmd $line<br>\n" if($line =~ /onClick/);
            ($beginline,$endline) = split(/\[$linecmd\]/,$line,2);
            $linecmd = "[$linecmd]";
            print MIDTEMPL $beginline if($beginline =~ /[A-Za-z0-9]/);
@@ -591,6 +584,13 @@ sub do_imbedded_commands
          print MIDTEMPL "<div class=\"comment\">$comment</div>\n";
    }
 
+   elsif($linecmd =~ /\[COMMENT\]/) {
+       if($comment eq "") {}
+       else {
+          print MIDTEMPL "<div class=\"comment\">$comment</div>\n";
+        }
+   }
+
    elsif($linecmd =~ /\[POINTS\]/) {
          &do_points;
    }
@@ -696,13 +696,6 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[SUMMARIZE_IT\]/) {
         print MIDTEMPL "<input type=\"radio\" name=\"action\" ";
         print MIDTEMPL " value=\"summarize\"> Summarize it. <br>\n";
-   }
-
-   elsif($linecmd =~ /\[COMMENT\]/) {
-       if($comment eq "") {}
-       else {
-          print MIDTEMPL "<div class=\"comment\">$comment</div>\n";
-        }
    }
 
    elsif($linecmd =~ /\[ENDTABLE\]/ and $endtable =~ /Y/) {
@@ -1050,7 +1043,7 @@ sub do_redarrow
 #	http://overpop/cgi-bin/article.pl?display%ownerlogin%026391%CSWP_Calendar%%xxxx%%%%%%CSWP
     my $ownerlogin = $OWNER{ologintemplate};
     my $ownersubs  = $OWNER{ownersubs};
-    $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
+   $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
  }
  else {
     $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";

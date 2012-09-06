@@ -33,10 +33,12 @@ subdomains/www/autosubmit/popmail/*
 subdomains/www/autosubmit/deleted/*.del
 subdomains/www/autosubmit/items/*
 subdomains/www/autosubmit/items/*.itm
+subdomains/www/autosubmit/log/*
 subdomains/www/autosubmit/sections/*.idx
 subdomains/www/autosubmit/sections_Backup_prod_2012-08-09/*
 subdomains/www/autosubmit/sections/*.bak
 subdomains/www/autosubmit/sections/*.cnt
+subdomains/www/autosubmit/sections/*.cnt.cnt
 subdomains/www/autosubmit/sepmail/*
 subdomains/www/autosubmit/templates/*.mid
 subdomains/www/autosubmit/volunteerEmail.txt
@@ -52,7 +54,9 @@ subdomains/www/cgi-bin/save_*
 subdomains/www/cgi-bin/test/*
 subdomains/www/clock/*
 subdomains/www/counter/_save/*
+subdomains/www/counter/*.txt
 subdomains/www/css/old_*
+subdomains/www/img/*
 subdomains/www/img/imagesNew/*.jpg
 subdomains/www/img/whatworks/*.jpg
 subdomains/www/img/whatworks/*.tif
@@ -61,6 +65,7 @@ subdomains/www/mail-list/Gregs/*
 subdomains/www/mail-list/_save/*
 subdomains/www/mauve*
 subdomains/www/media_PowerPoint_movies/*
+subdomains/www/pdfs_documents/*
 subdomains/www/*.csv
 subdomains/www/php/not_used/*
 subdomains/www/php/_save/*

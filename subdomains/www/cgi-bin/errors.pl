@@ -87,10 +87,25 @@ sub printDataErr_Continue
 
 sub printSysErrExit
 {
- local($errormsg) = $_[0];
+ my $errormsg = $_[0];
  print "<div class=\"error\">***WOA SYSTEM ERROR: - PROCESS STOPPED - $errormsg</div>\n";
  &errLogit;
  exit;
 }
+
+#       Log errors
+sub errLogit
+{
+ my $msg = $_[0];
+ my $logline = "$msg docid-$docid user-$operator_access $userid $sysdate action=$docaction s-$sectsubid : @_\n";
+
+ unlink "$errlog_old" if(-f "$errlogold");
+ system "cp $errlogpath $errlog_old" if(-f "$errlogold");
+ open(ERRLOG, ">>$errlogpath");
+ print ERRLOG "$logline<br>\n";
+ close(ERRLOG);
+ return;
+}
+
 
 1;

@@ -243,24 +243,16 @@ sub do_sectsubs
  # If New
  $docaction = 'N' unless($docid);
 
-
- if($docaction eq 'N') {
-	 if($owner) {
-		$addsectsubs = $ownersectsub; 
-		$sectsubs = $ownersectsub;
-	 }
-	 else {$addsectsubs = $sectsubs;
-	 }
-     $delsectsubs = "";
-     return;
- }
-
-#  If not new - a change or delete
-
  if($owner) {
      &do_ownersectsub;     # outside user stuff
      return;
   }
+
+ if($docaction eq 'N') {
+     $addsectsubs = $sectsubs;
+     $delsectsubs = "";
+     return;
+ }
 
  # 2nd, delete if 'Delete' requested
 
@@ -429,26 +421,35 @@ sub do_pointssectsub { # Talking Points: Impacts and Solutions
 }
 
 sub do_ownersectsub { # CSWP, Maidu, any owner other than WOA
- $ownerchg = 'Y';                                               # Do we need?
- if($dSectsubname =~ /$ownersectsub/) { #If no change,
-	$ownerchg = 'N';
+ $ownerchg = 'N'; 
+                      
+ if($docaction eq 'N') {
+	$addsectsubs = $ownersectsub; 
+	$sectsubs = $ownersectsub;
  }
- if($sectsubs) {
-     if($ownersectsub =~ /$sectsubs/) {
-      # no change
-     }
-     else {
-        $delsectsubs = $sectsubs;
-	    $addsectsubs = $ownersectsub;
+ elsif($docaction eq 'D') {
+	print "docaction $docaction ..ownersectsub $ownersectsub<br>\n";
+    $delsectsubs = $ownersectsub;
+    $sectsubs    = $deleteSS;
+    $addsectsubs = $deleteSS;
+    return;
+ }
+ else {		                        
+	 if($sectsubs) {
+	     if($ownersectsub eq $sectsubs) {
+		    $ownerchg = 'N';
+	     }
+	     else {
+	        $delsectsubs = $sectsubs;
+		    $addsectsubs = $ownersectsub;
+		 }
 	 }
- }
- else {
-	   $addsectsubs = $ownersectsub;
+	 else {
+		   $addsectsubs = $ownersectsub;
 	
+	 }
+	 $sectsubs = $ownersectsub;
  }
- $sectsubs = $ownersectsub;
- $sectsubs = "$sectsubs`$docloc" if($docloc);
- $sectsubs = "$sectsubs`$lifonum" if($lifonum);
 }
 
 #### 640 SECTSUBS    simplified version used for selected items
@@ -995,7 +996,7 @@ sub get_owner_sections
     $xsect =~ s/`+$//;  #get rid of trailing tic marks
     $xsect = trim($xsect);
     $selected = "";
-    if($dSectsubs =~ /$xsect/ or $xsect =~ /$dSectsubs/ or $dSectsubs eq $xsect) {	
+    if($dSectsubs eq $xsect) {	
 	   	$selected = "selected=\"selected\"";
 	   $currentSS = $xsect;
 	} # end if

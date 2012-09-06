@@ -1,0 +1,35 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+
+<script LANGUAGE="JavaScript">
+
+<!--
+function CheckAll()
+{
+ for (var i=0;i<document.itemsSelect.elements.length;i++) {
+   var e = document.itemsSelect.elements[i];
+   if (e.name.match(/^selitem/))
+      e.checked = document.itemsSelect.allbox.checked;
+ }
+}
+//-->
+</script>
+
+<link rel="stylesheet" type="text/css" href="[OWNER_CSS]" media="Screen">
+
+</head>
+<body>
+	<form method="post" name="itemsSelect" action=
+	"http://[SCRIPTPATH]/article.pl">
+	<input type="hidden" name="cmd" value="selectItems">
+	<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+	<input type="hidden" name="owner" value="[owner]">
+	<input type="hidden" name="ipform" value="owner_top">
+	
+<!-- <font size="2" face="arial">
+<input name="allbox" type="checkbox" value="moxnix" onClick="CheckAll();">
+&nbsp;Check/uncheck all<p>
+</font>  -->
+

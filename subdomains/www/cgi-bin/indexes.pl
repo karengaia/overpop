@@ -171,7 +171,8 @@ sub conform_date    # format yyyy-mm-dd
 
 
 sub write_index_flatfile {
- my($rSectsubid,$docid,$docloc,$cOrder) = @_;
+ my($rSectsubid,$docid,$docloc,$cOrder,$addchk,$delchk) = @_;
+
  $sectionfile    = "$sectionpath/$rSectsubid.idx";
  $newsectionfile = "$sectionpath/$rSectsubid.new";
  $bkpsectionfile = "$sectionpath/$rSectsubid.bkp";
@@ -188,13 +189,7 @@ sub write_index_flatfile {
 
  $testct = 1;
 
-## find info about the one we are inserting/deleting
-## $dSectsubs = $sectsubs;
-###   $docloc = &splitout_sectsub_info($rSectsubid,$dSectsubs);
-
  if($SVRinfo{environment} == 'development') {
-#	system "touch $newsectionfile" or print "sec426 Mac - touch failed on temp new section index file: $newsectionfile<br>\n";
-#	system "chmod 0777 $newsectionfile"  or print "sec427 Mac -chmod failed on temp new section index file: $newsectionfile<br>\n";
     open(OUTSUB, ">$newsectionfile") or print "sec428 H Mac - failed to open temp new section index file: $newsectionfile<br>\n";
  }
  else {
@@ -205,7 +200,7 @@ sub write_index_flatfile {
  while(<INSUB>) {
     chomp;
     $index_written = 'N';
-    local($testline) = $_;
+    my $testline  = $_;
     ($iDocid,$iDocloc,) = split(/\^/,$testline,2);
     $iDocloc = $default_docloc if($iDocloc !~ /[A-Z]/);
 
@@ -399,54 +394,69 @@ sub total_items
 {
  my $doclistname = $_[0];
  my $tot_items = 0;
+ my $cntfilename = "";
+ my $cntfilepath = "";
 
-  if(-f "debugit.yes") {
+ $doclistname =~ s/\.cnt//g if($doclistname =~ /\.cnt/);
+ $doclistname =~ s/\.idx//g if($doclistname =~ /\.idx/);
+ $cntfilename = "$doclistname.cnt";
+
+ if(-f "debugit.yes") {
      $cntfilename = "testitem.txt"
   }
   else {
-     ($cntfilename,$rest) = split(/\.idx/,$doclistname);
-     $cntfilename = "$cntfilename.cnt";
+     $cntfilename = "$doclistname.cnt" if($doclistname !~ /\.cnt$/);
   }
-  $cntfilepath = "$sectionpath/$cntfilename";
-  if(-f  $cntfilepath) {
-    open(CNTFILE,"$cntfilepath");
-    while(<CNTFILE>) {
-      chomp;
-      $tot_items = $_;
-    }
-    close(CNTFILE);
-    $tot_items = &strip0s_fromCount($tot_items);
+
+  if($cntfilename !~ /$sectionpath/) {
+      $cntfilepath = "$sectionpath/$cntfilename";
   }
   else {
-	 ($doclistname,$rest) = split(/\.idx/,$cntfilename,2);
-	 $tot_items = 0;
-	 &set_item_count(2,$doclistname);
+      $cntfilepath = "$cntfilename";
   }
-##   print "sec500a cntfilename $cntfilename tot_items $tot_items<br>\n";
-   return $tot_items;
+  if(-f  $cntfilepath) {
+	 my $found = "";
+     open(CNTFILE,"$cntfilepath");
+     while(<CNTFILE>) {
+       chomp;
+       $tot_items = $_;
+       $found = 'Y';
+     }
+     close(CNTFILE);
+     if($found) {
+        $tot_items = &strip0s_fromCount($tot_items);
+     }
+     else {
+	    $tot_items = 0;
+     }
+  }
+  else {
+	 &set_item_count(1,$doclistname);
+  }
+  $tot_items = 0 unless($tot_items);
+  $tot_items = 0 if($tot_items < 0);
+  return $tot_items;
 }
 
 
-sub set_item_count  #comes here from display; count is calculated on display before sort
+sub set_item_count  #comes here from display; count is calculated on display during sort
 {
  my ($ckItemnbr,$doclistname) = @_;
- my $cntfilename = "";
- if(-f "debugit.yes") {
-    $cntfilename = "testitem.txt";
- }
- else {
-   ($cntfilename,$rest) = split(/\.idx/,$doclistname,2);
-   $cntfilename = "$cntfilename.cnt";
-   if(-f $cntfilename) {}
-   else {
-     system "touch $cntfilename";
-   }
- }
- $ckItemnbr = $ckItemnbr - 1;
- local($ckItemcnt) = &padCount6($ckItemnbr);
+ $doclistname =~ s/$sectionpath\///;
+ $doclistname =~ s/\.idx//g;
 
- open(CNTFILE,">$cntfilename");
- print(CNTFILE "$ckItemcnt\n");
+ if(-f "debugit.yes") {
+    $doclistname = "testitem.txt";
+ }
+
+ my $cntfilepath = "$sectionpath/$doclistname.cnt";
+
+ system "touch $cntfilepath" unless (-f $cntfilepath);
+
+# my $ckItemcnt = &padCount6($ckItemnbr);
+
+ open(CNTFILE,">$cntfilepath");
+ print(CNTFILE "$ckItemnbr\n");
  close(CNTFILE);
 }
 
@@ -456,9 +466,9 @@ sub set_item_count  #comes here from display; count is calculated on display bef
 
 sub print_pages_index
 {
- local($pg_num,$sectsubid,$itemMax,$totalItems,$pg1max,$end_section) = @_;
- local($pg);
- $doclistname = "$sectionpath$slash$sectsubid.idx";
+ my($pg_num,$sectsubid,$itemMax,$totalItems,$pg1max,$end_section) = @_;
+ my $pg;
+ $doclistname = "$sectionpath\$sectsubid.idx";
  &set_start_stop_count_maxes;  ## we have to this twice - also before start-stop count
 
  $totalPages = &total_pages($doclistname,$itemMax,$totalItems,$pg1max);
@@ -482,7 +492,7 @@ sub print_pages_index
       }
    }
    $totalPages = $totalPages -1 if($totalPages > 19);
-#   print MIDTEMPL ".. <a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$sectsubid%%$totalPages\">$totalPages<\/a>\n";
+   print MIDTEMPL ".. <a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$sectsubid%%$totalPages\">$totalPages<\/a>\n";
 }
 }
 
@@ -616,9 +626,9 @@ sub delete_from_index_by_list
 ##                 Updates the appropriate index flatfiles and the indexes table on the DB
 sub hook_into_system
 {
-  my($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
+ my($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
  $pubdate = &conform_date($pubdate,'n',$sysdate);
-  $sysdate = &conform_date($sysdate,'n');
+ $sysdate = &conform_date($sysdate,'n');
 
  if($sectsubs !~ /$deleteSS|$expiredSS/ and $cmd !~ /selectItems|updateCvrtItems/) {
    &add_temporary_sectsubs;
@@ -674,7 +684,7 @@ sub updt_subsection_index
 
  $stratus = $default_docloc if($stratus !~ /[A-Z]/);
 
- &write_index_flatfile($rSectsubid,$docid,$stratus,$cOrder); # in indexes.pl
+ &write_index_flatfile($rSectsubid,$docid,$stratus,$cOrder,$addchk,$delchk); # in indexes.pl
 
 ##                     Delete the docid we wrote before
 ##                     - just in case it didn't delete above

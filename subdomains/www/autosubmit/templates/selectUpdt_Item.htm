@@ -12,7 +12,7 @@
 [REGIONHEAD]
    value="Y"> <cite>Region in headline</cite>
 
-  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols="86">[headline]</textarea>
+  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols="80">[headline]</textarea>
 [REDARROW]
 
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
@@ -27,11 +27,13 @@ value="
 <input type="text" name="author" size="75" maxlength="150"
 value="
 [author]
-">
+">&nbsp;&nbsp;<input type="checkbox" name="skipauthor" 
+[SKIPAUTHOR]
+    value="Y"> <cite>Skip author</cite>
 <br>
 
 <cite>
-<textarea id="fullbody[pgitemcnt]" name="fullbody[pgitemcnt]" wrap="physical" rows=15 maxrows=300 cols=90>
+<textarea id="fullbody[pgitemcnt]" name="fullbody[pgitemcnt]" wrap="physical" rows=15 maxrows=300 cols=80>
 [fullbody]
 </textarea>
 </cite> 
@@ -44,7 +46,9 @@ value="
 [unique]
 ">
 <br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-<label><b>Misc info</b></label>&nbsp;<input type="text" name="miscinfo[pgitemcnt]" size=70 rows=2 maxsize=300 value="[miscinfo]">
+<textarea id="miscinfo[pgitemcnt]" 
+name="miscinfo[pgitemcnt]" rows="3	" maxrows="5" cols="70">
+Misc: [miscinfo]</textarea>
 
  
 </TD><TD width=50% valign=top>
@@ -135,13 +139,13 @@ value="
 	   onclick="var2var( 'body[pgitemcnt]',
 	'fullbody[pgitemcnt]');"><cite>Get full article</cite>
   <br>
-  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="physical" rows="8" cols=90">[body]</textarea>
+  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="physical" rows="8" cols=75">[body]</textarea>
 
 
 
-   <br>
-    <label>Comment</label>&nbsp;<textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="physical" rows="2" cols=85">[comment]</textarea> 
-	<br><label><b>Note</b></label>&nbsp; <input type="text" name="note[pgitemcnt]" size=85 maxsize=300 value="[note]">
+   <br><label>Comment</label>&nbsp;
+    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="physical" rows="2" cols=65">[comment]</textarea> 
+	<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=95 maxsize=300 value="[note]">
  
 </TD></TABLE>
 

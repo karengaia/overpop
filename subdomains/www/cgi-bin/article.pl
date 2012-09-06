@@ -170,12 +170,12 @@ if($aTemplate ne 'login') {
    &read_sectCtrl_to_array($qOrder);  # in sectsubs.pl
    &read_sources_to_array;
    &read_regions_to_array;
-   $summarizedCnt = &total_items($summarizedSS); #in indexes.pt
-   $suggestedCnt  = &total_items($suggestedSS); #in indexes.pt
+   $summarizedCnt = &total_items($summarizedSS); #in indexes.pl
+   $suggestedCnt  = &total_items($suggestedSS); #in indexes.pl
 }
 
 if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets ownersections and ownersubs
-   &owner_set_update_return($docid,$thisSectsub,$userid,$owner);
+   &owner_set_update_return($docid,$thisSectsub,$userid,$owner); # in owner.pl
    $ownerSections     = $OWNER{'ownersections'};
    $ownerSubs         = $OWNER{'ownersubs'};
    $viewOwnerUpdt     = $OWNER{'viewOwnerUpdt'};
@@ -213,7 +213,7 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 	   }
 	   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
    }
-  &display_one($aTemplate,'Y','N','N'); # in docitem.pl
+ &display_one($aTemplate,'Y','N','N'); # in docitem.pl
 }
 
 elsif($cmd eq "processlogin") {
@@ -223,13 +223,11 @@ elsif($cmd eq "processlogin") {
   ($userdata, $access,$permissions) = &check_user($userid,$pin);  ## in common.pl
    $operator_access  = $access;
    $op_permissions   = $permissions;
-
    if($owner) { 
-       $$o_updt_template = $OWNER{'oupdatetemplate'};       
-# print "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$aTemplate%$thisSectsub%$owner\"<br>\n";
-exit;
+       $o_updt_template = $OWNER{'oupdatetemplate'};       
+       $metaViewOwnerUpdt = $OWNER{'metaViewOwnerUpdt'};
        print "$metaViewOwnerUpdt"; 
-	   exit(0); 
+	   exit; 
    }
    elsif($action eq "emailit") {
        $email_it = 'Y';
@@ -251,7 +249,8 @@ exit;
            $aTemplate = "summarize"   if($action eq "update");
            $aTemplate = "suggest"     if($action eq "new");
            $aTemplate = "fullArticle" if($action eq "view");
-        }
+       }
+       
        &display_one($aTemplate,'Y','N','N');
    }
 	exit(0);
@@ -299,6 +298,7 @@ elsif($cmd eq "display_section"
 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.pl?move%$pagenames\">";
            exit;
      }
+
      $supress_nonsectsubs = 'N';
      $supress_nonsectsubs = 'Y'
               if($cmd =~ /print_select|display_subsection/);
@@ -331,8 +331,7 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 ##        $stop_count = '0060';
      }
     $print_it = 'Y';
-
-    &create_html($rSectsubid,$aTemplate,$pg_num);  #in display.pl
+    &create_html($rSectsubid,$aTemplate,$pg_num,$supress_nonsectsubs);  #in display.pl
 }
 
 elsif($cmd eq "storeform") {

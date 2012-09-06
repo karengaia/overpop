@@ -68,17 +68,19 @@ sub owner_set_sectsubs
 }
 
 
-sub owner_set_update_return
+sub owner_set_update_return    # called from article.pl
 {
   my($docid,$thisSectsub,$userid,$owner) = @_; 
 	my  $l_docid = $docid;
     $l_docid = "" unless($docid =~ /[0-9]{6}/);
     $oupdatetemplate = $OWNER{'oupdatetemplate'};
-    my  $ownerSubs         = $OWNER{'ownersubs'};
-    my  $viewOwnerUpdt = "http://$publicUrl/prepage/viewOwnerUpdate.php?$l_docid%$oupdatetemplate%$thisSectsub%$owner%$userid%$ownerSubs";
-    my  $metaViewOwnerUpdt = "<meta http-equiv=\"refresh\" content=\"0;url=$viewOwner\">\n";
-    $OWNER{'viewOwnerUpdt'} = $viewOwnerUpdt;
+    my  $ownerSubs              = $OWNER{'ownersubs'};
+    my  $viewOwnerUpdt          = "http://$publicUrl/prepage/viewOwnerUpdate.php?$l_docid%$oupdatetemplate%$thisSectsub%$owner%$userid%$ownerSubs";
+    my  $metaViewOwnerUpdt      = "<meta http-equiv=\"refresh\" content=\"0;url=" . $viewOwnerUpdt . "\">\n";
+    $OWNER{'viewOwnerUpdt'}     = $viewOwnerUpdt;
     $OWNER{'metaViewOwnerUpdt'} = $metaViewOwnerUpdt;
+#    $x = $OWNER{'metaViewOwnerUpdt'};
+#    print "ow84 meta <!-- $x --><br>\n";
 }
 
 sub create_owners

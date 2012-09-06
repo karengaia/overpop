@@ -372,15 +372,14 @@ value="
 "> &nbsp;
 <input type="radio" name="sourcecrud" value="-" checked="checked" onclick="clearSourceUpdtAdd();showhide('hiddensource')"><br>
 
-&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input type="checkbox" name="skipauthor" 
-[SKIPAUTHOR]
-    value="Y"> <cite>Skip author</cite></br>
 <label for="author">Author :</label>&nbsp;&nbsp;
 <input type="text" name="author" size="65" maxlength="70"
 value="
 [author]
-">
-<br><label for="unique">Unique :</label>&nbsp;&nbsp;
+">&nbsp;&nbsp;<input type="checkbox" name="skipauthor" 
+[SKIPAUTHOR]
+    value="Y"> <cite>Skip author</cite><br>
+<label for="unique">Unique :</label>&nbsp;&nbsp;
 <input type="text" name="unique" size="50" maxlength="50"
 value="
 [unique]
@@ -438,9 +437,7 @@ value="
 	
 	<label for="subheadline">Subheadline :</label>&nbsp;&nbsp;
 	<input type="text" name="subheadline" size="90" maxlength="150"
-	value="
-	[subheadline]
-	">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="checkbox" name="skipsubheadline" 
+	value="[subheadline]">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="checkbox" name="skipsubheadline" 
 	[skipsubheadline]
 	    value="Y"> <cite>skip</cite><br><br>
 	
@@ -487,25 +484,23 @@ value="
 
 </td></tr></table>
 <table><td>
-    <label for="comment">Comments:</label> &nbsp;&nbsp;
+    <label>Comments:</label> &nbsp;&nbsp;
    <cite>Use sparingly</cite><br>
-    <textarea name="comment" wrap="physical" rows="3" cols=49">
+    <textarea name="comment" wrap="physical" rows="3" cols="49">
 [comment]
 </textarea>
 </td><td>
-    <label for="note">Notation:</label> &nbsp;&nbsp;
+    <label>Notation:</label> &nbsp;&nbsp;
    <cite>(not published)</cite>
 <br>
-    <textarea name="note" wrap="physical" rows="3" cols=48">[note]</textarea>
+    <textarea name="note" wrap="physical" rows="3" cols="48">[note]</textarea>
 </td></table>
 
-    <label for='points'>Top Points:</label> &nbsp;&nbsp;
+    <label>Top Points:</label> &nbsp;&nbsp;
 <cite>Quotable talking points extracted from the article</cite>&nbsp;&nbsp;&nbsp;&nbsp;
 [POINTS_SECTIONS]
-<input name="pointssectsub" type=radio value=""> <cite>NA</cite><br>
-<textarea name="points" wrap="physical" rows=6 maxrows=300 cols=100>
-[POINTS]
-</textarea>
+<input name="pointssectsub" type="radio" value=""> <cite>NA</cite><br>
+<textarea name="points" wrap="physical" rows="6" maxrows="300" cols="100">[points]</textarea>
 </div> <!-- end of linksummarycomment -->
 
 
@@ -517,7 +512,7 @@ value="
 >&nbsp;<cite>Allow public view</cite>
 
 <br>
-    <textarea id="fullbody" name="fullbody" wrap="physical" rows=15 maxrows=300 cols=100>
+    <textarea id="fullbody" name="fullbody" wrap="physical" rows="15" maxrows="300" cols="100">
 [FULLBODY]
 </textarea>
 </td></tr></table>

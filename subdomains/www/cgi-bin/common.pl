@@ -238,21 +238,6 @@ sub get_site_info
   return();
 }
  
-## 100
-
-##   200       Log errors
-sub errLogit
-{
- local($logline) = "$docid user-$operator_access $userid $sysdate action=$docaction s-$sectsubid : @_\n";
-
- unlink "$errlog_old" if(-f "$errlogold");
- system "cp $errlogpath $errlog_old" if(-f "$errlogold");
- open(ERRLOG, ">>$errlogpath");
- print ERRLOG "$logline<br>\n";
- close(ERRLOG);
- return;
-}
-
 
 sub calc_idxSeqNbr
 {
@@ -285,9 +270,9 @@ sub exampleFH  ## example
 
 sub waitIfBusy
 {
-   local($lock_file) = $_[0];
-   local($relock)    = $_[1];
-   local($now,$age,@stat,$r);
+   my $lock_file = $_[0];
+   my $relock    = $_[1];
+   my ($now,$age,@stat,$r);
    while(-f "$lock_file")   # Check for a lock file
    {
      @stat = stat("$lock_file");   # Gets stats for a file
@@ -300,8 +285,8 @@ sub waitIfBusy
      else  {
         sleep 1;     # Wait a second
      }
-     system "touch $lock_file" or die if($relock eq 'lock'); #unlock must be done in calling routine
    }
+   system "touch $lock_file" if($relock eq 'lock'); #unlock must be done in calling routine
  }
  
 

@@ -23,24 +23,24 @@ sub init_display_variables
 
 sub create_html
 {
-  my ($rSectsubid,$aTemplate,$pg_num) = @_;
+  my ($rSectsubid,$aTemplate,$pg_num,$supress_nonsectsubs) = @_;
+  $supress_nonsectsubs = 'Y' if($pg_num > 1);
 
-  if($rSectsubid =~ /Volunteer_log/) {
+  if($rSectsubid =~ /Volunteer_log/) {   ## <-- Does this work? Where is volunteer's id?
 		$doclistname = "$sectionpath/$rSectsubid.idx";
 		&process_doclist($rSectsubid,$doclistname);
 		exit;
   }
 
   &split_section_ctrlB($rSectsubid);
-  $rPage   = $cPage;
-  $rSubdir = $cSubdir;
-  $rSectid = $cSectid;
-  $rSubid  = $cSubid;
+  $rPage    = $cPage;
+  $rSubdir  = $cSubdir;
+  $rSectid  = $cSectid;
+  $rSubid   = $cSubid;
   $rDoclink = $cDocLink;
-
   $email_it = 'Y' if($cVisable eq 'E');
 
-  if($cPage) {
+  if($rPage) {
      $htmlfile_it = 'Y';
 
      $lock_file = "$statuspath/$rPage.busy";
@@ -50,28 +50,33 @@ sub create_html
      unlink $outfile if(-f $outfile);
   }
 
-  $found_it  = 'N';
+  $found_it  = "";
   $pgItemnbr = "";
   $pgitemcnt = "";
   $pgItemnbr = 1;
   $pgitemcnt = &padCount4($pgItemnbr);
 
   foreach $cSectsub (@CSARRAY) {
-     ($SSid,$SSseq,$cSectsubid,$rest) = split(/\^/,$cSectsub);
-     $cSectsubInfo = "$SSid^$SSseq^$cSectsubid^$rest";
+     ($SSid,$SSseq,$cSectsubid,$rest1,$rest2,$rest3,$cPage,$rest4) = split(/\^/,$cSectsub);
      ($cSectid,$cSubid) = split(/_/,$cSectsubid);
      &clear_doc_data;  ### clear out any data that may be left from another time
      &clear_doc_variables;
      @DOCARRAY = "";
      undef %DOCARRAY;
 
-     if($cmd =~ /display_subsection/ or $rSectid eq $cSectid)  {
-         &generate_WOA_webpage($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num) if($rSubid eq $cSubid);
-     }
+#	print "dis69 ..rSectid/sub $rSectid _ $rSubid ..rPage $rPage .. cPage $cPage..cSectid/sub $cSectid _ $cSubid supress_nonsectsubs $supress_nonsectsubs<br>\n";
 
-	 if(($cSectid ne $rSectid and $found_it =~ /Y/)
-     or ($cmd =~ /display_subsection/ and $cSubid ne $rSubid and $found_it =~ /Y/) ) {
-       last;
+     if($rSectid eq $cSectid) {
+        if( ($cmd =~ /display_section/ and $rPage eq $cPage) or
+            ($cmd =~ /[display_subsection|print_select]/ and ($rSectsubid eq $cSectsubid or $supress_nonsectsubs !~ /Y/) ) )  { ##      will work even if no page
+
+             $found_it = &do_subsection($cSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it);
+	    }
+	  }
+
+	 if(($cSectid ne $rSectid and $found_it)
+     or ($cmd =~ /display_subsection/ and $cSubid ne $rSubid and $found_it) ) {
+        last;
      }
   }
 
@@ -88,14 +93,14 @@ sub create_html
 
 ## 00440 ###  GENERATE WOA WEBPAGE ###
 
-sub generate_WOA_webpage
+sub generate_WOA_webpage___notused
 {
-   my ($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num) = @_;
+   my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num) = @_;
+print "dis94 ..rSectsubid $rSectsubid <br>\n";
 
    &split_section_ctrlB($rSectsubid);
 
-##      will work even if no page
-  $supress_nonsectsubs = 'Y' if($pg_num > 1);
+
   if(($cPage eq $rPage) and ($cSectid eq $rSectid)) {
 	if($rSectsubid =~ /$cSectsubid/ or $supress_nonsectsubs !~ /Y/) {
        &do_subsection($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num);
@@ -103,10 +108,10 @@ sub generate_WOA_webpage
   }
 }
 
-sub do_subsection
-{
-  my ($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num) = @_;
-
+sub do_subsection {
+  my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it) = @_;
+   
+ &split_section_ctrlB($rSectsubid);
  $savetemplate = $aTemplate;
  $aTemplate = "";
  $save_printit = $print_it;
@@ -114,15 +119,16 @@ sub do_subsection
     $email_it = 'Y'
  }
  else {
-    $print_it = 'Y' if($rPage and $rSubid eq $cSubid and $cmd ne 'storeform');
-    $print_it = 'Y' if($rPage eq "" and $rSectid eq $cSectid and $cmd ne 'storeform');
-    $print_it = 'Y' if($cmd eq "display_section" and $rSectid eq $cSectid);
-    $htmlfile_it  = 'N' if($pg_num > 1);
-    $email_it = 'N' if($pg_num > 1);
+    $print_it    = 'Y' if($rPage and $rSubid eq $cSubid and $cmd ne 'storeform');
+    $print_it    = 'Y' if($rPage eq "" and $rSectid eq $cSectid and $cmd ne 'storeform');
+    $print_it    = 'Y' if($cmd eq "display_section" and $rSectid eq $cSectid);
+    $htmlfile_it = 'N' if($pg_num > 1);
+    $email_it    = 'N' if($pg_num > 1);
  }
- $found_it = 'Y';
 
- if($pg_num eq 1 or $pg_num !~ /[0-9]/) {
+##  First do the top
+
+ if(!$found_it and ($pg_num eq 1 or $pg_num !~ /[0-9]/) ) { 
      if($cHeader or $qHeader) {
            $aTemplate = $cHeader if($cHeader);
            $aTemplate = $qHeader if($qHeader);
@@ -143,25 +149,31 @@ sub do_subsection
 	        $aTemplate  = "selectUpdt_Top";
 	    }
      }
-     if($cTitleTemplate) {
-        $aTemplate = $cTitleTemplate;
-     }
-     else {
-        $aTemplate = "stdSubtitle" if($cTitle and $rSectsubid !~ /NewsDigest_NewsItem/);
-     }
  }
  else {
-   if($qMobidesk =~ /mobi/ or $cMobidesk =~ /mobi/) {
+    if($qMobidesk =~ /mobi/ or $cMobidesk =~ /mobi/) {
 	   $aTemplate = "WOAmobileTop";
-   }
-   elsif(!$aTemplate) {
-       $aTemplate  = "smallWOATop";
-   }
+    }
+#    elsif(!$aTemplate) {
+#       $aTemplate  = "smallWOATop";
+#    }
+    &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
+    $aTemplate = "";
  }
+ $found_it = 'Y';
 
+ if($cTitleTemplate) {
+    $aTemplate = $cTitleTemplate;
+ }
+ else {
+    $aTemplate = "stdSubtitle" if($cTitle and $rSectsubid !~ /NewsDigest_NewsItem/);
+ }
  &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
+ $aTemplate = "";
+
 
  $aTemplate = $qTemplate;  #time to do detail
+
  if($cIdxSectsubid) {
     $doclistname = "$sectionpath$slash$cIdxSectsubid.idx";
     $dFilename = $cIdxSectsubid;
@@ -202,6 +214,7 @@ if(-f $doclistname) {
 
  $aTemplate = $savetemplate;
  $print_it  = $save_printit;
+ return($found_it);
 }
 
 
@@ -218,7 +231,7 @@ sub process_doclist
  &waitIfBusy($lock_file, 'lock');
  $expired = "";
 
- local($counts) = &get_start_stop_count($pg_num);  # in sections.pl
+ my $counts = &get_start_stop_count($pg_num);  # in sections.pl
  ($start_count,$stop_count) = split(/:/,$counts,2);
  $prev_docid = "000000";
 
@@ -229,7 +242,7 @@ sub process_doclist
     &process_1only_list;
  }
  else {
-    &push_items_to_sort;
+   &push_items_to_sort;
     &sort_and_out;
     $docid = "";
     undef @unsorted;
@@ -264,7 +277,7 @@ sub process_popnews_list
 	    $ckItemnbr  = $ckItemnbr + 1;
  } #end file
  close(INFILE);
- $totalItems = $totalItems - 1;
+ $totalItems = $totalItems - 1 unless($totalItems < 1);
  &set_item_count($totalItems,$doclistname); #in sectsubs.pl
 }
 
@@ -1411,7 +1424,7 @@ sub push_items_to_sort
     }
  } #end file
  close(INFILE);
- $totalItems = $totalItems - 1;
+ $totalItems = $totalItems - 1 unless($totalItems < 1);
  &set_item_count($totalItems,$doclistname); #in sections.pl
 
  unlink "$lock_file";

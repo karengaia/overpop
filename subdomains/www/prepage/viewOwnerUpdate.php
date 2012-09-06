@@ -75,7 +75,7 @@ function moveSectsub() {
 
 <br>
 		<div style="padding:5px;font-family:geneva;font-size:1.3em;"><strong><?php echo $owner; ?> Web Admin</strong> 
-			<br><span class="comment"> Choose one of the following  (A or B); you can only do one per submit</span></div>
+			<br><span class="comment"> Choose one of the following  (<b>A</b> - below or <b>B</b> - scroll down); you can only do one per submit</span></div>
 		
 <table>
 	<tr><td id="leftcol">
@@ -94,13 +94,13 @@ function moveSectsub() {
 				if($owner_sectsub == 'delete_deleteItem') {
 				}
 				else {
-				   echo '<span class="comment"><big>List name: ' . $owner_sectsub . '</big></span>'. chr(10);
-				   echo '<div class="box">' . chr(10);
-				   echo '<form method="post" name="itemsSelect' . $listnum . '" action="http://' . $cgipath . '/article.pl">' . chr(10);
-$sourcepage = "http://$cgipath/article.pl?print_select%%fly%$owner_sectsub%%$userid%%owner_top%delete_select_end%%%$owner%%listnum";
+				   echo '<span class="comment"><big>List name: ' . $owner_sectsub . '</big></span><br>';
+				   echo '<div class="box"><br>';
+				   echo '<form method="post" name="itemsSelect' . $listnum . '" action="http://' . $cgipath . '/article.pl"><br>';
+                   $sourcepage = "http://$cgipath/article.pl?print_select%%fly%$owner_sectsub%%$userid%%owner_top%delete_select_end%%%$owner%%$listnum";
 				   $webpage = file_get_contents($sourcepage); 
 				   echo $webpage;
-				   echo '</form></div><br><br>'. chr(10);
+				   echo '</form></div><br><br>* * * * * * * *<br>';
 				   echo '';
 			    }
 			}

@@ -143,21 +143,20 @@ date for Stockton meeting at Lee’s home is Monday, August 20th.
 		<hr><br>
         <cite class="verdana"><big class="red">To make a change to any of the following, click on the tiny grey button at the end of any item.</big></cite><br><br>
 
-<b class="red">CSWP members can't change this at present</b>
 <div style="border:1px solid;padding:4px;">
- <?php $webpage = file_get_contents('http://overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%fly%CSWP_adminCalendar%%%%%%%%CSWP'); echo $webpage; ?>
+ <?php $webpage = file_get_contents('http://overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%%fly%CSWP_adminCalendar%%%%%%%%CSWP'); echo $webpage; ?>
 </div>
 
 		<br><br>
-		<b>(Appears on the CSWP front page)</b> &nbsp;&nbsp; <b class="red">This is the only area that CSWP members can change at present</b><br>
+		<b>(Appears on the CSWP front page)</b><br>
 <div style="border:1px solid;padding:4px;">			
-<?php $webpage = file_get_contents("http://overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%fly%CSWP_Calendar%%%%%%%%CSWP"); echo $webpage; ?>
+<?php $webpage = file_get_contents("http://overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%%fly%CSWP_Calendar%%%%%%%%CSWP"); echo $webpage; ?>
 </div>
 		<br><br>
-		<b>Mother film schedule - Appears on the CSWP front page within the Mother ad</b>&nbsp;&nbsp;<b class="red">CSWP members can't change this at present</b><br>
+		<b>Mother film schedule - Appears on the CSWP front page within the Mother ad</b><br>
 			
 <div style="border:1px solid;padding:4px;">
-<?php $webpage = file_get_contents("http://overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_section%%fly%CSWP_MotherSch%%%%%%%%CSWP"); echo $webpage; ?>
+<?php $webpage = file_get_contents("http://overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%%fly%CSWP_MotherSch%%%%%%%%CSWP"); echo $webpage; ?>
 </div>
 		<br><br>
 							

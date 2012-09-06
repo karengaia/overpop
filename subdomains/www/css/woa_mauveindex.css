@@ -357,7 +357,9 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 		text-align: center; padding: 4px;
 		margin-bottom: 15px;
 	}
-	
+
+	span.smallfont {font-size:8px; color:#2f4f4f;}
+		
 	li.smallfontv {
 		margin-top: 3px; margin-bottom: 3px;
 		font-family: verdana,arial,tahoma,sans-serif;

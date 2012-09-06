@@ -1377,6 +1377,7 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
 
 
  $DOCARRAY{'owner'}          = $owner;
+ $DOCARRAY{'ocsspath'}       = $ocsspath;
  $DOCARRAY{'dir'}            = $dir;
  $DOCARRAY{'action'}         = $action;
  $DOCARRAY{'filedir'}        = $filedir;

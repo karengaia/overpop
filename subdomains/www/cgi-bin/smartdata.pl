@@ -304,7 +304,7 @@ sub assign_std_variables
  my $msgline = $_[0];
 	#     for newsclip email parsing - need to do this with hashed pairs
  $std_variables =
-"docid^DOCID::`docaction^DOCACTION::`handle^HANDLE::`headline^HH |HEADLINE:|HEADLINE :|HEADLINE::|Headline :|Review:|Blog:|Opinion:|EDITORIAL:|OPINION:`source^SS |SOURCE:|Source:|Source :|SOURCE :|SOURCE::`region^RR `pdate^DD |DATE::|Date :|DATE:`userid^USERID:|USERID::`body^SUMMARY::`fullbody^FULL_ARTICLE::`author^AA |By |By: |AUTHOR:|AUTHOR :|Author :|AUTHOR::`priority^PRIORITY::`";
+"docid^DOCID::`docaction^DOCACTION::`handle^HANDLE::`headline^HH |HEADLINE:|HEADLINE :|HEADLINE::|Headline :|Review:|Blog:|Opinion:|EDITORIAL:|OPINION:`source^SS |SOURCE:|Source:|Source :|SOURCE :|SOURCE::`region^RR `pdate^DD |DATE::|Date :|DATE:`userid^USERID:|USERID::`body^SUMMARY::`fullbody^FULL_ARTICLE::`author^AA |By: |AUTHOR:|AUTHOR :|Author :|AUTHOR::`priority^PRIORITY::`";
 
   @stdVariables = split(/`/, $std_variables);
  $splitter = "";

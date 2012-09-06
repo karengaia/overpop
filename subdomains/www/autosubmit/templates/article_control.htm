@@ -169,8 +169,8 @@ document.getElementById('actitle').value = ac[1];
 <!-- LEFT COLUMN -->
   <td width="20%" valign="top">
 <br>
-Summarized que: <span style="color:red;font-weight:bold;font-size:120%;">[summarizedcnt]</span><br>
-Suggested que: <span style="color:red;font-weight:bold;font-size:120%;">[suggestedcnt]</span>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_summarizedItem%%%20">Summarized</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[summarizedcnt]</span><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[suggestedcnt]</span>
 <br><br>
 <b>Server:</b>&nbsp;
 [svrinfoSvrname]
@@ -199,7 +199,7 @@ Hits: [hitCount]<br>
 <a target="_blank" href="http://[PUBLICURL]/autosubmit/summarize.html">Summarize instructions</a><br>
 <a target="_blank" href="http://[PUBLICURL]/autosubmit/apply.html">Application</a><br>
 <a target="_top" href="http://[PUBLICURL]/volunteer_page.html">Volunteer page</a><br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_intro">
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%fly%Volunteer_intro">
 Volunteer Inside Pg(fly)</a><br>
 <br>
 <b>Quick Fix files (not used)</b><br>
@@ -409,16 +409,16 @@ keywords <input id="keywordsmatch" type="text" size="15" maxlength="50" name="ke
 <br><br>
 <b class="head">Worklists</b><br>
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Headlines_priority%%%100">Headlines Priority</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Headlines_priority%%%100">Headlines Priority</a><br>
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Suggested_suggestedItem%%%10">Suggested Update List</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested Update List</a><br>
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Suggested_emailedItem%%A3491">
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491">
   Select email</a><br>
 <a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?clean_index%%%Suggested_emailedItem%%A3491">Clean email index</a><br>
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%NewsDigest_NewsItem%">News on the fly</a><br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Headlines_sustainability%">Headlines</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsDigest_NewsItem%">News on the fly</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%fly%Headlines_sustainability%">Headlines</a><br>
 <a target="_blank" href="http://[PUBLICURL]/autosubmit/prepage/newsScan.html">news prepage</a><br>
 <br>
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_newArticle">New Article</a><br>
@@ -427,17 +427,14 @@ keywords <input id="keywordsmatch" type="text" size="15" maxlength="50" name="ke
 <br>
 <b class="head">Population News Weekly</b><br>
 
-<a  target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%NewsWeekly_WeeklyItem%">
+<a  target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsWeekly_WeeklyItem%">
 Print PopNewsWeekly email</a><br>
 (Do a View->Source and then use Notepad to delete p br and nbsp tags.)<br><br>
 http://overpopulation.org/mail-list/quickmsg.php
 <b>Email Popnews</b>&nbsp;<a target="blank" href="http://overpopulation.org/mail-list/quickmsg.php">List admin PHP</a>
 <br><br>
-<b class="head">Move to Public:</b>
-<a target="_blank" href="http://[SCRIPTPATH]/moveutil.p
-l?move2">NewsScan/Headlines</a> <br>
-<a target="_blank" href="http://[SCRIPTPATH]/moveutil.p
-l?move1">NewsScan only</a>
+<b class="head">Owner:</b>
+<a target="_blank" href="http://[PUBLICURL]/prepage/viewOwnerUpdate.php?%ownerUpdate%CSWP_Calendar%CSWP%A3491%Calendar;MotherSch;AdminCalendar">CRUD panel for CSWP</a> (best accessed from grey dot) <br>
 
 <br><br>
 <b class="head">Control files</b><br>
