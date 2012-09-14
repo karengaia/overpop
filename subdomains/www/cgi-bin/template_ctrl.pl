@@ -171,14 +171,10 @@ unless(-f "$templatefile") {
      chomp;
      $line = $_;
 ##        Process IN-LINE TEMPLATE
-     if($line =~ /TEMPLATE=/ or $line =~ /OWNERTEMPLATE=/) {
+
+     if($line =~ /TEMPLATE=/) {
         ($rest, $intemplate) = split(/=/,$line);
          ($intemplate,$rest) = split(/]/,$intemplate);
-
-         if($owner and $line =~ /OWNERTEMPLATE/) {
-	         my $lc_owner = lc($owner);
-	         $intemplate = $lc_owner . $intemplate;
-	     }
 
          if($intemplate =~ /contactWOA/) {
              &do_intemplate if($cmd ne 'print_select');
@@ -192,6 +188,10 @@ unless(-f "$templatefile") {
          else {
              &do_intemplate;
          }
+     }
+     elsif($line =~ /OWNER_REVIEW_TEMPLATE/) {	 #later we will get sectsubs
+             $intemplate = "ownerEventItem";     # and get the template from that sectsubs
+             &do_intemplate; 
      }
      else {
           &process_imbedded_commands;
@@ -253,7 +253,7 @@ sub process_imbedded_commands
            $linecmd = "[$linecmd]";
            print MIDTEMPL $beginline if($beginline =~ /[A-Za-z0-9]/);
 ##   print "<font size=1 face=verdana color=#CCCCCC>bb-$beginline c-$linecmd e-$endline</font><br>\n";
-      	   &do_imbedded_commands;
+      	   &do_imbedded_commands($linecmd,"T");
    	}
    }
    else {
@@ -264,6 +264,7 @@ sub process_imbedded_commands
 
 sub do_imbedded_commands
 {
+   my ($linecmd,$printmode) = @_;   #  T=template  P=Print
    if($linecmd =~ /\[ADVANCE\]/ and ($access =~ /[ABCD]/ or $op_userid =~ /P0004|P0083|P0008/) ) {
           print MIDTEMPL "<br><br><input type=\"checkbox\" name=\"advance\" ";
           print MIDTEMPL " value=\"Y\"><b>Advance this item</b> to\n";
@@ -384,9 +385,10 @@ sub do_imbedded_commands
 	 }
    }
 
-   elsif($linecmd =~ /\[TODAY\]/) {
-         $month = @months[$nowmm-1];
-       print MIDTEMPL "$month $nowdd, $nowyyyy";
+   elsif($linecmd =~ /\[TODAY\]/ or $linecmd eq 'TODAY') {
+       $month = @months[$nowmm-1];
+       print "$month $nowdd, $nowyyyy" if($printmode eq 'P');       
+       print MIDTEMPL "$month $nowdd, $nowyyyy" if($printmode eq 'T');
    }
 
    elsif($linecmd =~ /\[BLOCKQUOTE\]/) {
@@ -658,24 +660,28 @@ sub do_imbedded_commands
    }
    elsif($linecmd =~ /\[OWNERCHANGEADD\]/) {
 	  if(!$docid) {
-		print MIDTEMPL "<strong class=\"red\"><big>A. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\">Add new webpage item<\/strong>";
+		print MIDTEMPL "<strong class=\"red\"><big>A-1. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\">Add new webpage item<\/strong>";
 		print MIDTEMPL "<input name=\"action\" type=\"hidden\" value=\"new\" >";
 	  }
 	  else {
-	     print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"><strong class=\"red\"><big>A. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\"> CHANGE item below or";
-		 print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"> Clear item and ADD a new one<\/strong> ";
+	     print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"><strong class=\"red\"><big>A-1.<\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\"> CHANGE item below &nbsp;  &nbsp; or</strong>&nbsp;&nbsp;";
+		 print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"><strong class=\"red\"><big>A-2. <\/big><\/strong><strong>ADD a new item<\/strong> ";
       }
    }
 
    elsif($linecmd =~ /\[OWNER_CSS\]/) {
 	  if($owner) {
-	     my $owner_csspath = $OWNER{'ocsspath'};
-	     print MIDTEMPL "$owner_csspath";
+	     my $csspath = $OWNER{'ocsspath'};
+	     print MIDTEMPL "$csspath";
       }
    }
 
+   elsif($linecmd =~ /\[OWNER_SAVEPAGE\]/) {
+	  my $ownerwebdir = "$owner" . "_webpage";
+	     print MIDTEMPL "http://$publicUrl/php/savepage.php?$ownerwebdir/index.php%$ownerwebdir/index.html";
+   }
+
    elsif($linecmd =~ /\[REFRESH_URL\]/) {
-#	  print "<meta http-equiv=\"refresh\" content=\"0;url=http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$aTemplate%$thisSectsub%$owner$user\"<br>\n";
       ($userid,$rest) = split(/;/,$userid);
       my $oupdatetemplate  = $OWNER{'oupdatetemplate'};
       $ownersectsub = $OWNER{'odefaultSS'} unless($ownersectsub);
@@ -820,7 +826,6 @@ sub do_imbedded_commands
 
    elsif($linecmd =~ /\[GETURLQUERY=(.*)\]/) {
         my $urlquery = $1;
-print MIDTEMPL "tem815 urlquery $urlquery<br>\n";
         $ENV{QUERY_STRING} = $urlquery;
 #     $scriptpath determined in common.pl
         goto comeagain   # in article.pl
@@ -930,7 +935,7 @@ sub get_pubyears
  print MIDTEMPL "<option value=\"no date\"";
  print MIDTEMPL " selected" if($pubyear eq '0000');
  print MIDTEMPL ">no date</option>\n";
- for($yr=$nextyr;$yr>$$yearsago;$yr--) {
+ for($yr=$nextyr;$yr>$yearsago;$yr--) {
     print MIDTEMPL "<option id=\"yyyy$yr\" value=\"$yr\"";
     print MIDTEMPL " selected" if($yr eq $pubyear);
     print MIDTEMPL ">$yr</option>\n";
@@ -1041,9 +1046,9 @@ sub do_redarrow
    $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
  if($owner) {
 #	http://overpop/cgi-bin/article.pl?display%ownerlogin%026391%CSWP_Calendar%%xxxx%%%%%%CSWP
-    my $ownerlogin = $OWNER{ologintemplate};
-    my $ownersubs  = $OWNER{ownersubs};
-   $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
+    my $ownerlogin = $OWNER{'ologintemplate'};
+    my $ownersubs  = $OWNER{'ownersubs'};
+    $link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
  }
  else {
     $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";

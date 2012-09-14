@@ -1,5 +1,7 @@
 <?php 
-require './bootstrap.php';
+
+
+include dirname(__FILE__) . '/bootstrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($pagename,$sectionname) = explode('%',$qstring);
 

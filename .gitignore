@@ -1,6 +1,7 @@
 .DS_Store
 .htpasswd
 awstats/awstats*.txt
+conf_up_in_karenpitts/*
 go-up-to-home-overpop/gaias.procmailrc
 go-up-to-home-overpop/procmail.txt
 go-up-to-home-overpop/0.procmailrc
@@ -56,6 +57,7 @@ subdomains/www/clock/*
 subdomains/www/counter/_save/*
 subdomains/www/counter/*.txt
 subdomains/www/css/old_*
+subdomains/www/cswp/*.htaccess
 subdomains/www/img/*
 subdomains/www/img/imagesNew/*.jpg
 subdomains/www/img/whatworks/*.jpg
@@ -64,6 +66,9 @@ subdomains/www/img/whatworks/*.tiff
 subdomains/www/mail-list/Gregs/*
 subdomains/www/mail-list/_save/*
 subdomains/www/mauve*
+subdomains/www/maidu/*
+subdomains/www/Maidu_webpage/*
+!subdomains/www/Maidu_webpage/*.php
 subdomains/www/media_PowerPoint_movies/*
 subdomains/www/pdfs_documents/*
 subdomains/www/*.csv

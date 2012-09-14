@@ -165,7 +165,7 @@ sub main_storeform {
 # &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
  &write_doc_item($docid);
 
-&log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
+ &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
  my @save_sort = ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
 
@@ -184,8 +184,15 @@ sub main_storeform {
 
  my $ipform = $FORM{'ipform'};
 
+ $time4countfile = "$autosubdir/status/time4count.txt";
+ system "touch $time4countfile" unless (-f $time4countfile); #If storeform, OK to write to countfile in indexes.pl
+
  if($owner) {
-    &print_review($OWNER{oreviewtemplate});
+   &print_review($OWNER{'oreviewtemplate'});
+   sleep 20;
+   print "<br><br>Saved webpage:(you may need to reload the frame to get the most recent version)<br><iframe src=\"http://$publicUrl/$owner" . "_webpage/index.html\" width=\"1000\" height=\"1000\"></iframe>";
+   print"</div></body></html>";
+   return(0);
  }
  elsif($sectsubs =~ /Suggested_suggestedItem/ and $ipform =~ /newItemParse/) {
 	print "<div style=\"font-family:arial;font-size:1.2em;margin-top:13px;margin-left:7px;\">&nbsp;&nbsp;Item -- $docid -- has been submitted; Ready for next item:</div>\n";
@@ -198,7 +205,7 @@ sub main_storeform {
     &print_review('review');
  }
  
- &do_html_page(thisSectsub,$aTemplate,1); ## create HTML file - this is in display.pl
+ &do_html_page($thisSectsub,$aTemplate,1); ## create HTML file - this is in display.pl
 
 }  ## END SUB
 

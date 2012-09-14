@@ -209,6 +209,9 @@ sub get_site_info
   $futzingOFF    = "$statuspath/futzing.off";
   $printdeletedOFF = "$statuspath/printdeleted.off";
   
+  $time4countfile = "$autosubdir/status/time4count.txt";
+  unlink $time4countfile if(-f $time4countfile);
+
 #  GLOBAL VARIABLES
 
   $errmsg = "";

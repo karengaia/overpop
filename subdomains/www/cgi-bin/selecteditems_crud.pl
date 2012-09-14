@@ -20,7 +20,7 @@ sub updt_select_list_items
  &get_select_form_values;  # in docitem.pl
  $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
 
- local($startTime) = time;
+ my $startTime = time;
 
  until($selitem =~ /Z/) {
 #### while($pgitemcnt ne '9998') {   ## dummy search - it will never reach 9998

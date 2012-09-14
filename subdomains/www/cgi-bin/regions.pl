@@ -1,15 +1,11 @@
 #!/usr/bin/perl --
 
-# January 23, 2012
+# September 14, 2012
 
 #    regions.pl
 
 # Contains code to manage and parse the REGIONS control file (flatfile and table)
 # Called by article.pl and maybe docitem.pl
-
-# 2012 Jan 23
-
-### 400 REGIONS processing
 
 # Region type:
 # 1. S super_category: hemisphere, BRIC, G7, (not developing world), etc
@@ -20,71 +16,6 @@
 # 6. p province/state: Alabama, or subregion Midwest
 
 # S=superCategory C=continentGroup s=subContinent A=area c=country r=subregion, p=province/state
-
-sub create_region_table {    # we do this on Televant interface
-	# if necessary remove the PRIMARY KEY and auto_increment if importing from flatfile with regionids included
-	   # change back to PRIMARY KEY and auto_increment after import. Also set increment to max value
-	# We need to do this since regionids are used as a foreign key in sources
-$create_regions_sql = <<ENDREGIONS
-CREATE TABLE regions (
-	regionid smallint auto_increment PRIMARY KEY,
-	seq smallint unsigned not null,
-	r_type char(1) default "c",
-	regionname varchar(75) not null,
-	rstarts_with_the char(1) default "F",
-	regionmatch varchar(200) default "",
-	rnotmatch varchar(100) default "",
-	members_ids varchar(200), 
-	continent_grp char(2) default " ",
-	location varchar(75) default "",
-	extended_name varchar(100) default "", 
-	f1st2nd3rd_world  smallint unsigned,
-	fertility_rate decimal(2,2) unsigned,
-	population integer unsigned,
-	pop_growth_rate decimal(2,2),
-	sustainability_index decimal(2,2) unsigned,
-	humanity_index decimal(2,2) unsigned
-);
-ENDREGIONS
-}
-
-sub import_regions
-{ 
-  $dbh = &db_connect() if(!$dbh);
-  my $seq = 0;
-  my $regionsctrl = "$controlpath/regions.html";
- print "<b>Import regions</b> regionsctrl $regionsctrl<br>\n";
-  my $reg_sth = $dbh->prepare( "INSERT INTO regions (seq,r_type,regionname,rstarts_with_the,regionmatch,rnotmatch,continent_grp,location,extended_name)
-VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
-
-  open(REGIONS, "$regionsctrl") or die("Can't open regions control");
-  while(<REGIONS>)
-  {
-    chomp;
-    my $line = $_;
-    my $regionmatch = "";
-	my ($r_type,$regionname,$continent_grp,$location,$rnotmatch,$extended_name) = split(/\^/,$line);
-	
-	($regionname,$regionmatch) = split(/\|/,$regionname,2) if($regionname =~ /\|/);
-
-	if($regionname =~ /, The/) {
-	   $rstarts_with_the = T;
-	   ($regionname,$rest) = split(/,/,$regionname,2);
-	}
-	else {
-	   $rstarts_with_the = F;
-	}
-	
-	$seq = $seq + 10;
-
-	$reg_sth->execute($seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$continent_grp,$location,$extended_name);
-									
-print "<br>$line <br>\n";
-  }
-  $sth->finish;
-  close(REGIONS);
-}
-
 
 sub get_regionid  ##used in sources table import- may want to move to controlfiles.pl for adds
 {
@@ -141,9 +72,8 @@ sub read_regions_to_array
 sub refine_region
 {
   my ($region,$src_region) = @_;
-
-  $region = &get_regions("A","",$headline) if(!$region or $region =~ /Global/);
-
+  $region = "" if($region =~ /Global/);
+  $region = &get_regions("A","",$headline) unless($region);
             # Use regionname from source if no region found. But not from US or UK source
   $region = $src_region unless($region or $src_region =~ /U\.S\.|U\.K\./);
 
@@ -153,7 +83,8 @@ sub refine_region
     $region = &get_regions("A","",$fullbodyTop);
   }
   $region = $src_region if(!$region and $src_region); #Use regionname from source if no region found.
-  $region = "Global" if(!$region);
+  $region = "Global" unless($region);
+
   $regionhead = "Y" if($headline !~ /$region/);
   return($region,$regionhead);
 }
@@ -161,7 +92,6 @@ sub refine_region
 sub get_regions
 {
  my($print_region,$region,$chkarea) = @_;
-
  my $found_region = 'N';
  my $region1  = "";
  my $reg_entry = "";
@@ -195,14 +125,18 @@ sub get_regions
 		    if($rnotmatch and $chkarea =~ /$rnotmatch/) {
 			}
 			else {
-				$region1 = "$region1;$regionname" if($regionname !~ /$region1/);
-				$region1 =~ s/^;+//;
+				if($r_type eq 'p') { #US states for example
+				    $region1 = "U\.S\.;$region1" if($location eq 'US' and $region1 !~ /U\.S\./);
+				}
+				else {
+				   $region1 = "$region1;$regionname" if($regionname !~ /$region1/);
+				   $region1 =~ s/^;+//;
+			    }
             }
 		}
 	}
  } # END foreach
- $region1 = "U\.S\.;$region1" 
-     if($region1 !~ /Global/ and $r_type eq 'p' and $location eq 'US' and ($region1 !~ /U\.S\./ or !$region));
+
  $region1 =~ s/^;+//;  #get rid of leading semi-colons
  $region1 =~ s/^;//;
  $region1 =~ s/;;/;/;
@@ -316,4 +250,67 @@ sub add_updt_region_values
    return($regionid);
 }
 
+sub create_region_table {    # we do this on Televant interface
+	# if necessary remove the PRIMARY KEY and auto_increment if importing from flatfile with regionids included
+	   # change back to PRIMARY KEY and auto_increment after import. Also set increment to max value
+	# We need to do this since regionids are used as a foreign key in sources
+$create_regions_sql = <<ENDREGIONS
+CREATE TABLE regions (
+	regionid smallint auto_increment PRIMARY KEY,
+	seq smallint unsigned not null,
+	r_type char(1) default "c",
+	regionname varchar(75) not null,
+	rstarts_with_the char(1) default "F",
+	regionmatch varchar(200) default "",
+	rnotmatch varchar(100) default "",
+	members_ids varchar(200), 
+	continent_grp char(2) default " ",
+	location varchar(75) default "",
+	extended_name varchar(100) default "", 
+	f1st2nd3rd_world  smallint unsigned,
+	fertility_rate decimal(2,2) unsigned,
+	population integer unsigned,
+	pop_growth_rate decimal(2,2),
+	sustainability_index decimal(2,2) unsigned,
+	humanity_index decimal(2,2) unsigned
+);
+ENDREGIONS
+}
+
+sub import_regions
+{ 
+  $dbh = &db_connect() if(!$dbh);
+  my $seq = 0;
+  my $regionsctrl = "$controlpath/regions.html";
+ print "<b>Import regions</b> regionsctrl $regionsctrl<br>\n";
+  my $reg_sth = $dbh->prepare( "INSERT INTO regions (seq,r_type,regionname,rstarts_with_the,regionmatch,rnotmatch,continent_grp,location,extended_name)
+VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
+
+  open(REGIONS, "$regionsctrl") or die("Can't open regions control");
+  while(<REGIONS>)
+  {
+    chomp;
+    my $line = $_;
+    my $regionmatch = "";
+	my ($r_type,$regionname,$continent_grp,$location,$rnotmatch,$extended_name) = split(/\^/,$line);
+	
+	($regionname,$regionmatch) = split(/\|/,$regionname,2) if($regionname =~ /\|/);
+
+	if($regionname =~ /, The/) {
+	   $rstarts_with_the = T;
+	   ($regionname,$rest) = split(/,/,$regionname,2);
+	}
+	else {
+	   $rstarts_with_the = F;
+	}
+	
+	$seq = $seq + 10;
+
+	$reg_sth->execute($seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$continent_grp,$location,$extended_name);
+									
+print "<br>$line <br>\n";
+  }
+  $sth->finish;
+  close(REGIONS);
+}
 1;

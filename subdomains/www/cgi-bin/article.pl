@@ -1,6 +1,6 @@
 #!/usr/bin/perl --
 
-# March 2012
+# September 2012
 #        article.pl  : controller for autosubmit; entry point for almost all perl programs
 #                      exceptions: move.pl getmail.pl
 
@@ -158,8 +158,10 @@ else {
 
 $op_userid = $userid;
 if($owner) {
-  require 'owner.pl'; 
+  require 'owner.pl';
+  &init_owner;
   &get_owner($owner);
+  $lc_owner = lc($owner);
   my  $o_updt_template   = $OWNER{'oupdatetemplate'};
   my  $o_review_template = $OWNER{'oreviewtemplate'};
   $ownerSections = "";
@@ -182,7 +184,7 @@ if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets 
    $metaViewOwnerUpdt = $OWNER{'metaViewOwnerUpdt'};
 }		
 #        ##### PROCESS THE VARIOUS COMMANDS
-
+	
 if($cmd eq "list_sepmail") {
 	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
 	local(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
@@ -486,6 +488,10 @@ elsif($cmd =~ /selectItems/) {
 
    	    if($owner) {   
  			print "<br><a href=\"$viewOwnerUpdt\">Click here to go to next page</a><br>\n";
+	        print "<br><br>Saving webpage: <iframe src=\"http://$publicUrl/php/savepage.php?$owner" . "_webpage/index.php%$owner" . "_webpage/index.html\" width=\"900\" height=\"1\"></iframe>";
+            sleep 30;
+	        print "<br><br>Saved webpage: (you may need to reload the frame to get the most recent version)<br><iframe src=\"http://$publicUrl/$owner" . "_webpage/index.html\" width=\"1000\" height=\"1000\"></iframe>";
+
         }
 	    else { 
 	        print "<br><a href=\"http://$scriptpath/article.pl?display_section%%%$thisSectsub%%$userid%10\">Back to $thisSectsub List</a><br>\n";	    
@@ -543,6 +549,11 @@ elsif($cmd eq 'displayRange') {
 
 elsif($cmd eq "getownerinfo") {
 	 print "$OWNER{'owebsitepath'},$OWNER{'ocsspath'},$OWNER{'ocssformpath'}"; #for viewOwnerUpdate.php
+}
+
+elsif($cmd eq "do_line_cmd") {
+	 my $line_cmd = $info[1];  #query_string
+	 &do_imbedded_commands($line_cmd,"P");
 }
 
 elsif($cmd eq "import_docitems") {
@@ -704,7 +715,7 @@ print "&nbsp;&nbsp;Sending Population News Weekly ... don't forget to zero the c
    $email_msg =~ s/&nbsp;/ /g;
    $email_msg = "$news_date\n$email_msg";
    $subject  = "Population News $news_date";
-   &do_email;
+   &do_email;  #in send_email.pl
    $email_msg = "";
    &clearPopCount;
    &do_popnews_wkly_email;

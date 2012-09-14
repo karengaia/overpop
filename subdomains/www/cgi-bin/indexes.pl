@@ -399,7 +399,6 @@ sub total_items
 
  $doclistname =~ s/\.cnt//g if($doclistname =~ /\.cnt/);
  $doclistname =~ s/\.idx//g if($doclistname =~ /\.idx/);
- $cntfilename = "$doclistname.cnt";
 
  if(-f "debugit.yes") {
      $cntfilename = "testitem.txt"
@@ -414,6 +413,7 @@ sub total_items
   else {
       $cntfilepath = "$cntfilename";
   }
+
   if(-f  $cntfilepath) {
 	 my $found = "";
      open(CNTFILE,"$cntfilepath");
@@ -450,7 +450,6 @@ sub set_item_count  #comes here from display; count is calculated on display dur
  }
 
  my $cntfilepath = "$sectionpath/$doclistname.cnt";
-
  system "touch $cntfilepath" unless (-f $cntfilepath);
 
 # my $ckItemcnt = &padCount6($ckItemnbr);

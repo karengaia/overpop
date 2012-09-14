@@ -11,9 +11,8 @@
 
 sub init_owner
 {
- $OWNER = "";
- $OWNER_DEFAULT = "";
-
+ $OWNER = ();
+ $OWNER_DEFAULT = ();
  my $sth_odefault = $dbh->prepare("SELECT otoptemplate,ologintemplate,oupdatetemplate,oreviewtemplate
  FROM owners WHERE owner = 'default';");
 
@@ -55,9 +54,9 @@ sub get_owner
  $OWNER{'oftpinfo'}        = $oftpinfo;
 
  $OWNER{'otoptemplate'}    = $OWNER_DEFAULT{'otoptemplate'}    unless($otoptemplate);
- $OWNER{'ologintemplate'}  = $OWNER_DEFAULT{'ologintemplate'}  unless(ologintemplate);
- $OWNER{'oupdatetemplate'} = $OWNER_DEFAULT{'oupdatetemplate'} unless(oupdatetemplate);
- $OWNER{'oreviewtemplate'} = $OWNER_DEFAULT{'oreviewtemplate'} unless(oreviewtemplate);
+ $OWNER{'ologintemplate'}  = $OWNER_DEFAULT{'ologintemplate'}  unless($ologintemplate);
+ $OWNER{'oupdatetemplate'} = $OWNER_DEFAULT{'oupdatetemplate'} unless($oupdatetemplate);
+ $OWNER{'oreviewtemplate'} = $OWNER_DEFAULT{'oreviewtemplate'} unless($oreviewtemplate);
 }
 
 sub owner_set_sectsubs

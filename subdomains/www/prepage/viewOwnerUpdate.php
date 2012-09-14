@@ -21,15 +21,15 @@ $sourcepage1 = "http://$cgipath/article.pl?display%$template%$docid%$sectionname
 <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
 
 <?php 
-  if(!empty($ocsspath)) { echo '<link rel="stylesheet" type="text/css" href="' . $ohome . $ocsspath . '" media="Screen">
+  if(!empty($ocsspath)) { echo '<link rel="stylesheet" type="text/css" href="' . $ocsspath . '" media="Screen">
 	'; }
   
   if(empty($ocssformpath)) {
-	echo '<link rel="stylesheet" type="text/css" href="/css/ownerform.css" media="Screen">
+	echo '<link rel="stylesheet" type="text/css" href="../css/ownerform.css" media="Screen">
 	';
   } 
   else  {
-	echo '<link rel="stylesheet" type="text/css" href="' . $ohome . $ocssformpath . '" media="Screen">
+	echo '<link rel="stylesheet" type="text/css" href="../../' . $ocssformpath . '" media="Screen">
 	';
   }
 ?>
@@ -75,7 +75,7 @@ function moveSectsub() {
 
 <br>
 		<div style="padding:5px;font-family:geneva;font-size:1.3em;"><strong><?php echo $owner; ?> Web Admin</strong> 
-			<br><span class="comment"> Choose one of the following  (<b>A</b> - below or <b>B</b> - scroll down); you can only do one per submit</span></div>
+			<br><span class="comment"> Choose one of the following  (<b>A-1</b> or <b>A-2</b> - below or <b>B-1, B-2, etc</b> - scroll down); <br>you can only do one per submit</span></div>
 		
 <table>
 	<tr><td id="leftcol">
@@ -94,7 +94,7 @@ function moveSectsub() {
 				if($owner_sectsub == 'delete_deleteItem') {
 				}
 				else {
-				   echo '<span class="comment"><big>List name: ' . $owner_sectsub . '</big></span><br>';
+				   echo '<span class="comment"><big><strong class="red">B-' . $listnum . '.</strong> &nbsp; List name: ' . $owner_sectsub . '</big></span><br>';
 				   echo '<div class="box"><br>';
 				   echo '<form method="post" name="itemsSelect' . $listnum . '" action="http://' . $cgipath . '/article.pl"><br>';
                    $sourcepage = "http://$cgipath/article.pl?print_select%%fly%$owner_sectsub%%$userid%%owner_top%delete_select_end%%%$owner%%$listnum";
@@ -110,8 +110,8 @@ function moveSectsub() {
 </tr></table>
 </div>
 <br>
-<strong class="red"> C. </strong><b>Below is the real <?php echo $owner; ?> web page, a part of which you are changing (your list may be on a 2nd page).</b>
-<iframe src="<?php echo 'http://' . $ohome; ?>" width="100%" height="800px"></iframe>
+<strong class="red"> C. </strong><b>Below is the <?php echo $owner; ?> web page, a part of which you are changing (your list may be on a 2nd page).</b>
+<iframe src="<?php echo 'http://' . $CONFIG['servername'] . '/'  . $owner . '_webpage/' ?>" width="100%" height="800px"></iframe>
 
 </body></html>
 
