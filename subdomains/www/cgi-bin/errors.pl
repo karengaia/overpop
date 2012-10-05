@@ -96,8 +96,8 @@ sub printSysErrExit
 #       Log errors
 sub errLogit
 {
- my $msg = $_[0];
- my $logline = "$msg docid-$docid user-$operator_access $userid $sysdate action=$docaction s-$sectsubid : @_\n";
+ my ($msg,$cmd,$action,$docid,$docaction,$operator_access,$userid,$sectsubname) = @_;
+ my $logline = "$todaydate $msg ..cmd $cmd ..action $action ..docid-$docid ..action=$docaction ..user-$operator_access $userid ..SS-$sectsubname ::: @_\n";
 
  unlink "$errlog_old" if(-f "$errlogold");
  system "cp $errlogpath $errlog_old" if(-f "$errlogold");

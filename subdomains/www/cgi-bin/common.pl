@@ -93,13 +93,13 @@ sub get_site_info
   if(-f "$base_dir/development.yes") {
     %SVRinfo = %DEVELOPMENTsvr;
     %SVRdest = %TELANAsvr;
-    $subdomain = $SVRinfo{subdomain};
+    $subdomain = $SVRinfo{'subdomain'};
   }
   elsif(-f "/home/overpop/www/overpopulation.org/subdomains/www/Telana.yes") {
 	$doc_root = "subdomains/www";   
     %SVRinfo = %TELANAsvr;
     %SVRdest = %DEVELOPMENTsvr;
-    $subdomain = $SVRinfo{subdomain};
+    $subdomain = $SVRinfo{'subdomain'};
   }
   elsif(-f "/home/overpop/www/overpopulation.org/subdomains/telana/Telana.yes") {
 	%SVRinfo = %TELANAsvr;
@@ -107,26 +107,29 @@ sub get_site_info
   }
 
   # Derived values
-  $SVRinfo{public_dir} = "$SVRinfo{home}/$SVRinfo{public}";
-  $SVRinfo{cgi_dir} = "$SVRinfo{public_dir}/$SVRinfo{cgiPath}";
+  $SVRinfo{'public_dir'} = "$SVRinfo{home}/$SVRinfo{public}";
+  $SVRinfo{'cgi_dir'} = "$SVRinfo{public_dir}/$SVRinfo{cgiPath}";
 
-  $svrname    = $SVRinfo{svrname};
-  $sendmail   = $SVRinfo{sendmail};
-  $pophome    = $SVRinfo{home};
-  $cgiSite    = $SVRinfo{cgiSite};  
-  $cgiPath    = $SVRinfo{cgiPath};
+  $svrname    = $SVRinfo{'svrname'};
+  $sendmail   = $SVRinfo{'sendmail'};
+  $pophome    = $SVRinfo{'home'};
+  $cgiSite    = $SVRinfo{'cgiSite'};  
+  $cgiPath    = $SVRinfo{'cgiPath'};
   $cgiPath    = "$cgiSite/$cgiPath";  
   $publicUrl  = "$subdomain$cgiSite";
   $scriptpath = "$subdomain$cgiPath";
 
-  $publicdir  = $SVRinfo{public_dir};
+  $publicdir  = $SVRinfo{'public_dir'};
   
   $autosubdir    = "$publicdir/autosubmit";
   $controlpath   = "$autosubdir/control";
   $templatepath  = "$autosubdir/templates";
+  $templateMidpath = "$autosubdir/templatesMid";
   $itempath      = "$autosubdir/items";
   $itempathsave  = "$autosubdir/itemsSave";
+  $expitempath   = "$autosubdir/itemsExport";
   $sectionpath   = "$autosubdir/sections";
+  $expsectionpath = "$autosubdir/sectionsExport";
   $deletepath    = "$autosubdir/deleted";
   $keywordpath   = "$autosubdir/keywords";
   $logpath       = "$autosubdir/log";
@@ -136,7 +139,7 @@ sub get_site_info
 
   $prepagepath   = "$publicdir/prepage";
     
-  $maillistpath  = $SVRinfo{maillistpath};
+  $maillistpath  = $SVRinfo{'maillistpath'};
   $inboxpath     = "$pophome/$SVRinfo{inboxpath}";
   $mailpath      = "$pophome/$SVRinfo{mailpath}";
   $mailbkppath   = "$pophome/$SVRinfo{mailbkppath}";
@@ -200,6 +203,7 @@ sub get_site_info
   $newkeywords   = "$controlpath/newkeywords.html";
   $oldkeywords   = "$controlpath/oldkeywords.html";
   $errlogpath    = "$logpath/errlog.html";
+  $logpath       = "$logpath/log.html";
   $errlog_old    = "$logpath/errlog.old";
   $hitcountfile  = "$publicdir/counter/count.txt";
   $doccountfile  = "$controlpath/doccount";
@@ -283,7 +287,7 @@ sub waitIfBusy
      $age = $now - $stat[9];        # $stat[9]  = timestamp in seconds for last mod
      if($age gt 20)   {
         unlink  "$lock_file";    # Deletes the lock file if  > 20 secs
-        &errLogit("unlocking $lock_file - too old");
+        &errLogit("unlocking $lock_file - too old",$cmd,$action,$docid,$docaction,$operator_access,$userid,$sectsubname);
      }
      else  {
         sleep 1;     # Wait a second

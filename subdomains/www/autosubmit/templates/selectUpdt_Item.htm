@@ -12,7 +12,7 @@
 [REGIONHEAD]
    value="Y"> <cite>Region in headline</cite>
 
-  <textarea name="headline[pgitemcnt]" wrap="physical" rows=2 cols="80">[headline]</textarea>
+  <textarea name="headline[pgitemcnt]" wrap="soft" rows=2 cols="80">[headline]</textarea>
 [REDARROW]
 
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
@@ -33,7 +33,7 @@ value="
 <br>
 
 <cite>
-<textarea id="fullbody[pgitemcnt]" name="fullbody[pgitemcnt]" wrap="physical" rows=15 maxrows=300 cols=80>
+<textarea id="fullbody[pgitemcnt]" name="fullbody[pgitemcnt]" wrap="soft" rows=15 maxrows=300 cols=80>
 [fullbody]
 </textarea>
 </cite> 
@@ -123,7 +123,7 @@ Misc: [miscinfo]</textarea>
 
   <label>Sectsubs</label> &nbsp;
 <small><cite><input name="sspull[pgitemcnt]" type=radio value="N" onClick="setvar('sectsubs[pgitemcnt]', 'NewsDigest_NewsItem')">News &nbsp
-	     <input name="sspull[pgitemcnt]" type=radio value="S" onClick="setvar('sectsubs[pgitemcnt]', 'Suggested_suggestedItem')"> Sum &nbsp
+	     <input name="sspull[pgitemcnt]" type=radio value="S" onClick="setvar('sectsubs[pgitemcnt]', 'Suggested_summarizedItem')"> Sum &nbsp
         <input name="sspull[pgitemcnt]" type=radio value="A" onclick="loadSectsub('N','sectsubs[pgitemcnt]');">Reg &nbsp;
         <input name="sspull[pgitemcnt]" type=radio value="B" onclick="loadSectsub('C','sectsubs[pgitemcnt]');">Country &nbsp;
         <input name="sspull[pgitemcnt]" type=radio value="C" onclick="loadSectsub('A','sectsubs[pgitemcnt]');">Admin &nbsp;
@@ -139,12 +139,12 @@ Misc: [miscinfo]</textarea>
 	   onclick="var2var( 'body[pgitemcnt]',
 	'fullbody[pgitemcnt]');"><cite>Get full article</cite>
   <br>
-  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="physical" rows="8" cols=75">[body]</textarea>
+  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="soft" rows="8" cols=75">[body]</textarea>
 
 
 
    <br><label>Comment</label>&nbsp;
-    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="physical" rows="2" cols=65">[comment]</textarea> 
+    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="soft" rows="2" cols=65">[comment]</textarea> 
 	<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=95 maxsize=300 value="[note]">
  
 </TD></TABLE>

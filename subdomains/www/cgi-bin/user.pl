@@ -84,7 +84,7 @@ sub user_email_verify
  $email_msg = "$email_msg :END\n\n";
  $email_msg = "$email_msg $GLVARS{'std_headtop'} ";
 
- &do_email;
+ &do_email($email_msg);    # in send_email.pl
 }
 
 sub write_acctapp

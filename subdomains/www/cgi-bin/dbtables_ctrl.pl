@@ -5,7 +5,7 @@
 ## 2012-8-9 combined misc_dbtables.pl and this. Moved query string to article.pl
 
 sub DB_controller {       #comes here from article.pl
-	my ($DBcmd,$table)  = @_;
+	my ($DBcmd,$table,$one,$two,$three)  = @_;
 
 	if($DBcmd =~ /list|man/) {
 	   &list_functions("list");
@@ -16,14 +16,6 @@ sub DB_controller {       #comes here from article.pl
 	    &import_sectsubs if($DBcmd =~ /import/);   # in sectsubs.pl
 	    &export_sectsubs if($DBcmd =~ /export/);
 	}
-	elsif($table =~ /indexes/) {
-	    &import_indexes if($DBcmd =~ /import/);   # in indexes.pl
-	    &import_exported_indexes if($DBcmd =~ /import_exported/);
-	    &export_indexes if($DBcmd =~ /export/);
-	    &restore_flatfile_indexes if($DBcmd =~ /restore_flatfile/);
-	    &restore_indexes if($DBcmd =~ /restore/);
-	#    &add_sortfields_to_indexes if($DBcmd =~ /add_sortfields/);
-	}
 	elsif($table =~ /regions/) {
 	    &import_regions if($DBcmd =~ /import/); # in regions.pl
 	#    &export_regions if($DBcmd =~ /export/);
@@ -31,6 +23,13 @@ sub DB_controller {       #comes here from article.pl
 	elsif($table =~ /sources/) {
 	    &import_sources if($DBcmd =~ /import/);   # in sources.pl
 	#    &export_regions if($DBcmd =~ /export/);
+	}
+	elsif($table =~ /docitems/) {  ## indexes are done at the same time for import
+	    &import_docitems($one,$two,$three) if($DBcmd =~ /import/);   # in docitems.pl
+	    &export_docitems($one,$two,$three) if($DBcmd =~ /export/);   # in docitems.pl
+	}
+	elsif($table =~ /indexes/) {  #  DO WE NEED? DO THIS IN DOCITEMS
+	    &export_indexes if($DBcmd =~ /export/);   
 	}
 	else {
 		print "Incorrect table<br>\n" if($DBcmd !~ /list/);
@@ -42,24 +41,44 @@ sub list_functions {
 	my $prt_where = $_[0];
 	my $msg = "<br>&nbsp; &nbsp;<big><b>Table Maintenance - dbtables_ctrl.pl Functions - - - - - - - - - - - - - </b></big><br>\n";
 	$msg = $msg . "<table class=\"shaded\"><tr><td>&nbsp;</td><td><b>Table</b></td><td><b>Cmd</b></td><td><b>From</b></td><td><b>To</b></td><td><b>More</b></td></tr>\n";
+# Import sectsubs
 	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import%sectsubs\"><b>run</b></a>";
 	$msg = $msg . "<td>sectsubs</td><td>import</td><td>new style flatfile sections.html</td><td> to DB sectsubs table</td><td>(TRUNCATE 1st!!)</td></tr>\n";
+# Export sectsubs
 	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%export%sectsubs\"><b>run</b></a>";
 	$msg = $msg . "<td>sectsubs</td><td>export</td><td>DB sectsubs table</td><td>new style flatfile sections.html</td><td></td></tr>\n";
-	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import%indexes\"><b>run</b></a>";
-	$msg = $msg . "<td>indexes</td><td>import</td><td>autsosubmit/sections/sectsub.idx</td><td>DB indexes (TRUNCATE 1st!!) </td><td>Uses sections.html as controller</td></tr>\n";
-	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%export%indexes\"><b>run</b></a>";
-	$msg = $msg . "<td>indexes</td><td>export</td><td>DB indexes</td><td>export flatfile: autsosubmit/sections_exp/sectsub.idx</td><td>&nbsp;</td></tr>\n";
-	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%restore_flatfile%indexes\"><b>run</b></a>";
-	$msg = $msg . "<td>indexes</td><td>restore_flatfile</td><td>exported autsosubmit/sections_exp/sectsub.idx</td><td>normal autsosubmit/sections/sectsub.idx</td><td> Will run 'export' first</td></tr>\n";
-	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import_exported%indexes\"><b>run</b></a>";
-	$msg = $msg . "<td>indexes</td><td>import_exported</td><td>exported flatfiles</td><td>DB indexes</td></tr>\n";	
-	$msg = $msg . "<tr><td colspan=\"6\"><b>- - -Indexes will be run with flatfiles and DB in parallel, maintaining both. DB indexes will eventually take over, with flatfiles as backup</b></td></tr>\n";
+# Import regions
 	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import%regions\"><b>run</b></a>";
 	$msg = $msg . "<td>regions</td><td>import</td><td>flatfile regions.html</td><td> to DB regions table</td><td>(TRUNCATE 1st!!)</td></tr>\n";
+# Import sources
 	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import%sources\"><b>run</b></a>";
 	$msg = $msg . "<td>sources</td><td>import</td><td>flatfile sources.html</td><td> to DB sources table</td><td>(TRUNCATE 1st!!)</td></tr>\n";
+# Import docitems and indexes
+	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import%docitems\"><b>run</b></a>";
+	$msg = $msg . "<td>docitems</td><td>import</td><td>flatfiles /autosubmit/items/docid.itm & /autosubmit/sections/sectsubname.idx</td><td> to DB docitems and indexes tables</td><td>(TRUNCATE 1st!!)</td></tr>\n";
+# Export docitems only
+    $msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%export%docitems\"><b>run</b></a>";
+    $msg = $msg . "<td>docitems</td><td>export</td><td>DB docitems table</td><td></td><td>to flatfiles /autosubmit/items/docid.itm</td></tr>\n";
+# Export indexes only
+	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%export%indexes\"><b>run</b></a>";
+	$msg = $msg . "<td>docitems</td><td>export</td><td>DB indexes tables</td><td></td><td>to flatfiles /autosubmit/sections/sectsubname.idx</td></tr>\n";
+
+## EVERYTHING BELOW THIS IS OBSOLETE ###################
+	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import%indexes\"><b>run</b></a>";
+	$msg = $msg . "<td>indexes</td><td>import</td><td>autsosubmit/sections/sectsub.idx</td><td>DB indexes (TRUNCATE 1st!!) </td><td>Uses sections.html as controller</td></tr>\n";
+
+	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%export%indexes\"><b>run</b></a>";
+	$msg = $msg . "<td>indexes</td><td>export</td><td>DB indexes</td><td>export flatfile: autsosubmit/sections_exp/sectsub.idx</td><td>&nbsp;</td></tr>\n";
+
+	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%restore_flatfile%indexes\"><b>run</b></a>";
+	$msg = $msg . "<td>indexes</td><td>restore_flatfile</td><td>exported autsosubmit/sections_exp/sectsub.idx</td><td>normal autsosubmit/sections/sectsub.idx</td><td> Will run 'export' first</td></tr>\n";
+
+	$msg = $msg . "<tr><td><a target=\"blank\" href=\"http://$scriptpath/article.pl?DBctrl%import_exported%indexes\"><b>run</b></a>";
+	$msg = $msg . "<td>indexes</td><td>import_exported</td><td>exported flatfiles</td><td>DB indexes</td></tr>\n";	
+
+	$msg = $msg . "<tr><td colspan=\"6\"><b>- - -Indexes will be run with flatfiles and DB in parallel, maintaining both. DB indexes will eventually take over, with flatfiles as backup</b></td></tr>\n";
 	$msg = $msg . "</table></br>\n";
+	
 	if($prt_where =~ /list/) {
 		print "$msg";
 	}
@@ -72,16 +91,19 @@ sub DB_get_switches_counts
 {
 	my $name;
 	my $switch_count = 0;
-	$DB_indexes  = 0; # switch: update indexes if > 0
 	$DB_doclist  = 0; # switch: view a list of articles using DB if > 0
-    $DB_indexes  = 0;
 	$DB_docitems = 0;
 	$DB_regions  = 0;
 	$DB_sources  = 0;
 	$DB_sectsubs = 0;
 	$DB_others   = 0;	
-	
-	$dbh = &db_connect() or die("could not connect");
+	$doc_update_sth = "";
+	$doc_insert_sth = "";
+    $idx_insert_sth = "";
+
+	unless($dbh) {
+		$dbh = &db_connect() or die("could not connect");
+	}
 
  	if(!$dbh or -f "$pophome/dbconnect.off") {
 	    print "<span style=\"color:#aaf;\">*</span>	<span style=\"color:#fff;\">DB connection failed - using flatfiles</span><br>\n";
@@ -94,13 +116,12 @@ sub DB_get_switches_counts
 	    }
 	    else {
 		   while ( ($name,$switch_count) = $switch_sth->fetchrow_array() )  {
-		        $DB_indexes = $switch_count if($name =~ /DB_indexes/);
 				$DB_docitems = $switch_count if($name =~ /DB_docitems/);
-				$DB_regions = $switch_count if($name =~ /DB_regions/);
-				$DB_sources = $switch_count if($name =~ /DB_sources/);
+				$DB_regions  = $switch_count if($name =~ /DB_regions/);
+				$DB_sources  = $switch_count if($name =~ /DB_sources/);
 				$DB_sectsubs = $switch_count if($name =~ /DB_sectsubs/);
-				$DB_others  = $switch_count if($name =~ /DB_others/);  # all other tables
-				$gTrace     = $switch_count if($name =~ /Trace/);
+				$DB_others   = $switch_count if($name =~ /DB_others/);  # all other tables
+				$gTrace      = $switch_count if($name =~ /Trace/);
 		   }
 		}
 		$switch_sth->finish() or die "DB switches failed finish";

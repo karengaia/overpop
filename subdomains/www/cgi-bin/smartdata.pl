@@ -6,13 +6,10 @@
 
 sub parse_popnews 
 {
-  my($pdfline,$emessage) = @_;
-  
-  &clear_doc_variables;   # establish variables
-
-  $sectsubs = "$emailedSS" unless($sectsubs);
-  $headline = "";
-##  print "doc120 ehandle $ehandle emessage $emessage<br>\n";    	   
+  my($pdfline,$emessage,$save_sectsubs) = @_;
+  &clear_doc_variables;   #    in docitem.pl establish variables
+  $sectsubs = $save_sectsubs;   #restore from clear
+   	   
   $emessage = &apple_convert($emessage);
   $emessage = &choppedline_convert($emessage); 
   $emessage = &strip_leadingSPlineBR($emessage);
@@ -99,23 +96,6 @@ sub parse_popnews
   
   $fullbody = &byebye_singleLF($pdfline,$fullbody); #do this after parsing for headline, date, etc
 
-  $sectsubs = "$emailedSS"  unless($sectsubs);
-
-  if($sectsubs =~ /Headlines_priority/) {
-     $sectsubs = $headlinesSS;
-     $priority = "6";
-     $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
-         # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
-  }
-  elsif($sectsubs =~ /Headlines_sustainability/) {
-     $priority = "5";
-     $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
-  }
-  elsif($sectsubs =~ /Suggested_suggestedItem/) {
-     $priority = "5";
-     $docloc_news = "M";
-  }
-
   $miscinfo = "$miscinfo\nhandle: $handle" if($handle and $handle !~ /unk/);
 
   if($skip_item eq 'Y') {
@@ -130,8 +110,26 @@ sub parse_popnews
   $prev_headline = $headline;
 #  &clear_email_variables;   #DANGEROUS!  ####################
 
+  $sectsubs = "$emailedSS"  unless($sectsubs);
+
+  if($sectsubs =~ /Headlines_priority/) {
+	   $sectsubs = $headlinesSS;
+	   $priority = "6";
+	   $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
+	       # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
+  }
+  elsif($sectsubs =~ /Headlines_sustainability/) {
+	   $priority = "5";
+	   $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
+  }
+  elsif($sectsubs =~ /Suggested_suggestedItem/) {
+	   $priority = "5";
+	   $docloc_news = "M";
+  }
+
   return($emessage);
 }
+
 
 sub assign_msglines
 {
@@ -166,7 +164,6 @@ sub assign_msglines
 	}
 	elsif($msgline =~ /^RR /) {
 		($rest,$region) = split(/RR /,$msgline,2);
-		$region = "" if($region eq 'Global');  #This is the default; if not found elsewhere, will set to 'Global'
 	}
 	elsif($msgline =~ /^SS /) {
 		($rest,$source) = split(/SS /,$msgline,2);
@@ -342,7 +339,6 @@ sub assign_std_variables
   }
   return($head);
 }
-
 
 sub do_handle_push {
   if($handle =~ /push/) {
@@ -637,7 +633,7 @@ sub refine_fullbody
 
   foreach $line (@fullbodylines) {
      chomp $line;
-     if($line =~ /^HH / or $line =~ /^RR / or $line =~ /^DD / or $line =~ /^SS / or $line =~ /^http:/ or $line =~ /^MI /) {
+     if($line =~ /^HH / or $line =~ /^RR / or $line =~ /^DD / or $line =~ /^SS / or $line =~ /^http:/ or $line =~ /^MI:/) {
 	    $miscinfo = "$miscinfo\n\n$line";
 	    next;
      }

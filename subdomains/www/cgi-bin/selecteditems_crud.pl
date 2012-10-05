@@ -20,6 +20,8 @@ sub updt_select_list_items
  &get_select_form_values;  # in docitem.pl
  $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
 
+ $index_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
+
  my $startTime = time;
 
  until($selitem =~ /Z/) {
@@ -289,11 +291,12 @@ sub select_email
  $rSectsubname = $rSectsubid = $emailedSS;  # Trying to rename sectsubid to sectsubname
  &split_section_ctrlB($rSectsubname);
  $SSid = $cSSid;    # primary key for section on DB
- local($lMaxItems) = $cMaxItems + 1;
+ my $lMaxItems = $cMaxItems + 1;
 
  $pgItemnbr = 1;
  $pgitemcnt = &padCount4($pgItemnbr);
- local($startTime) = time;
+ my $startTime = time;
+ $index_insert_sth = &DBprepare_idx_insert(""); #in indexes table; prepare only once
 
  $selected = $FORM{"selitem$pgitemcnt"};
 
@@ -303,7 +306,7 @@ sub select_email
     $selected     = $FORM{"selitem$pgitemcnt"};
 
     if($selected =~ /Y/) {
-         &process_popnews_email($selectdocid);  ## in docitem.pl   XXX
+         &process_popnews_email($selectdocid,$index_insert_sth);  ## in docitem.pl   XXX
     }
 
 

@@ -65,7 +65,7 @@ my $aTemplate = $_[0];
  else {
     @templates = $tTemplate;
  }
-$midfile = "$templatepath$slash$templfile.mid";
+$midfile = "$templateMidpath$slash$templfile.mid";
 open(MIDTEMPL, ">$midfile") or print "tem72 cannot open midfile $midfile<br>\n";
    foreach $template (@templates) {	
       &do_template($template);
@@ -73,14 +73,14 @@ open(MIDTEMPL, ">$midfile") or print "tem72 cannot open midfile $midfile<br>\n";
 close(MIDTEMPL);
  open(OUTFILE, ">>$outfile") if($outfile);
  $javascript = 'N';
- $template_path1 = "$templatepath/$templfile.mid";
- $template_path2 = "$templatepath/$templfile\.mid";
+ $template_path1 = "$templateMidpath/$templfile.mid";
+ $template_path2 = "$templateMidpath/$templfile\.mid";
 
  if (-f "$template_path2") {
-    open(MIDTEMP2, "$templatepath/$templfile.mid");
+    open(MIDTEMP2, "$templateMidpath/$templfile.mid");
   }
  else {
-    &printUserMsgExit ("ERROR: reason: template_merge $templatepath/$templfile\.mid not found .. could not open<br>\n");
+    &printUserMsgExit ("ERROR: reason: template_merge $templateMidpath/$templfile\.mid not found .. could not open<br>\n");
  }
 
  my $img_ctr = 0;
@@ -127,7 +127,7 @@ close(MIDTEMPL);
 
  close(OUTFILE) if ($outfile);
 
-unlink "$templatepath/$templfile.mid";
+unlink "$templateMidpath/$templfile.mid";
 
  @templates = "";
 
@@ -564,7 +564,7 @@ sub do_imbedded_commands
 
    elsif($linecmd =~ /\[HEADLINE_PERIOD\]/ and $headline =~ /[A-Za-z]/) {
       if($regionhead eq 'Y' and $headline !~ /$region/
-         and $region =~ /[A-Za-z0-9]/) {
+         and $region =~ /[A-Za-z0-9]/ and $region !~ /Global/) {
         print MIDTEMPL "$region: $headline";
       }
       else {
@@ -1134,9 +1134,9 @@ sub do_body_comment
 		   my @words = split(/ /,$bodycomline);
 		   $bodycomline = "";
 		   foreach $word (@words) {
-		       if($word =~ /^#(http:\/\/.*)/ or $word =~ /##(http:\/\/.*)/ or $word =~ /#mp3#(http:\/\/.*)/) {
+		       if($word =~ /^#([http|https]:\/\/.*)/ or $word =~ /##([http|https]:\/\/.*)/ or $word =~ /#mp3#(http:\/\/.*)/) {
 				   $url = $1;
-				   if($word =~ /##http:/) {   #   2 ##s = clickable url
+				   if($word =~ /##[http|https]:/) {   #   2 ##s = clickable url
 					  $word = "<small><a target=\"blank\" href=\"$url\">$url<\/a><\/small>";
 				   }
                    elsif($template eq "newsalertItem") {
@@ -1180,11 +1180,12 @@ ENDWORD
 	 $bodycom =~ s/\r$//;  #trim trailing line returns
 	 $bodycom =~ s/\r$//;  #trim trailing line returns
 	 $bodycom =~ s/\r$//;  #trim trailing line returns
+	
      if($template =~ /straight|link/
 	     or $bodycom =~ /<font|<center|<blockquote|<div|<table|<li|<dl|<dt|<dd/) {
 	   $bodycom = &xhtmlify($docid,$template,$bodycom);  ## in docitem.pl
 	 }
-	 elsif ($bodycom =~ /\n\n/) {
+	 elsif ($bodycom =~ /\n\n/ and $template !~ /newsalertItem/) {
 	      $bodycom =~ s/\n\n/<\/p><p>\n/g;
 	 }
 	 else {

@@ -58,13 +58,6 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 &init_email;  #in send_email.pl
 &init_docitem_variables;
 
-$userCount    = "";
-$hitCount     = "";
-$docCount     = "";
-&read_docCount;     # In dbtables_ctrl.pl
-&read_hitCount;
-&read_userCount;
-
 if(-f "debugit.yes") {
   $email_filename = "201102180702-2011-02-18-.email";
   print "art00 filename $email_filename<br>\n";
@@ -184,7 +177,20 @@ if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets 
    $metaViewOwnerUpdt = $OWNER{'metaViewOwnerUpdt'};
 }		
 #        ##### PROCESS THE VARIOUS COMMANDS
-	
+
+if($cmd eq 'storeform'
+   or $cmd eq 'parseNewItem'
+   or $cmd eq 'selectItems'
+   or $cmd eq 'import'
+   or $cmd eq 'updateCvrtItems'
+   or $cmd eq 'convert_old_subsection') {
+   if($DB_docitems eq 1 or $cmd eq 'import') {
+      $doc_insert_sth = $DB_prepare_doc_insert;  #in docitem.pl
+      $doc_update_sth = $DB_prepare_doc_update;  #in docitem.pl
+      $idx_insert_sth = &DB_prepare_idx_insert; #in indexes.pl
+   }
+}
+
 if($cmd eq "list_sepmail") {
 	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
 	local(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
@@ -209,13 +215,18 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 	  $action = "new" unless($action or $docid);
 	  $operator_access = 'A' if($userid =~ /A/);
   }
+  elsif($aTemplate eq 'article_control') {
+	 &print_article_control;
+	 exit;
+  }
   else {
 	   if($aTemplate eq 'select_login') {
 	   	$access = 'A';
 	   }
 	   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
    }
- &display_one($aTemplate,'Y','N','N'); # in docitem.pl
+
+   &display_one($aTemplate,'Y','N','N'); # in docitem.pl
 }
 
 elsif($cmd eq "processlogin") {
@@ -411,30 +422,30 @@ elsif($cmd eq "list_sepmail") {
 
 elsif($cmd eq "adminlogin") {
 ##    &check_user($userid,98989);
-     ($userdata, $access) = &check_user($userid,98989);
-  if ($access =~ /[ABCD]/) {
+    ($userdata, $access) = &check_user($userid,98989);
+    if ($access =~ /[ABCD]/) {
 #     $aTemplate = "select_prelim";
 #     $print_it = 'Y';
-     &display_one("select_prelim",'Y','N','N');
-  }
-  else {
-     &printInvalidExit("Sorry, you cannot access this function without authorization.");
-  }
+        &display_one("select_prelim",'Y','N','N');
+    }
+    else {
+       &printInvalidExit("Sorry, you cannot access this function without authorization.");
+    }
 }
 
 
 elsif($cmd =~ /parseNewItem/) {
-	  $docid    = "";
-	  $fullbody = $FORM{fullbody};
-	  $handle   = $FORM{handle};
-	  $sectsubs = $FORM{sectsubs};
-	  $pdfline  = $FORM{pdfline};
-	  $ipform   = $FORM{ipform};	
+  $docid    = "";
+  $fullbody = $FORM{fullbody};
+  $handle   = $FORM{handle};
+  $sectsubs = $FORM{sectsubs};
+  $pdfline  = $FORM{pdfline};
+  $ipform   = $FORM{ipform};	
 
-      &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
+  &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
 
   $sectsubs = $save_sectsubs;	
-	
+
 #      if($sectsubs =~ /Headlines_priority/) {
 #	     $sectsubs = $headlinesSS;
 #	     $priority = "6";
@@ -446,14 +457,6 @@ elsif($cmd =~ /parseNewItem/) {
 #         $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
 #      }
 	  if($sectsubs =~ /Suggested_suggestedItem/) {
-#         $priority = "5";
-#         $docloc_news = "M";
-#         &storeform;    #in docitem.pl
-#	     $DOCARRAY{'docitem'} = "";
-#	     $DOCARRAY{'fullbody'} = "";
-#	     $DOCARRAY{'sectsubs'} = "";
-#	     $FORM{'sectsubs'} = "";
-#	     $operator_access = 'A';
 		 $aTemplate = 'newItemParse';
          &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
 	     exit;       
@@ -556,10 +559,14 @@ elsif($cmd eq "do_line_cmd") {
 	 &do_imbedded_commands($line_cmd,"P");
 }
 
-elsif($cmd eq "import_docitems") {
-  &clear_doc_data;     # bring $DATA and variables into global scope
+elsif($cmd eq "import" or $cmd eq "export") {
+  my $table = $info[1];
+  my $one = $info[2];
+  my $two = $info[3];
+  my $three = $info[4];
+  &clear_doc_data;     # bring $DATA and variables into global scope ???
   &clear_doc_variables;
-  &import_docitems;    # in docitems.pl  
+  &DB_controller($cmd,$table,$one,$two,$three);    # in dbtables_ctrl.pl  
 }
 
 elsif($cmd eq "updateCvrtItems") {
@@ -595,7 +602,7 @@ elsif($cmd eq "contactWOA") {
      $email_msg = "$email_msg Karen G.\nWorld Population Awareness\n\n ---\n\n";
      $email_msg = "$email_msg $username $recipient said:\n";
      $email_msg = "$email_msg Message:\n$comment\n\n";
-     &do_email;
+     &do_email($email_msg);    # in send_email.pl
 
      print "<p><br><br><font size=3 face=verdana><b>Thank you for contacting WOA!! Your message has been sent</b></font><p><br>\n";
    }
@@ -650,9 +657,9 @@ elsif($cmd eq "popnewsWeekly") {
 
 elsif($cmd eq "email2list") {
     ($userdata, $access) = &check_user($userid,$pin);
-    $emaillist= $FORM{emaillist};
+    $emaillist = $FORM{emaillist};
     $esubject  = $FORM{subject};
-    $emailmsg = $FORM{emailmsg};
+    $emailmsg  = $FORM{emailmsg};
     &email2list($emailmsg,$esubject,$emaillist); ## found in common.pl
 }
 
@@ -671,12 +678,17 @@ else {
   &printUserMsgExit("Command $cmd not found. Terminating. (location:art741)");
 }
 
-
 exit;
 
 
 sub print_article_control
 {
+ $userCount    = "";
+ $hitCount     = "";
+ $docCount     = "";
+ &read_docCount;     # In dbtables_ctrl.pl
+ &read_hitCount;
+ &read_userCount;
  $print_it = 'Y';
  &process_template('article_control','Y','N','N');  #in template_ctrl.pl
  $aTemplate = $qTemplate;
@@ -715,7 +727,7 @@ print "&nbsp;&nbsp;Sending Population News Weekly ... don't forget to zero the c
    $email_msg =~ s/&nbsp;/ /g;
    $email_msg = "$news_date\n$email_msg";
    $subject  = "Population News $news_date";
-   &do_email;  #in send_email.pl
+   &do_email($email_msg);    # in send_email.pl
    $email_msg = "";
    &clearPopCount;
    &do_popnews_wkly_email;

@@ -100,7 +100,7 @@ sub db_connect {
          $CONFIG{db_user},
          $CONFIG{db_password})
       or die "Connection Error: $DBI::errstr\n";
-  return($dbh);
+ return($dbh);
 }
 
 sub OpenDB {
@@ -114,6 +114,30 @@ sub CloseDB {
 $dbh->disconnect();
 $mysqlclosed = 1;
 return; }
+
+sub DB_get_row
+{
+ my($sth,$arg) = @_;
+ $sth_doc->execute($arg);
+ $row = $sth->fetchrow_array();
+ $sth->finish();
+ return($row)
+}
+
+sub DB_insert
+{
+ my($sth,@rowarray) = @_;
+ $sth->execute(@rowarray);
+}
+
+sub DB_update
+{
+ my($sth,@rowarray,$sql) = @_;
+ $sth = $dbh->prepare($sql) unless($sth);
+ $sth->execute($rowarray);
+ return($sth);
+}
+
 
 sub DoSQL {
 if (!$mysqlopen) { &OpenDB; }

@@ -6,6 +6,8 @@
 
 sub set_date_variables   # from article.pl
 {                                         
+  $epoch_time = "1000-01-01 00:00:00";
+
   $todaydate = &get_nowdate;
 
   ($nowyyyy,$nowmm,$nowdd) = &getnowdate_elements;
@@ -511,6 +513,48 @@ sub get_7daysago_old
 
 
 # 500 ############# COMMON DATE ROUTINES ##################3
+
+sub conform_date    # format yyyy-mm-dd
+{
+  my ($date,$format,$date2) = @_;
+
+  ($yyyy,$mm,$dd) = split(/-/,$date,3);  ## need to add split on space and : if datetime
+
+  if(($yyyy !~ /^[0-9]{4}$/ or $yyyy =~ /0000/) and $sysdate) {
+	 $date = $date2;
+     ($yyyy,$mm,$dd) = split(/-/,$date,3);
+  }
+
+  if($yyyy !~ /^[0-9]{4}$/ or $yyyy =~ /0000/) {
+      return ("0000-00-00") if($format =~ /f/);
+      return ("00000000") if($format !~ /f/);   # use this format on indexes
+  }
+
+  if( $mm =~ /00([0-9])/) {
+	     $mm = "0$1" ;
+  }
+  $mm = "00" if($mm !~ /[0-1][0-9]/ and length($mm) != 2);
+
+  if($dd =~ /[0-3]{1}[0-9]{1}/) {
+  }
+  elsif($dd =~  / [1-9]/) {
+     $dd =~ s/ ([1-9])/0$1/;  # replace days leading blank with leading zero
+  }
+  elsif($dd =~ /[1-9]{1}/) {
+     $dd   =~ s/([1-9]{1})/0$1/;  # pad with 0 any day with just one character
+  }
+  else {
+     $dd = "00";
+  }
+
+  if($format =~ /f/) {
+	return("$yyyy-$mm-$dd");
+  }
+  else {
+    return("$yyyy$mm$dd");  # use this format on indexes
+  }
+}
+
 ### from article.pl when processing email data 
 ### also from convert.pl 
 
@@ -899,11 +943,10 @@ sub getnowdate_elements
  return($nowyyyy,$nowmm,$nowdd);
 }
 
-sub get_nowdatetime
-{
- $sysdt = &calc_date('now',0,'+');
- my($nowyyyy,$nowmm,$nowdd,$nowhh,$nowmn,$nowss) = split(/-/,$nowdate,6);
- return("$nowyyyy-$nowmm-$nowdd $nowhh:$nowmn:$nowss");
+sub get_nowdatetime {
+    my($syssec,$sysmin,$syshh,$sysday,$sysmonth,$sysyear) = localtime(time);
+    $nowdatetime = &datetime_prep('yyyy-mm-dd hh:mm:ss',$syssec,$sysmin,$syshh,$sysday,$sysmonth,$sysyear);
+	return($nowdatetime);
 }
 
 sub get_futuredate
@@ -950,34 +993,33 @@ sub calc_date
 
 sub datetime_prep
 {   
- local($dateformat,$syssec,$sysmin,$syshh,$sysday,$sysmonth,$sysyear) = @_;
-  while($sysmonth > 11) {
-     $sysmonth = $sysmonth-12;
+ my($dateformat,$syssec,$sysmin,$syshh,$sysdd,$sysmm,$sysyear) = @_;
+  while($sysmm > 11) {
+     $sysmm = $sysmm-12;
      $sysyear  = $sysyear+1;
    }
-  $sysmonth=$sysmonth+1;
+  $sysmm=$sysmm+1;
   if($sysyear < 50) {
     $sysyear=$sysyear+2000;
    }
  else {
     $sysyear=$sysyear+1900;
   }
- local($sysmm)  = "$sysmonth";
- local($sysmm)  = "0$sysmm" if($sysmm < 10);
- local($sysdd)  = "$sysday";
- local($sysdd)  = "0$sysdd" if($sysdd < 10) ;
- local($syshh)  = "$syshour";
- local($syshh)  = "0$syshh" if($syshh < 10) ;
- local($sysmin) = $sysmin+1;
- local($sysmin) = "0$sysmin" if($sysmin < 10) ;
- local($syssec) = "0$syssec" if($syssec < 10) ;
+ $sysmm  = "0$sysmm" if($sysmm < 10);
+ $sysdd  = "0$sysdd" if($sysdd < 10);
+ $syshh  = "0$syshh" if($syshh < 10);
+ $sysmin = $sysmin+1;
+ $sysmin = "0$sysmin" if($sysmin < 10);
+ $syssec = "0$syssec" if($syssec < 10);
  
  return "$sysyear-$sysmm-$sysdd" 
-     if($dateformat =~ /yyyy-mm-dd/);
+     if($dateformat eq 'yyyy-mm-dd');
  return "$sysyear$sysmm$sysdd$syshh$sysmin$syssec" 
      if($dateformat =~ /yyyymmddhhmmss/);
  return "$sysyear-$sysmm-$sysdd-$syshh-$sysmin-$syssec" 
      if($dateformat =~ /yyyy-mm-dd-hh-mm-ss/);
+ return "$sysyear-$sysmm-$sysdd $syshh:$sysmin:$syssec"               
+     if($dateformat =~ /yyyy-mm-dd hh:mm:ss/);
 }
 
 

@@ -172,7 +172,6 @@ sub conform_date    # format yyyy-mm-dd
 
 sub write_index_flatfile {
  my($rSectsubid,$docid,$docloc,$cOrder,$addchk,$delchk) = @_;
-
  $sectionfile    = "$sectionpath/$rSectsubid.idx";
  $newsectionfile = "$sectionpath/$rSectsubid.new";
  $bkpsectionfile = "$sectionpath/$rSectsubid.bkp";
@@ -195,7 +194,6 @@ sub write_index_flatfile {
  else {
 	open(OUTSUB, ">>$newsectionfile");
  }
-
  open(INSUB, "$sectionfile") or print "Could not open section index file: $sectionfile - sec432<br>\n";
  while(<INSUB>) {
     chomp;
@@ -231,16 +229,16 @@ sub write_index_flatfile {
 
  if(-f $newsectionfile) {
 	unlink $sectionfile;
-##    system "cp $newsectionfile $sectionfile" or print "sec469 - failed to copy new to section index file: $sectionfile<br>\n";
+##    system "cp $newsectionfile $sectionfile" or print "idx233 - failed to copy new to section index file: $sectionfile<br>\n";
 ##   THE ABOVE IS A LIE! IT DOES NOT FAIL TO COPy
-    system "cp $newsectionfile $sectionfile";
+     system "cp $newsectionfile $sectionfile";
  }
  else {
 	print "Section index file $newsectionfile failed to update; Error code sec472 I; processing stopped.  Please contact web admin. <br>\n";
     exit;
  }
 
- unlink $newsectionfile if(-f $newsectionfile);
+# unlink $newsectionfile if(-f $newsectionfile);
  unlink $lock_file  if(-f $lock_file);
 }
 
@@ -249,8 +247,8 @@ sub write_index_flatfile {
 
 sub put_docid
 {
-	($docid,$docloc) = @_;
-    print(OUTSUB "$docid^$docloc\n");
+ ($docid,$docloc) = @_;
+ print(OUTSUB "$docid^$docloc\n");
 
  $newIdx_written = 'Y';
 }
@@ -259,10 +257,9 @@ sub put_docid
 sub put_idocid
 {
   ($idocid,$idocloc,$docloc) = @_;
-##print "420 k- $kDocid-$kDocloc  d- $docid-$dDocloc i-$iDocid-$iDocloc delsectsubs $delsectsubs ord- $cOrder r- $rSectsubid $sectsubs<br>\n";
  if($delsectsubs =~ /$rSectsubid/ and $iDocid eq $docid)
     { }
- else {
+ else {	
     print(OUTSUB "$iDocid^$iDocloc\n");
  }
 
@@ -304,7 +301,7 @@ sub init_paging_variables
  $pg_num = 1;
  $start_count = '000001';
  $ckItemnbr = 1;
- $ckItemcnt = &padCount6($ckItemnbr);
+ $ckItemcnt = &padCount6($ckItemnbr);  # in db_ctrl_tables.pl
  $default_itemMax = 7;
  $default_order = 'p';	
 }
@@ -621,13 +618,11 @@ sub delete_from_index_by_list
 
 ################
 
-##  ADD TO INDEX
-##                 Updates the appropriate index flatfiles and the indexes table on the DB
 sub hook_into_system
 {
- my($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @_;  #fields needed for sorting
- $pubdate = &conform_date($pubdate,'n',$sysdate);
- $sysdate = &conform_date($sysdate,'n');
+ my($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs) = @_;  #fields needed for sorting
+# $pubdate = &conform_date($pubdate,'n',$sysdate);
+# $sysdate = &conform_date($sysdate,'n');
 
  if($sectsubs !~ /$deleteSS|$expiredSS/ and $cmd !~ /selectItems|updateCvrtItems/) {
    &add_temporary_sectsubs;
@@ -644,17 +639,13 @@ sub hook_into_system
 
  ##      update subsection indexes by docid;
 
- my $lifo_sth = &DB_prepare_lifonum unless ($DB_indexes < 1); #Prepare for execute in &updt_subsection_index
- my $maxsth   = &DB_prepare_getnew_lifo unless ($DB_indexes < 1);
-
  my @adddelsectsubs = split(/;/,"$addsectsubs;$delsectsubs;$chglocs");
  my $saveCsectsub = $cSectsubid;
 
  foreach $rSectsub (@adddelsectsubs)  {
    if($rSectsub) {
-     my($sectsubname,$rSectid,$rSubid,$stratus,$lifonum) = &split_sectsub($rSectsub);
-     &split_section_ctrlB($sectsubname);
-     &updt_subsection_index($lifo_sth,$maxsth,$sectsubname,$cSSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum);
+     my($sectsubname,$rSectid,$rSubid,$stratus) = &split_sectsub($rSectsub);
+     &updt_subsection_index($idx_insert_sth,$sectsubname,$cSSid,$docid,$stratus,$addsectsubs,$delsectsubs); #not exporting
    }
  }
 
@@ -664,14 +655,17 @@ sub hook_into_system
 }
 
 
-##      Update docid index file - for each $rSectsubid
+##      Update docid index file (flatfile)- for each $rSectsubid
 
 sub updt_subsection_index
 {
- my ($lifo_sth,$maxsth,$rSectsubid,$SSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum) = @_;
+ my($idx_insert_sth,$sectsubname,$SSid,$docid,$stratus,$addsectsubs,$delsectsubs) = @_;	
+
+ ($sectsubname,$rest) = split(/`/,$sectsubname,2) if ($sectsubname =~ /`/); #fix a bug from somewhere
+
 	##   Since we have been having problems deleting, we are doing this as a backup
- if($delsectsubs =~ /$rSectsubid/) {
-    &toDeleteList_open($rSectsubid,'Y');
+ if($delsectsubs =~ /$sectsubname/) {
+    &toDeleteList_open($sectsubname,'Y');
     &toDeleteList_write($docid);
     &toDeleteList_close;
  }
@@ -679,50 +673,34 @@ sub updt_subsection_index
  $addchk = "$addsectsubs;$chglocs";
  $delchk = "$delsectsubs;$chglocs";
 
- ($rSectsubid,$rest) = split(/`/,$rSectsubid,2) if ($rSectsubid =~ /`/); #fix a bug from somewhere
-
+## &split_section_ctrlB($sectsubname);  # to get $cOrder - in sectsub.pl  ### DON'T NEED ######
  $stratus = $default_docloc if($stratus !~ /[A-Z]/);
 
- &write_index_flatfile($rSectsubid,$docid,$stratus,$cOrder,$addchk,$delchk); # in indexes.pl
+ &write_index_flatfile($sectsubname,$docid,$stratus,$cOrder,$addchk,$delchk); # in indexes.pl
 
 ##                     Delete the docid we wrote before
 ##                     - just in case it didn't delete above
- &deleteFromIndex_2nd($docid,$rSectsubid,'Y') if($delsectsubs =~ /$rSectsubid/);
+ &deleteFromIndex_2nd($docid,$sectsubname,'Y') if($delsectsubs =~ /$sectsubname/);
 
  undef %iDocid;
  undef %iDocloc;
  undef %idx_written;
  undef %newIdx_written;
-
- if($delsectsubs =~ /$rSectsubid/) {
-    &DB_delete_from_indexes ($SSid,$docid) unless($DB_indexes < 1);
-	#	   return(); put a return here once we get rid of flatfile indexes
- }
- else {
-#	 @sectsubs = split(/\^/,$sectsubs);
-#	 foreach $sectsub (@sectsubs) {   ## get stratus
-#		my($xsectsub,$stratus) = split(/`/,$sectsub);
-#		last if($rSectsubid =~ /$sectsub/);
-#	 }
-#
-	    # skip volunteer log for now - add it later; put userid in sortchar, nowdate in pubdate
-	 &DB_add_to_indexes ($lifo_sth,$maxsth,$SSid,$docid,$stratus,$pubdate,$sysdate,$region,$headlines,$topic,$stratus,$lifonum)
-		  unless($DB_indexes < 1 or $rSectsubid =~ /Volunteer/ or !$rSectsubid);   
-	#     If docid/sectsubid combo already in index, it will update instead of insert
- }
+ my $n_docid = int($docid);
+ &DB_update_sectsub_idx($idx_insert_sth,$sectsubname,$n_docid,$delsectsubs) if($DB_docitems eq 1);
 }
 
 sub toDeleteList_open
 {
-   local($lSectsubid, $from_updt_subsec_idx)  = @_;
+   my($sectsubname, $from_updt_subsec_idx)  = @_;
    if($from_updt_subsec_idx =~ /[Yy]/) {
    }     ## Don't lock if in the middle of &updt_subsection_index - already locked
    else {
-     $lock_file = "$statuspath/$lSectsubid.del.busy";
+     $lock_file = "$statuspath/$sectsubname.del.busy";
      &waitIfBusy($lock_file, 'lock');
    }
 
-   local($delsectionfile) = "$sectionpath/$lSectsubid.del";
+   my $delsectionfile = "$sectionpath/$sectsubname.del";
 
    if(-f $delsectionfile) {
    }
@@ -746,16 +724,17 @@ sub toDeleteList_close
 }
 
 ## not sure this ever worked - lDocid is a local - where does docid to be deleted come in????
+
 sub deleteFromIndex_2nd
 {
- local($ldocid,$lSectsubid, $from_updt_subsec_idx)  = @_;
- local($delsectionfile) = "$sectionpath/$lSectsubid.del";
+ my($ldocid,$sectsubname, $from_updt_subsec_idx)  = @_;
+ my($delsectionfile) = "$sectionpath/$sectsubname.del";
 
  if(-f $delsectionfile) {
      if($from_updt_subsec_idx =~ /[Yy]/) {
      }     ## Don't lock if in the middle of &updt_subsection_index - already locked
      else {
-        $lock_file = "$statuspath/$lSectsubid.busy";
+        $lock_file = "$statuspath/$sectsubname.busy";
         &waitIfBusy($lock_file, 'lock');
      }
 
@@ -768,7 +747,7 @@ sub deleteFromIndex_2nd
 
  $DELETELIST = "";
 
- local($xDocid);
+ my $xDocid;
  while(<DEL2LIST>)
   {
     chomp;
@@ -777,9 +756,9 @@ sub deleteFromIndex_2nd
   }
  close(DEL2SECT);
 
- $sectionfile    = "$sectionpath/$lSectsubid.idx";
- $newsectionfile = "$sectionpath/$lSectsubid.new";
- $bkpsectionfile = "$sectionpath/$lSectsubid.bkp";
+ $sectionfile    = "$sectionpath/$sectsubname.idx";
+ $newsectionfile = "$sectionpath/$sectsubname.new";
+ $bkpsectionfile = "$sectionpath/$sectsubname.bkp";
 
  if(-f $sectionfile) {
     system "cp $sectionfile $bkpsectionfile";
@@ -826,10 +805,10 @@ sub splitout_sectsub_info
   {
 ###    &split_dSectsub;
     if($sectsub =~ /$sectsubname/) {
-	    my($xsectsubname,$xsectname,$xsubname,$docloc,$xlifonum) = &split_sectsub($sectsub);
-	    $docloc = 'M' if($docloc !~ /[A-Z]/);
+	    my($xsectsubname,$xsectname,$xsubname,$stratus) = &split_sectsub($sectsub);
+	    $stratus = 'M' if($stratus !~ /[A-Z]/);
 #       $dTemplate = 'straight' if($straight_html eq 'Y');   ## DO WE NEED?
-        return($docloc);
+        return($stratus);
     }
   }
   return('M');
@@ -862,10 +841,10 @@ sub split_dSectsub   ## SEE SPLIT_SECTSUB - REUSE
 
 sub split_sectsub {
 	my $sectsub = $_[0];
-     my ($sectsubname,$docloc,$lifonum) = split(/`/,$sectsub,3);
+     my ($sectsubname,$docloc) = split(/`/,$sectsub,3);
      ($sectid,$subid) = split(/_/, $sectsubname);
-#print MIDTEMPL "sectsub $sectsub sectsubname $sectsubname docloc $docloc lifonum $lifonum<br>\n";
-     return ($sectsubname,$sectid,$subid,$docloc,$lifonum);
+#print MIDTEMPL "sectsub $sectsub sectsubname $sectsubname docloc $docloc<br>\n";
+     return ($sectsubname,$sectid,$subid,$docloc);
 }
 
 sub docarray_sect_order
@@ -936,81 +915,59 @@ sub clean_popnews_bkup
 }
 
 
+sub DB_update_sectsub_idx
+{                         # comes here from docitem.pl and indexes.pl
+ my($idx_insert_sth,$sectsubname,$docid,$stratus,$delsectsubs) = @_;
+ my $sectsubfk = 0;
+ if($DB_sectsubs eq 1) {
+    $sectsubfk = &DB_get_sectsubid($sectsubname);  #in sectsubs.pl
+ }
+ else {
+    $sectsubfk = &get_sectsubid($sectsubname);	#flatfile
+ }
+
+ if($sectsubfk < 1 or !$sectsubfk) {
+	print "sec933 Bad sectsub ..name $sectsubname<br>\n";
+	&write_index_flatfile('import_Badsectsub',$docid,'','P','import_Badsectsub','');  #log - in index.pl
+	return(1);
+ }
+
+ if($delsectsubs =~ /$sectsubname/) {
+    &DB_delete_from_indexes($sectsubfk,$docid);
+ }
+ else {
+    &DB_add_to_indexes($idx_insert_sth,$sectsubfk,$docid,$stratus);
+ }
+}
+
 ## DATABASE SQL ALTERNATIVE TO FLAT FILE INDEX
 
-sub do_doclist_sql {    ## for the import
+sub do_doclist_sql {    # for display
   my $dSectsub = $_[0];
-  local ($counts) = &get_start_stop_count($pg_num);  #in sections.pl
+  my $counts = &get_start_stop_count($pg_num);  #in sections.pl
   ($start_count,$stop_count) = split(/:/,$counts,2);
   my $start_cnt = 0;
   my $num_articles = 0;
   my $orderby = "";
-  my $lastpg2lifo = 9999999;
-  my $wherelifo_clause = "";
+  my $lastpg2woadatetm = '99-99-99 99:99:99';
 
   $ckItemnbr = 1;
   $ckItemcnt = &padCount6($ckItemnbr);
 
-  $dbh = &db_connect() or die "DB failed connect";
+  unless($dbh) {
+    $dbh = &db_connect() or die "DB failed connect";
+  }
 
   $start_cnt = int($start_count);
   $num_articles = $stop_count - $start_count;
 
-  if($qOrder =~ /[A-Za-z0-9]/) {
-    $sortorder = $qOrder;
-  }
-  else {
-    $sortorder = $cOrder;
-  }
+  my $orderby = &get_orderby;
 
-# R = region  T = topic  t = region/topic  P = reverse pubdate
-# p = pubdate  d = docloc/sysdate  D = sysdate only A = priority/sysdate
-# H = headline  S = source  # r = reverse physical order
-# F = lifo  # L = fifo
+## Page 2 and so on:  WHERE d.woapubdatetm < last one on page 1 - ORDER by d.pubdate desc  LOOK AT GET_ORDERBY
 
-  if ($sortorder == 'F') {  #last in, first out
-	 if($pg_num < 3) {
-		$orderby =  "i.stratus, i.lifonum DESC ";
-	 }
-	 else {
-	   $lastpg2lifo = &DB_getlastpg2_lifo($dSectsub);
-	   $orderby = "i.stratus, i.pubdate DESC";
-	 }
-  }
-  elsif($sortorder == 'P') { #reverse publish date
-	 $orderby = "i.stratus, i.pubdate DESC";
-  }
-  elsif($sortorder == 'A') { # priority / sysdate(in pubdate) (headlines)
-	 $orderby = "i.stratus, i.pubdate DESC";
-  }
-  elsif($sortorder == 'R') { #region
-	 $orderby = "i.stratus, i.sortchar, i.pubdate DESC";
-  }
-  elsif($sortorder =~ /[HT]/) { #headline
-	 $orderby = "i.stratus, i.sortchar, i.pubdate DESC";
-  }
-  elsif($sortorder == 'd') { #docloc, sysdate (in pubdate)
-	 $orderby = "i.stratus, i.pubdate DESC";
-  }
-  elsif($sortorder == 'D') { #docloc, sysdate (in pubdate)
-	 $orderby = "i.pubdate DESC";
-  }
-  elsif($sortorder == 'W') { #docloc, sysdate (in pubdate)
-	 $orderby = "i.stratus, i.woadatetime DESC";
-  }
-  elsif($sortorder =~ /[rL]/) {    #reverse physical order
-	 $orderby = "i.stratus, i.lifo DESC";
-  }
-  elsif($sortorder eq 'L') {    #reverse physical order
-	 $orderby = "i.stratus, i.lifo DESC";
-  }
-  else {
-	 $orderby = "i.stratus, i.pubdate DESC";
-  }
-
-  my $sql = "SELECT i.docid, i.lifonum, i.stratus, i.pubdate, i.sortchar FROM indexes as i, sectsubs as s WHERE i.sectsubid = s.sectsubid AND s.sectsub = ? AND i.lifonum < ? ORDER BY $orderby LIMIT ?, ?";		
+  my $sql = "SELECT i.docid, d.woapubdatetm, i.stratus, d.pubdate FROM indexes as i, docitems as d, sectsubs as s WHERE i.sectsubid = s.sectsubid AND d.docid=i.docid AND s.sectsub = ? ORDER BY $orderby LIMIT ?, ?";		
   my $doclist_sth = $dbh->prepare($sql) or die "DB doclist failed prepare";
-  $doclist_sth->execute($dSectsub,$lastpg2lifo,$start_cnt,$num_articles) or die "DB doclist failed execute";
+  $doclist_sth->execute($dSectsub,$lastpg2woadatetm,$start_cnt,$num_articles) or die "DB doclist failed execute";
 
   if ($doclist_sth->rows == 0) {
   }
@@ -1019,7 +976,7 @@ sub do_doclist_sql {    ## for the import
       while (my @row = $doclist_sth->fetchrow_array()) { # print data retrieved
 	     $docid = $row[0];
 
-	      &do_one_doc if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
+	      &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
 	      if($skip_item !~ /Y/ or $select_item eq 'Y') {
 		     if($docid ne $prev_docid ) {
 		       $ckItemnbr = $ckItemnbr+1;
@@ -1037,133 +994,112 @@ sub do_doclist_sql {    ## for the import
 	$doclist_sth->finish() or die "DB failed finish";
 }
 
+sub get_orderby {
+  my $orderby = '';
 
-sub DB_getlastpg2_lifo {
+  if($qOrder =~ /[A-Za-z0-9]/) {
+    $sortorder = $qOrder;
+  }
+  else {
+    $sortorder = $cOrder;
+  }
+
+# R = region  T = topic  t = region/topic  P = reverse pubdate
+# p = pubdate  d = docloc/sysdate  D = sysdate only A = priority/sysdate
+# H = headline  S = source  # r = reverse physical order
+# F = fifo  # L = lifo
+
+  if ($sortorder == 'F') {  #last in, first out - NewsDigest_newsItem for example
+	 if($pg_num < 3) {
+		$orderby =  "i.stratus, d.woapubdatetm DESC ";
+	 }
+	 else {
+	   $lastpg2woadatetm = &DB_getlastpg2_woadatetm($dSectsub);
+	   $orderby = "i.stratus, d.pubdate DESC";
+	 }
+  }
+  elsif($sortorder == 'P') { #reverse publish date
+	 $orderby = "i.stratus, d.pubdate DESC";
+  }
+  elsif($sortorder == 'A') { # priority / sysdate(in pubdate) (headlines)
+	 $orderby = "i.stratus, d.pubdate DESC";
+  }
+  elsif($sortorder == 'R') { #region
+	 $orderby = "i.stratus, d.region, d.pubdate DESC";
+  }
+  elsif($sortorder =~ /[HT]/) { #headline
+	 $orderby = "i.stratus, d.headline, d.pubdate DESC";
+  }
+  elsif($sortorder == 'd') { #docloc, sysdate (in pubdate)
+	 $orderby = "i.stratus, d.pubdate DESC";
+  }
+  elsif($sortorder == 'D') { #docloc, sysdate (in pubdate)
+	 $orderby = "i.pubdate DESC";
+  }
+  elsif($sortorder =~ /[LrW]/) {    #reverse physical order
+	 $orderby = "i.stratus, d.woapubdatetm ASC";
+  }
+  else {
+	 $orderby = "i.stratus, d.pubdate DESC";
+  }
+  return($orderby);
+}
+
+
+sub DB_getlastpg2_woadatetm {
     my($sectsub) = $_[0];
     my $pg1pg2Limit = 0;
     $pg1pg2Limit = ($cPg1Items + $cPg2Items -1);
-	my $lastpg2lifo = 0;
-	my $lifonum_sth = $dbh->prepare("SELECT i.lifonum FROM indexes AS i, sectsubs AS s WHERE i.sectsubid = s.sectsubid AND s.sectsub = ? ORDER BY i.lifonum DESC LIMIT ? , 1");
+	my $lastpg2woadatetm = 0;
+	my $woadatetm_sth = $dbh->prepare("SELECT d.woadatetm FROM docitems AS d, indexes AS i, sectsubs AS s WHERE i.sectsubid = s.sectsubid AND d.docitem = s.doctiem AND s.sectsub = ? ORDER BY d.woadatetm DESC LIMIT ? , 1");
 
-	if($lifonum_sth) {
-	    $lifonum_sth->execute($sectsub,$pg1pg2Limit) or die "Couldn't execute statement: ".$lifonum_sth->errstr;
-	    $lastpg2lifo = $lifonum_sth->fetchrow_array();
-		$lifonum_sth->finish();
+	if($woadatetm_sth) {
+	    $woadatetm_sth->execute($sectsub,$pg1pg2Limit) or die "Couldn't execute statement: ".$woadatetm_sth->errstr;
+	    $lastpg2woadatetm = $woadatetm_sth->fetchrow_array();
+		$woadatetm_sth->finish();
 	}
 	else {
-	   print" Couldn't prepare DB_getlastpg2_lifo query<br>\n";
+	   print" Couldn't prepare DB_getlastpg2_woadatetm query<br>\n";
 	}
-	return ($lastpg2lifo);
+	return ($lastpg2woadatetm);
 }
 
-sub if_exists_DBindex
+sub DB_prepare_idx_count {
+  my $sth = $dbh->prepare("SELECT COUNT(*) FROM indexes  WHERE docid = ? and sectsubname = ?") or die("Couldn't prepare statement: " . $sth->errstr);		
+  return $sth;
+}
+
+sub DBindex_exists
 {
-   my($SSid,$docid) = @_;
-
-  my $idxexists_sql = "SELECT COUNT(*) FROM indexes  WHERE docid = ? and sectsubname = ?";
-  my $idxexists_sth = $dbh->prepare($idxexists_sql) or die("Couldn't prepare statement: " . $idxexists_sth->errstr);	
-  $idxexists_sth->execute($docid,$SSid);
-  my @row = $idxexists_sth->fetchrow_array();
-  $idxexists_sth->finish;
-
-  return(1) if($row);
-  return(0);
+  my($SSid,$docid,$sth) = @_;
+  $sth->execute($docid,$SSid);
+  my @row = $sth->fetchrow_array();
+  $sth->finish;
+  return($row);
 }
 
-sub DB_add_to_indexes    # updates if sectsubid/docid combo already there
-{ 
-	 my($lifo_sth,$maxsth,$SSid,$docid,$stratus,$pubdate,$sysdate,$region,$headline,$topic,$stratus,$fLifonum) = @_;
-	if($SSid < 1 or $docid !~ /[0-9]/) {
-		print "sec2044 Invalid sectsubid $SSid or docid $docid , continuing<br>\n";
-		return;
-	}
-	
-	 $pubdate = $sysdate   if($sortorder =~ /[ADd]/);
-	 my $sortchar = "";
-     $sortchar = $topic    if($sortorder =~ /T/);
-     $sortchar = $headline if($sortorder =~ /H/);
-     $sortchar = $region   if($sortorder =~ /R/);
-
-# find lifonum for sectsubid and docid
-     $lifo_sth->execute($SSid,$docid) or die("Couldn't execute lifo_sth @ 2103'");  #prepared before coming to updt_subsection_index
-     my $lifonum = 0;
-     my @row = $lifo_sth->fetchrow_array();
-     $lifo_sth->finish;
-     if($row[0]) {
-	    $lifonum = @row[0];     #SSid is a unique id for sectsub living on indexes and sectsubs tables
-     }
-
-     if($lifonum > 0) {
-		  my $update_sql = "UPDATE indexes SET stratus = '" . $stratus . "', lifonum = $lifonum, pubdate = '" .  $pubdate . "', sortchar = '" . $sortchar . "' WHERE docid = '" . $docid . "' and sectsubid = " . $SSid;
-#		print "sec2113 updating $docid in $SSid ... SQL: $update_sql<br>\n";
-		  $dbh->do($update_sql) or die "DB Update $docid to $SSid failed<br>\n";
-     }
-     else {
-             #                         SELECT MAX(lifonum) from indexes WHERE sectsubid = ?
-	    $lifonum = &DB_getnew_lifo($maxsth,$SSid);
-
-#		print "sec2060 Adding $docid to $sectsubid, strat $stratus lifo $lifonum   pub $pubdate sortchar $headline<br>\n";
-
-	    $insert_sql = "INSERT IGNORE INTO indexes VALUES ($SSid, '" . $docid . "', '" . $stratus . "', $lifonum, '" . $pubdate . "', '" . $sortchar . "')";
-	    $dbh->do($insert_sql)
-	           or die "DB Insert  failed<br>\n";
-    }
-}
-
-sub DB_get_lifo_stratus {
-  my($sectsubname,$docid) = @_;
-  $dbh = &db_connect() or die("DB failed connect") unless $dbh;
-  my $lifo_sql = "SELECT i.stratus, i.lifonum FROM indexes as i, sectsubs as s WHERE i.sectsubid = s.sectsubid and s.sectsub = ? and i.docid = ?";
-  my $lifo_sth = $dbh->prepare($lifo_sql) or die("Couldn't prepare statement: ".$lifo_sth->errstr);	
-  $lifo_sth->execute($sectsubid,$docid);
-  my $lifonum = 0;
-  my @row = $lifo_sth->fetchrow_array();
-  $lifo_sth->finish;
-  if($row[0]) {
-     $stratus = @row[0];
-     $lifonum = @row[1];     
-  }
-  return($stratus,$lifonum);
-}
-
-sub DB_prepare_lifonum {
-	$dbh = &db_connect() or die("DB failed connect") unless $dbh;
-	my $count_sql = "SELECT lifonum FROM indexes WHERE sectsubid = ? and docid = ?";
-    $count_sth = $dbh->prepare($count_sql) or die("Couldn't prepare statement: ".$count_sth->errstr);
-	return($count_sth);    
-}
-
-sub DB_prepare_getnew_lifo {
-	$dbh = &db_connect() or die("DB failed connect") unless $dbh;
-	my $maxsql = "SELECT lifonum from indexes WHERE sectsubid = ? ORDER BY lifonum DESC";
-	my $maxsth = $dbh->prepare($maxsql) or die("Couldn't prepare statement: ".$sthmax->errstr);
-	return($maxsth);
-}
-
-## [Tue Jan 03 10:41:55 2012] [error] [client 127.0.0.1] failed in fetchrow for maxlifo at sections.pl line 2166., referer: http://overpop/cgi-bin/article.pl?display_section%%%Suggested_suggestedItem%%%10
-## There is another way to get the max - see regions table in controlfiles.
-
-sub DB_getnew_lifo {
- my($maxsth,$SSid) = @_;
- my $maxlifo = 0;
- if($maxsth) {
-	$maxsth->execute($SSid) or die("Couldn't execute statement: ".$maxsth->errstr);	
-	while (my @row = $maxsth->fetchrow_array() or die("failed in fetchrow for maxlifo SSid $SSid - See comment in index\.pl")) {
-        $maxlifo = $row[0];   #We just want the top row with the highest lifonum
-	    if($maxlifo and $maxlifo =~ /^(\d+\.?\d*|\.\d+)$/) { # match valid number
-			$maxlifo = $maxlifo + 10;
-		}
-		else {
-		     print "sec2174 Failed in DB_getnew_lifo for ...SSid $SSid - see comment above @2161<br>\n";
-	    }
-		last;
-	}
+sub DB_prepare_idx_insert {
+ my $mode = $_[0];
+ my $sth;
+ if($mode = 'import') {
+     $sth = $dbh->prepare( 'INSERT IGNORE INTO indexes VALUES ( ?, ?, ?)' ) ; 
  }
  else {
-   print "Couldn't prepare maxlifo query; continuing<br>\n";
+	 $sth = $dbh->prepare( 'INSERT INTO indexes VALUES ( ?, ?, ?) ON DUPLICATE KEY UPDATE stratus = ?' ) ; 
  }
-$maxsth->finish();
-return($maxlifo);
+ return($sth);
+}
+
+sub DB_add_to_indexes
+{ 
+ my($sth,$SSid,$docid,$stratus) = @_;
+
+ if($SSid < 1 or $docid !~ /[0-9]/) {
+	print "idx2044 Invalid sectsubid $SSid or docid $docid , continuing<br>\n";
+	return;
+ }
+ 
+ $sth->execute($SSid,$docid,$stratus);
 }
 
 
@@ -1174,6 +1110,7 @@ sub DB_delete_from_indexes
     $dbh->do($query) or die "DB Delete $docid from $sectsubid failed<br>\n";
 }
 
+
 sub DB_delete_from_indexes_by_list  # NEEDS TO HAVE SQL FIXED
 {
     my($sectsubid,$deletelist) = @_;	
@@ -1181,333 +1118,54 @@ sub DB_delete_from_indexes_by_list  # NEEDS TO HAVE SQL FIXED
     $dbh->do($query) or die "DB Delete $deletlist from $sectsubid failed<br>\n";
 }
 
-sub DB_add_docid_to_index
-{ 
- my($sectsubname,$docid) = @_;
- $SSid = &get_SSid($sectsubname);
- $insert_sql = "INSERT IGNORE INTO indexes VALUES ($SSid, '" . $docid . "', '', 0, '', '')";
- $dbh->do($insert_sql) or die "DB Insert failed<br>\n";
-}
-
-sub create_indexes
-{   ## Easier to do this on Telavant interface
-	$dbh = &db_connect();
-	
-	dbh->do("DROP TABLE IF EXISTS indexes");
-
-$sql = <<ENDINDEXES;
-	CREATE TABLE indexes (
-		sectsubid smallint unsigned not null,
-		docid char(6) not null, 
-		stratus char(1)  not null default 'M',
-		lifonum integer unsigned not null default 0,
-		woadatetime datetime default null,
-		pubdate varchar(8) default "",
-		sortchar varchar(40) default "",
-		PRIMARY KEY (sectsubid,docid))
+sub create_indexes_table {
+	#                        DO THIS MANUALLY ON THE DB SERVER
+$INDEXES_SQL  = <<ENDINDEXES
+  CREATE TABLE indexes (
+  sectsubid      smallint unsigned not null, 
+  docid          smallint unsigned not null,
+  stratus        char(1)  default 'M',
+  UNIQUE idx_ss_doc (sectsubid,docid) );
 ENDINDEXES
-
-$sth2 = $dbh->prepare($sql);
-$sth2->execute();
-$sth2->finish();
 }
 
-## First time import
 
-sub import_indexes
+sub export_indexes_XXX   ####### do this with each docitem!!!!!
+{  #run this after all docitems are exported
+ my $sth_idxrows = $dbh->prepare( 'SELECT i.docid,i.sectsubid,i.stratus FROM indexes as i  WHERE i.sectsubid = ?' ) 
+    or die("Couldn't prepare statement: " . $sth_idxrows_sth->errstr);
+
+ foreach $cSectsub (@CSARRAY) {
+     ($SSid,$SSseq,$sectsubname) = split(/\^/,$cSectsub);
+     &export_write_sectsub_index($sectsubname,$sth_idxrows);
+ }
+}
+
+
+sub export_write_sectsub_index
 {
-# Reads index files in , assigns a lifonum, them reads them in reverse order so that
-# the right duplicate gets deleted; then inserts into the database
-require('sections.pl');
-print "<b>Import indexes</b><br><br>\n";
-  $dbh = &db_connect() if(!$dbh);
-		
-#  $dbh->do("TRUNCATE TABLE indexes");
-		
-  my $sectionspath = "$controlpath/sections.html";
+ my($sectsubname,$sth_idxrows) = @_;
 
-  open(SECTIONS, "$sectionspath") or die("Can't open sections");
-  while(<SECTIONS>)
-  {
-    chomp;
-    my $line = $_;
-    next if($line =~ "#sectsubid^seq^");
-	my ($sectsubid,$seq,$sectsub,$fromsectsubid,$cIdxSectsubid,$cSubdir,$cPage,$cCategory,$cVisable,$cPreview,$sortorder,$cPg2order,$cTemplate,$cTitleTemplate,$cTitle,$cAllOr1,$cMobidesk,$cDocLink,$cHeader,$cFooter,$cFTPinfo,$cPg1Items,$cPg2Items,$cPg2Header,$cMore,$cSubtitle,$cSubtitletemplate,$cMenuTitle,$cKeywordsmatch)
-	      = split(/\^/,$line);
+ $expsectionfile = "$expsectionpath/$sectsubname.idx";
+
+ $lock_file = "$statuspath/$sectsubname.busy";
+ &waitIfBusy($lock_file, 'lock');
+
+ if($SVRinfo{'environment'} == 'development') {
+    open(OUTSUB, ">$expsectionfile") or print "sec428 H Mac - failed to open temp new section index file: $newsectionfile<br>\n";
+ }
+ else {
+	open(OUTSUB, ">>$expsectionfile");
+ }
+ $sth_idxrows->execute($sectsubname);
+ while (my @row = $sth_idxrows->fetchrow_array()) { # print data retrieved
+	 my ($docid,$sectsubid,$stratus) = @row;	
 	
-	$indexpath    = "$sectionpath/$sectsub.idx";
-	
-	if(-f $indexpath) {}
-	else {
-		next;  # next section if this one has no file
-	}
-#	print "indexpath $indexpath <br>\n";	
-	my $ctr = 0;
-	my %LIFOINDEX = ();
-	my %DOCIDHASH = ();	
-	
-    open(INDEX, "$indexpath") or die("Can't open index $sectsub");
-    while(<INDEX>)	{
-	    chomp;
-	    my $idx_line = $_;
-	    ($docid,$rest)=  split(/\^/,$idx_line,2);
-	    $ctr = $ctr + 1;
-	    my $lifonum = $ctr * 10;
-#		    print "$sectsub docid $docid ctr $ctr lifonum $lifonum<br>\n";
-	    $LIFOINDEX{$lifonum} = $idx_line;  #store in a hash by lifonum
-	}
-	close(INDEX);
-
-#  $ctr is now at its maximum
-print "$sectsub max ctr $ctr<br>\n";
-
-##   &indexes_import_flatfile_SAVE;
-
-    my $new_cnt = 0;
-    while($ctr > 0) {
-		my $lifonum = $ctr * 10;
-		my $docline = $LIFOINDEX{$lifonum};
-	#		print"$sectsub lifonum $lifonum docline $docline<br>\n" if($ctr < 10);
-		my ($docid,$stratus,$rest) = split(/\^/, $docline,3);
-		$stratus = 'M' if($stratus !~ /[A-Z]/);
-		$new_cnt = $new_cnt + 1;
-		my $newlifonum = $new_cnt * 10;
-		
-        my ($priority,$pubdate,$sysdate,$pubyear,$topic,$region,$headline) 
-          = &get_doc_data_for_DB($docid);
-         my $sortchar = "";
-		 $pubdate = $sysdate   if($sortorder =~ /[ADd]/);
-		 $pubdate = &conform_date($pubdate,'n',$sysdate);  # in sections.pl
-		 
-         unless ($sysdate eq '00000000' or !$sysdate) {
-	       $sortchar = $topic    if($sortorder =~ /T/);
-	       $sortchar = $headline if($sortorder =~ /H/);
-	       $sortchar = $region   if($sortorder =~ /R/);
-			
-     	   my $sth = $dbh->prepare( 'INSERT INTO indexes VALUES ( ?, ?, ?, ?, ?, ? ) ON DUPLICATE KEY UPDATE stratus = ?' );
- 	       $sth->execute($sectsubid, $docid, $stratus, $newlifonum, $pubdate, $sortchar, $stratus);
-         }								
-	     $ctr = $ctr - 1;
-    } #end 2nd pass - while
-  }  # end sections
-}
-
-sub import_exported_indexes
-{
-# Reads exported files in , then inserts into the database
-
-  print "<b>Import indexes</b><br><br>\n";
-  $dbh = &db_connect() if(!$dbh);
-		
-  $dbh->do("TRUNCATE TABLE indexes");
-  my $sth = $dbh->prepare( 'INSERT INTO indexes VALUES ( ?, ?, ?, ?, ?, ? ) ON DUPLICATE KEY UPDATE stratus = ?' );
-  require('sections.pl');
-  $getSSid_sth = &get_sectsubid ('prepare');
-
-  my $indexpath = "$autosubdir/sections/$sectsub.idx";
-  my $expindxpath = "$autosubdir/sectionsexp/$sectsub.idx";
-  my $oldindxpath = "$autosubdir/sectionsexp/$sectsub.old";
-
-  opendir(EXPFILES, "$expindxpath");
-  my (@indexfiles) = grep /^.+\.idx$/, readdir(EXPFILES);
-  closedir(EXPFILES);
-
-  foreach $idxfile (@indexfiles) {
-	  my($sectsub,$ext) = split(/\./,$idxfile);
-	
-      my $sectsubid = &get_sectsubid ($getSSid_sth,$sectsub);
-	
-      open(IDXFILE,"$indxfile") or die("Can't open index $sectsub");
-      while(<IDXFILE>)	{
-	     chomp;
-	     my $idx_line = $_;
-	     ($docid,$stratus,$lifonum)=  split(/\^/,$idx_line,2);
-
-         my ($priority,$pubdate,$sysdate,$pubyear,$topic,$region,$headline) 
-           = &get_doc_data_for_DB($docid);
-         my $sortchar = "";
-		 $pubdate = $sysdate   if($sortorder =~ /[ADd]/);
-		 $pubdate = &conform_date($pubdate,'n',$sysdate);  # in sections.pl
-		 
-         unless ($sysdate eq '00000000' or !$sysdate) {
-		     $sortchar = $topic    if($sortorder =~ /T/);
-		     $sortchar = $headline if($sortorder =~ /H/);
-		     $sortchar = $region   if($sortorder =~ /R/);
- 	         $sth->execute($sectsubid, $docid, $stratus, $newlifonum, $pubdate, $sortchar, $stratus);
-         }	# end unless							
-	  } #end while
-	  close(IDXFILE);
-    } #end foreach
-}
-
-sub restore_flatfile_indexes
-{
-  print "<b>Restore flatfile indexes - will first do &export_indexes to autosubmit/sectionsexp/sectsubid.idx</b><br><br>\n";
-
-  &export_indexes;
-
-  opendir(EXPFILES, "$expindxpath");
-  my (@indexfiles) = grep /^.+\.idx$/, readdir(EXPFILES);
-  closedir(EXPFILES);
-
-  foreach $idxfile (@indexfiles) {
-	  my($sectsub,$ext) = split(/\./,$idxfile);
-	  my $indexpath = "$autosubdir/sections/$sectsub.idx";
-	  my $expindexpath = "$autosubdir/sectionsexp/$sectsub.idx";
-	  my $indexoldpath = "$autosubdir/sectionsexp/$sectsub.old";
-	  unlink $oldindexpath if(-f $indexoldpath);
-	  sleep(3);
-	  system "cp $indexpath $indexoldpath" or die("Couldn't copy current idx to old - $sectsubid");
-	  sleep(3);
-	  unlink $indexpath  if(-f $indexpath);
-	  sleep(3);
-	  system "cp $expindexpath $indxpath" or die("Couldn't copy exp idx to new idx - $sectsubid");
-	  sleep(3);
-  }
-}
-
-sub export_indexes
-{
- ###  WE SHOULD CHANGE THIS TO EXPORT TO THE BACKUP AREA SINCE THE CURRENT SECTIONS IDX ARE WORKING.
-
-  $dbh = &db_connect() if(!$dbh);
-  my $sql =	"SELECT * from indexes WHERE sectsubid = ? ORDER BY $lifonum DESC";
-  print "Exporting indexes to autosubmit/sections/$sectsub.idx and saving old in sectionsexp/$sectsub.idx<br>\n";
-  print "sql = $sql<br>\n";
-
-  $sth_exportIDX = $dbh->prepare($sql);
-  if(!$sth_exportIDX) {
-	 print "Errror in indexes export at Prepare command, sec341 " . $sth_exportSS->errstr . "<br>\n";
-	 exit;	
-  }
-
-  my $sections = "$controlpath/sections.html";   # Use sections file as control
-
-  open(SECTIONS, "$sections") or die("Can't open sections");  # sections.html controls the sectsubs
-  while(<SECTIONS>) {
-	    chomp;
-	    $line = $_;
-	    next if($line =~ /#secsubid^seq^d/);  #skip 1st line
-		my ($sectsubid,$seq,$sectsub,$rest) = split(/\^/,$line,4);
-	
-		my $indexpath = "$autosubdir/sections/$sectsub.idx";
-		my $expindxpath = "$autosubdir/sectionsexp/$sectsub.idx";
-		my $oldindxpath = "$autosubdir/sectionsexp/$sectsub.old";
-		
-	    $sth_exportIDX->execute($sectsubid);
-		if ($sth_exportIDX->rows == 0) {
-		    print "Unexpected error in sectsubs export at rows command, sec139 " . $sth_exportSS->errstr . "<br>\n";
-		    exit();
-		}
-		
-		unlink $expindxpath if(-f $expindxpath);
-		open(EXPINDEX, ">>$expindexpath"); 
-	    while (my @row = $sth_exportIDX->fetchrow_array()) { # print data retrieved
-		     my ($sectsubid,$docid,$stratus,$lifonum,$pubdate,$skipimage,$regionid,$sortchar) = @row;
-	         my $line = "$sectsubid,$docid,$stratus,$lifonum,$pubdate,$skipimage,$regionid,$sortchar\n";	
-	         print EXPINDEX "$line";
-	         print "$line<br\n";
-	    }
-		close(EXPINDEX);
-		unlink $oldindexpath if(-f $indexoldpath);
-		system "cp $indexpath $indexoldpath";
-		unlink $indexpath  if(-f $indexpath);
-		system "cp $expindexpath $indxpath";	
-  }
-  $sth_exportIDX->finish() or die "DB indexes export failed finish";
-  close(SECTIONS);
-  print "<br><b>Export indexes completed</b><br>\n";
-}
-
-sub load_indexes {
-
-     my $sections = ("$autosubdir/$sections.html");
-	 my $stmt = <<LOADIDX;
-	     LOAD LOCAL DATA INFILE ? INTO TABLE indexes 
-		         FIELDS TERMINATED BY "^" 
-		         LINES TERMINATED BY "\r\n"
-LOADIDX
-	
-	 open(INFILE, "$sections");
-	 while(<INFILE>) {
-	    chomp;
-	    $line = $_;
-	    ($sectsub_pkid,$seq,$sectsub,$rest) = split(/\^/,$line,4);
-	    my @bind = ("$autosubdir/sections/$sectsub.imp");
-	    $sth2 = $dbh->prepare($stmt);
-	    $sth2->execute(@bind);
-	    $sth2->finish();
-	}
-}
-
-
-sub insert_indexes_old {
-	
-  $dbh = &db_connect() if(!$dbh);
-		
-  $dbh->do("TRUNCATE TABLE indexes");
-	
-  my $sth = $dbh->prepare_cache( 'INSERT INTO indexes VALUES ( ?, ?, ?, ?, ? )' );
-
-  my $sectionspath = "$controlpath/sections.html";
-  print "sectionspath $sectionspath <br>\n";
-  open(SECTIONS, "$sectionspath") or die("Can't open sections");
-  while(<SECTIONS>)
-  {
-	    chomp;
-	    $line = $_;
-	    next if($line =~ "#sectsubid^seq^");
-		my ($sectsubid,$seq,$sectsub,$rest) = split(/\^/,$line,4);
-
-		my $indexpath    = "$sectionpath/$sectsub.imp";
-		if(-f $indexpath) {}
-		else {
-			next;  # next section if this one has no file
-		}	
-	    open(INDEX, "$indexpath") or die("Can't open index $sectsub");
-	    while(<INDEX>)	{
-		    chomp;
-		    my $idx_line = $_;
-		    my ($sectsubid,$docid,$stratus,$lifonum,$skipimage) =  split(/\^/,$idx_line,3);
-			$sth->execute($sectsubid,$docid,$stratus,$lifonum,$skipimage);	
-
-		}
-	}	
-}
-
-sub indexes_import_flatfile_SAVE 
-{
-	$index_import_path = "$sectionpath/$sectsub.imp";
-    $new_cnt = 0;
-
-	open(INDEX_IMPORT, ">>$index_import_path") or die("Can't open index_import $sectsub");
-	while($ctr > 0) {
-#		print "ctr $ctr<br>\n";
-		$lifonum = $ctr * 10;
-		$docline = $LIFOINDEX{$lifonum};
-#		print"$sectsub lifonum $lifonum docline $docline<br>\n" if($ctr < 10);
-		($docid,$stratus,$rest) = split(/\^/, $docline,3);
-## later get rid of docidhash and new_cnt ---> will do count in export.		
-		$docidhash = $DOCIDHASH{$docid};  #keep this for $new_cnt
-        if($docidhash eq 'T') {   #skip duplicates
-#           print "$docid duplicate<br>\n";
-           }
-        else {  
-	        $DOCIDHASH{$docid} = "T";
-# OLD		    print INDEX_IMPORT "$sectsubid^$docid^$stratus^$lifonum^$skipimage\n";
-#		    print "$sectsubid^$docid^$stratus^$lifonum^$skipimage<br>\n" if($ctr < 10);
- 	        $sth->execute($sectsubid,$docid,$stratus,$lifonum,$sortfield,$skipimage);
-		    $new_cnt = $new_cnt + 1;
-	    }
-	    $ctr = $ctr - 1;	
-	} # end index
-	close(INDEX_IMPORT);
-
-	$countpath    = "$sectionpath/$sectsub.newcnt";
-	unlink $countpath if(-f  $countpath);
-	open(NEW_CNT, ">>$countpath");
-	print NEW_CNT "$new_cnt";
-	close(NEW_CNT);
+    $stratus = $default_docloc unless($stratus);
+     print OUTSUB "$docid^$stratus\n";
+ } 
+ $sth_idxrows->finish;
+ close(OUTSUB);
 }
 
 1;

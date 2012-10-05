@@ -27,8 +27,100 @@
 
 <b class="red">Eventually CSWP members will be able to change these</b><br>
 <h3>CSWP Quarterly Meeting Agenda and Notes</h3>
+<br><br>
+<h4>August 20, 2012, Stockton</h4>
+by Lee Miller
+<br><br>
+1. Recent CSWP activities:
+<br><br>
+a. LTEs...to SN&amp;R on global resource overshoot, myth of perpetual growth, and delusion of "smart growth"; to Sierra Magazine in appreciation of global pop article; to Sierra Club Bd of Directors to urge restoration of funding for GPEP.
+<br><br>
+b. New promos for CSWP; message pens, bumper stickers.
+<br><br>
+Milt and Evan showed samples of pens and bumper stickers. Pens are yellow and easy to ready.
+<br><br>
+c. Seasonal total of 11 regional Earth Day tabling events by CSWP...total of over 15,000 message viewings.
+<br><br>
+d. International Population Day, July 11...tabling at CA State Capitol... 2000-3000 message viewings.
+<br><br>
+e. CSWP endorsement of the film Mother..."Caring for 7 Billion", sent to producer Tiroir A films.
+<br><br>
+f. Copy of Mother sent to CNRCC; copy sent to Sierra College environmental program, Mother shown in Redding by Virginia Phelps. Booked for September 2 event.
+<br><br>
+g. Six new activist contacts made. How to add them to CSWP?
+<br><br>
+Evan to invite them to participate in tabling efforts. Other SC Chapters becoming more active on population issues and forming population committees.
+<br><br>
+h. Recent tabling - Whole Earth Festival, UC Davis.
+<br><br>
+Walk on the Wild Side, Stone Lakes NWR
+<br><br>
+PARC Confluence Festival, Auburn
+<br><br>
+Redding.
+<br><br>
+We need to file forms of our activities with Kimberly Lovell.
+<br><br>
+i. Karen’s Interview with Huffington Post.
+<br><br>
+Karen did a great job considering the short notice, the time difference and poor communications. The moderator was also not on top of the issue.
+<br><br>
+j. CSWP LIstServe Status.
+<br><br>
+Karen reported that this will soon be up and working.
+<br><br>
+k. Population Media Center Video Contest.
+<br><br>
+Karen and Lee voted their 100 points for The Elevator which apparently came in 5th place in the contest.
+<br><br>
+l. June GPEP Training. Karen and Virginia attended.
+<br><br>
+“Mother…Caring for 7 Billion” was shown and Kimberly L. got to see it for the first time.
+<br><br>
+2. Upcoming CSWP activities:
+<br><br>
+a. Future Showings of “Mother........Caring for 7 Billion”.
+<br><br>
+Elaine has talked to Nancy Jean Smith about doing a showing for one of her education classes at Stanislaus State in Stockton.
+<br><br>
+b. Lobby Day - Is Anyone Participating?
+<br><br>
+c. CNRCC/SC California Meeting in SLO, Nov. 10-11. Chuck will represent the Mother Lode Chapter.
+<br><br>
+d. CSWP Attendance at Bay Area Chapter’s Stroll on Sept. 9.
+<br><br>
+Lee and Milt plan to join Evan and others to observe and help with their booth using their materials.
+<br><br>
+3. Other Issues:
+<br><br>
+a. Recent GPEP Budget Increase.
+<br><br>
+Kimberly announced recently a $200,000 grant to support their program.
+<br><br>
+b. Teen Turning Green/Project Green Challenge.
+<br><br>
+This was founded in 2005 and has wide participation. Milt suggests that Kimberly could be on their team of experts.
+<br><br>
+c. Spanish Brochure Reimbursement/Distribution.
+<br><br>
+Elaine donated the first set of 100 brochures printed.
+<br><br>
+d. CNRCC Population ListServe Discussions.
+<br><br>
+Karen reported that the ListServer for our committee would be available soon. Instructions for use would be e-mailed to all.
+<br><br>
+e. Evan will continue run a message “Overpopulation is sexually transmitted” in the UC Davis paper ‘The California Aggie’ with everyone’s approval. Evan has been donating to pay for the ad.
+<br><br>
+f. Lee read some of the summary statements of a Negative Population Forum paper by Al Bartlett on Sustainability.
+<br><br>
+The statements advocate basically what we are doing. Getting environmental organizations to recognize that overpopulation and consumption are the root cause of our environmental crises and doing outreach to politicians and the public to create awareness of the non-sustainability of our current path.
+<br><br>
+g. Next meeting of the CSWP will be Tuesday, Nov 13th in Sacramento at 9:30 AM at Sierra Club.
+<br><br><br>
 
-May 10, 2012, Sierra Club Headquarters Sacramento<br><br>
+
+
+<h4>May 10, 2012, Sierra Club Headquarters Sacramento</h4>
 by Lee Miller
 <br><br>
 *Indicates action item for attendees<br><br>

@@ -258,13 +258,14 @@ sub process_popnews_list
 {
  $totalItems = 1;
  $ckItemnbr = 1;
+
  open(INFILE, "$doclistname");
  while(<INFILE>) {
 	   chomp;
 	   $line = $_;
 	   ($docid,$docloc) = split(/\^/,$line,3);
 		&get_doc_data($docid,'N');
-	    &do_one_doc if($docid ne $prev_docid and $ckItemcnt > $start_count);  ## skip dups
+	    &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count);  ## skip dups
 	    $prev_docid = $docid;
 	    $ckItemnbr  = $ckItemnbr + 1;
 	    $ckItemcnt  = &padCount6($ckItemnbr);
@@ -287,9 +288,9 @@ sub process_1only_list
 
  print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
- local($ckItemnbr) = 1;
- local($ckItemcnt) = &padCount6($ckItemnbr);
- local($all_d) = 'N';
+ my $ckItemnbr = 1;
+ my $ckItemcnt = &padCount6($ckItemnbr);
+ my $all_d = 'N';
 
  @sorted = sort(@unsorted);
 
@@ -319,7 +320,7 @@ sub process_1only_list
 ##    print "<!-- art877 pre do_one ..docid $docid ..ckItemcnt $ckItemcnt ..-->\n";
     if($ckItemnbr == 1) {
         if($docloc =~ /d/) {
-          &do_one_doc;   ## Display the first item -- sub found in docitem.pl
+          &do_one_doc($index_insert_sth);   ## Display the first item -- sub found in docitem.pl
           $docloc = 'n';  ## change from do display to don't display
         }
         else { ## if first one is not a 'd', then set all to 'd'
@@ -328,7 +329,7 @@ sub process_1only_list
     }
     $docloc = 'd' if($all_d eq 'Y');
 
-    print(OUTSUB "$docid^$docloc\n");
+    print OUTSUB "$docid^$docloc\n";
 
 	  if($docid ne $prev_docid ) {
 	       $ckItemnbr = $ckItemnbr+1;
@@ -405,6 +406,7 @@ sub sort_and_out
 ## sort the data we pushed to the array
 $ss_ctr = $ss_ctr + 1;
 print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
+
 ### $stop_count = $cMaxItems if($cMaxItems =~ /[0-9]/);
  $ckItemnbr = 1;
  $ckItemcnt = &padCount6($ckItemnbr);
@@ -416,7 +418,7 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 ##
 ##         is in docitem.pl
     my $save_docid = $docid;
-    &do_one_doc if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
+    &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
     $docid = $save_docid;
      if($skip_item !~ /Y/ or $select_item eq 'Y') {
 	    if($docid ne $prev_docid ) {

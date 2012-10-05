@@ -41,7 +41,7 @@ sub verify_new_acct
         exit;
    }
     
-   local($userdata,$access) = &read_contributors(N,N,_,$nEmail,$nUserid,_);
+   my($userdata,$access) = &read_contributors(N,N,_,$nEmail,$nUserid,_);
    
    if($nEmail and $userdata eq 'SAMEEMAIL') {
         print "$begin_html You have already applied for an account under this ";
@@ -419,7 +419,7 @@ sub email_verify
  $email_msg = "$email_msg :END\n\n";
  $email_msg = "$email_msg $email_std_end ";
   
- &do_email;
+ &do_email($email_msg);    # in send_email.pl
 }
 
 sub email_applicant_accept
@@ -450,9 +450,9 @@ sub email_applicant_accept
  $email_msg = "$email_msg WOA!! - World Population Awareness\n";
  $email_msg = "$email_msg World Overpopulation Awareness\n";
  $email_msg = "$email_msg www.population-awareness.net\n";
- $email_msg =  "$email_msg www.overpopulation.org\n";
+ $email_msg = "$email_msg www.overpopulation.org\n";
   
- &do_email;
+ &do_email($email_msg);    # in send_email.pl
 }
 	
 

@@ -314,14 +314,18 @@ Karen Gaia Pitts</font>
 		
 <br><br>
 <h3>Current Newsletter</h3>
-<a target="_blank" href="http://motherlode.sierraclub.org/maidu/newsletters/SC newsletter Summer 2012.pdf"><h5>Summer 2012</h5></a>
-<li>Hikes and more hikes</li>
+
+<a target="_blank" href="http://motherlode.sierraclub.org/maidu/newsletters/SCnewsletterFall2012.pdf"><h5>Fall 2012</h5></a>
+<li>Election Announcement</li>
+<li>Calendar Sales</li>
+<li>Message from the Chair - limits to growth</li>
+<li>Annual outings review</li>
+<li>Hetch Hetchy</li>
+<li>Climate change education program</li>
 
 <br>
-<h6>October 29, Saturday</h6>
-<h5>Day Hike (3B) Grouse Lake Trail (Maidu Group)</h5>
-On this hike in the Blue Lakes, we'll explore the high country south and east of Carson Pass.  We'll climb to the lake on a good trail of moderate difficulty with fine views along the way.  Rain cancels.  Meet at 8:00 A. M.  at McDonald's in Placerville (off Highway 50).  Leader:  Jay Winkler 530-676-1862 or jmwink36@comcast.net
-
+<?php $maintop = file_get_contents("$cgipath/article.pl?display_subsection%%fly%Maidu_MainTop%%A3491%%%%%%Maidu"); 
+ echo $maintop; ?>
 <br><br>
 <img style="float:left; padding-left:-6px; padding-right:10px;" src="bag-it.png" title="Bag It, the movie, ad" width="300">
 <h3>"Bag It"</h3>
@@ -580,17 +584,19 @@ El Dorado County Public Library, Fair Lane, Placerville
 Meeting room at El Dorado County Fairgrounds Board Room
 -->
 
-<h3>Membership Meetings 2012:</h3>
+<h3>General Meetings</h3>
 
-<h5>October 11</h5>
-The Elections
-
+<?php $rightmeetings = file_get_contents("$cgipath/article.pl?display_subsection%%fly%Maidu_RightMeetings%%A3491%%%%%%Maidu"); 
+ echo $rightmeetings; ?>
 
 <h3>Executive/<br>
-Conservation Meetings 2012:</h3>
+Conservation Meetings</h3>
 
-<h5>September 10, 6:30 p.m.</h5>
-Call John Le Pouvoir at 530-644-7295 for location
+<?php $rightexcommeetings = file_get_contents("$cgipath/article.pl?display_subsection%%fly%Maidu_RightExComMtgs%%A3491%%%%%%Maidu"); 
+ echo $rightexcommeetings; ?>
+
+<!-- <h5>September 10, 6:30 p.m.</h5>
+Call John Le Pouvoir at 530-644-7295 for location -->
 
 <br>
 <h3><a target="_blank" target="_blank" href="http://motherlode.sierraclub.org/maidu/excomm_minutes.html">Ex-Comm Minutes</a></h3>
@@ -612,6 +618,14 @@ Call John Le Pouvoir at 530-644-7295 for location
 
 - - - - - -->
 <h3>Maidu Messages Newsletters:</h3>
+
+<a target="_blank" href="http://motherlode.sierraclub.org/maidu/newsletters/SCnewsletterFall2012.pdf"><h5>Fall 2012</h5></a>
+<li>Election Announcement</li>
+<li>Calendar Sales</li>
+<li>Message from the Chair - limits to growth</li>
+<li>Annual outings review</li>
+<li>Hetch Hetchy</li>
+<li>Climate change education program</li>
 
 <a target="_blank" target="_blank" href="http://motherlode.sierraclub.org/maidu/newsletters/SC newsletter Summer 2012.pdf"><h5>Summer 2012</h5></a>
 <li>Hikes and more hikes</li>

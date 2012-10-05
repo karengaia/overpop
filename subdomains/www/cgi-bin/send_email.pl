@@ -40,6 +40,10 @@ sub do_popnews_wkly_email
 
 sub do_email
 {
+ my $email_msg = $_[0];
+
+ &errLogit("log email in case it doesn't send","send_email.pl","do_email","","","",$recipient,""); #in common.pl
+
  if(-f "debugit.yes") {
    print "$email_msg\n";
  }

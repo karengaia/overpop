@@ -42,6 +42,7 @@ subdomains/www/autosubmit/sections/*.cnt
 subdomains/www/autosubmit/sections/*.cnt.cnt
 subdomains/www/autosubmit/sepmail/*
 subdomains/www/autosubmit/templates/*.mid
+subdomains/www/autosubmit/templatesMid/*.mid
 subdomains/www/autosubmit/volunteerEmail.txt
 subdomains/www/cgi-bin/_save/*
 subdomains/www/cgi-bin/_git_hold*

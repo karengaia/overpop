@@ -48,7 +48,7 @@
 #     then to the NewsDigest_NewsItem list (which is published as the front page of WOA)
 #*******************************************************************************
 
-sub separate_email_files {
+sub separate_email_files {   
   $line_cnt = 0;      # Only for debugging
   $email_cnt = 0;     # Only for debugging
   $dupck_stack = "";
@@ -235,7 +235,7 @@ sub get_header_info {
 	}
 }
 
-sub separate_email {
+sub separate_email {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
  my($ep_type,$hand,$pdfline,$ss,$full) = @_;
  $sectsubs = $ss;
  $handle = $hand;
@@ -564,8 +564,8 @@ sub write_email
 {
  if($gEPtype eq 'P') {
 	    $save_sectsubs = $sectsubs;
-	    $msgbody = &parse_popnews($pdfline,$msgbody);  #in smartdata.pl
-	    $sectsubs = $save_sectsubs;
+	    $msgbody = &parse_popnews($pdfline,$msgbody,$sectsubs);  #in smartdata.pl
+	
 	    $addsectsubs = $sectsubs;
         &main_storeform;   #in docitem.pl
 	    return();
@@ -583,7 +583,7 @@ sub write_email
 #		  print "em471 $ehandle **** PREPARE WRITE_EMAIL skip_item $skip_item msg $msgbody<br>\n" if($ehandle =~ /push/);
 	     $emailfile = "$mailpath/$op_filename-$separator_cnt.itm";
 	
-	     $msgbody = &parse_popnews($pdfline,$msgbody);  # in smartdata.pl this is where we switch to $emessage
+	     $msgbody = &parse_popnews($pdfline,$msgbody,$sectsubs);  # in smartdata.pl this is where we switch to $emessage
 
 	   if($skip_item =~ /Y/) { 
 #	      unlink "$inboxfilepath"; 

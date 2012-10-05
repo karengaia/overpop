@@ -1,6 +1,6 @@
 #!/usr/bin/perl --
 
-# January 2012
+# September 14 2012
 #      docitem.pl
 
 # docitem.pl processes doc info including parsing popnews email and converted items
@@ -10,29 +10,8 @@
 ## doc sectsubs:  dSectid-dSubid`ddocloc^dNeardocid^dTemplate^
 ##                dSrcstyle^dHeadstyle^dBodystyle^dCmntstyle^dFullstyle
 
+## 2012 Sep 14 - work on docitems to DB
 ## 2012 Jan 23 - Broke off smartdata.pl - for parsing data
-## 2010 Sep11 - Added dBoxStyle to CRUD functions in various places.
-## 2010 Aug24 - restored skip of listing of deleted items; added check for printdeleted.off
-## 2010 Aug11 - removed NA from sectsubs on the write of docitem; added also to sub get_doc_data
-## 2010 Jul30 - fixed removal of NA from sectsubs (was NR)
-## 2010 May 7 - Set permissions to 777 for open with write on Mac Server (Karens Mac)
-## 2010 Apr12 - addsectsubs & updsectsubs - remove NR; - the deselect option on dropdowns and radio button;
-##               fixed region in   sub - checked for alphanumeric first ????
-## 2008 Dec28 - added $fix to form and $fixfullbody - forces &apple_convert.
-## 2008 Dec27 - moved $fullbody and $body apple converts to &apple_convert and moved &apple_convert from common to here
-## 2008 May26 - eliminated angle brackets from link; changed * to = in Grist links
-##            - called common::choppedline_convert: change back to normal: lines that are broken to make short lines (usually 72) for email
-              
-## 2006 Aug23 - fixed dups in jhuccp articles
-## 2006 Aug20 - reversed fix where single line feeds were previously dissolved because source not found
-
-## 2006 Jul21 - fixed grist to pick up the 1st (and 2nd link), not the last
-## 2006 Jul15 - eliminated title, date, source from push $fullbody; left parens ) in $source
-## 2006 Jan06 - added docaction logic to parse popnews_email
-##              added more std variables to make email processing go faster. Like DOCACTION, DOCID
-
-## 2005 Sep10 - restored missing code to parse_popnews_email subroutine where $msgbody = "$msgbody$msgline\n";
-##              and to $fullbody = $msgbody; in subroutine &refine_fullbody
 
 sub init_docitem_variables
 {
@@ -41,6 +20,12 @@ sub init_docitem_variables
    &clear_doc_variables;
    &clear_helper_variables;
    &clear_msgline_variables;
+
+   $doc_update_sql = "UPDATE docitem SET deleted=?,outdated=?,nextdocid=?,priority=?,headline=?,regionhead=?,skipheadline=?,
+	subheadline=?,special=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woapubdatetm=?,
+	expdate=?,reappeardate=?,region=?,regionfks=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,
+	body=?,fullbody=?,freeview=?,points=?,comment=7,bodyprenote=?,bodypostnote=?,note=?,miscinfo=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
+	imagedescr=?,recsize=?,worth=?,sumAcctnum=?,suggestAcctnum=?,summarizerfk=?,suggesterfk=?,changebyfk=?,updated_on=CURDATE() WHERE docid = ?"
 }
 
 sub display_one
@@ -57,7 +42,8 @@ sub display_one
    $expdate = "$expyear-$expmonth-$expday";
  }
  elsif($docid =~ /[0-9]/) {
-   &get_doc_data($docid,$print_it);
+	 ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 = &get_doc_data($docid,$print_it);
 
    if($sectsubs =~ /$suggestedSS|$emailedSS/ and $access !~ /[ABCD]/
       and $cmd eq "processlogin") {
@@ -78,7 +64,8 @@ sub do_one_doc
       return;
   }	    	                                
 
-  &get_doc_data($docid,'N');
+  ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 = &get_doc_data($docid,'N');
 
   $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
   $expired = "$expired;$docid"
@@ -108,14 +95,11 @@ sub do_one_doc
  ##    &refine_source;
 
  ##   &fix_fullbody;       
-    &write_doc_item($docid);
+    &write_doc_item($docid,$idx_insert_sth);
   }
 #  &clear_doc_variables;
 }
 
-
- 
-##0042
 
 sub do_we_select_item
 {
@@ -149,7 +133,6 @@ sub storeform
  &get_contributor_form_values if($ipform !~ /chaseLink/);
  &get_doc_form_values;
  &update_control_files;  # if add or update needed
-# &add_new_source;  #in sources.pl
  &main_storeform;
 }
 
@@ -163,20 +146,18 @@ sub main_storeform {
  &do_sectsubs;     # in sectsubs.pl
 
 # &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
- &write_doc_item($docid);
+ &write_doc_item($docid,$idx_insert_sth);
 
  &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
- my @save_sort = ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
+ my @save_sort = ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic);
 
  &ck_popnews_weekly 
     if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl
 
- my ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic) = @save_sort;
+ ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic) = @save_sort;
 
-# print "doc174 hook sectsubs $sectsubs ..pubdate $pubdate ..sysdate $sysdate ..headline $headline region $region ..topic $topic<br>\n" if($g_debug_prt > 0);
-
- &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files in index.pl
+ &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs); ## add to index files in index.pl
 
  $sections="";
  $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
@@ -265,7 +246,8 @@ sub do_updt_selected
 
   $temp = $FORM{"sectsubs$pgitemcnt"};
 
-  &get_doc_data($docid,'N');  #in docitem.pl
+ ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 = &get_doc_data($docid,'N');  #in docitem.pl
 
   $doc_fullbody = $fullbody if($ipform =~ /chaseLink/);
 ##                   new priority overrides prior priority
@@ -279,15 +261,10 @@ sub do_updt_selected
 
  print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$headline </font><font size=1>ord-$sortorder $sectsubs</font><br>\n";
 
-  &write_doc_item($docid);
+  &write_doc_item($docid,$idx_insert_sth);
  
-#  if($priority =~ /D/ and $sectsubs =~ /Suggested_suggestedItem/ {
-#	 &delete_from_index($rSectsubid,$docid);
-#	 &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
-#  }
-#  else {
-     &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
-#  }
+  &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
+
   &add_new_source if($addsource =~ /Y/);
   &add_new_region if($addregion =~ /Y/);
 
@@ -311,35 +288,38 @@ sub do_updt_selected
   undef $FORM{"addregion$pgitemcnt"};
   undef $temp;
 
-undef  $FORM{'docid'};
-undef  $FORM{'deleted'};   ## New variables
-undef  $FORM{'outdated'};
-undef  $FORM{'nextdocid'};
+	undef  $FORM{'docid'};
+	undef  $FORM{'deleted'};   ## New variables
+	undef  $FORM{'outdated'};
+	undef  $FORM{'nextdocid'};
 
-undef  $FORM{'skippubdate'};
-undef  $FORM{'woadatetime'};
-undef  $FORM{'reappeardate'};
+	undef  $FORM{'skippubdate'};
+	undef  $FORM{'woapubdatetm'};
+	undef  $FORM{'reappeardate'};
 
-undef  $FORM{'sourcefk'};
-undef  $FORM{'skipsource'};
-undef  $FORM{'author'};
-undef  $FORM{'skipauthor'};
+	undef  $FORM{'sourcefk'};
+	undef  $FORM{'skipsource'};
+	undef  $FORM{'author'};
+	undef  $FORM{'skipauthor'};
 
-undef  $FORM{'dtemplate'};
+	undef  $FORM{'dtemplate'};
 
-undef  $FORM{'skiplink'};
+	undef  $FORM{'skiplink'};
 
-undef  $FORM{'skipheadline'};
-undef  $FORM{'subheadline'};
+	undef  $FORM{'skipheadline'};
+	undef  $FORM{'subheadline'};
 
-undef  $FORM{'regionfk'};
-undef  $FORM{'skipregion'};
-
-undef  $FORM{'imagealt'};
-undef  $FORM{'skipregion'};
-undef  $FORM{'summarizerfk'};
-undef  $FORM{'suggesterfk'};
-undef  $FORM{'changebyfk'};
+	undef  $FORM{'regionfks'};
+	undef  $FORM{'skipregion'};
+	undef  $FORM{'imagloc'};
+	undef  $FORM{'imagefile'};
+	undef  $FORM{'imagedescr'};
+	undef  $FORM{'recsize'};
+	undef  $FORM{'worth'};
+	undef  $FORM{'skipregion'};
+	undef  $FORM{'summarizerfk'};
+	undef  $FORM{'suggesterfk'};
+	undef  $FORM{'changebyfk'};
 undef  $FORM{'updated_on'};   ## End NEW VARIABLES
 
   &clear_doc_variables;
@@ -374,8 +354,11 @@ sub log_volunteer
 
 sub process_popnews_email       # from article.pl when item selected from Suggested_emailedItem list
 {
- my $maildocid = $_[0];
- &get_doc_data($maildocid,'N');
+	
+ ($maildocid,$idx_insert_sth) = @_;
+	
+ ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 = &get_doc_data($maildocid,'N');
 
  $docid = &get_docCount;        # replace emailed docid with new docid from the system
 
@@ -383,7 +366,7 @@ sub process_popnews_email       # from article.pl when item selected from Sugges
  $sectsubs = $suggestedSS;
  $delsubs = $emailedSS;
 
- &write_doc_item($docid);
+ &write_doc_item($docid,$idx_insert_sth);
 
 # $cSectsubid = $rSectsubid = $addsectsubs = "$suggestedSS";
 # $delsectsubs    = "";
@@ -391,7 +374,7 @@ sub process_popnews_email       # from article.pl when item selected from Sugges
 #  &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 #  &write_index_straight($suggestedSS,$docid);  # in sections.pl
 # &index_suggested($docid);  # add to suggested index - in sections.pl
- &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic); # in sections.pl
+ &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic); # in sections.pl
 }
 
 
@@ -399,14 +382,16 @@ sub do_expired
 {
 ## if($expired =~ /[A-Za-z0-9]/) {
 if($expired =~ /goofy/) {
+	  $idx_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
       @expired = split(/;/,$expired);
       foreach $docid (@expired) {
-     	   &get_doc_data($docid,N);  ## in docitem.pl
+	   ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+		 = &get_doc_data($docid,N);  ## in docitem.pl
    	   $delsectsubs = $sectsubs;
    	   $addsectsubs = $expiredSS;
    	   $sectsubs    = $expiredSS;
-   	   &write_doc_item($docid);  ## in docitem.pl
-   	   &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$sysdate,$headline,$region,$topic);
+   	   &write_doc_item($docid,$idx_insert_sth);  ## in docitem.pl
+   	   &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic);
      }
  }
 }
@@ -559,125 +544,130 @@ sub titlize_headline
 
 sub fill_email_variables
 {
-    $sumAcctnum     = $EITEM{sumAcctnum}     if($EITEM{sumAcctnum}) ;
-    $suggestAcctnum = $EITEM{suggestAcctnum} if($EITEM{suggestAcctnum});
-    $priority       = $EITEM{priority}       if($EITEM{priority});
-    $pubdate        = $EITEM{pubdate}        if(!$pubdate and $EITEM{pubdate});
-    $expdate        = $EITEM{expdate}        if($EITEM{expdate});
-    $expired        = $EITEM{expired}        if($EITEM{expired});
-    $srcdate        = $EITEM{srcdate}        if($EITEM{srcdate});
-    $source         = $EITEM{source}         if(!$source and $EITEM{source});
+    $sumAcctnum     = $EITEM{'sumAcctnum'}     if($EITEM{'sumAcctnum'}) ;
+    $suggestAcctnum = $EITEM{'suggestAcctnum'} if($EITEM{'suggestAcctnum'});
+    $priority       = $EITEM{'priority'}       if($EITEM{'priority'});
+    $pubdate        = $EITEM{'pubdate'}        if(!$pubdate and $EITEM{'pubdate'});
+    $woapubdatetm   = $EITEM{'woapubdatetm'}   if(!$woapubdatetm and $EITEM{'woapubdatetm'});
+    $expdate        = $EITEM{'expdate'}        if($EITEM{'expdate'});
+    $outdated        = $EITEM{'outdated'}      if($EITEM{'outdated'});
+    $srcdate        = $EITEM{'srcdate'}        if($EITEM{'srcdate'});
+    $source         = $EITEM{'source'}         if(!$source and $EITEM{'source'});
     $source         = "" if($source eq "(select one)");
-    $straightHTML   = $EITEM{straightHTML};
-    $dTemplate      = $EITEM{dTemplate}      if($EITEM{dTemplate});
+    $straightHTML   = $EITEM{'straightHTML'};
+    $dTemplate      = $EITEM{'dTemplate'}      if($EITEM{'dTemplate'});
     $dTemplate      = 'straight' if($straightHTML eq 'Y');
  ## we already checked for link because it was easier that way
-    $link           = $EITEM{link}           if(!$link and $EITEM{link});
-    $selflink       = $EITEM{"selflink"};
-    $headline       = $EITEM{headline}       if(!$headline and $EITEM{headline});
-    $topic          = $EITEM{topic}          if($EITEM{topic});
-    $region         = $EITEM{region}         if(!$region and $EITEM{region});
-    $regionhead     = $EITEM{regionhead};
-    $body           = $EITEM{body}           if(!$body and $EITEM{body});
-    $points         = $EITEM{points}         if(!$points and $EITEM{points});
-    $comment        = $EITEM{comment}        if(!$comment and $EITEM{comment});
-    $fullbody       = $EITEM{fullbody}       if($EITEM{fullbody});
-    $miscinfo       = $EITEM{miscinfo}       if($EITEM{miscinfo});
-    $freeview       = $EITEM{freeview};
-    $note           = $EITEM{note}           if(!$note and $EITEM{note});
-    $keywords       = $EITEM{keywords}       if($EITEM{keywords});
-    $sectsubs       = $EITEM{sectsubs}       if(!$sectsubs and $EITEM{sectsubs});
-    $unique         = $EITEM{unique}         if($EITEM{unique});
-    $skiphandle     = $EITEM{skiphandle};
-    $imagefile      = $EITEM{imagefile}      if(!$imagefile and $EITEM{imagefile});
-    $imageloc       = $EITEM{imageloc}       if(!$imageloc and $EITEM{imageloc});
-	$imagealt       = $EITEM{imagealt}       if(!$imagealt and $EITEM{imagealt});
+    $link           = $EITEM{'link'}           if(!$link and $EITEM{'link'});
+    $selflink       = $EITEM{'"selflink"'};
+    $headline       = $EITEM{'headline'}       if(!$headline and $EITEM{'headline'});
+    $topic          = $EITEM{'topic'}          if($EITEM{'topic'});
+    $region         = $EITEM{'region'}         if(!$region and $EITEM{'region'});
+	$regionfks       = $EITEM{'regionfks'}       if(!$regionfks and $EITEM{'regionfks'});
+	$regionhead     = $EITEM{'regionhead'};
+    $body           = $EITEM{'body'}           if(!$body and $EITEM{'body'});
+    $points         = $EITEM{'points'}         if(!$points and $EITEM{'points'});
+    $comment        = $EITEM{'comment'}        if(!$comment and $EITEM{'comment'});
+    $bodyprenote    = $EITEM{'bodyprenote'}    if($EITEM{'bodyprenote'});
+    $bodypostnote   = $EITEM{'bodypostnote'}   if($EITEM{'bodypostnote'});
+    $fullbody       = $EITEM{'fullbody'}       if($EITEM{'fullbody'});
+    $fullbody       = $EITEM{'fullbody'}       if($EITEM{'fullbody'});
+    $miscinfo       = $EITEM{'miscinfo'}       if($EITEM{'miscinfo'});
+    $freeview       = $EITEM{'freeview'};
+    $note           = $EITEM{'note'}           if(!$note and $EITEM{'note'});
+    $keywords       = $EITEM{'keywords'}       if($EITEM{'keywords'});
+    $sectsubs       = $EITEM{'sectsubs'}       if(!$sectsubs and $EITEM{'sectsubs'});
+    $special         = $EITEM{'special'}         if($EITEM{'special'});
+    $skiphandle     = $EITEM{'skiphandle'};
+    $imagefile      = $EITEM{'imagefile'}      if(!$imagefile and $EITEM{'imagefile'});
+    $imageloc       = $EITEM{'imageloc'}       if(!$imageloc and $EITEM{'imageloc'});
+	$imagedesc       = $EITEM{'imagedesc'}       if(!$imagealt and $EITEM{'imagedesc'});
 	
-	$deleted        = $EITEM{deleted};    ## Start new variables section
-	$outdated       = $EITEM{outdated}; 
-	$nextdocid      = $EITEM{nextdocid};
+	$deleted        = $EITEM{'deleted'};    ## Start new variables section
+	$outdated       = $EITEM{'outdated'}; 
+	$nextdocid      = $EITEM{'nextdocid'};
 
-	$skippubdate  = $EITEM{skippubdate};
-	$woadatetime  = $EITEM{woadatetime};
-	$reappeardate = $EITEM{reappeardate};
+	$skippubdate  = $EITEM{'skippubdate'};
+	$woapubdatetm  = $EITEM{'woapubdatetm'};
+	$reappeardate = $EITEM{'reappeardate'};
 
-	$sourcefk     = $EITEM{sourcefk};
-	$skipsource   = $EITEM{skipsource};
-	$author       = $EITEM{author}           if(!$author and $EITEM{author});
-	$skipauthor   = $EITEM{skipauthor};
-	$skiplink     = $EITEM{skiplink};
-	$skipheadline = $EITEM{skipheadline};
-	$subheadline  = $EITEM{subheadline}      if(!$subheadline and $EITEM{subheadline});
-
-	$regionfk     = $EITEM{regionfk};
-	$skipregion   = $EITEM{skipregion};
-	$summarizerfk = $EITEM{summarizerfk};
-	$suggesterfk  = $EITEM{suggesterfk};
-	$changebyfk   = $EITEM{changebyfk};
-	$updated_on   = $EITEM{updated_on};  ###       End of new variables
+	$sourcefk     = $EITEM{'sourcefk'};
+	$skipsource   = $EITEM{'skipsource'};
+	$author       = $EITEM{'author'}           if(!$author and $EITEM{'author'});
+	$skipauthor   = $EITEM{'skipauthor'};
+	$skiplink     = $EITEM{'skiplink'};
+	$skipheadline = $EITEM{'skipheadline'};
+	$subheadline  = $EITEM{'subheadline'}      if(!$subheadline and $EITEM{'subheadline'});
+    $recsize      = $EITEM{'recsize'}          if(!$recsize and $EITEM{'recsize'});
+    $worth        = $EITEM{'worth'}            if(!$worth and $EITEM{'worth'});
+	$skipregion   = $EITEM{'skipregion'};
+	$summarizerfk = $EITEM{'summarizerfk'};
+	$suggesterfk  = $EITEM{'suggesterfk'};
+	$changebyfk   = $EITEM{'changebyfk'};
+	$updated_on   = $EITEM{'updated_on'};  ###       End of new variables
 }
 
 sub clear_email_variables
 {
- undef $EITEM{sumAcctnum};
- undef $EITEM{suggestAcctnum};
- undef $EITEM{priority}; 
- undef $EITEM{pubdate};
- undef $EITEM{expdate};
- undef $EITEM{srcdate}; 
- undef $EITEM{source};
- undef $EITEM{straightHTML};
- undef $EITEM{dTemplate};
- undef $EITEM{dBoxStyle};
- undef $EITEM{link};
- undef $EITEM{titlize};
- undef $EITEM{selflink};
- undef $EITEM{headline};
- undef $EITEM{region};
- undef $EITEM{regionhead};
- undef $EITEM{topic};
- undef $EITEM{body};;
- undef $EITEM{comment};
- undef $EITEM{fullbody};
- undef $EITEM{freeview};
- undef $EITEM{note};
- undef $EITEM{miscinfo};
- undef $EITEM{keywords};
- undef $EITEM{sectsubs};
- undef $EITEM{unique};
- undef $EITEM{skiphandle};
- undef $EITEM{imagefile};
- undef $EITEM{imageloc};
+ undef $EITEM{'sumAcctnum'};
+ undef $EITEM{'suggestAcctnum'};
+ undef $EITEM{'priority'}; 
+ undef $EITEM{'pubdate'};
+ undef $EITEM{'expdate'};
+ undef $EITEM{'srcdate'}; 
+ undef $EITEM{'source'};
+ undef $EITEM{'straightHTML'};
+ undef $EITEM{'dTemplate'};
+ undef $EITEM{'dBoxStyle'};
+ undef $EITEM{'link'};
+ undef $EITEM{'titlize'};
+ undef $EITEM{'selflink'};
+ undef $EITEM{'headline'};
+ undef $EITEM{'region'};
+ undef $EITEM{'regionhead'};
+ undef $EITEM{'topic'};
+ undef $EITEM{'body'};;
+ undef $EITEM{'comment'};
+ undef $EITEM{'bodyprenote'};
+ undef $EITEM{'bodypostnote'};
+ undef $EITEM{'fullbody'};
+ undef $EITEM{'freeview'};
+ undef $EITEM{'note'};
+ undef $EITEM{'miscinfo'};
+ undef $EITEM{'keywords'};
+ undef $EITEM{'special'};
+ undef $EITEM{'skiphandle'};
+ undef $EITEM{'imagefile'};
+ undef $EITEM{'imageloc'};
+ undef $EITEM{'imagedesc'};
 
-undef  $EITEM{deleted};   ## New variables
-undef  $EITEM{outdated};
-undef  $EITEM{nextdocid};
+undef  $EITEM{'deleted'};   ## New variables
+undef  $EITEM{'outdated'};
+undef  $EITEM{'nextdocid'};
 
-undef  $EITEM{skippubdate};
-undef  $EITEM{woadatetime};
-undef  $EITEM{reappeardate};
+undef  $EITEM{'skippubdate'};
+undef  $EITEM{'woapubdatetm'};
+undef  $EITEM{'reappeardate'};
 
-undef  $EITEM{sourcefk};
-undef  $EITEM{skipsource};
-undef  $EITEM{author};
-undef  $EITEM{skipauthor};
+undef  $EITEM{'sourcefk'};
+undef  $EITEM{'skipsource'};
+undef  $EITEM{'author'};
+undef  $EITEM{'skipauthor'};
 
-undef  $EITEM{dtemplate};
+undef  $EITEM{'dtemplate'};
 
-undef  $EITEM{skiplink};
+undef  $EITEM{'skiplink'};
 
-undef  $EITEM{skipheadline};
-undef  $EITEM{subheadline};
-
-undef  $EITEM{regionfk};
-undef  $EITEM{skipregion};
-
-undef  $EITEM{imagealt};
-undef  $EITEM{skipregion};
-undef  $EITEM{summarizerfk};
-undef  $EITEM{suggesterfk};
-undef  $EITEM{changebyfk};
-undef  $EITEM{updated_on};   ## End NEW VARIABLES
+undef  $EITEM{'skipheadline'};
+undef  $EITEM{'subheadline'};
+undef  $EITEM{'recsize'};
+undef  $EITEM{'worth'};
+undef  $EITEM{'regionfks'};
+undef  $EITEM{'skipregion'};
+undef  $EITEM{'summarizerfk'};
+undef  $EITEM{'suggesterfk'};
+undef  $EITEM{'changebyfk'};
+undef  $EITEM{'updated_on'};   ## End NEW VARIABLES
 
 
  @EITEM = ();
@@ -727,36 +717,6 @@ undef  $EITEM{updated_on};   ## End NEW VARIABLES
   undef $holdmonth;
   undef $chkline;
   undef $pyear;
-
-undef $deleted;     ## NEW VARIABLES
-undef $outdated;
-undef $nextdocid;
-
-undef $skippubdate;
-undef $woadatetime;
-undef $reappeardate;
-
-undef $sourcefk;
-undef $skipsource;
-undef $author;
-undef $skipauthor;
-
-undef $dtemplate;
-
-undef $skiplink;
-
-undef $skipheadline;
-undef $subheadline;
-
-undef $regionfk;
-undef $skipregion;
-
-undef $imagealt;
-undef $skipregion;
-undef $summarizerfk;
-undef $suggesterfk;
-undef $changebyfk;
-undef $updated_on;    ## END NEW VARIABLES
 }
 
 ##00540
@@ -789,19 +749,19 @@ sub get_more_select_form_values
  ($source,$sregionname) = &get_source_linkmatch($link) if($sourcelink eq 'Y' and $link);
  $addsource      = $FORM{"addsource$pgitemcnt"}  if($FORM{"addsource$pgitemcnt"} =~ /[AU]/);
  $sourcelink     = $FORM{"sourcelink$pgitemcnt"} if($FORM{"sourcelink$pgitemcnt"});
- $body           = $FORM{'body$pgitemcnt'}       if($FORM{'body$pgitemcnt'});
- $points         = $FORM{'points$pgitemcnt'}     if($FORM{'points$pgitemcnt'}     =~ /[A-Za-z0-9]/);
+ $body           = $FORM{"body$pgitemcnt"}       if($FORM{"body$pgitemcnt"});
+ $points         = $FORM{"points$pgitemcnt"}     if($FORM{"points$pgitemcnt"}     =~ /[A-Za-z0-9]/);
  $fullbody       = $FORM{"fullbody$pgitemcnt"};
  $miscinfo       = $FORM{"miscinfo$pgitemcnt"};
   
  $dDocloc        = $FORM{"docloc_add$pgitemcnt"} if($FORM{"docloc_add$pgitemcnt"} =~ /[A-Za-z0-9]/);
 
- $author       = $FORM{"author$pgitemcnt"}      if($FORM{"author$pgitemcnt"});
- $skipauthor   = $FORM{"skipauthor$pgitemcnt"}  if($FORM{"skipauthor$pgitemcnt"});
- $dtemplate    = $FORM{"dtemplate$pgitemcnt"}   if($FORM{"dtemplate$pgitemcnt"});
- $skipheadline = $FORM{"skipheadline$pgitemcnt"} if($FORM{"skipheadline$pgitemcnt"});
- $subheadline  = $FORM{"subheadline$pgitemcnt"} if($FORM{"subheadline$pgitemcnt"});
- $linmatch  = $FORM{"linkmatch$pgitemcnt"}   if($FORM{"linkmatch$pgitemcnt"});
+ $author         = $FORM{"author$pgitemcnt"}      if($FORM{"author$pgitemcnt"});
+ $skipauthor     = $FORM{"skipauthor$pgitemcnt"}  if($FORM{"skipauthor$pgitemcnt"});
+ $dtemplate      = $FORM{"dtemplate$pgitemcnt"}   if($FORM{"dtemplate$pgitemcnt"});
+ $skipheadline   = $FORM{"skipheadline$pgitemcnt"} if($FORM{"skipheadline$pgitemcnt"});
+ $subheadline    = $FORM{"subheadline$pgitemcnt"} if($FORM{"subheadline$pgitemcnt"});
+ $linkmatch       = $FORM{"linkmatch$pgitemcnt"}   if($FORM{"linkmatch$pgitemcnt"});
 }
 
 
@@ -865,6 +825,8 @@ sub get_doc_form_values
   $body           = $FORM{"body$pgitemcnt"};
   $points         = $FORM{"points$pgitemcnt"};
   $comment        = $FORM{"comment$pgitemcnt"};
+  $bodyprenote    = $FORM{"bodyprenote$pgitemcnt"};
+  $bodypostnote   = $FORM{"bodypostnote$pgitemcnt"};
   $fullbody       = $FORM{"fullbody$pgitemcnt"};
   
   $docfullbody    = "";
@@ -886,42 +848,42 @@ sub get_doc_form_values
   $skiphandle     = $FORM{"skiphandle$pgitemcnt"};
   $selkeywords    = $FORM{"selkeywords$pgitemcnt"};
   $newkeyword     = $FORM{"newkeyword$pgitemcnt"};
-  $unique         = $FORM{"unique$pgitemcnt"};
+  $special         = $FORM{"special$pgitemcnt"};
   $imagefile      = $FORM{"imagefile$pgitemcnt"};
   $imageloc       = $FORM{"imageloc$pgitemcnt"};
+  $imagedescr     = $FORM{"imagedescr$pgitemcnt"};
   $docaction      = $FORM{"docaction$pgitemcnt"};
   $sectsubs       = $FORM{"sectsubs$pgitemcnt"};
+  $worth          = $FORM{"worth$pgitemcnt"};
+  $recsize        = $FORM{"recsize$pgitemcnt"};
   $thisSectsub    = $FORM{"thisSectsub$pgitemcnt"} if($FORM{"thisSectsub$pgitemcnt"});
 
-  $deleted      = $FORM{'deleted'};    ## Start new variables section
-  $outdated     = $FORM{'outdated'}; 
-  $nextdocid    = $FORM{'nextdocid'};
+  $deleted      = $FORM{"deleted$pgitemcnt"};    ## Start new variables section
+  $outdated     = $FORM{"outdated$pgitemcnt"}; 
+  $nextdocid    = $FORM{"nextdocid$pgitemcnt"};
 
-  $skippubdate  = $FORM{'skippubdate'};
-  $woadatetime      = $FORM{'woadatetime'};
-  $reappeardate = $FORM{'reappeardate'};
+  $skippubdate  = $FORM{"skippubdate$pgitemcnt"};
+  $woapubdatetm = $FORM{"woapubdatetm$pgitemcnt"};
+  $reappeardate = $FORM{"reappeardate$pgitemcnt"};
 
-  $sourcefk     = $FORM{'sourcefk'};
-  $skipsource   = $FORM{'skipsource'};
-  $author       = $FORM{'author'};
-  $skipauthor   = $FORM{'skipauthor'};
+  $sourcefk     = $FORM{"sourcefk$pgitemcnt"};
+  $skipsource   = $FORM{"skipsource$pgitemcnt"};
+  $author       = $FORM{"author$pgitemcnt"};
+  $skipauthor   = $FORM{"skipauthor$pgitemcnt"};
 
-  $dtemplate    = $FORM{'dtemplate'};
+  $dtemplate    = $FORM{"dtemplate$pgitemcnt"};
 
-  $skiplink     = $FORM{'skiplink'};
+  $skiplink     = $FORM{"skiplink$pgitemcnt"};
 
-  $skipheadline = $FORM{'skipheadline'};
-  $subheadline  = $FORM{'subheadline'};
+  $skipheadline = $FORM{"skipheadline$pgitemcnt"};
+  $subheadline  = $FORM{"subheadline$pgitemcnt"};
 
-  $regionfk     = $FORM{'regionfk'};
-  $skipregion   = $FORM{'skipregion'};
-
-  $imagealt     = $FORM{'imagealt'};
-  $skipregion   = $FORM{'skipregion'};
-  $summarizerfk = $FORM{'summarizerfk'};
-  $suggesterfk  = $FORM{'suggesterfk'};
-  $changebyfk   = $FORM{'changebyfk'};
-  $updated_on   = $FORM{'updated_on'};
+  $regionfks     = $FORM{"regionfks$pgitemcnt"};
+  $skipregion   = $FORM{"skipregion$pgitemcnt"};;
+  $summarizerfk = $FORM{"summarizerfk$pgitemcnt"};
+  $suggesterfk  = $FORM{"suggesterfk$pgitemcnt"};
+  $changebyfk   = $FORM{"changebyfk$pgitemcnt"};
+  $updated_on   = $FORM{"updated_on$pgitemcnt"};
                               ###       End of new variables
 
   $updsectsubs     = $FORM{"updsectsubs$pgitemcnt"};
@@ -1005,8 +967,6 @@ sub get_doc_form_values
 }
 
 
-
-
 ##  00550         GET_ARTICLE
 
 sub get_doc_data
@@ -1019,9 +979,15 @@ sub get_doc_data
   if($docid =~ /-/) {       ##  from emailed 
 	  $filepath = "$mailpath/$docid\.itm";
   }
-  else {
+  elsif($DB_docitems < 1 or $cmd eq 'import') {
 	  $filepath = "$itempath/$docid\.itm";
   }
+  else {	
+	  ($deleted,$priority,$headline,$regionhead,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$region,$regionfks,$source,$sourcefk,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum)
+	   = &DB_get_docitem($docid);    #in database.pl
+	   return;	
+  }
+##    flatfile processing
   $docid =~ s/\s+$//mg;
   $found_it = "Y";
 
@@ -1047,97 +1013,98 @@ sub get_doc_data
     
     return $printout if($printit =~ /Y/);
     
-    $sumAcctnum     = $DATA{sumAcctnum};
+    $sumAcctnum     = $DATA{'sumAcctnum'};
     ($sumAcctnum,$rest) = split(/;/,$sumAcctnum,2) if($sumAcctnum =~ /;/);
-    $suggestAcctnum = $DATA{suggestAcctnum};
-    $priority       = $DATA{priority};
-    $pubdate        = $DATA{pubdate};
-    $expdate        = $DATA{expdate};
+    $suggestAcctnum = $DATA{'suggestAcctnum'};
+    $priority       = $DATA{'priority'};
+    $pubdate        = $DATA{'pubdate'};
+    $woapubdatetm   = $DATA{'woapubdatetm'};
+    $expdate        = $DATA{'expdate'};
     ($expyear,$expmonth,$expday) = split(/-/,$expdate,3);
-    $sysdate        = $DATA{sysdate};
-    $srcdate        = $DATA{srcdate};
-    $source         = $DATA{source};
+    $sysdate        = $DATA{'sysdate'};
+    $srcdate        = $DATA{'srcdate'};
+    $source         = $DATA{'source'};
     $source         = "" if($source eq "(select one)");
-    $straightHTML   = $DATA{straightHTML};
+    $straightHTML   = $DATA{'straightHTML'};
     if($straightHTML eq 'Y') {
     	$dTemplate = 'straight';
     }
     else {
-        $dTemplate = $DATA{dTemplate}; 
+        $dTemplate = $DATA{'dTemplate'}; 
     }
-    $dBoxStyle      = $DATA{dBoxStyle}; 
-    $link           = $DATA{link};
+    $dBoxStyle      = $DATA{'dBoxStyle'}; 
+    $link           = $DATA{'link'};
     $link =~ s/^\s+//; 
-    $link2nd        = $DATA{link2nd};
+    $link2nd        = $DATA{'link2nd'};
     $link2nd =~ s/^\s+//;
-    $selflink       = $DATA{selflink};
-    $topic          = $DATA{topic};
-    $region         = $DATA{region};           
-    $regionhead     = $DATA{regionhead};
-    $headline       = $DATA{headline};
-    $body           = $DATA{body};
-    $points         = $DATA{points};
+    $selflink       = $DATA{'selflink'};
+    $topic          = $DATA{'topic'};
+    $region         = $DATA{'region'};           
+    $regionhead     = $DATA{'regionhead'};
+    $headline       = $DATA{'headline'};
+    $body           = $DATA{'body'};
+    $points         = $DATA{'points'};
     $body =~ s/\n+$//g;    ## trim trailing line feeds
     $body =~ s/\r+$//g;    ## trim trailing returns
-    $body =~ s/\n\r+$//g;    ## trim trailing returns
-    $body =~ s/\r\n+$//g;    ## trim trailing returns
-    $points =~ s/\s+$//g;    ## trim white space
-    $points =~ s/\n+$//g;    ## trim trailing line feeds
-    $points =~ s/\r+$//g;    ## trim trailing returns
-    $points =~ s/\n\r+$//g;    ## trim trailing returns
-    $points =~ s/\r\n+$//g;    ## trim trailing returns
-    $points =~ s/\s+$//g;    ## trim white space
-    $comment        = $DATA{comment};
-    $fullbody       = $DATA{fullbody};
-    $freeview       = $DATA{freeview};
-    $note           = $DATA{note};
-    $miscinfo       = $DATA{miscinfo};
-    $keywords       = $DATA{keywords};
-    $sectsubs       = $DATA{sectsubs};
+    $body =~ s/\n\r+$//g;  ## trim trailing returns
+    $body =~ s/\r\n+$//g;  ## trim trailing returns
+    $points =~ s/\s+$//g;  ## trim white space
+    $points =~ s/\n+$//g;  ## trim trailing line feeds
+    $points =~ s/\r+$//g;  ## trim trailing returns
+    $points =~ s/\n\r+$//g; ## trim trailing returns
+    $points =~ s/\r\n+$//g; ## trim trailing returns
+    $points =~ s/\s+$//g;   ## trim white space
+    $comment        = $DATA{'comment'};
+    $bodyprenote    = $DATA{'bodyprenote'};
+    $bodypostnote   = $DATA{'bodypostnote'};
+    $fullbody       = $DATA{'fullbody'};
+    $freeview       = $DATA{'freeview'};
+    $note           = $DATA{'note'};
+    $miscinfo       = $DATA{'miscinfo'};
+    $keywords       = $DATA{'keywords'};
+    $sectsubs       = $DATA{'sectsubs'};
 ##                          correct error which added NA to sectsubs, wrote to NA index
 
     $sectsubs =~ s/NA`M;//;
     $sectsubs =~ s/NA;//;
 	
-    $unique       = $DATA{unique};
-    $skiphandle   = $DATA{skiphandle};
-    $imagefile    = $DATA{imagefile};
-    $imageloc     = $DATA{imageloc};     
+    $special       = $DATA{'special'};
+    $skiphandle   = $DATA{'skiphandle'};
+    $imagefile    = $DATA{'imagefile'};
+    $imageloc     = $DATA{'imageloc'}; 
+	$imagedescr   = $DATA{'imagedescr'};    
     $dSectsubs    = $sectsubs;
 
-	$deleted      = $DATA{deleted};          ## start new section of variables
-	$outdated     = $DATA{outdated};
-	$nextdocid    = $DATA{nextdocid};
+	$deleted      = $DATA{'deleted'};          ## start new section of variables
+	$outdated     = $DATA{'outdated'};
+	$nextdocid    = $DATA{'nextdocid'};
 
-	$skippubdate  = $DATA{skippubdate};
-	$woadatetime      = $DATA{woadatetime};
-	$reappeardate = $DATA{reappeardate};
+	$skippubdate  = $DATA{'skippubdate'};
+	$woapubdatetm = $DATA{'woapubdatetm'};
+	$reappeardate = $DATA{'reappeardate'};
 
-	$sourcefk     = $DATA{sourcefk};
-	$skipsource   = $DATA{skipsource};
-	$author       = $DATA{author};
-	$skipauthor   = $DATA{skipauthor};
+	$sourcefk     = $DATA{'sourcefk'};
+	$skipsource   = $DATA{'skipsource'};
+	$author       = $DATA{'author'};
+	$skipauthor   = $DATA{'skipauthor'};
 
-	$dtemplate    = $DATA{dtemplate};
+	$dtemplate    = $DATA{'dtemplate'};
 
-	$skiplink     = $DATA{skiplink};
+	$skiplink     = $DATA{'skiplink'};
 
-	$skipheadline = $DATA{skipheadline};
-	$subheadline  = $DATA{subheadline};
-
-	$regionfk     = $DATA{regionfk};
-	$skipregion   = $DATA{skipregion};
-
-	$imagealt     = $DATA{imagealt};
-	$skipregion   = $DATA{skipregion};
-	$summarizerfk = $DATA{summarizerfk};
-	$suggesterfk  = $DATA{suggesterfk};
-	$changebyfk   = $DATA{changebyfk};
-	$updated_on   = $DATA{updated_on};                 ## end new section of variables
+	$skipheadline = $DATA{'skipheadline'};
+	$subheadline  = $DATA{'subheadline'};
+	$recsize      = $DATA{'worth'};
+    $worth        - $DATA{'worth'};
+	$regionfks     = $DATA{'regionfks'};
+	$skipregion   = $DATA{'skipregion'};
+	$summarizerfk = $DATA{'summarizerfk'};
+	$suggesterfk  = $DATA{'suggesterfk'};
+	$changebyfk   = $DATA{'changebyfk'};
+	$updated_on   = $DATA{'updated_on'};                 ## end new section of variables
 	
-        
     $fullbody =  &reverse_regexp_prep($fullbody);   ##  common.pl
-   
+
     if($rSectsubid =~ /Suggested_suggestedItem/) {
        ($headline,$rest) = split(/Date:/,$headline,2) if($headline =~ /Date:/);
        &titlize_headline;
@@ -1155,8 +1122,9 @@ sub get_doc_data
     }
  }
  else {
-   $headline =  "File not found at filepath $filepath <small>doc2595 - docid *$docid*  ....itempath $itempath</small>";
- }
+   $headline = "File not found at doc2595 - docid *$docid*";
+ }        
+ return($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 }
 
 
@@ -1165,83 +1133,84 @@ sub get_doc_data
 
 sub clear_doc_data
 {   
-    $DATA{sumAcctnum}   = "";
-    $DATA{suggestAcctnum} = "";
+    $DATA{'sumAcctnum'}   = "";
+    $DATA{'suggestAcctnum'} = "";
 
-    $DATA{deleted} = 0;
-    $DATA{outdated} = 0;
-    $DATA{nextdocid} = 0;
+    $DATA{'deleted'} = 0;
+    $DATA{'outdated'} = 0;
+    $DATA{'nextdocid'} = 0;
 
-    $DATA{priority}     = "";
-    $DATA{pubdate}      = "";
-    $DATA{expdate}      = "";
-    $DATA{expired}      = "";
-    $DATA{sysdate}      = "";
-    $DATA{srcdate}      = "";
+    $DATA{'priority'}     = "";
+    $DATA{'pubdate'}      = "";
+    $DATA{'expdate'}      = "";
+    $DATA{'outdated'}      = "";
+    $DATA{'sysdate'}      = "";
+    $DATA{'srcdate'}      = "";
 
-    $DATA{skippubdate} = 0;
-    $DATA{woadatetime} = $nulldate;
-    $DATA{reappeardate} = $nulldate;
+    $DATA{'skippubdate'} = 0;
+    $DATA{'woapubdatetm'} = $epoch_time;
+    $DATA{'reappeardate'} = $nulldate;
 
-    $DATA{source}       = "";
+    $DATA{'source'}       = "";
 
-    $DATA{sourcefk}   = 0;
-    $DATA{skipsource} = 0;
-    $DATA{author}     = "";
-    $DATA{skipauthor} = 1;
+    $DATA{'sourcefk'}   = 0;
+    $DATA{'skipsource'} = 0;
+    $DATA{'author'}     = "";
+    $DATA{'skipauthor'} = 1;
+    $DATA{'dTemplate'}    = "";
+    $DATA{'dtemplate'}    = "";
 
+    $DATA{'dBoxStyle'}    = "";
+    $DATA{'straightHTML'} = "N";
+    $DATA{'link'}         = "";
+    $DATA{'link2nd'}      = "";
+    $DATA{'selflink'}     = "";
 
-    $DATA{dTemplate}    = "";
+    $DATA{'skiplink'}     = 0;
 
-    $DATA{dtemplate}    = "";
+    $DATA{'headline'}     = "";
 
-    $DATA{dBoxStyle}    = "";
-    $DATA{straightHTML} = "N";
-    $DATA{link}         = "";
-    $DATA{link2nd}      = "";
-    $DATA{selflink}     = "";
+    $DATA{'skipheadline'} = 0;
+    $DATA{'subheadline'}     = "";
 
-    $DATA{skiplink}     = 0;
+    $DATA{'region'}       = "";
+    $DATA{'regionhead'}   = "N";
 
-    $DATA{headline}     = "";
+    $DATA{'regionfks'} = 0;
+    $DATA{'skipregion'} = 0;
 
-    $DATA{skipheadline} = 0;
-    $DATA{subheadline}     = "";
-
-    $DATA{region}       = "";
-    $DATA{regionhead}   = "N";
-
-    $DATA{regionfk} = 0;
-    $DATA{skipregion} = 0;
-
-    $DATA{topic}        = "";
-    $DATA{body}         = "";
-    $DATA{fullbody}     = "";
-    $DATA{freeview}     = "N";
-    $DATA{comment}      = "";
-    $DATA{note}         = "";
-    $DATA{miscinfo}     = "";
-    $DATA{keywords}     = "";
-    $DATA{unique}       = "";
-    $DATA{sectsubs}     = "";
-    $DATA{newsprocsectsub} = "";    ## Do we need?
-    $DATA{pointssectsub} = "";
-    $DATA{skiphandle}   = "N";
-    $DATA{imagefile}    = "";
-    $DATA{imageloc}     = "";
-
-    $DATA{imagealt}     = "";
-    $DATA{skipregion}   = 0;
-    $DATA{summarizerfk} = 0;
-    $DATA{suggesterfk}  = 0;
-    $DATA{changebyfk}   = 0;
-    $DATA{updated_on}   = $nulldate;
+    $DATA{'topic'}        = "";
+    $DATA{'body'}         = "";
+    $DATA{'fullbody'}     = "";
+    $DATA{'freeview'}     = "N";
+    $DATA{'bodyprenote'}  = "";
+    $DATA{'bodypostnote'} = "";
+    $DATA{'comment'}      = "";
+    $DATA{'note'}         = "";
+    $DATA{'miscinfo'}     = "";
+    $DATA{'keywords'}     = "";
+    $DATA{'special'}       = "";
+    $DATA{'sectsubs'}     = "";
+    $DATA{'newsprocsectsub'} = "";    ## Do we need?
+    $DATA{'pointssectsub'} = "";
+    $DATA{'skiphandle'}   = "N";
+    $DATA{'imagefile'}    = "";
+    $DATA{'imageloc'}     = "";
+    $DATA{'imagealt'}     = "";
+    $DATA{'recsize'}      = 0;
+    $DATA{'worth'}      = 0;
+    $DATA{'skipregion'}   = 0;
+    $DATA{'summarizerfk'} = 0;
+    $DATA{'suggesterfk'}  = 0;
+    $DATA{'changebyfk'}   = 0;
+    $DATA{'updated_on'}   = $nulldate;
 #22
 }
 
 sub clear_doc_variables
 {
 	$nulldate           = '0000-00-00';
+	$nulldatetime       = '0000-00-00 00:00:00';
 	$docaction          = "";
 	$docid              = "";
     $advance            = "";
@@ -1260,7 +1229,7 @@ sub clear_doc_variables
     $pubyear            = '00';
 
     $skippubdate        = 0;
-    $woadatetime            = $nulldate;
+    $woapubdatetm       = $nulldatetime;
     $woaday             = '00';
     $woamonth           = '00';
     $woayear            = '00';
@@ -1284,43 +1253,37 @@ sub clear_doc_variables
     $author             = "";
     $skipauthor         = 1;
 
-
     $dTemplate          = "";
-
     $dtemplate          = "";
 
     $format             = "";
     $straightHTML       = "N";
     $link               = "";
     $link2nd            = "";
-
     $skiplink           = 0;
-
     $selflink           = "";
     $titlize            = "N";
     $headline           = "";
-
     $skipheadline       = 0;
     $subheadline        = "";
-
     $region             = "";
     $regionhead         = "N";
 
-    $regionfk           = 0;
+    $regionfks           = 0;
     $skipregion         = 0;
-
-
     $topic              = "";
     $body               = "";
     $points             = "";
     $fullbody           = "";
     $freeview           = "N";
+    $bodypostnote       = "";
+    $bodyprenote        = "";
     $comment            = "";
     $note               = "";
     $miscinfo           = "";
     $emailnote          = "";
     $keywords           = "";
-    $unique             = "";
+    $special             = "";
     $sectsubs           = "";
     $dSectsubs          = "";
     $fSectsubs          = "";
@@ -1329,8 +1292,9 @@ sub clear_doc_variables
     $skiphandle         = "N";
     $imagefile          = "";
     $imageloc           = "";
-
-    $imagealt           = "";
+    $imagedescr         = "";
+    $recsize            = 0;
+    $worth              = 0;
     $summarizerfk       = 0;
     $suggesterfk        = 0;
     $changebyfk         = 0;
@@ -1357,7 +1321,7 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
  $DOCARRAY{nextdocid}    = $nextdocid;
 
  $DOCARRAY{skippubdate}  = $skippubdate;
- $DOCARRAY{woadatetime}      = $woadatetime;
+ $DOCARRAY{woapubdatetm} = $woapubdatetm;
  $DOCARRAY{reappeardate} = $reappeardate;
 
  $DOCARRAY{sourcefk}     = $sourcefk;
@@ -1372,10 +1336,8 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
  $DOCARRAY{skipheadline} = $skipheadline;
  $DOCARRAY{subheadline}  = $subheadline;
 
- $DOCARRAY{regionfk}     = $regionfk;
+ $DOCARRAY{regionfks}     = $regionfks;
  $DOCARRAY{skipregion}   = $skipregion;
-
- $DOCARRAY{imagealt}     = $imagealt;
  $DOCARRAY{skipregion}   = $skipregion;
  $DOCARRAY{summarizerfk} = $summarizerfk;
  $DOCARRAY{suggesterfk}  = $suggesterfk;
@@ -1404,18 +1366,18 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
  $DOCARRAY{'suggestedcnt'}   = $suggestedCnt; 
  $DOCARRAY{'acctnum'}        = $acctnum;
  $DOCARRAY{'access'}         = $access;
- $DOCARRAY{sumAcctnum}     = $sumAcctnum; 
- $DOCARRAY{suggestAcctnum} = $suggestAcctnum; 
- $DOCARRAY{userid}         = $userid; 
- $DOCARRAY{useremail}      = $useremail; 
- $DOCARRAY{firstname}      = $firstname; 
- $DOCARRAY{lastname}       = $lastname;
- $DOCARRAY{pin}            = $pin; 
- $DOCARRAY{city}           = $city; 
- $DOCARRAY{zip}            = $zip; 
- $DOCARRAY{handle}         = $sumHandle; 
- $DOCARRAY{usercomment}    = $usercomment; 
- $DOCARRAY{pay}            = $pay;
+ $DOCARRAY{'sumAcctnum'}     = $sumAcctnum; 
+ $DOCARRAY{'suggestAcctnum'} = $suggestAcctnum; 
+ $DOCARRAY{'userid'}         = $userid; 
+ $DOCARRAY{'useremail'}      = $useremail; 
+ $DOCARRAY{'firstname'}      = $firstname; 
+ $DOCARRAY{'lastname'}       = $lastname;
+ $DOCARRAY{'pin'}            = $pin; 
+ $DOCARRAY{'city'}           = $city; 
+ $DOCARRAY{'zip'}            = $zip; 
+ $DOCARRAY{'handle'}         = $sumHandle; 
+ $DOCARRAY{'usercomment'}    = $usercomment; 
+ $DOCARRAY{'pay'}            = $pay;
  
  $DOCARRAY{docid}       = $docid;
  $DOCARRAY{priority}    = $priority;
@@ -1445,13 +1407,18 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
  $DOCARRAY{fullbody}    = $fullbody; 
  $DOCARRAY{freeview}    = $freeview; 
  $DOCARRAY{comment}     = $comment; 
+ $DOCARRAY{bodyprenote} = $bodyprenote;
+ $DOCARRAY{bodypostnote} = $bodypostnote;
  $DOCARRAY{note}        = $note; 
  $DOCARRAY{miscinfo}    = $miscinfo; 
  $DOCARRAY{keywords}    = $keywords; 
- $DOCARRAY{unique}      = $unique; 
+ $DOCARRAY{special}      = $special; 
  $DOCARRAY{imagefile}   = $imagefile; 
  $DOCARRAY{imageloc}    = $imageloc;
+ $DOCARRAY{imagedescr}     = $imagealt;
  $DOCARRAY{sectsubs}    = $sectsubs;
+ $DOCARRAY{worth}       = $worth;
+ $DOCARRAY{recsize}     = $recsize;
  $DOCARRAY{newsprocsectsub}  = $newsprocsectsub;
  $DOCARRAY{pointssectsub} = $pointssectsub;
  $DOCARRAY{skiphandle}  = $skiphandle;
@@ -1477,10 +1444,10 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
 ##564
 sub clear_setvar
 {
- $SETVAR{separator}   = "";
- $SETVAR{dTemplate}   = "";
- $SETVAR{dBoxStyle}   = "";
- $SETVAR{rSectsubidb} = "";
+ $SETVAR{'separator'}   = "";
+ $SETVAR{'dTemplate'}   = "";
+ $SETVAR{'dBoxStyle'}   = "";
+ $SETVAR{'rSectsubidb'} = "";
 }
 
 ##565
@@ -1488,7 +1455,7 @@ sub clear_setvar
 ##                WRITE_ITEM to file      
 sub write_doc_item
 { 
-  my $docid = $_[0];   # if not in items directory, it is in popnews_mail
+  my($docid,$idx_insert_sth) = @_;   # if not in items directory, it is in popnews_mail
   $docid =~ s/\s+$//mg;
   return if(!$headline and $pubdate eq '-00-00');
 
@@ -1498,7 +1465,7 @@ sub write_doc_item
   else {
 	  $docpath = "$itempath/$docid\.itm";
 
-	  if($SVRinfo{environment} == 'development') {   ## GITHUB_PATHS
+	  if($SVRinfo{'environment'} == 'development') {   ## GITHUB_PATHS
 		 if(-f "$docpath") {
 			  unlink $docpath or printDataErr_Continue("Could not delete $docpath : $! @ doc2800<br>\n");
 		 }
@@ -1511,19 +1478,19 @@ sub write_doc_item
   }
 #          see if valid data
   if(($sysdate =~ /[0-9]/ and $docid =~ /[0-9]/) or $sectsubs =~ /$emailedSS/ ) { 
-	open(DATAOUT, ">$docpath") or die();
+	 open(DATAOUT, ">$docpath") or die();
 
-    &write_doc_data_out;
-    close (DATAOUT);
-    chmod 0777, $emailfile if($SVRinfo{environment} == 'development');  ## GIT_HUB PATHS
-    unlink $lock_file if($lock_file);
+     &write_doc_data_out;
+     close (DATAOUT);
+     chmod 0777, $emailfile if($SVRinfo{'environment'} == 'development');  ## GIT_HUB PATHS
+     unlink $lock_file if($lock_file);
   }
   else {
-    print "Invalid sysdate=$sysdate or docid-$docid; Could not write out docitem at doc1185 Error message: $! <br>\n";
+     print "Invalid sysdate=$sysdate or docid-$docid; Could not write out docitem at doc1185 Error message: $! <br>\n";
   }
   if($docid =~ /-/) {
      &write_index_straight($emailedSS,$docid);     # in sections.pl
-     &DB_add_docid_to_index ($emailedSS,$docid) unless($DB_indexes < 1);    # in sections.pl
+     &DB_update_sectsub_idx($idx_insert_sth,$sectsubfk,$docid,$stratus,$delsectsubs) unless($DB_docitem < 1);    # in sections.pl
   }
   return($docid);
 }
@@ -1548,13 +1515,18 @@ sub write_doc_data_out
    if($docaction =~ /N/ and $region !~ /[A-Za-z0-9]/) {
 	  $region = &get_regions('N',"",$headline,$fullbody,$link);  # print_regions=N, region="", # controlfiles.pl                
    }
-
+   if($addsectsubs =~ /[$newsdigestSS|$headlinesSS|suggestedSS|summarizedSS|$headlinesPriSS]/) {
+	   $woapubdatetime = &get_nowdatetime;
+   }
+   elsif(!$woapubdatetm) {
+	   $woapubdatetm = $epoch_time;
+   }
 	print DATAOUT "deleted\^$deleted\n";
 	print DATAOUT "outdated\^$outdated\n";
 	print DATAOUT "nextdocid\^$nextdocid\n";
 
 	print DATAOUT "skippubdate\^$skippubdate\n";
-	print DATAOUT "woadatetime\^$woadatetime\n";
+	print DATAOUT "woapubdatetm\^$woapubdatetm\n";
 	print DATAOUT "reappeardate\^$reappeardate\n";
 
 	print DATAOUT "sourcefk\^$sourcefk\n";
@@ -1569,10 +1541,7 @@ sub write_doc_data_out
 	print DATAOUT "skipheadline\^$skipheadline\n";
 	print DATAOUT "subheadline\^$subheadline\n";
 
-	print DATAOUT "regionfk\^$regionfk\n";
-	print DATAOUT "skipregion\^$skipregion\n";
-
-	print DATAOUT "imagealt\^$imagealt\n";
+	print DATAOUT "regionfks\^$regionfks\n";
 	print DATAOUT "skipregion\^$skipregion\n";
 	print DATAOUT "summarizerfk\^$summarizerfk\n";
 	print DATAOUT "suggesterfk\^$suggesterfk\n";
@@ -1641,68 +1610,50 @@ sub write_doc_data_out
    $source = $datafield;
 
 ##    $source =~ &strip_leadingSPlineBR($source);
-
-
 ##    $source = &strip_leadingNonAlphnum($source);
 
    $source =~ s/\s+$//;
-
    $region =~ s/^;//;
 
    print DATAOUT "fullbody\^$fullbody\n";
    print DATAOUT "freeview\^$freeview\n";
    print DATAOUT "comment\^$comment\n";
+   print DATAOUT "bodyprenote\^$bodyprenote\n";
+   print DATAOUT "bodypostnote\^$bodypostnote\n";
    print DATAOUT "note\^$note\n";
    print DATAOUT "miscinfo\^$miscinfo\n";
    print DATAOUT "keywords\^$keywords\n";
-   print DATAOUT "unique\^$unique\n";
+   print DATAOUT "special\^$special\n";
    print DATAOUT "skiphandle\^$skiphandle\n";
    print DATAOUT "imageloc\^$imageloc\n";
    print DATAOUT "imagefile\^$imagefile\n";
+   print DATAOUT "imagedescr\^$imagedescr\n";
+
+   $recsize = length($fullbody);
+   print DATAOUT "recsize\^$recsize\n";
+   print DATAOUT "worth\^$worth\n";	
 
    $sectsubs =~ s/NA`M;//;
    $sectsubs =~ s/NA;//;
    $sectsubs =~ s/`+$//;  # get rid of trailing tic marks
 
    print DATAOUT "sectsubs\^$sectsubs\n";
-}
 
+   if($DB_docitems eq 1) {
+	  if(&DBdocitemExists($docid) ) {   #TODO: fix the DBdocitemExists sub
+ 		 $doc_update_sth = &DB_update($doc_update_sth,@docarray,$doc_update_sql); # in database.pl - $doc_update_sth set in article.pl at cmd processing
+	  }
+	  else {
+         $doc_insert_sth = &DB_insert($doc_insert_sth,@docarray,$doc_insert_sql); #  in database.pl -  $doc_insert_sth set in article.pl at cmd processing
+      }
 
-sub get_doc_data_for_DB
-{
-  my($docid) = $_[0];
-  $filepath = "$itempath/$docid\.itm"; 
-  if(-f "$filepath") {
-    open(DATA, "$filepath");
-    while(<DATA>)
-    {
-       chomp;
-       $line = $_;
-       if($line !~ /\^/) {
-         $DATA{$name} = "$DATA{$name}\n$line";
-       }
-       else {
-         ($name, $value) = split(/\^/,$line);
-         $DATA{$name} = $value;
-       }
-    }
-    close(DATA);
-
-    my $priority       = $DATA{priority};
-    my $pubdate        = $DATA{pubdate};
-    my $sysdate        = $DATA{sysdate};
-    my $topic          = $DATA{topic};
-    my $region         = $DATA{region};           
-    my $headline       = $DATA{headline};
-    my $sectsubs       = $DATA{sectsubs};
-#    require('sections.pl');
-#    $stratus = &splitout_sectsub_info($sectsubname,$sectsubs,);
-    return($priority,$pubdate,$sysdate,$pubyear,$topic,$region,$headline);
- }
- else {
-    print "Docitem file not found $docid (line 336)<br>\n";
-    return('', '','','','','','');
- }
+	  my @sectsubs = split(/;/,$sectsubs);
+	  foreach $sectsub (@sectsubs) {
+	     my ($sectsubname,$docloc,$rest) = split(/`/, $sectsub,3);   # get rid of stratus A...M...Z
+	          # will either add to or delete from index
+	     &DB_update_sectsub_idx($idx_insert_sth,$sectsubname,$docid,$stratus,$delsectsubs); # in indexes.pl 
+	  }
+   }
 }
 
 
@@ -1721,7 +1672,7 @@ sub get_docCount
   $num = $docCount+1;
   print(NEWCOUNT"$num\n");
   close(NEWCOUNT);
-  $docCount = $num;     ## ADDED THIS LINE IN GIT_PATHS
+  $docCount = $num;
 if($docCount < 10)
  {$docCount = "00000$docCount";
  }
@@ -1752,23 +1703,24 @@ sub read_docCount
 }
 
 
-sub get_docdata_DB
+sub remove_dups_from_list    # removes duplicates from a semi-colon separated list
 {
-	 my($docid) = $_[0];
-	 my $sth_doc = $dbh->prepare( 'SELECT deleted,outdated,nextdocid,priority,headline,regionhead,skipheadline,subheadline,unique,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,skippubdate,woadatetime,expdate,reappeardate,region,regionfk,skipregion,source,sourcefk,skipsource,author,skipauthor,body,fullbody,freeview,points,comment,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,imagealt,sumAcctnum,suggestAcctnum,summarizerfk,suggesterfk,changebyfk,updated_on
-	 FROM users where docid = ?' );
-	 $sth_doc->execute($docid);
-	 ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$unique,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
-		$skippubdate,$woadatetime,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$note,
-		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagealt,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk) = $sth_usr->fetchrow_array();
-	 $sth_doc->finish();
+ my $list = $_[0];
+ my @list = split(/;/,$list);
+ foreach $item (@list) {
+	$list = "$list;$item" unless($list =~ /$item/);
+ }
+ return($list);
 }
 
-sub write_docitem_to_DB   #### Still need to add new variables to clear_doc_data variables and other places
+####  DATABASE OPERATIONS ##########
+
+
+sub write_docitem_to_DB_not_used  
 {
 	 unless($docid =~ /[0-6]{6}/) {
 	      print "$docid Invalid docid <br>\n";
-		  &write_index_flatfile ('Invalid_docid',$docid,'','');
+		  &write_index_flatfile ('Invalid_docid',$docid,'','P','Invalid_docid','');
 	      last;
 	 }
 
@@ -1779,208 +1731,453 @@ sub write_docitem_to_DB   #### Still need to add new variables to clear_doc_data
      $deleted = 1 if(-f "$deletepath/$delfilename");
 
      if($pubdate) {
-          $pubyear  = substr($pubdate, 4, 5);
+          $pubyear  = substr($pubdate, 0, 5);
      }
      elsif($sysdate) {
-          $pubyear  = substr($sysdate, 4, 5);	    
+          $pubyear  = substr($sysdate, 0, 5);	    
      }
 
      if($straightHTML eq 'Y') {
           $dtemplate = 'straight';
           print "$docid STRAIGHT -- $headline <br>\n";
-	      &write_index_flatfile ('Straight_html',$docid,'','');  #log all straight templates - these may not really be data
-	 }
+	      &write_index_flatfile ('import_Straight_html',$docid,'','P','import_Straight_html','');  #log - in index.pl
+     }
 
-     $regionfk = &get_regionid($region) unless($regionfk);
-
+     $regionfks = &get_regionid($region) unless($regionfks);
 	 $source   = &get_source_linkmatch($link) unless($source);
-
      $sourcefk = &get_sourceid($source) if($source and !$sousrcefk);
 
-     $woadatetime = &get_nowdatetime;
+     $woapubdatetm = &get_nowdatetime; # in date.pl
+
+     $recsize = length($fullbody);
 
      $dtemplate = $dTemplate;
 
 	 $dbh = &db_connect() if(!$dbh);
 	
 	if($docaction eq 'N') {
-		my $doc_sth = $dbh->prepare("INSERT INTO docitem (docid,deleted,outdated,nextdocid,priority,headline,regionhead,skipheadline,subheadline,unique,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,skippubdate,woadatetime,expdate,reappeardate,region,regionfk,skipregion,source,sourcefk,skipsource,author,skipauthor,body,fullbody,freeview,points,comment,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,imagealt,sumAcctnum,suggestAcctnum,summarizerfk,suggesterfk,changebyfk,updated_on)
-	     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE() )" );
-
-	    $doc_sth->execute($docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$unique,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
-		$skippubdate,$woadatetime,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$note,
-		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagealt,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
+		my $doc_insert_sth = &DB_prepare_doc_insert($dbh,$doc_insert_sql);
+## DOTO fix this to subroutine
+		
+	    $doc_insert_sth->execute($n_docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
+		$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
+		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
 
 	}
 	else {
 		my $doc_sth = $dbh->prepare( "UPDATE docitem SET deleted=?,outdated=?,nextdocid=?,priority=?,headline=?,regionhead=?,skipheadline=?,
-		subheadline=?,unique=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woadatetime=?,
-		expdate=?,reappeardate=?,region=?,regionfk=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,
-		body=?,fullbody=?,freeview=?,points=?,comment=?,note=?,miscinfo=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
-		imagealt=?,sumAcctnum=?,suggestAcctnum=?,summarizerfk=?,suggesterfk=?,changebyfk=?,updated_on=CURDATE() WHERE docid = ?" );
-		$doc_sth->execute($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$unique,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
-		$skippubdate,$woadatetime,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$note,
-		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagealt,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$docid);
+		subheadline=?,special=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woapubdatetm=?,
+		expdate=?,reappeardate=?,region=?,regionfks=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,
+		body=?,fullbody=?,freeview=?,points=?,comment=7,bodyprenote=?,bodypostnote=?,note=?,miscinfo=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
+		imagedescr=?,recsize=?,worth=?,sumAcctnum=?,suggestAcctnum=?,summarizerfk=?,suggesterfk=?,changebyfk=?,updated_on=CURDATE() WHERE docid = ?" );
+
+		$doc_sth->execute($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
+		$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
+		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$docid);
 	    
 	}
-	
-	#########  DO INDEXES ELSEWHERE ##############
-	
 }
 
+sub DB_prepare_get_docitem
+{
+  my $sth = $dbh->prepare( "SELECT * FROM users where docid = ?" );
+  return($sth);	
+}
+
+sub DB_get_docitem
+{
+  my ($sth,$docid) = @_;
+  $row = $sth->exec($docid);
+  return($row);	
+}
+
+sub DBdocitemExists   #TODO this does not work - TRY returning the row!!!!!!!!!!!!
+{
+   my($dbh,$docid) = $_[0];
+
+  my $sth = $dbh->prepare('SELECT COUNT(*) FROM docitems  WHERE docid = ?') 
+        or die("Couldn't prepare statement: " . $docitemexists_sth->errstr);	
+  $sth->execute($docid);
+  my @row = $sth->fetchrow_array();
+  $sth->finish;
+  print "doc1808 Exists<br>\n" if($row > 0);
+  return($row);
+}
+
+sub DB_prepare_doc_insert
+{
+  my($dbh) = $_[0];  # Couldn't execute DB doc insert  : called with 52 bind variables when 50 are needed at docitem.pl line 2110
+
+  my $doc_insert_sql = "INSERT IGNORE INTO docitems (docid,deleted,outdated,nextdocid,priority,headline,regionhead,skipheadline,subheadline,special,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,skippubdate,woapubdatetm,expdate,reappeardate,region,regionfks,skipregion,source,sourcefk,skipsource,author,skipauthor,body,fullbody,freeview,points,comment,bodyprenote,bodypostnote,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,imagedescr,recsize,worth,sumAcctnum,suggestAcctnum,summarizerfk,suggesterfk,changebyfk,updated_on) 
+           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE() )";
+
+  my $doc_insert_sth = $dbh->prepare($doc_insert_sql) or die("Couldn't prepare DB doc insert @doc1818 : " . $sth_docrows_sth->errstr);
+  return($doc_insert_sth);
+}
+
+
+sub export_docitems  # From DB to flatfiles, including indexes
+{
+ my($mindocid,$maxdocid) = @_;  # Do a chunk at a time
+ my $filename = "";
+ $export_docitem_cnt = 0;
+
+ &read_sectCtrl_to_array;  #in sectsubs.pl - needed to get sectsubids
+
+ $dbh = &db_connect() if(!$dbh);
+ my $sth_docrows = $dbh->prepare( 'SELECT * FROM docitems WHERE docid BETWEEN ? AND ?') 
+    or die("Couldn't prepare statement: " . $sth_docrows_sth->errstr);	
+ $sth_docrows->execute($mindocid,$maxdocid);
+ while (my @row = $sth_docrows->fetchrow_array()) { # print data retrieve	
+	 &write_exp_docitem(@row);
+ }
+ $sth_docrows->finish;
+
+# &export_indexes;  # Save this to be run separately
+
+  print "Export item count $export_docitem_cnt .. mindocid $mindocid .. maxdocid $maxdocid </br>\n";
+}
+
+sub write_exp_docitem
+{
+ my ($docid,$deleted,$priority,$headline,$regionhead,$special,$topic,$link,$skiplink,$selflink,
+	 $sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$region,$regionfks,$source,
+	 $sourcefk,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,
+	 $skiphandle,$dtemplate,$imagefile,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum) = @_;
+	
+ $docpath = "$expitempath/$docid\.itm";
+
+ if(-f "$docpath") {
+     print "$docid already exists <br>\n";
+     &write_index_flatfile ('export_AlreadyExists',$docid,'','P','export_AlreadyExists','');
+     return;
+ }
+	
+ open(DOCITEM, ">$docpath") or die("Couldn't open $docpath<br>\n");
+ print DOCITEM "deleted\^$deleted\n";
+ print DOCITEM "outdated\^$outdated\n";
+ print DOCITEM "nextdocid\^$nextdocid\n";
+ print DOCITEM "priority\^$priority\n";  
+ print DOCITEM "dtemplate\^$dtemplate\n";  
+ print DOCITEM "pubdate\^$pubdate\n";
+ print DOCITEM "skippubdate\^$skippubdate\n";
+ print DOCITEM "pubyear\^$pubyear\n";
+ print DOCITEM "expdate\^$expdate\n";
+ print DOCITEM "sysdate\^$sysdate\n";
+ print DOCITEM "woapubdatetm\^$woapubdatetm\n";
+ print DOCITEM "reappeardate\^$reappeardate\n";
+ print DOCITEM "author\^$author\n";
+ print DOCITEM "skipauthor\^$skipauthor\n";
+ print DOCITEM "source\^$source\n";
+ print DOCITEM "sourcefk\^$sourcefk\n";
+ print DOCITEM "skipsource\^$skipsource\n";
+ print DOCITEM "link\^$link\n";
+ print DOCITEM "selflink\^$selflink\n";
+ print DOCITEM "skiplink\^$skiplink\n";
+ print DOCITEM "freeview\^$freeview\n";
+ print DOCITEM "headline\^$headline\n";
+ print DOCITEM "skipheadline\^$skipheadline\n";
+ print DOCITEM "subheadline\^$subheadline\n";
+ print DOCITEM "region\^$region\n";
+ print DOCITEM "regionhead\^$regionhead\n";
+ print DOCITEM "regionfks\^$regionfks\n";
+ print DOCITEM "skipregion\^$skipregion\n";
+ print DOCITEM "topic\^$topic\n";
+ print DOCITEM "body\^$body\n";
+ print DOCITEM "points\^$points\n";
+ print DOCITEM "fullbody\^$fullbody\n";
+ print DOCITEM "comment\^$comment\n";
+ print DOCITEM "bodyprenote\^$bodyprenote\n";
+ print DOCITEM "bodypostnote\^$bodypostnote\n";
+ print DOCITEM "note\^$note\n";
+ print DOCITEM "miscinfo\^$miscinfo\n";
+ print DOCITEM "imagefile\^$imagealt\n";
+ print DOCITEM "imageloc\^$imageloc\n";
+ print DOCITEM "imagedescr\^$imagedescr\n";
+ print DOCITEM "recsize\^$recsize\n";
+ print DOCITEM "worth\^$worth\n";
+ print DOCITEM "sectsubs\^$sectsubs\n";
+ print DOCITEM "keywords\^$keywords\n";
+ print DOCITEM "special\^$special\n";
+ print DOCITEM "skiphandle\^$skiphandle\n";
+ print DOCITEM "sumAcctnum\^$sumAcctnum\n";
+ print DOCITEM "suggestAcctnum\^$suggestAcctnum\n" ;
+ print DOCITEM "summarizerfk\^$summarizerfk\n";
+ print DOCITEM "suggesterfk\^$suggesterfk\n";
+ print DOCITEM "changebyfk\^$changebyfk\n";
+ print DOCITEM "updated_on\^$updated_on\n";
+
+# $recsize; $worth; $imagedescr
+ 
+ close(DOCITEM);
+ chmod 0777, $docpath if($SVRinfo{'environment'} == 'development');
+
+ $export_docitem_cnt = $export_docitem_cnt + 1;
+
+########### TODO - export index here!! with stratus
+}
+
+
+sub import_docitems      ####     WE REALLY SHOULD DO CONTRIBUTORS FIRST  ###################
+{
+ my ($newsSSname,$mindocid_n,$maxdocid_n) = @_;  # one of the news or news archives SS - or - docid max and min
+
+ $itemcnt = 0;
+ $timesecs = time;
+ my $filename = "";
+ my $prevdocid = 0;
+ my $returnURL = "";
+
+ my $mindocid = padCount6($mindocid_n);   # in dbtables_ctrl.pl - counts
+ my $maxdocid = padCount6($maxdocid_n);
+
+ &read_sectCtrl_to_array;  #in sectsubs.pl - needed to get sectsubids
+
+ $dbh = &db_connect() if(!$dbh);   # in database.pl
+
+ my $idx_count_sth  = &DB_prepare_idx_count($dbh);     # maybe not used
+ my $doc_insert_sth = &DB_prepare_doc_insert($dbh);
+ my $idx_insert_sth = &DB_prepare_idx_insert($dbh);     # in indexes.pl
+
+
+ unless($newsSSname eq 'nomoreSS') {   # Do for each version of NewsDigest
+	 if($newsSSname =~ /NewsDigest_NewsItem/) {     # DO this list first - it is the latest TODO (later do this by year ???? - keep flatfile index by year)
+	    $dbh->do("TRUNCATE TABLE docitems");
+	    $dbh->do("TRUNCATE TABLE indexes");
+	
+	    $returnURL = "http://$scriptpath//article.pl?import%docitems%Headlines_sustainability%Suggested_suggestedItem%Suggested_summarizedItem%NewsScan_1_thru2010;NewsScan2_NewsItem;Archives2007Aug-2006Sep;ArchivesJan-Apr2003_item;ArchivesSep-Dec2002_item;ArchivesMay-Aug2002_item;ArchivesJan-Apr2002_item;ArchivesSep-Dec2001_item;ArchivesSep-Dec2000_item;ArchivesMay-Aug2000_item;noMoreSS%%";
+     }
+     else {                                        # Do each list successively until noMoreSS is reached, then work from items directory to pick up what is left
+	   ($newsSSname,$otherNewsSS) = split(/;/,$newsSSname,2);
+	     $returnURL = "http://$scriptpath//article.pl?import%docitems%$othernewsSS%%";
+    }
+	
+	 $lock_file = "$newsSSname.busy";
+     &waitIfBusy($lock_file, 'lock');
+     my $doclistpath = "$sectionpath/$newsSSname.idx";
+
+     open(INFILE, "$doclistpath");
+     while(<INFILE>) {
+	     chomp;
+	     $line = $_;
+	     ($docid,$stratus) = split(/\^/,$line,3);
+	     $itemcnt = $itemcnt + 1;
+		 $timesecs = $timesecs - 1;
+		
+		 last if($newsSSname eq 'Headlines_sustainability' and $itemcnt > 800);
+		
+		 &import_one_docitem($docid,$newsSSname,$itemcnt,$timesecs,$doc_insert_sth,$idx_insert_sth) 
+		     unless($docid eq $prev_docid);
+# unless(&DBdocitemExists($dbh,$docid) or $docid eq $prev_docid);
+		 $prev_docid = $docid;
+     } #end file
+     close(INFILE);
+ }
+ else {   # Comes here last, when nomoreSS is reached - pick up what is left in items/ directory
+     opendir(ITEMDIR, "$itempath");
+     my @itemfiles = readdir(ITEMDIR);
+     my @sortedfiles = sort @itemfiles;
+     closedir(ITEMDIR);
+
+     foreach $filename (@sorteditemfiles) {
+	    if(-f "$itempath/$filename" and $filename =~ /\.itm/) {
+		    $docid = split(/\./,$filename,2);
+		    unless($docid =~ /[0-6]{6}/) {
+			     print "$docid Invalid docid <br>\n";
+				 &write_index_flatfile("import_InvalidDocid",$docid,"","P","import_InvalidDocid","");  #log - in index.pl
+			     last;
+		    }
+			$itemcnt = $itemcnt + 1;
+		    &import_one_docitem($docid,$newsSSname,$itemcnt,$timesecs,$doc_insert_sth,$idx_insert_sth);
+#			&import_one_docitem($docid,$newsSSname,$itemcnt,$timesecs,$doc_insert_sth,$idx_insert_sth) unless(&DBdocitemExists($dbh,$docid));
+	    }
+    }
+ }
+ $doc_insert_sth->finish;
+ $idx_insert_sth->finish;
+
+ print "Source: $newsSSname completed ..min $mindocid ..max $maxdocid ..Item count: $itemcnt  .. doc2037<br>\n";
+ print "<a target=\"_blank\" href=\"$returnURL\">Click here</a> for the next section<br>\n" unless $newsSSname =~ /noMoreSS/;
+}
+
+
+
+sub import_one_docitem
+{
+ my ($docid,$newsSSname,$itemcnt,$timesecs,$doc_insert_sth,$idx_insert_sth) = @_;
+
+ my ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ = &get_doc_data($docid,'N');
+
+ if($headline =~ /File not found/) {
+	 print "$docid NOTFOUND -- $headline <br>\n";
+     &write_index_flatfile('import_NotFound',$docid,'','P','import_NotFound','');  #log - in index.pl
+     return;
+ }
+
+ $n_docid = int($docid);
+#                                                   # See if deleted	
+ $delfilepath = "$deletepath/$docid\.del";
+ my $deleted = 0;
+ $deleted = 1 if(-f "$deletepath");
+
+ if($newsSSname =~ /NewsDigest_NewsItem/ or $newsSSname =~ /Headlines_sustainability/ or $newsSSname=~ /Suggested_suggestedItem/) {
+#       my($syssec,$sysmin,$syshh,$sysday,$sysmonth,$sysyear) 
+    my($sec,$min,$hh,$dd,$mm,$yyyy,$wday,$yday,$isdst) = localtime($timesecs);
+    $woapubdatetm = &datetime_prep('yyyy-mm-dd hh:mm:ss',$sec,$min,$hh,$dd,$mm,$yyyy);
+ }
+ else {
+	$woapubdatetm = $epoch_time;
+ }
+
+ $pubdate = "" if($pubdate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);   # $epoch_time ?
+ $sysdate = "" if($sysdate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
+
+ if($pubdate and $pubdate !~ /0000-00-00/) {
+     $pubyear  = substr($pubdate,0,4);
+ }
+ elsif($sysdate) {
+     $pubyear  = substr($sysdate,0,4);	    
+ }
+ else {
+	 $pubyear = '0000';  
+ }
+
+ $expdate      = "" if($expdate      !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
+ $reappeardate = "" if($reappeardate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
+
+ if($straightHTML eq 'Y') {
+      $dtemplate = 'straight';
+      print "$docid STRAIGHT -- $headline <br>\n";
+      &write_index_flatfile ('import_Straight_html',$docid,'','P','import_Straight_html','');  #log - in index.pl
+ }
+
+ $sumAcctnum     = &remove_dups_from_list($sumAcctnum);
+ $suggestAcctnum = &remove_dups_from_list($suggestAcctnum);
+
+ my @regions = split(/;/,$region);
+ $region   = "";       # rebuild region - get rid of dups
+ $regionfks = "";       # rebuild regionfks - get rid of dups
+ my $regionx = "";
+ my $regionfksx = "";
+ my $regionCnt = 0;
+ foreach $regionx (@regions) {
+	$regionCnt = $regionCnt + 1;
+	if($regionCnt > 10) {
+		$region = "Global";
+		$regionfks = 1;
+		last;
+	}
+	$region = "$region;$regionx" unless($region =~ /$regionx/);
+	$regionfkx = &get_regionid($regionx);     # in regions.pl
+	$regionfks = "$regionfks;$regionfkx" unless($regionfks =~ /$regionfkx/)
+ }
+ $region   =~ s/^;//;  # get rid of leading semi-colons
+ $regionfks =~ s/^;//;  # get rid of leading semi-colons
+
+ $source   = &get_source_linkmatch($link) unless($source);
+ $sourcefk = &get_sourceid($source) if($source and !$sousrcefk);
+   
+ $dtemplate = $dTemplate;
+
+ $fullbody =~ s/\n+$//g;    ## trim trailing line feeds
+ $fullbody =~ s/\r+$//g;    ## trim trailing returns
+ $fullbody =~ s/\n\r+$//g;  ## trim trailing returns
+ $fullbody =~ s/\r\n+$//g;  ## trim trailing returns
+ $fullbody =~ s/^\n+//g;    ## trim leading line feeds
+ $fullbody =~ s/^\r+//g;    ## trim leading returns
+ $fullbody =~ s/^\n\r+//g;  ## trim leading returns
+ $fullbody =~ s/^\r\n+//g;  ## trim leading returns
+
+ $recsize = length($fullbody);
+
+ $body =~ s/\n+$//g;    ## trim trailing line feeds
+ $body =~ s/\r+$//g;    ## trim trailing returns
+ $body =~ s/\n\r+$//g;  ## trim trailing returns
+ $body =~ s/\r\n+$//g;  ## trim trailing returns
+ $points =~ s/\s+$//g;  ## trim white space
+ $points =~ s/\n+$//g;  ## trim trailing line feeds
+ $points =~ s/\r+$//g;  ## trim trailing returns
+ $points =~ s/\n\r+$//g; ## trim trailing returns
+ $points =~ s/\r\n+$//g; ## trim trailing returns
+ $points =~ s/\s+$//g;   ## trim white space
+
+ $sectsubs =~ s/NA`M;//;
+ $sectsubs =~ s/NA;//;
+
+ $doc_insert_sth->execute($n_docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk)
+      or die("Couldn't execute DB doc insert @doc2108 : " . $doc_insert_sth->errstr);
+
+ my @sectsubs = split(/;/,$sectsubs);
+ foreach $sectsub (@sectsubs) {
+    ($sectsubname,$stratus) = split(/`/, $sectsub,3);
+    &DB_update_sectsub_idx($idx_insert_sth,$sectsubname,$n_docid,$stratus,""); # in indexes.pl - will add to index
+ }
+}
+
+
 sub create_docitem_table {
-	#                        DO THIS MANUALLY ON THE DB SERVER
+#                        DO THIS MANUALLY ON THE DB SERVER
 #                    	docid smallint auto_increment PRIMARY KEY,    # do this later, after conversion
 	
 $DOCITEM_SQL  = <<ENDDOCITEM
- CREATE TABLE docitems (
-   docid          smallint unsigned not null,
-   deleted        bit(1)       default 0,
-   outdated       bit(1)       default 0,
-   nextdocid      smallint  unsigned default 0,
+CREATE TABLE docitems (
+   docid          smallint     unsigned not null,
+   deleted        tinyint      unsigned not null   default 0,
+   outdated       tinyint      unsigned not null   default 0,
+   nextdocid      smallint     unsigned default 0,
    priority       char(1)      default '4',
    headline       varchar(200) default '',
    regionhead     char(1)      default 'N',
-   skipheadline   bit(1)       default 0,
+   skipheadline   tinyint      unsigned not null   default 0,
    subheadline    varchar(200) default '',
-   unique         varchar(50)  default '',
+   special         varchar(50) default '',
    topic          varchar(50)  default '',
    link           varchar(200) default '',
-   skiplink       bit(1)  default 0,
-   selflink       char(1) default 'N',
-   sysdate        char(8) default '',
-   pubdate        char(8) default '',
-   pubyear        char(4) default '',
-   skippubdate    bit(1)  default 0,
-   woadatetime    datetime default null,
-   expdate        char(8) default '',
-   reappeardate   char(8) default '',
+   skiplink       tinyint      unsigned not null   default 0,
+   selflink       char(1)      default 'N',
+   sysdate        date         not null,
+   pubdate        date         default null,
+   pubyear        char(4)      default '',
+   skippubdate    tinyint      unsigned not null   default 0,
+   woapubdatetm   datetime     default null,
+   expdate        date         default null,
+   reappeardate   date         default null,
    region         varchar(100) default '',
-   regionfk       smallint  unsigned default 0,
-   skipregion     bit(1)       default 0,
-   source         varchar(100)  default '',
-   sourcefk       smallint  unsigned default 0,
-   skipsource     bit(1)       default 0,
+   regionfks      varchar(50)  default '',
+   skipregion     tinyint      unsigned not null   default 0,
+   source         varchar(100) default '',
+   sourcefk       smallint     unsigned default 0,
+   skipsource     tinyint      unsigned not null   default 0,
    author         varchar(100) default '',
-   skipauthor     bit(1)       default 1,
+   skipauthor     tinyint      unsigned not null   default 1,
    body           text,
    fullbody       text,
    freeview       char(1)       default 'N',
    points         text,
    comment        varchar(1000) default '',
+   bodyprenote    varchar(500)  default '',
+   bodypostnote   varchar(500)  default '',
    note           varchar(300)  default '',
    miscinfo       varchar(300)  default '',
    sectsubs       varchar(200)  default '',
    skiphandle     char(1)       default 'N',
    dtemplate      varchar(20)   default '',
    imagefile      varchar(150)  default '',
-   imagealt       varchar(150)  default '',
-   imagealt       char(1)       default '',
+   imageloc       varchar(150)  default '',
+   imagedescr     varchar(150)  default '',
+   recsize        smallint      unsigned default 0,
+   worth          decimal(5,2)  default 0,
    sumAcctnum     char(15)      default '',
    suggestAcctnum char(15)      default '',
-   summarizerfk   smallint  unsigned default 0,
-   suggesterfk    smallint  unsigned default 0,
-   changebyfk     smallint  unsigned default 0,
-   updated_on     date default null);
+   summarizerfk   smallint      unsigned default 0,
+   suggesterfk    smallint      unsigned default 0,
+   changebyfk     smallint      unsigned default 0,
+   updated_on     date          default null,
+   UNIQUE (docid) );
 ENDDOCITEM
 
 # INSERT INTO tablename (col_date) VALUE (CURDATE() )";           ###   date type = 'YYYY-MM-DD'
-}
-#48
-#docid,deleted,outdated,nextdocid,priority,headline,regionhead,skipheadline,subheadline,unique,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,skippubdate,woadatetime,expdate,        char(8) default '',
-#reappeardate,region,regionfk,skipregion,source,sourcefk,skipsource,author,skipauthor,body,fullbody,freeview,points,comment,note,miscinfo,
-#sectsubs,skiphandle,dtemplate,imagefile,imageloc,imagealt,sumAcctnum,suggestAcctnum,summarizerfk,suggesterfk,changebyfk,updated_on   
-
-#48
-#$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$unique,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
-#$skippubdate,$woadatetime,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$note,
-#$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagealt,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on CURDATE()
-
-#33
-#docid,deleted,priority,headline,regionhead,unique,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,expdate,region,regionfk,source,sourcefk,body,
-#fullbody,freeview,points,comment,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,sumAcctnum,suggestAcctnum,updated_on   
-
-#33
-#$docid,$deleted,$priority,$headline,$regionhead,$unique,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$expdate,$region,$regionfk,$source,$sourcefk,$body,
-#$fullbody,$freeview,$points,$comment,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagealt,$sumAcctnum,$suggestAcctnum,$updated_on CURDATE()
-
-
-sub import_docitems      ####     WE REALLY SHOULD DO CONTRIBUTORS AND INDEXES FIRST  ###################
-{
-  opendir(ITEMDIR, "$itempath");
-  my @itemfiles = readdir(ITEMDIR);
-  closedir(ITEMDIR);
-
-  $dbh = &db_connect() if(!$dbh);
-
-#  $dbh->do("TRUNCATE TABLE docitems");
-
-  my $doc_sth = $dbh->prepare("INSERT INTO docitem (docid,deleted,priority,headline,regionhead,unique,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,expdate,region,regionfk,source,sourcefk,body,ullbody,freeview,points,comment,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,sumAcctnum,suggestAcctnum,updated_on)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE() )" );
-	
-  my $filename = "";
-  foreach $filename (@itemfiles) {
-
-     unless(-f "$itempath/$filename" and $filename =~ /\.itm/) {
-	     last;
-	 }
-	     
-	 &get_doc_data($filename,'N');
-	
-	 unless($docid =~ /[0-6]{6}/) {
-	      print "$docid Invalid docid <br>\n";
-		  &write_index_flatfile ('Invalid_docid',$docid,'','');
-	      last;
-	 }
-	
-	 $n_docid = int($docid);
-#                                                   # See if deleted	
-	 my($delfilename,$rest) = strip(/\./,$filename,2);
-	 $delfilename = $delfilename . '/\.del';
-     $deleted = 1 if(-f "$deletepath/$delfilename");
-      
-     if($pubdate) {
-          $pubyear  = substr($pubdate, 4, 5);
-     }
-     elsif($sysdate) {
-          $pubyear  = substr($sysdate, 4, 5);	    
-     }
-
-     if($straightHTML eq 'Y') {
-          $dtemplate = 'straight';
-          print "$docid STRAIGHT -- $headline <br>\n";
-	      &write_index_flatfile ('Straight_html',$docid,'','');  #log all straight templates - these may not really be data
-	 }
- 
-     $regionfk = &get_regionid($region) unless($regionfk);
-
-	 $source   = &get_source_linkmatch($link) unless($source);
-	
-     $sourcefk = &get_sourceid($source) if($source and !$sousrcefk);
-      
-     $dtemplate = $dTemplate;
-
-     $doc_sth->execute($docid,$deleted,$priority,$headline,$regionhead,$unique,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$expdate,$region,$regionfk,$source,$sourcefk,$body,$fullbody,$freeview,$points,$comment,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagealt,$sumAcctnum,$suggestAcctnum);
-
-     my @sectsubs = split(/;/,$sectsubs);
-     foreach $sectsub (@sectsubs) {
-		 my $index_exists = &if_exists_DBindex($sectsub,$docid);
-		 unless($index_exists or $DB_indexes < 1) {
-              my $lifo_sth = &DB_prepare_lifonum; #Prepare for execute in &updt_subsection_index
-              my $maxsth   = &DB_prepare_getnew_lifo;
-    	      &DB_add_to_indexes ($lifo_sth,$maxsth,$SSid,$docid,$stratus,$pubdate,$sysdate,$region,$headline,$topic,$stratus,$fLifonum);
-## ??? Which? &DB_add_to_indexes  - or - &updt_subsection_index ??????
-	          my($sectsubname,$rSectid,$rSubid,$stratus,$lifonum) = &split_sectsub($sectsub);  ## in indexes.pl
-	          &split_section_ctrlB($sectsubname);
-	          &updt_subsection_index($lifo_sth,$maxsth,$sectsubname,$cSSid,$cOrder,$pubdate,$sysdate,$headline,$region,$topic,$stratus,$lifonum);
-         }
-     }
-
-#	Error message is "failed in fetchrow for maxlifo at indexes.pl". Location of error is in sub DB_getnew_lifo . A comment from an earlier attempt says "There is another way to get the max - see regions table in controlfiles (changed to regions.pl).
-#	DB_indexes in the switches_codes table must be set to 1 in order for the indexes table to be accessed. Otherwise the script falls back to the flat files where order is determined by the physicalorder in the index flatfile rather than by Lifo.
-	
-  }
-	
 }
 
 1;

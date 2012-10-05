@@ -80,8 +80,6 @@ sub flatfile_getrows_2array
 	       ($id,$seq,$sectsub,$value) = split(/\^/,$line,4);
 	       $sectsubinfo = "$id^$seq^$sectsub^$value";
 	       $CSINDEX{$sectsub} = $line;
-	#$csindex = $CSINDEX{$sectsub};
-	# print "sec49 ..csindex $csindex<br>\n";
 	       $CSARRAY[$CSidx] = $line;
            $CSSEQ{$seq} = 'T';   #sequence numbers should be unique
 		   $cSectsub = $line;
@@ -145,16 +143,32 @@ sub ck_headlines_priority {   #from article.pl
   }	
 }
 
-sub DB_get_sectsubid
+sub get_sectsubid
 {
- my($sectsubname) = @_;
- my $sth = $dbh->prepare( 'SELECT sectsubid FROM sectsubs where sectsub = ?' );
- $sth->execute($sectsubname);
- my $sectsubid = $sth->fetchrow_array();
- $sth->finish();
- return($sectsubid);
+  my $sectsubname = $_[0];
+  if($DB_sectsubs > 0) {
+	 $id = &DB_get_sectsubid
+  }
+  elsif($CSINDEX{$sectsubname}) {
+     $sectsubinfo = $CSINDEX{$sectsubname};
+     &split_sectionCtrl($sectsubinfo);
+  }
+  else {
+     $id = 0;
+  }
+  return($id);
 }
 
+sub DB_get_sectsubid
+{
+ my $sectsubname = $_[0];
+ my $sth = $dbh->prepare( 'SELECT sectsubid FROM sectsubs where sectsub = ?' );
+ $sth->execute($sectsubname);
+ my $SSid = $sth->fetchrow_array();
+ $sth->finish();
+ $SSid = 0 unless($SSid);
+ return($SSid);
+}
 
 sub DB_get_sectsubinfo
 {
@@ -333,7 +347,7 @@ sub do_newsprocsectsub { # NewsDigest, Headlines, Suggested, Summarized, Archive
 	@sectsubs = split(/;/, $oldsectsubs);
     $sectsubs = "";   #we will rebuild sectsubs
 	foreach $sectsub (@sectsubs) {
-		($dSectsubname,$docloc,$lifonum) = split(/`/, $sectsub,2);   # get rid of stratus A...M...Z
+		($dSectsubname,$docloc,$lifonum) = split(/`/, $sectsub,3);   # get rid of stratus A...M...Z
 		if($newsSections =~ /$dSectsubname/) { # Find the sectsub that is a News type
 			if($dSectsubname =~ /$newsprocsectsub/) { #If no change,
 				$newschg = 'N';
@@ -660,7 +674,7 @@ sub add_subinfo
 
 sub change_sectsubs_for_updt_selected
 {
-  if($priority  =~ /D/
+   if($priority  =~ /D/
    or ($ipform =~ /chaseLink/ and $selitem =~ /Y/ and $pgitemcnt !~ /9998/) ) {
      $delsectsubs = $sectsubs;
      $sectsubs    = $deleteSS;
@@ -687,8 +701,7 @@ sub change_sectsubs_for_updt_selected
      $addsectsubs =~  s/^;+//;
      $delsectsubs =~  s/^;+//;
      $sectsubs = $fSectsubs;
-     &add_extra_sections;
-	
+     &add_extra_sections;	
      &add_subinfo;
   }
 }
