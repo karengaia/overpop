@@ -108,7 +108,7 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 		        type="text/javascript"></script><small>
 		<a href="http://overpopulation.org/sitemap.html">Site Map</a> |		
 		<a href="http://mobile.overpopulation.org"><acronym title="WOA!! for your handheld">Mobile</acronym></a> |
-		<a href="http://www.facebook.com/#!/pages/World-Overpopulation-Awareness/153698908009675"><acronym title="Visit WOA!!s Facebook page">Facebook</acronym></a>
+		<a href="http://www.facebook.com/Overpopulation.org"><acronym title="Visit WOA!!s Facebook page">Facebook</acronym></a>
         </small>
 		</div>
 		<div class="not"><img src="/img/WOA_logo_TN.png"></div>

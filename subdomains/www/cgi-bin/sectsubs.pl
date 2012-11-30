@@ -859,8 +859,8 @@ print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<b
 	 exit;
   }
   else {
-	  my $sectionsbkppath = "$controlpath/sections_bkp.html";
-	  my $sectionspath    = "$controlpath/sections.html";
+	  my $sectionsbkppath = "$expcontrolpath/sections_bkp.html";
+	  my $sectionspath    = "$expcontrolpath/sections.html";
 	  unlink $sectionexppath if(-f $sectionexppath);
 	  sleep (3);
 	  print "File was not deleted - $sectionsexppath<br>\n" if(-f $sectionexppath);

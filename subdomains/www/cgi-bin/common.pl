@@ -121,21 +121,23 @@ sub get_site_info
 
   $publicdir  = $SVRinfo{'public_dir'};
   
-  $autosubdir    = "$publicdir/autosubmit";
-  $controlpath   = "$autosubdir/control";
-  $templatepath  = "$autosubdir/templates";
+  $autosubdir     = "$publicdir/autosubmit";
+  $controlpath    = "$autosubdir/control";
+  $expcontrolpath = "$autosubdir/controlExport";
+  $bkpcontrolpath = "$autosubdir/control_Bkp";
+  $templatepath   = "$autosubdir/templates";
   $templateMidpath = "$autosubdir/templatesMid";
-  $itempath      = "$autosubdir/items";
-  $itempathsave  = "$autosubdir/itemsSave";
-  $expitempath   = "$autosubdir/itemsExport";
-  $sectionpath   = "$autosubdir/sections";
+  $itempath       = "$autosubdir/items";
+  $itempathsave   = "$autosubdir/itemsSave";
+  $expitempath    = "$autosubdir/itemsExport";
+  $sectionpath    = "$autosubdir/sections";
   $expsectionpath = "$autosubdir/sectionsExport";
-  $deletepath    = "$autosubdir/deleted";
-  $keywordpath   = "$autosubdir/keywords";
-  $logpath       = "$autosubdir/log";
-  $statuspath    = "$autosubdir/status";
-  $elistpath     = "$autosubdir/elists";
-  $popnewspath   = "$autosubdir/popnews";
+  $deletepath     = "$autosubdir/deleted";
+  $keywordpath    = "$autosubdir/keywords";
+  $logpath        = "$autosubdir/log";
+  $statuspath     = "$autosubdir/status";
+  $elistpath      = "$autosubdir/elists";
+  $popnewspath    = "$autosubdir/popnews";
 
   $prepagepath   = "$publicdir/prepage";
     
@@ -152,8 +154,8 @@ sub get_site_info
   
   $destserv      = "$SVRdest{acctID}\@$SVRdest{IP}";
 
-  $dest_home     = $SVRdest{home};
-  $dest_public   = $SVRdest{public}; 
+  $dest_home     = $SVRdest{'home'};
+  $dest_public   = $SVRdest{'public'}; 
 
 ##  Note: for ftp we start at account
 
@@ -175,26 +177,17 @@ sub get_site_info
   $dest_mailbkp       = "popnews_bkp"; 
   $dest_hitCntPath    = "$SVRdest{public}/counter";
 
-#print "<font size=\"1\" face=\"verdana\" com189 svrname $svrname<br>\n";
-#print "--- pophome $pophome<br>\n";
-#print "--- cgiSite $cgiSite<br>\n";
-#print "--- cgiPath $cgiPath<br>\n";
-#print "--- publicUrl $publicUrl<br>\n";
-#print "--- scriptpath $scriptpath<br>\n";
-#print "--- publicdir $publicdir<br>\n";
-#print "--- autosubdir $autosubdir<br>\n";
-#print "--- mailpath $mailpath<br>\n";
-#print "--- hitCntPath $hitCntPath<br>\n";
-#print "--- statuspath $statuspath<br>\n";
 
-  $SVRinfo{master}    = 'yes' if("-f $statuspath/masterserver.on");
-  $svr_master         = $SVRinfo{master};
+  $SVRinfo{'master'}    = 'yes' if("-f $statuspath/masterserver.on");
+  $svr_master         = $SVRinfo{'master'};
     
   $dbgmsg =  "masterON?-<br>\n" if($debug =~ /Y/);
   
   $recentpath    = "$sectionpath/recent.idx";
   $sectionctrl   = "$controlpath/sections.html";
   $contributors  = "$controlpath/contributors.html";
+  $users         = "$controlpath/users.html";
+  $editors       = "$controlpath/editors.html";
   $sources       = "$controlpath/sources.html";
   $regions       = "$controlpath/regions.html";
   $newsources    = "$controlpath/newsources.html";
@@ -232,14 +225,21 @@ sub get_site_info
    
   $adminMsgFont = "<font size=2 face=\"comic sans ms\" color=#CC6666>";
 # meta characters
-  $mLT = '&lt;';
-  $mGT = '&gt';
+  $mLT    = '&lt;';
+  $mGT    = '&gt';
   $mQUOTE = '&quot;';
-  $mAMP = '&amp;';
-  $mCOPY = '&copy;'; ## copyright symbol
-  $mBUL  = '&middot;';
+  $mAMP   = '&amp;';
+  $mCOPY  = '&copy;'; ## copyright symbol
+  $mBUL   = '&middot;';
 
   $DELETELIST = "";
+  %USRINDEX    = {};
+  %EDITOR      = {};
+  %EDITORINDEX = {};
+  %CSINDEX     = {};
+  %DOCARRAY    = {};
+  %USERidINDEX = {};
+  $CONTRIB_DATA = "";
   
   $gContent_type_html = "Content-type:"."text/"."html\n\n";
   return();
@@ -248,27 +248,45 @@ sub get_site_info
 
 sub calc_idxSeqNbr
 {
- local($itemnbr) = $_[0];
- local ($count) = 999999;
+ my $itemnbr = $_[0];
+ my $count = 999999;
  $count = $itemnbr          if $cOrder eq 'F';
  $count = 999999 - $itemnbr if $cOrder eq 'L';
  $count = &padCount6("$count");
  return $count;  
 }
 
-##Gets an anonymous file handle so each can be unique
 
-sub getnewFH
+sub backup_setup_flatfile
 {
-  local  *newFH;
-  return *newFH;	
-} 
+  my($filepath,$filebkppath,$fileorigpath) = @_;
+  my $result = "";
 
+  if(-f $filepath) {
+	  if($fileorigpath) {
+	      system "cp $filepath $fileorigpath" unless(-f $fileorigpath);   # backup original if first time
+	  }
 
-sub exampleFH  ## example
-{
- $idxFH = getnewFH();
- open($idxFH, ">>$sectionfile");  #open a new one
+	  unlink($filebkppath)  if(-f $filebkppath);
+	  sleep (3);
+	  $result = "File bkp was not deleted - $filebkppath in backup_unlink_flatfile  cm263" if(-f $filebkppath);
+
+	  system "cp $filepath $filebkppath";   # back up old users.html path
+	  sleep (3);
+	  $result = "File was not copied to bkp - $filebkppath in  backup_unlink_flatfile  cm263" unless(-f $filebkppath);
+
+	  unlink($filepath);
+	  sleep (3);
+	  $result = "File was not deleted - $filepath in backup_unlink_flatfile  cm263" if(-f $filepath);
+	
+	  &printInvalidExit($result) if($result);
+  }
+
+  if($SVRinfo{'environment'} == 'development') {  ## set permissions if using Karen's Mac as the server
+    system('touch $filepath') unless(-f '$filepath');
+    system('chmod 0777, $filepath');
+  }
+  return("");
 }
 
 
@@ -396,14 +414,14 @@ sub strip_leadingSPlineBR
 
 sub strip_leadingNonAlphnum	
 { 
-  local($datafield) = $_[0];
+  my $datafield = $_[0];
   $datafield =~ s/^\w+//g;                         # eliminate leading non AlphaNumeric
   return($datafield);
 }
 
 sub stripLeadgTrailgSP
 {
-  local($datefield,$garbage) = @_;
+  my($datefield,$garbage) = @_;
   $datafield =~  s/^\s*//mg; # strip leading spaces
   $datafield =~ s/\s+$//mg; ## strip trailing spaces
   return($datafield);
@@ -411,8 +429,8 @@ sub stripLeadgTrailgSP
 
 sub separate_with_Parens
 {
- local($datafield) = $_[0];
- local($rest) = "";
+ my($datafield) = $_[0];
+ my $rest = "";
   $_ = $datafield;
  tr/()/|~/;       # change Left parens to | and right parens to ~
  $datafield = $_;
@@ -430,7 +448,7 @@ sub separate_with_Parens
 
 sub separate_variable_into_parts
 {
- local($variable,$sepsymbol,$partnum) = @_;
+ my($variable,$sepsymbol,$partnum) = @_;
   if($sepsymbol =~ /\(/ or $sepsymbol =~ /\)/){
      $_ = $variable;
      tr/()/|~/;       # change Left parens to | and right parens to ~
@@ -451,8 +469,8 @@ sub separate_variable_into_parts
 
 sub do_split_variable
 {
- local($variable,$sepsymbol,$partnum) = @_;
- local($rest,$rest1,$rest2,$rest3,$rest4,$rest5);
+ my($variable,$sepsymbol,$partnum) = @_;
+ my($rest,$rest1,$rest2,$rest3,$rest4,$rest5);
  
   ($variable,$rest)               = split(/$sepsymbol/,$locline,2) if($partnum eq '1');
   ($rest1,$variable,$rest)        = split(/$sepsymbol/,$locline,3) if($partnum eq '2');

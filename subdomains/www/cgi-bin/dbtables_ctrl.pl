@@ -28,6 +28,19 @@ sub DB_controller {       #comes here from article.pl
 	    &import_docitems($one,$two,$three) if($DBcmd =~ /import/);   # in docitems.pl
 	    &export_docitems($one,$two,$three) if($DBcmd =~ /export/);   # in docitems.pl
 	}
+	elsif($table =~ /users/) { 
+	    &import_users_first_time if($DBcmd =~ /import/ and $one eq '1st');   # in users.pl  #imports users, editors, contributors
+		&import_users            if($DBcmd =~ /import/ and $one ne '1st');   # in users.pl 
+	    &export_users            if($DBcmd =~ /export/);   # in users.pl
+	}
+	elsif($table =~ /editors/) {  
+		&import_editors   if($DBcmd =~ /import/);   # in editors.pl
+		&export_editors   if($DBcmd =~ /export/);   # in editors.pl
+	}
+	elsif($table =~ /contributors/) {  
+		&import_contributors if($DBcmd =~ /import/);   # in contributors.pl
+		&export_contributors          if($DBcmd =~ /export/);   # in contributors.pl
+	}
 	elsif($table =~ /indexes/) {  #  DO WE NEED? DO THIS IN DOCITEMS
 	    &export_indexes if($DBcmd =~ /export/);   
 	}
@@ -96,6 +109,7 @@ sub DB_get_switches_counts
 	$DB_regions  = 0;
 	$DB_sources  = 0;
 	$DB_sectsubs = 0;
+	$DB_users = 0;
 	$DB_others   = 0;	
 	$doc_update_sth = "";
 	$doc_insert_sth = "";
@@ -120,6 +134,7 @@ sub DB_get_switches_counts
 				$DB_regions  = $switch_count if($name =~ /DB_regions/);
 				$DB_sources  = $switch_count if($name =~ /DB_sources/);
 				$DB_sectsubs = $switch_count if($name =~ /DB_sectsubs/);
+				$DB_users = $switch_count if($name =~ /DB_users/);
 				$DB_others   = $switch_count if($name =~ /DB_others/);  # all other tables
 				$gTrace      = $switch_count if($name =~ /Trace/);
 		   }

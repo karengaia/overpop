@@ -3,10 +3,10 @@
 <title>WOA!!s Summarization Form</title>
 [TEMPLATE=saveSummaryJS]
 </head>
-<body basefont=arial link="blue" vlink="blue" alink="green"  bgcolor="FFCC99">
+<body basefont=arial link="blue" vlink="blue" alink="green"  bgcolor="FFEECC">
 <blockquote>
 <p>
-<table cellpadding=0 cellspacing=0 align=right><tr><td><img src="http://www.[CGISITE]/woaLogoAN.gif" hspace=20></td>
+<table cellpadding=0 cellspacing=0 align=right>
 <tr><td><center>
    <table cellpadding=0 cellspacing=0><td><a target=_top   
     href="http://www.[CGISITE].net"><font face=arial size=2 color="#000000">
@@ -29,6 +29,7 @@ submitter: [firstname] [mi] [lastname]
 <font size=1 face=arial>
 [SRCDATE]
 &nbsp;[source]
+<cite>&nbsp;&nbsp;&nbsp;<a target="_blank" href="[link]">Open url</a></cite>
 </font>
 </center>
 
@@ -73,7 +74,7 @@ submitter: [firstname] [mi] [lastname]
 <input type="hidden" name="sectsubs" value="[sectsubs]"> 
 <input type="hidden" name="comment" value="[comment]"> 
 
-<TABLE><TD width=400 valign=top>
+<TABLE><TD width=45% valign=top>
 
 <table>
 <td valign=top>
@@ -92,21 +93,20 @@ Follow the <br><a href=#guidelines>guidelines </a><br>below</font><br>
 </td></table>
 
 <br>
-    <b>Please write the summary of the article/item here:</b></font><br> 
-    <textarea name="body" wrap="soft" rows="20" cols=55">[body]</textarea>
-    <br> <font size=1 face="comic sans ms">Text will wrap. Extra spaces and
-    line returns do not matter</font>
+    <font size=2 face="comic sans ms"><b>Write the summary of the article/item here:</b><br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<small>Click here to copy full article below:</small></font>&nbsp;
+	<input type="radio" name="getfullbody" value="A" 
+	   onclick="document.getElementById('body').value=document.getElementById('fullbody').value;"></cite><br>
+	
+    <textarea id="body" name="body" wrap="soft" rows="30" cols=75">[body]</textarea>
+    <br> <font size=1 face="comic sans ms">Text will wrap. Try to maintain paragraph spacing by using a double return when necessary.</font>
 
 <p>
     <b>Make or add any remarks here:</b> &nbsp;&nbsp;
    <font size=1 face="comic sans ms"></font><br>
-    <textarea name="note" wrap="soft" rows="2" cols=55">
+    <textarea name="note" wrap="soft" rows="3" cols=75">
     [note]</textarea>
-
-<p>
+<br> <font size=1 face="comic sans ms">No guarantee remarks will be published</font>
 <br>
-[ADVANCE]
-<p>
 
 <table>
 <td><input type="submit" value="SUBMIT" name="submit"></td>
@@ -120,11 +120,11 @@ Follow the <br><a href=#guidelines>guidelines </a><br>below</font><br>
 <a name=guidelines></a>
 <hr width=300>
 
+<br><br>
+<div style="width:100%;font-family:verdana;font-size:100%;background-color:#fcfcfc;padding:8px;">
+<h3>Why do we Summarize Population <br>and Environmental
+News?</h3>
 <p>
-<font face=verdana size=3><b>Why do we Summarize Population <br>and Environmental
-News?</b></font>
-<p>
-<font face=arial size=2>
 The News Digest, which is on the <a
 href="http://www.[CGISITE]">front page of WOA!!</a>
 provides a large set of news items in summarized form for quick scanning by
@@ -224,31 +224,18 @@ Occasionally more than one country or region will be shown in the article. Both 
 <p>
 There is one tricky thing about this type of scroll-down box - once you click your left mouse button inside the box, the selected country becomes unselected, even if you didn't want it to, and there is no way to get it back unless you click on it again.
 <p>
-To select more than one country, hold down the CTRL key (usually at the bottom left of your keyboard while you are clicking (left mouse button) on second or subsequent countries you are selecting.
+To select more than one country, hold down the CTRL key (COMMAND key on a MAC) (usually at the bottom left of your keyboard while you are clicking (left mouse button) on second or subsequent countries you are selecting.
 <p>
 If none of this is clear, you always have the option of noting the country in the Remarks box.
-
-</TD><TD width=5>&nbsp;</TD><TD width=45% align=left valign=top>
+</div>
+</TD><TD width='45%' align=left valign=top>
 <p><br>
 <b>Here is the full article to summarize from:</b></font>
-<table border=1 cellpadding=5 cellspacing=0><td>
-<font size=2 face=arial>
-[FULLBODY]
-</font>
-</td></table>
+<textarea id="fullbody" name="fullbody" wrap="soft" readonly="readonly" rows='40' cols='75' style="border:none;background-color:#fcfcfc;">
+[fullbody]
+</textarea>
 
 </TD></TABLE>
 
-
-
-
-<br><br><br><br><br><br><br><br><br><br><br>
-<br><br><br><br><br><br><br><br><br><br><br><br>
-<br>
-
-<div align=right>
-<textarea name="fullbody" wrap="soft" rows="1" cols="1">[fullbody]</textarea>
-<font size=1 face=arial>please ignore</font>
-</div>
 </form>
 </html>

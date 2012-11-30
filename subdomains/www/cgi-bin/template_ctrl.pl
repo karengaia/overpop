@@ -130,8 +130,6 @@ close(MIDTEMPL);
 unlink "$templateMidpath/$templfile.mid";
 
  @templates = "";
-
- ## die if($line =~ /\/html>/);
 }
 
 ## 080
@@ -281,7 +279,7 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[LAST_FTPDATE\]/) {
    	if(-f $lastFTPfile) {
            @datetime = stat($lastFTPfile);
-           local($lastFTPdate) = &datetime_prep('yyyy-mm-dd',@datetime);
+           my $lastFTPdate = &datetime_prep('yyyy-mm-dd',@datetime);
            print MIDTEMPL "$lastFTPdate";
         }
    }
@@ -308,6 +306,10 @@ sub do_imbedded_commands
 
    elsif($linecmd =~ /\[END_OF_PAGES_INDEX\]/) {  # 'Y' = end of subsection
        &print_pages_index($pg_num,$cSectsubid,$itemMax,$totalItems,$pg1max,'Y'); ## in sections.pl
+   }
+
+   elsif($linecmd =~ /\[OPAX\]/) {
+		print MIDTEMPL "$operator_userid";
    }
 
    elsif($linecmd =~ /\[DIV_CLASS\]/) {
@@ -368,7 +370,35 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[USER\]/) {
-   	&get_userinfo;   # in contributor.pl
+	   &get_summarizer_name($sumAcctnum);   # in editor.pl
+   }
+
+    elsif($linecmd =~ /\[CMD_APP\]/) {
+    print MIDTEMPL 'start_acctapp' unless($uid > 0);
+    print MIDTEMPL 'update_acct'   if($uid > 0);
+    }
+
+   elsif($linecmd =~ /\[HIDEDIV\]/) {
+       print MIDTEMPL " class=\"hide\" " unless($operator_access =~ /[ABCD]/ );
+   }
+
+   elsif($linecmd =~ /\[APPROVED_CHECKYES\]/) {
+       print MIDTEMPL " checked " if($uapproved == 1);
+   }
+
+   elsif($linecmd =~ /\[APPROVED_CHECKNO\]/) {
+       print MIDTEMPL " checked " unless($uapproved == 1);
+   }
+
+   elsif($linecmd =~ /\[CHECKED=*.\]/) {
+      my ($rest, $value) = split(/=/,$linecmd);
+      ($value,$rest)  = split(/\]/,$value);
+      print  MIDTEMPL " checked " if($upayrole) =~ /$value/;
+   }
+
+   elsif($linecmd =~ /\[APPLY_CHANGE\]/) {
+       print MIDTEMPL "CHANGE" if($uid > 0);
+       print MIDTEMPL "APPLY"  unless($uid > 0);
    }
 
    elsif($linecmd =~ /\[SUBTITLE\]/) {
@@ -778,7 +808,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[SUGGESTOR_NAME\]/) {
-         &get_suggestor_name;  ## found in contributor.pl
+         &get_suggestor_name($suggestAcctnum);  ## found in contributor.pl
    }
 
    elsif($linecmd =~ /\[STD_ITEM_TOP\]/) {

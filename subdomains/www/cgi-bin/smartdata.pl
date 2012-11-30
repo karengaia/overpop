@@ -154,11 +154,13 @@ sub assign_msglines
 ##               A LOT OF THIS IS REDUNDANT WITH &assign_std_variables
 	if($msgline =~ /^HH /) {
         ($rest,$headline) = split(/HH /,$msgline,2);
-		if($headline =~ /[DATE:|date:|DATELINE|DD ]/) {
+		if($headline =~ /[DATE:|date:|DATELINE|DD |DD:|Published:]/) {
 			($headline,$date) = split(/DATE:/,$headline,2) if $headline =~ /DATE:/;
 			($headline,$date) = split(/Date:/,$headline,2) if $headline =~ /Date:/;
 			($headline,$date) = split(/DD /,$headline,2) if $headline =~ /DD /;
 			($headline,$date) = split(/DATELINE/,$headline,2) if $headline =~ /DATELINE/;
+			($headline,$date) = split(/Published:/,$headline,2) if $headline =~ /Published/;
+			($headline,$date) = split(/DD:/,$headline,2) if $headline =~ /DD:/;
 		    $msgline_anydate = $date if(!$msgline_anydate);
 		}
 	}
@@ -301,7 +303,7 @@ sub assign_std_variables
  my $msgline = $_[0];
 	#     for newsclip email parsing - need to do this with hashed pairs
  $std_variables =
-"docid^DOCID::`docaction^DOCACTION::`handle^HANDLE::`headline^HH |HEADLINE:|HEADLINE :|HEADLINE::|Headline :|Review:|Blog:|Opinion:|EDITORIAL:|OPINION:`source^SS |SOURCE:|Source:|Source :|SOURCE :|SOURCE::`region^RR `pdate^DD |DATE::|Date :|DATE:`userid^USERID:|USERID::`body^SUMMARY::`fullbody^FULL_ARTICLE::`author^AA |By:|AUTHOR:|AUTHOR :|Author :|AUTHOR::`priority^PRIORITY::`";
+"docid^DOCID::`docaction^DOCACTION::`handle^HANDLE::`headline^HH |HEADLINE:|HEADLINE :|HEADLINE::|Headline :|Review:|Blog:|Opinion:|EDITORIAL:|OPINION:`source^SS |SOURCE:|Source:|Source :|SOURCE :|SOURCE::`region^RR `pdate^DD |DD:|DATE::|Date :|DATE:|DATELINE|Published:`userid^USERID:|USERID::`body^SUMMARY::`fullbody^FULL_ARTICLE::`author^AA |By:|AUTHOR:|AUTHOR :|Author :|AUTHOR::`priority^PRIORITY::`";
 
   @stdVariables = split(/`/, $std_variables);
  $splitter = "";
@@ -541,6 +543,8 @@ sub refine_headline
   
   ($rest,$headline) = split(/Articles/,$headline) if($ehandle =~ /push/ and $headline =~ /Articles/);
   $headline = &strip_leadingSPlineBR($headline);
+  $headline =~ s/^ //;
+  $headline =~ s/^;//;
 }
 
 
@@ -559,8 +563,8 @@ sub refine_source
  $source =~  s/ +$//;  #get rid of trailing spaces
  if(!$source and $ehandle =~ /push/) {
     ($rest,$source)  = split(/Source :/,$emessage) if($emessage =~ /Source :/);
-    ($source,$rest)  = split(/Byline :/,$source,2) if($source =~ /Byline :/);
-    ($source,$rest)  = split(/Author :/,$source,2) if($source =~ /Author :/);
+    ($source,$rest)  = split(/Byline :/,$source,2) if($source   =~ /Byline :/);
+    ($source,$rest)  = split(/Author :/,$source,2) if($source   =~ /Author :/);
     ($source,$rest)  = split(/\n/,$source,2);
     ($source,$rest)  = split(/\r/,$source,2);
  }
@@ -572,7 +576,6 @@ sub refine_source
 
  if($source) {
    ($source,$rest) = split(/Author/,$source,2) if($source =~ /Author/);
-##   &printShadowMsg("doc516-4c $source");
    $source =~  s/^\/+//;  #get rid of leading backslashes
    $source =~ s/\s+$//;   #get rid of trailing garbage
    $source =~ s/[!@#\$%\&\*\+_\-=:\";'?\/,\.]+$//;

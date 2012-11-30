@@ -173,9 +173,7 @@ document.getElementById('actitle').value = ac[1];
 <br><br>
 69.51.83.203 - Overpopulation.org IP addr
 <br><br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_summarizedItem%%%20">Summarized</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[summarizedcnt]</span><br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[suggestedcnt]</span>
-<br><br>
+
 <b>Server:</b>&nbsp;
 [svrinfoSvrname]
 <br>
@@ -375,9 +373,9 @@ prvw <input id="preview" type="text" size="2" maxlength="2" name="preview" value
 ord1 <input id="order1" type="text" size="2" maxlength="2" name="order1" value="[order1]">
 ord2<input id="pg2order" type="text" size="2" maxlength="2" name="pg2order" value="[pg2order]"><br>
 template <input id="template" type="text" size="15" maxlength="25" name="template" value="[template]"><br>
-title <input id="title" type="text" size="15" maxlength="25" name="title" value="[title]">
+title <input id="title" type="text" size="15" maxlength="150" name="title" value="[title]">
 titletmpl <input id="titletemplate" type="text" size="12" maxlength="25" name="titletemplate" value="[titletemplate]"><br>
-subtitle <input id="subtitle" type="text" size="15" maxlength="50" name="subtitle" value="[subtitle]"><br>
+subtitle <input id="subtitle" type="text" size="15" maxlength="100" name="subtitle" value="[subtitle]"><br>
 subtempl <input id="subtitletemplate" type="text" size="12" maxlength="25" name="subtitletemplate" value="[subtitletemplate]"><br>
 allor1 <input id="allor1" type="text" size="5" maxlength="4" name="allor1" value="[allor1]">
 mobidesk <input id="mobidesk" type="text" size="5" maxlength="4" name="mobidesk" value="[mobidesk]">
@@ -402,7 +400,6 @@ keywords <input id="keywordsmatch" type="text" size="15" maxlength="50" name="ke
 <!-- RIGHT COLUMN -->
 
 <td style="width:40%;padding-left:15px; vertical-align:top;">
-
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%newItemParse%%%%A3491">New Article (All-in-One) Form</a><br><br>
 
 <b class="head">Acronyms</b>
@@ -413,18 +410,24 @@ keywords <input id="keywordsmatch" type="text" size="15" maxlength="50" name="ke
 <br><br>
 <b class="head">Worklists</b><br>
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Headlines_priority%%%100">Headlines Priority</a><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested Update List</a><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491">
-  Select email</a><br>
-<a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?clean_index%%%Suggested_emailedItem%%A3491">Clean email index</a><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsDigest_NewsItem%">News on the fly</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Headlines_priority%%%100">Headlines Priority</a>&nbsp;&nbsp;
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%fly%Headlines_sustainability%">Headlines</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsDigest_NewsItem%">News on the fly</a>&nbsp;&nbsp;
 <a target="_blank" href="http://[PUBLICURL]/autosubmit/prepage/newsScan.html">news prepage</a><br>
 <br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491">
+  Select email</a> &nbsp;&nbsp; &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+
+<a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?clean_index%%%Suggested_emailedItem%%A3491">Clean email index</a><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_summarizedItem%%%20">Summarized</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[summarizedcnt]</span> &nbsp;&nbsp;
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%headlineHandleItem%%Suggested_summarizedItem%%%50">Summarized List</a><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[suggestedcnt]</span>&nbsp;&nbsp;
+
+<a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%newsitem%%Suggested_suggestedItem%%%50">Suggested list</a><br>
+
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_newArticle">New Article</a><br>
 <br>
 <a target="_blank" href="http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?list_sepmail%%">List Sepmail (popnews in)</a><br>
@@ -441,10 +444,13 @@ http://overpopulation.org/mail-list/quickmsg.php
 <b>Email Popnews</b>&nbsp;<a target="blank" href="http://overpopulation.org/mail-list/quickmsg.php">List admin PHP</a>
 <br><br>
 <b class="head">Owner:</b>
-<a target="_blank" href="http://[PUBLICURL]/prepage/viewOwnerUpdate.php?%ownerUpdate%CSWP_Calendar%CSWP%A3491%Calendar;MotherSch;AdminCalendar">CRUD panel for CSWP</a> (best accessed from grey dot) <br>
+<a target="_blank" href="http://[PUBLICURL]/prepage/viewOwnerUpdate.php?%ownerUpdate%CSWP_Calendar%CSWP%A3491%Calendar;MotherSch;AdminCalendar">CRUD panel for CSWP</a> (best accessed from grey dot)
 
 <br><br>
 <b class="head">Control files</b><br>
+
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%app%">
+Volunteer/User/Editor/Contributor app/admin</a><br>
 
 <a target="_blank" href="http://[PUBLICURL]/autosubmit/control/sections.html">Sections</a><br>
 

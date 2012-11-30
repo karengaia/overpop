@@ -157,7 +157,7 @@ sub read_do_1stpass {  # Gets email in $buffer, ehandle, sentdate, subject, from
  	if($stop_hdr) {
 	}
 	else {
-		&get_header_info;
+		my($ehandle,$ext,$date_line,$from_line,$subject_line) = &get_header_info($line);
     }
     $line_ctr = $line_ctr + 1;
   }
@@ -181,22 +181,29 @@ sub read_do_1stpass {  # Gets email in $buffer, ehandle, sentdate, subject, from
   }
 
   $message =~ s/^\n*//;  # strip leading blank lines
-  my($line1,$rest) = split(/\n/,$message,2);
 
   $fromemail = &get_fromemail($from_line) if($from_line);
- if($line1 =~ /HANDLE:/i) {
-    ($rest,$ehandle) = split(/HANDLE:/,$line1);
-    $ehandle =~ s/^\s+//s;
-    $blanklines = 1; 
-    ($line1,$message) = split(/\n/,$message,2);
+
+  my($line1,$rest) = split(/\n/,$message,2);
+  
+  if($line1 =~ /HANDLE:/i) {
+     ($rest,$ehandle) = split(/HANDLE:/,$line1);
+     $ehandle =~ s/^\s+//s;
+     $blanklines = 1; 
+     ($line1,$message) = split(/\n/,$message,2);   # Looks like $line 1 not used anywhere else
   }
 
-  $ehandle = &check_contributor($ehandle,$fromemail);
+##                                
+  &check_contributor($ehandle,$fromemail);   ## in contributor.pl - puts $uemail, $uhandle, and contributor data into global $CONTRIB_DATA for later reference
+
   $message = $buffer if(!$subject_line and !$dateline);
   return($ehandle,$ext,$subject,$sentdatetm,$sentdate,$message);
 }
 
 sub get_header_info {
+	my $line = $_[0];
+	my($ehandle,$ext,$date_line, $from_line,$subject_line);
+	
 	if($line =~ /from/i and $line =~ /pushjournal/) {
 		$ehandle = "push";
 	}
@@ -233,6 +240,7 @@ sub get_header_info {
 	elsif($line =~ /^[Ss]ubject:/) {
 	      $subject_line = $line;
 	}
+	return($ehandle,$ext,$from_line,$date_line,$subject_line);
 }
 
 sub separate_email {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
@@ -240,6 +248,12 @@ sub separate_email {          ## Not only for multiple articles in one submittal
  $sectsubs = $ss;
  $handle = $hand;
  $fullbody = $full;
+
+  #set these as globals until we can find a more graceful way to use them; CONTRIB_DATA is also a global set in contributors.pl - check_contributor
+
+  ($c_uid_fk,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on,$uStart,$uStop,$uHeadkey,$uDtkey) = split(/^/,$CONTRIB_DATA,21);
+	
  if($ep_type =~ /P/) {
 	 &set_default_variables;
 	 &clear_message_variables;
@@ -304,16 +318,6 @@ print "<br>***INBOX $inboxfilename ..gEPtype $gEPtype ..h-$ehandle subj-$subject
  &close_it;   #write last op file under certain conditions (separation)
 }
 
-## 100
-
-sub ck_end_headers_not_used  {
- if(!$line) { #  First blank line is end of headers
-     return('T');
- } 
- else {
-     return("");
- }
-}
 
 
 ## 300  PARSE THE EMAIL BODY FOR SEPARATORS, ETC
@@ -747,33 +751,6 @@ sub bad_stuff_convert
  $datafield =~ s/=A0/ /g;    #blank
  
  return($datafield);  	
-}
-
-###  500 CHECK CONTRIBUTOR  ######
-
-
-sub check_contributor
-{
-  my ($ehandle,$fromemail) = @_;
-
-  my ($userdata,$access) = &read_contributors(N,N,$ehandle,_,_,_) unless($ehandle =~ /unk/);
-  if($userdata eq "SAMEHANDLE") {
-	return($ehandle);
-  }
-  else {
-	($userdata,$access) = &read_contributors(N,N,_,$fromEmail,_,_);
-	return($handle) if($handle and $userdata eq "SAMEEMAIL");
-  }
-    # set defauults if none of the above
-  $uLocSep    = 'first';
-  $uSeparator = '#####';
-  $uBlanks    = '0';
-  $uSkipon    = '%NA';
-  $uSkipoff   = '%NA';
-  $uEnd       = '%NA';
-  $uSkip      = '@#&#%%@';  # instead of %NA ???
-  $uStop = $uEnd = "text\/html|text/html";
-  return('unk');
 }
 
 

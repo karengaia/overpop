@@ -1,349 +1,32 @@
 #!/usr/bin/perl --
 
-# May 7, 2010
+# Oct 20, 2012
 #        contributor.pl
 
-## 2012 Aug 3 - strip out user.pl contributor.pl will get form values if coming in through contributor.pl
-
-##  When cmd = "start_acctapp", this routine sends out the message to verify
-##  the info entered by the applicant. 
-##  When applicant replies, the info will be sent to the admin email addr for approval
-##  The admin will review the info and approve the application by forwarding it 
-##  to popnews@population-awareness.net
-
-## Change Log
-## 2010 May 7 -- tested for  if(-f "../../karenpittsMac.yes") on all opens for writing and chmod to 777
 
 sub init_contributors
 {        #from article.pl
   $print_contributors = 'N';
-  $handle = "";
-}
-
-sub verify_new_acct
-{
-   $begin_html = "<blockquote><br><br><br><font face=verdana <b>";
-   $end_html   = "</b></font></blockquote>\n";
-   
-   &get_new_contributor_form_values;
-  	
-   if($nEmail =~ /\@/ and $nEmail =~ /\./ and $nEmail =~ /[A-Za-z0-9]/) {
-        if($nLastname eq "" or $nFirstname eq "" or $nUserid eq "" 
-           or $nPin eq "" or $nUsercomment eq "") {
-        print "$begin_html Required fields are first and last name, State or Country, Username, Password, and a ";
-        print "Reason-why you want to help.<br>\n Hit your BACK button to correct.$end_html";
-           exit;
-       }
-   }
-   else {
-        print "$begin_html You must supply a valid email address.<br>\n";
-        print "Hit your BACK button to correct.$end_html";
-        exit;
-   }
-    
-   my($userdata,$access) = &read_contributors(N,N,_,$nEmail,$nUserid,_);
-   
-   if($nEmail and $userdata eq 'SAMEEMAIL') {
-        print "$begin_html You have already applied for an account under this ";
-        print "email address - $nEmail.<br>\n";
-        print "Please wait for a confirmation request by email and reply to it. <br>\n";
-        print "If you wish to make any changes to your information, send the changes ";
-        print "with your reply.<br>\n";
-        print "Your account will processed within a few days up to two weeks.<br><br>\n";
-        print "Thank you.<br><br>\n";
-        print "Karen Gaia Pitts .... WOA!!.$end_html";
-        exit;
-   }
-   elsif($nUserid and $userdata eq 'SAMEID') {
-        print "$begin_html The user id you have chosen is already in use at WOA!! - ";
-        print "user id - $nUserid.<br>\n";
-        print "Please hit the Back button and choose another userid. <br>\n";
-        print "WOA!!.$end_html";
-        exit;
-   }  
-   
-   &email_verify;
-   
-   print "$begin_html<font size=3 face=verdana>Thank you for volunteering to help with WOA!! articles.<br>\n";
-   print "You will receive a request by email to verify your email address. <br>\n";
-   print "Please simply 'reply' to it. (reply with the same message you received)<br>\n";
-   print "Your account number will be sent by email within a few days.<br><br>\n";
-   print "Karen Gaia Pitts.... WOA!!.</font>$end_html";
-   return 0;
-}
-
-
-## 0030 
-##  Called by a web request - query string 
-##  If a new applicant, then email has been sent by the approving admin
-##  to popnews email 
-
-sub write_acctapp
-{	
-  print "$Content_type_html";
+  $header_template = "plain_top";
+  $footer_template = "plainEnd";
+  &clear_contributor_values;
+  $header_template = "plain_top";
+  $footer_template = "plainEnd";
+  $contributors_path     = "$controlpath/contributors.html";
+  $contributors_bkppath  = "$bkpcontrolpath/contributors_bkp.html"; 
+  $contributor_orig      = "$controlpath/contributors.orig";  #save original file for contributors, editors, and editors - must preserve
+  &read_contributors_to_array;  #in users.pl - needed to get index by handle
   
-  $std_variables =
-  "userid^UserID::`pin^Password::`firstname^Firstname::`lastname^Lastname::`useremail^Email::`city^City::`state^State::`zip^Zip::`phone^Phone::`payrole^Roles::`reason^Reason::`end^END::";
-  @stdVariables = split(/`/, $std_variables);
-
-  local($filename) = "";
-  local($filefound) = "";	
-  $applymailpath =  $mailpath;
-
-  &process_appmail;  ## see following subroutine
-
-  if($filename !~ /[A-Za-z0-9]/) {
-    $applymailpath =  $popnewspath;
-      print "con92 mailpath $mailpath<br>\n";     
-    &process_appmail;
-  }
-
-  print "Contrib20 ... No email\n" if($filename !~ /[A-Za-z0-9]/);	
-}
-
-sub process_appmail
-{
-	opendir(APPMAILDIR, "$applymailpath");
-  local(@applyfiles) = grep /^.+\.app$/, readdir(APPMAILDIR);
-  closedir(APPMAILDIR);
-  
-  foreach $filefound (@applyfiles) {
-
-      $filename = "$applymailpath\/$filefound";
-        	
-      if(-f "$filename" and $filename =~ /\.app/ and $filename !~ /email|log|date/) { 
-            &process_app_email($filename);       
-            &write_new_contributor;   
-            &email_applicant_accept;
-            unlink "$filename";
-      }
-  }
-}
-
-## 00030
-
-sub get_operator_name
-{
- if($userid =~ /[A-Za-z0-9]/) {
-   ($userdata, $access) = &read_contributors(N,N,_,_,$op_userid,98989);
-   print MIDTEMPL "Current User: $firstname $lastname" if($userdata =~ /GOOD/);
- }
-}
-
-sub get_summarizer_name
-{
- if($sumAcctnum =~ /[A-Za-z0-9]/) {
-   ($userdata, $access) = &read_contributors(N,N,_,_,$sumAcctnum,98989) ; 
-   print MIDTEMPL " ..Summarizer: $firstname $lastname" if($userdata =~ /GOOD/);
- }
-}
-
-sub get_suggestor_name
-{
- if($suggestAcctnum =~ /[A-Za-z0-9]/) {
-   ($userdata, $access) = &read_contributors(N,N,_,_,$suggestAcctnum,98989); ## args=print?, html file?, handle, email, acct# 
-   print MIDTEMPL " .. Suggester: $firstname $lastname" if($userdata =~ /GOOD/);
- }
-}
-
-sub get_userinfo
-{
- if($userid =~ /[A-Za-z0-9]/) {
-   ($userdata, $access)= &read_contributors(N,N,_,_,$sumAcctnum,98989); ## args=print?, html file?, handle, email, acct# 
-   print MIDTEMPL "$uUserid $firstname $mi $lastname" if($userdata =~ /GOOD/);
- }
+  $contrib_eofline = "0^^^^^^^^^^^^^";
 }
 
 
-## 00040
-
-sub process_app_email
-{
-  local($filename) = $_[0];
-    
-  local($buffer) = "";
-  local(@stuff);
-
-  open(EMAILAPP,$filename);
-  @stuff = <EMAILAPP>;
-  close(EMAILAPP);
-    
-  $buffer = join('',@stuff);
-
-  $buffer =~ s/\r\n/\n/g;    #change \r\n to \n
-  $buffer =~ s/\n\r/\n/g;    #change \n\r to \n
-  
-##  local($rest,$message) = split(/\n\n/,$buffer,2);
-
-  $message = $buffer;
-
-  @msglines = split(/\n/,$message);
-
-  &clear_contrib_email_values;
-  
-  foreach $msgline (@msglines) {
-    chomp $msgline;
-    last if($msgline =~ /:END/);  
-    &get_contributor_email_values;
-  }
-  
-  &populate_email_values;
-}
-
-## 00060
-
-sub get_contributor_email_values
-{
- $splitter = "";
- foreach $pair (@stdVariables) {
-    ($pairname, $splitter) = split(/\^/, $pair);
-     if($msgline =~ /$splitter/) {
-       last;
-    }
- }
- if($msgline =~ /$splitter/) {
-       $name = $pairname;
-       ($rest,$value) = split(/$splitter/,$msgline);
-       $EITEM{$name} = $value;
-       print "$splitter $name = $value<br>\n";
- }
- else { 
-   $EITEM{$name} = "$EITEM{$name}$msgline";
-   $what = $EITEM{$name};
- }
-}
-
-## 00100
-
-
-##            these are globals. eventually change to uHungarian notation
-sub get_contributor_form_values
-{
-  $userid        = $FORM{userid};
-  $access        = $FORM{access};
-  $pin           = $FORM{pin} if($FORM{pin});
-  $pin           = $FORM{password} if($FORM{password});
-  $useremail     = $FORM{email};
-  $lastdate      = $FORM{lastdate};
-  $firstname     = $FORM{fname};
-  $lastname      = $FORM{lname};
-  $addr          = $FORM{addr};
-  $city          = $FORM{city};
-  $state         = $FORM{state};
-  $zip           = $FORM{zip};
-  $phone         = $FORM{phone};
-  $handle        = $FORM{handle};
-  $payrole       = $FORM{payrole};
-  $handle        = $FORM{handle};
-  $usercomment   = $FORM{usercomment};
-  $permissions   = $FORM{permissions};
-  $uBlanks       = $FORM{uBlanks};
-  $uSeparator    = $FORM{uSeparator};
-  $uLocSep       = $FORM{uLocSep};
-  $uSkipon       = $FORM{uSkipon};
-  $uSkipoff      = $FORM{uSkipoff};
-  $uSkip         = $FORM{uSkip};
-  $uEmpty        = $FORM{uEmpty};
-  $uDateloc      = $FORM{uDateloc};
-  $uDateformat   = $FORM{uDateformat};
-  $uHeadlineloc  = $FORM{uHeadlineloc};
-  $uSourceloc    = $FORM{uSourceloc};
-  $uSingleLineFeeds = $FORM{uSingleLineFeeds};
-  $uEnd          = $FORM{uEnd};
-  return;
-}
-
-
-sub get_new_contributor_form_values
-{
-  $nUserid        = $FORM{userid};
-  $nPin           = $FORM{pin};
-  $nEmail         = $FORM{email};
-  $nLastdate      = $FORM{lastdate};
-  $nFirstname     = $FORM{fname};
-  $nLastname      = $FORM{lname};
-  $nAddr          = $FORM{addr};
-  $nCity          = $FORM{city};
-  $nState         = $FORM{state};
-  $nZip           = $FORM{zip};
-  $nPhone         = $FORM{phone};
-  $nHandle        = $FORM{handle};
-  $nPayrole       = $FORM{payrole};
-  $nHandle        = $FORM{handle};
-  $nUsercomment   = $FORM{usercomment};
-  return;
-}
-
-##00110
-
-sub populate_email_values
-{
-  $userid        = $EITEM{userid};
-  $pin           = $EITEM{pin};
-  $useremail     = $EITEM{useremail};
-  $lastdate      = $EITEM{lastdate};
-  $firstname     = $EITEM{firstname};
-  $mi            = $EITEM{mi};
-  $lastname      = $EITEM{lastname};
-  $addr          = $EITEM{addr};
-  $city          = $EITEM{city};
-  $state         = $EITEM{state};
-  $zip           = $EITEM{zip};
-  $phone         = $EITEM{phone};
-  $handle        = $EITEM{handle};
-  $roles         = $EITEM{payrole};
-    
-  $payrole = &get_payrole($roles);
-  
-  $handle        = $EITEM{handle};
-  $permissions   = $EITEM{permissions};  
-  
-  &get_nowdate;
-} 
-
-
-sub clear_contrib_email_values
-{
-  $EITEM{userid}      = "";
-  $EITEM{pin}         = "";
-  $EITEM{email}       = "";
-  $EITEM{lastdate}    = "";
-  $EITEM{firstname}   = "";
-  $EITEM{mi}          = "";
-  $EITEM{lastname}    = "";
-  $EITEM{addr}        = "";
-  $EITEM{city}        = "";
-  $EITEM{state}       = "";
-  $EITEM{zip}         = "";
-  $EITEM{phone}       = "";
-  $EITEM{handle}      = "";
-  $EITEM{payrole}     = "";
-  $EITEM{handle}      = "";
-  $EITEM{permissions} = "";  	
-	
-}
-##   not used
-           
 sub clear_contributor_values
 {
-  $uAccess       = "";
-  $uUserid       = "";
-  $uPin          = "";
-  $useremail     = "";
-  $lastdate      = "";
-  $firstname     = "";
-  $lastname      = "";
-  $mi            = "";
-  $addr          = "";
-  $city          = "";
-  $state         = "";
-  $zip           = "";
-  $phone         = "";
-  $handle        = "";
-  $payrole       = "";
-  $pay           = "";
-  $usercomment   = "";
-  $permissions   = "";
+  $CONTRIBSIZE  = 0;
+  %CONTRIBINDEX = {};
+  @CONTRIBARRAY = ();
+  $c_uid         = 0;
   $uBlanks       = "";
   $uSeparator    = "";
   $uLocSep       = "";
@@ -355,269 +38,310 @@ sub clear_contributor_values
   $uDateformat   = "";
   $uHeadlineloc  = "";
   $uSourceloc    = "";
-  $uSingleLineFeeds     = "";
+  $uSingleLineFeeds = "";
   $uEnd          = "";
   return;
 }
 
-         
-## 150
-
-sub check_user
-{ 
-  local($ckuserid,$ckpin) = @_;
-  if($ckuserid =~ /^\+/) {
-    $user_visable = 'Y';
-    ($rest,$ckuserid) = split(/\+/,$ckuserid,2);
-##  ($rest,$acctnum) = split(/\+/,$acctnum,2);
+sub read_contributors_to_array
+{
+ if($DB_users > 0) {
+	 $CONTRIBSIZE = &DB_get_contributors_2array;
   }
   else {
-    $user_visable = 'N';
-  }	
-  
-  if($ckuserid !~ /[A-Za-z0-9]{2}/ or $ckuserid =~ /Userid/ or $ckpin !~ /[A-Za-z0-9]{2}/) {
-      &printUserMsgExit("You must supply a userid and password, or, if you do not have one, you must register.<br /> Hit your BACK button to correct.");
-      exit;
+	 $CONTRIBSIZE = &flatfile_get_contributors_2array;
+  }
+}
+
+sub flatfile_get_contributors_2array
+{
+  my $contrib_idx = 0;
+  my $lock_file = "$contributors_path.busy";
+  open(CONTRIBUTORS, "$contributors_path") or die("Can't open contributors flatfile");
+  while(<CONTRIBUTORS>)
+  {
+	  chomp;
+	  my $line = $_;     
+	  my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+		     = &split_contributor($line);
+	  last if($c_uid == 0);
+	  $uhandle = $USERhandleINDEX{$c_uid};
+	  $CONTRIBINDEX{$c_uid}       = $line;
+	  $CONTRIBhandleUID{$uhandle} = $c_uid;
+	  $CONTRIBARRAY[$contrib_idx] = $line;
+	  $contrib_idx = $contrib_idx + 1;
+  }
+  close(CONTRIBUTORS);
+  unlink "$lock_file";
+  return($contrib_idx);
+}
+
+sub DB_get_contributors_2array
+{
+  my $contrib_idx = 0;
+
+  my $sth = &DB_prepare_select_contributors_list;
+
+  $sth->execute();
+
+  while (my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) 
+     = $sth->fetchrow_array()) {
+	  my $line = "$c_uid^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on";
+
+	  $uhandle = $USERhandleINDEX{$c_uid};
+	  $CONTRIBINDEX{$c_uid}      = $line;
+	  $CONTRIBhandleUID{$uhandle}   = $c_uid;
+	  $CONTRIBARRAY[$contrib_idx]   = $line;
+	  $contrib_idx = $contrib_idx + 1;
+  }
+  $sth->finish;	
+  return($contrib_idx);
+}
+
+sub get_put_contributor_to_docarray 
+{
+	my($uBlanks,$uSeparator,$uLocsep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd)
+	      = &get_contributor_row($uid);
+	&put_contributor_to_docarray($uBlanks,$uSeparator,$uLocsep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd);       # in editors.pl
+}
+
+
+sub get_contributor_row {
+	my $uid = $_[0];	
+	my $row = $CONTRIBINDEX{$uid};
+	my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+	   = split_contributor($CONTRIBINDEX{$uid});
+	return($uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);		
+}
+
+sub get_contributor_row_handle {     ### WILL WE USE THIS????
+	my $handle = $_[0];
+	my $row = $CONTRIBhandleINDEX{$uhandle};
+	my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+	   = split_contributor($row);
+	return($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);		
+}
+
+
+sub split_contributor  # from email2docitem.pl --- change name to get_contributor_parameters
+{	             
+  $line = $_[0];
+  ($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+     = split(/\^/,$line,15);
+   return($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd);
+}
+
+
+sub check_contributor   #from email2docitem.pl
+{
+  my($ehandle,$fromemail) = @_;
+
+  my($userResults,$contrib_row) = &read_contributors('N',$ehandle,$fromemail);
+
+  my($c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) = split(/^/,$contrib_row,17);
+	
+  if($userResults = "MATCH") {
+  }
+  else {              # set defauults if none of the above
+	  $handle      = 'unk';
+	  $uLocSep    = 'first';
+	  $uSeparator = '#####';
+	  $uBlanks    = '0';
+	  $uSkipon    = '%NA';
+	  $uSkipoff   = '%NA';
+	  $uSkip      = '@#&#%%@';
+	  $uEnd = "text\/html|text/html";
   }
 
+  unless($uSkip) {
+       if($uSeparator =~ /#####/) {
+	       $uSkip      = '#####';
+	   }
+	   else {
+		   $uSkip      = '%NA';
+	   }
+  }
+  $uStart  = $uSkipoff;  # rename
+  $uStop   = $uEnd;
 
- ($userdata,$uAccess,$permissions) = &read_contributors(N,N,_,_,$ckuserid,$ckpin);    ## args=print?, html file?, handle, email, acct# ;
+  ($srcloc,$srckey,$srcpart,$srcsep) = split(/&/,$uSourceloc,4);  # these are not used anywhere
+  ($hdloc,$uHdkey,$uHdpart,$uHdsep)  = split(/&/,$uHeadlineloc,4); # only $uHeadkey is used in smartdata.pl
+  ($dtloc,$uDtkey,$dtpart,$dtsep)    = split(/&/,$uDateloc,4);        # only $uDtkey is used in smartdata.pl
 
- if($userdata =~ /BAD/) {
-      &printUserMsgExit("Sorry. The userID ($ckuserid) or password you gave is not valid.<br />Hit your BACK button to correct.");
-      exit;
- }
- return($userdata,$uAccess,$permissions);
-}
+  ($rest,$c_blank_ct) = split(/=/, $uSeparator, 2) if($uSeparator =~ /blanks/); ## NOT USED??? $c_blank_cnt not found.  ????################
+  $uBlanks = $c_blank_ct if($c_blank_ct);
 
-##180
-
-sub email_verify
-{
-	 
- $roles_expanded = &do_roles(email);
- 
-## print "Contrib 180  userid $nUserid useremail $nEmail roles $roles_expanded<br>\n";
- $sender  = "$contactEmail";
- $recipient = $nEmail;
- $subject  = "WOA APP:: ... Please confirm your account application.";
- $email_msg = "Your submittal has been received by WOA!!. \n\n Please reply";
- $email_msg = "$email_msg to this email to verify that you are the one that";
- $email_msg = "$email_msg submitted it.\n\n Please leave the following application \n";
- $email_msg = "$email_msg information in your reply.\n\n";
- $email_msg = "$email_msg Firstname::$nFirstname\n";
- $email_msg = "$email_msg Lastname::$nLastname\n";
- $email_msg = "$email_msg Email::$nEmail\n";
- $email_msg = "$email_msg UserID::$nUserid\n";
- $email_msg = "$email_msg Password::$nPin\n";
- $email_msg = "$email_msg City::$nCity\n";
- $email_msg = "$email_msg State::$nState\n";
- $email_msg = "$email_msg Zip::$nZip\n";
- $email_msg = "$email_msg Phone::$nPhone\n"; 
- $email_msg = "$email_msg Roles::$roles_expanded\n";
- $email_msg = "$email_msg Reason::$nUsercomment\n";
- $email_msg = "$email_msg :END\n\n";
- $email_msg = "$email_msg $email_std_end ";
-  
- &do_email($email_msg);    # in send_email.pl
-}
-
-sub email_applicant_accept
-{
- $subject   = "Volunteering to help with World Population Awareness";
- $sender    = $adminEmail;
- $recipient = $useremail;
- $cc        = $adminEmail;  
-# print "180 sender $sender recipient $recipient\n";
- 
- $email_msg = "Thank you so much for volunteering to help the World Population Awareness";
- $email_msg = "$email_msg website publication and for helping to inform people about population";
- $email_msg = "$email_msg and related issues.\n\n";
-
- $email_msg = "$email_msg The instructions for helping are on the volunteer work page at\n";
- $email_msg = "$email_msg http:\/\/www.population-awareness.net\/volunteer_page.html\n\n";
-
- $email_msg = "$email_msg At some point you will be asked to put in your userID and password,";
- $email_msg = "$email_msg which you have already supplied in your application and was sent";
- $email_msg = "$email_msg in a prior email.\n\n";
-
- $email_msg = "$email_msg Do not hesitate to contact me if you have questiions or problems";
- $email_msg = "$email_msg or forget your userid or password.\n\n";
-
- $email_msg = "$email_msg Best regards,\n\n";
-
- $email_msg = "$email_msg Karen Gaia Pitts\n";
- $email_msg = "$email_msg WOA!! - World Population Awareness\n";
- $email_msg = "$email_msg World Overpopulation Awareness\n";
- $email_msg = "$email_msg www.population-awareness.net\n";
- $email_msg = "$email_msg www.overpopulation.org\n";
-  
- &do_email($email_msg);    # in send_email.pl
-}
+  $uStop = "@#&#%%@" if(!$uStop);  # impossible - but null won't work
+  $uSkip = "@#&#%%@" if(!$uSkip);  # impossible - but null won't work
+  $uSeparator = "########" if(!$uSeparator);
 	
+  $CONTRIB_DATA = "$uemail^$uhandle^$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$uStart^$uStop^$uHeadkey^$uDtkey";       # set a global variable to be used in 
+  
+  return($uhandle);
+}
 
 
-### 200
 
 sub read_contributors
 {
-   local($print_contributors,$uHtmlfile,$eHandle,$ckuseremail,$ckuserid,$ckpin) = @_;
+   my($print_contributors,$ckhandle,$ckemail) = @_;
 
-   # print "contrib 460 prt $print_contributors  prtHtml $uHtmlfile handle $eHandle email $ckuseremail userid $ckuserid pin $ckpin ..contriFile $contributors ..<br>\n";
-   
-   $userdata = "BAD";
-   
-   $uCount = 0;
-
-   $lock_file = "$contributors.busy";
-##   &waitIfBusy($lock_file, 'lock'); 
-    
-   open(CONTRIBUTORS, "$contributors");
-   while(<CONTRIBUTORS>) {
-      chomp;
-      $uLine = $_;     
-      $uCount = $uCount + 1;
-      &split_contributor;
-      &print_contributor if($print_contributors eq 'Y');
-      &print_contrib_htmlFile  if($uHtmlfile eq 'Y');
-
-	  ($uAccess,$uUserid,$uPin,$lastdate,$lastname,$firstname,$mi,$addr,
-	   $city,$state,$zip,$phone,$useremail,$payrole,$handle,$permissions,
-	   $usercomment,$uBlanks,$uSeparator,$uLocSep,$uSkipon,
-	   $uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
-	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd)
-	     = split(/\^/,$uLine,30);		
-      if($uUserid !~ /[A-Za-z0-9]{2}/ or $uPin !~ /[A-Za-z0-9]{2}/) {
+   if($DB_users eq 1) {
+	  if($print_contributors eq 'Y') {
+		  my $uCount = &DB_print_contributors;
+		  return ($uCount);
+	  }
+	  else {
+	      my($userResults,$contrib_row) = &DB_get_contributor($ckhandle,$ckemail);
       }
-      elsif($eHandle =~ /[A-Za-z0-9]/) {
-         if($eHandle eq $handle) {
-            $userdata = "SAMEHANDLE";
-#print "contr490 $userdata ..ehandle $eHandle ..ck_email $ckuseremail ..u_email $useremail ..userid $ckuserid ..uUserid $uUserid <br>\n";
-           last;
-         }
-      }
-      elsif($ckuserid !~ /[A-Za-z0-9]/ and $ckuseremail =~ /[A-Za-z0-9]/ and $ckuseremail =~ /$useremail/) {
-         $userdata = "SAMEEMAIL";
-#print "contr496 $userdata ..ehandle $eHandle ..ck_email $ckuseremail ..u_email $useremail ..userid $ckuserid ..uUserid $uUserid <br>\n";
-         last;
-      }
-      elsif($ckuserid =~ /$uUserid/ and $ckuserid =~ /[A-Za-z0-9]{2}/ 
-             and ($ckpin =~ /$uPin/ or $ckpin =~ /98989/) ) {
-         $userdata = "GOOD";
-         last;
-      }
-      
-      elsif($ckuserid =~ /$uUserid/ and $ckuserid =~ /[A-Za-z0-9]/)  {
-         $userdata = "SAMEID";
-         last;
-      }
-      elsif($ckuserid =~ /ZZZZ/) {
-      	 $userdata = "GOOD";
-      } ##  end else   
-    }  ## end while
-    close(CONTRIBUTORS);
-
-    unlink "$lock_file";
-    
-    print "</td></table><br>\n" if($print_contributors eq 'Y');
-    print PRTCONTRIB "</td></table><br>\n" if($uHtmlfile =~ /Y/);
-    close(PRTCONTRIB) if($uHtmlfile =~ /Y/);
-
-    return ($userdata,$uAccess,$permissions);
+   }
+   else {
+	  my($uline) = &flatfile_read_contributors($print_contributors,$ckhandle,$ckemail);
+   }
+   return($userResults,$contrib_row);
 }
 
-
-## 000300
-
-sub split_contributor
-{
-  ($uAccess,$uUserid,$uPin,$lastdate,$lastname,$firstname,$mi,$addr,
-   $city,$state,$zip,$phone,$useremail,$payrole,$handle,$permissions,
-   $usercomment,$uBlanks,$uSeparator,$uLocSep,$uSkipon,
+sub get_contributor_values # from email2docitem.pl --- change name to get_contributor_values
+{	             
+  $uline = $_[0];
+ 
+  ($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,
    $uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
-   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd)
-     = split(/\^/,$uLine,30);
+   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+     = split_contributor($uline);
 
-##print "uAccess $uAccess uUserid $uUserid uPin $uPin, uLocSep $uLocSep uDateloc $uDateloc uDateformat $uDateformat uSourceloc $uSourceloc uSingleLineFeeds $uSingleLineFeeds\n";
-##       if not a clipping service, then there is a pin and we have to set defaults     
-   if($uPin =~ /[A-Za-z0-9]/) {
-   	$uLocSep    = 'first' if($uLocSep    !~ /[A-Za-z0-9]/);
+#############   IF NOT a clipping service, then there is a pin and we have to set defaults  
+   unless($c_uid) {   
+   	$uLocSep    = 'first' unless($uLocSep);
    	$uSeparator = '#####' if($uSeparator !~ /[A-Za-z0-9]/  and $uSeparator !~ /.+/);
-   	$uBlanks    = '0'     if($uBlanks    !~ /[A-Za-z0-9]/);
-   	$uSkipon    = '%NA'   if($uSkipon    !~ /[A-Za-z0-9]/);
-   	$uSkipoff   = '%NA'   if($uSkipoff   !~ /[A-Za-z0-9]/);
-   	$uEnd       = '%NA'   if($uEnd       !~ /[A-Za-z0-9]/);
-   	$uSkip      = '%NA'   if($uSkip      !~ /[A-Za-z0-9]/  and $uSeparator !~ '#####');
-   	$uSkip      = '#####' if($uSkip      !~ /[A-Za-z0-9]/  and $uSeparator =~ '#####');		    
-   }
+   	$uBlanks    = '0'     unless($uBlanks);
+   	$uSkipon    = '%NA'   unless($uSkipon);
+   	$uSkipoff   = '%NA'   unless($uSkipoff);
+   	$uEnd       = '%NA'   unless($uEnd);
+    unless($uSkip) {
+       if($uSeparator =~ /#####/) {
+	       $uSkip      = '#####';
+	   }
+	   else {
+		   $uSkip      = '%NA';
+	   }
+	}
     $uStart  = $uSkipoff;  # rename
     $uStop   = $uEnd;
      
-##   $uAcctnum = "$access$userid";
-   ($srcloc,$srckey,$srcpart,$srcsep) = split(/&/,$uSourceloc,4);
-   ($hdloc,$hdkey,$hdpart,$hdsep) = split(/&/,$uHeadlineloc,4);
-   ($dtloc,$dtkey,$dtpart,$dtsep) = split(/&/,$uDateloc,4);
+    ($srcloc,$srckey,$srcpart,$srcsep) = split(/&/,$uSourceloc,4);  # these are not used anywhere
+    ($hdloc,$uHdkey,$uHdpart,$uHdsep) = split(/&/,$uHeadlineloc,4); # only $uHeadkey is used in smartdata.pl
+    ($dtloc,$uDtkey,$dtpart,$dtsep) = split(/&/,$uDateloc,4);        # only $uDtkey is used in smartdata.pl
 
-	($rest,$c_blank_ct) = split(/=/, $separator, 2) if($separator =~ /blanks/);
+	($rest,$c_blank_ct) = split(/=/, $uSeparator, 2) if($uSeparator =~ /blanks/);
 	$uBlanks = $c_blank_ct if($c_blank_ct);
-	$stop = "@#&#%%@" if(!$stop);  # impossible - but null won't work
-	$skip = "@#&#%%@" if(!$skip);  # impossible - but null won't work
-	$separator = "########" if(!$separator);
+	$uStop = "@#&#%%@" if(!$uStop);  # impossible - but null won't work
+	$uSkip = "@#&#%%@" if(!$uSkip);  # impossible - but null won't work
+	$uSeparator = "########" if(!$uSeparator);
+	$CONTRIBDATA = "$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$uStart^$uStop^$uHdkey^$uDtkey";
+	return($uBlanks,$useparator,$uLocSep,$uSkipon,
+	   $uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$uStart,$uStop,$uHdkey,$uDtkey);
 }
 
 
-## 400
-
-sub write_new_contributor
+sub flatfile_read_contributors
 {
-## $countfile = $usercntfile;
-## &get_count;
-## $usercount = $count;
+  my($print_contributors,$ckhandle,$ckemail) = @_;
+  
+  $uCount = $uCount + 1;
+  $lock_file = "$contributors.busy";
+##   &waitIfBusy($lock_file, 'lock'); 
+  open(CONTRIBUTORS, "$contributors");
+  while(<CONTRIBUTORS>) {
+      chomp;
+      $uLine = $_;     
+      $uCount = $uCount + 1;
 
- $access = 'P';
- $lastdate = $nowdate;
+	  ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on)
+	     = split(/\^/,$uLine,15);
 
- if($SVRinfo{environment} == 'development') {  ## set permissions if using Karen's Mac as the server
-	if(-f '$contributors') {}
-	else {
-		system('touch $contributors');
-		}
-	system('chmod 0777, $contributors');
- }
- open(CONTRIBUTORS, ">>$contributors");
- print CONTRIBUTORS "$access^$userid^$pin^$sysdate^$lastname^$firstname^$mi^$addr^";
- print CONTRIBUTORS "$city^$state^$zip^$phone^$useremail^$payrole^";
- print CONTRIBUTORS "$handle^$permissions^$usercomment^";
- print CONTRIBUTORS "$uBlanks^$uSeparator^$uLocSep^";
- print CONTRIBUTORS "$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^";
- print CONTRIBUTORS "$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd\n";
- close(CONTRIBUTORS);
+	  my($uemail,$uhandle) = &get_user_email_handle($c_uid);   #in user.pl
+		
+	  $contrib_row = "$uemail^$uhandle^$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd";
+	
+      if($print_contributors eq 'Y') {
+           &print_contributor($uCount,$c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+		   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on);
+      }
+      else {
+	      if($ckuseremail and $ckuseremail =~ /$contrib_row/) {
+	         return('EMAILMATCH',$uline);
+	      }
+	      elsif($ckhandle and $ckhandle =~ /$contrib_row/) {
+	         return('HANDLEMATCH',$uline);
+	      }
+	  }
+  }  ## end while
+  close(CONTRIBUTORS);
+  unlink "$lock_file";
+    
+  if($print_contributors eq 'Y') {
+      print "</td></table><br>\n" ;
+      return ($uCount);
+  }
+  else {
+	  return("NOMATCH","");
+  }
 }
+
+
+sub DB_get_contributor {
+ my($ckhandle,$ckemail) = @_;
+  $ckhandle = 'qwxzty' unless($ckhandle);   #If no handle, make match impossible
+  $ckemail  = 'qwxzty' unless($ckemail);    #Ditto for email
+  my $sth = $dbh->prepare("SELECT c.c_uid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE u.uemail CONTAINS ? or u.uhandle = ?");
+  $sth->execute($ckemail,$ckhandle);
+  my($c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) = $sth->fetchrow_array();
+  $sth->finish;
+
+  return('MATCH',$c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) if($c_uid);
+  return('NOMATCH') unless($c_uid);
+}
+
+
+sub DB_print_contributors
+{
+  my $contrib_idx = 0;
+
+  my $sth = $dbh->prepare("SELECT c.c_uid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid");
+  $sth->execute();
+
+  $sth->execute();
+  my $uCount = 0;
+  while (my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) 
+     = $sth->fetchrow_array()) {
+	      &print_contributor($uCount,$c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+		    $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on);
+	      $uCount = $uCount + 1;
+  }
+  $sth->finish;
+  print "</td></table><br>\n";
+  return($uCount,"");
+}
+
 
 sub print_contributor
 {
+ my($c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) = @_;
+## to do: parse through 
  if($uCount < 2) {	
     print "<table cellpadding=1 cellspacing=0 border=1><tr>\n";
-    local($mod) = $uCount % 20;
+    my $mod = $uCount % 20;
     if($mod == 0 or $uCount == 1) {
        print  "<tr>";
-       print  "<td><font size=1 face=verdana><b>ac</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>userid</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>pswd</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>lastdate</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>lastname</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>firstname</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>mi</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>addr</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>city</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>state</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>zip</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>phone</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>useremail</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>pay</b></font></td>\n";
+       print  "<td><font size=1 face=verdana><b>c_uid</b></font></td>\n";
+       print  "<td><font size=1 face=verdana><b>email</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>handle</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>permissions</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>usercomment</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uBlanks</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uSeparator</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uLocSep</b></font></td>\n";
@@ -626,32 +350,19 @@ sub print_contributor
        print  "<td><font size=1 face=verdana><b>uSkip</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uEmpty</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uDateloc</b></font></td>\n";
-       print  "<td><font size=1 face=verdana><b>uDateFormat</b></font></td>\n";
+       print  "<td><font size=1 face=verdana><b>uDateformat</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uHeadlineloc</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uSourceloc</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uSingleLineFeeds</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uEnd</b></font></td>\n";
+       print  "<td><font size=1 face=verdana><b>c_created_on</b></font></td>\n";
        print  "\n";
     }
  }
  print "<tr>";
- print "<td><font size=1 face=verdana>$uAccess&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$uUserid&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$uPin&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$lastdate&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$lastname&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$firstname&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$mi&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$addr&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$city&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$state&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$zip&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$phone&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$useremail&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$pay&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$handle&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$permissions&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$usercomment&nbsp;</font></td>\n";
+ print "<td><font size=1 face=verdana>$c_uid&nbsp;</font></td>\n";
+ print "<td><font size=1 face=verdana>$uemail&nbsp;</font></td>\n";
+ print "<td><font size=1 face=verdana>$uhandle&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uBlanks&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uSeparator&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uLocSep&nbsp;</font></td>\n";
@@ -660,197 +371,264 @@ sub print_contributor
  print "<td><font size=1 face=verdana>$uSkip&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uEmpty&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uDateloc&nbsp;</font></td>\n";
- print "<td><font size=1 face=verdana>$uDateFormat&nbsp;</font></td>\n";
+ print "<td><font size=1 face=verdana>$uDateformat&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uHeadlineloc&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uSourceloc&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uSingleLineFeeds&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uEnd&nbsp;</font></td>\n";
+ print "<td><font size=1 face=verdana>$c_created_on&nbsp;</font></td>\n";
  print "\n";
 }
 
-sub print_contrib_htmlFile
+sub put_contributor_to_docarray    #used in template_ctrl to marry templates with data
 {
- if($uCount < 2) {
-    $prt_contributors  = "$controlpath$X"."prt_contributors.html";
-    open(PRTCONTRIB, $prt_contributors);
-    print PRTCONTRIB "<table cellpadding=1 cellspacing=0 border=1><tr>\n";
-    
-    local($mod) = $uCount % 20;
-    if($mod == 0 or $uCount == 1) {
-       print PRTCONTRIB "<tr>";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>ac</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>userid</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>pin</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>lastdate</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>lastname</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>firstname</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>mi</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>addr</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>city</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>state</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>zip</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>phone</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>useremail</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>pay</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>handle</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>permissions</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>usercomment</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uBlanks</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uSeparator</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uLocSep</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uSkipon</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uSkipoff</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uSkip</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uEmpty</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uDateloc</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uDateFormat</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uHeadlineloc</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uSourceloc</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uSingleLineFeeds</b></font></td>\n";
-       print PRTCONTRIB "<td><font size=1 face=verdana><b>uEnd</b></font></td>\n";
-       print PRTCONTRIB "\n";
+	($uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd) = @_;
+	$DOCARRAY{'ublanks'}          = $uBlanks;
+	$DOCARRAY{'useparator'}       = $useparator;
+	$DOCARRAY{'ulocsep'}          = $uLocSep;
+	$DOCARRAY{'uskipon'}          = $uSkipon;
+	$DOCARRAY{'uskipoff'}         = $uSkipoff;
+	$DOCARRAY{'uskip'}            = $uSkip;
+	$DOCARRAY{'uempty'}           = $uEmpty;
+	$DOCARRAY{'udateloc'}         = $uDateloc;
+	$DOCARRAY{'udateformat'}      = $uDateformat;
+	$$DOCARRAY{'uheadlineloc'}    = $uHeadlineloc;
+	$DOCARRAY{'usourceloc'}       = $uSourceloc;
+	$DOCARRAY{'usinglelinefeeds'} = $uSingleLineFeeds;
+	$DOCARRAY{'uend'}             = $uEnd;
+	$DOCARRAY{'c_created_on'}     = $c_created_on;
+}
+
+
+sub get_contributor_form_values
+{
+  $uBlanks        = $FORM{'ublanks'};
+  $uSeparator     = $FORM{'useparator'};
+  $uLocSep        = $FORM{'ulocsep'};
+  $uSkipon        = $FORM{'uskipon'};
+  $uSkipoff       = $FORM{'uskipoff'};
+  $uSkip          = $FORM{'uskip'};
+  $uEmpty         = $FORM{'uempty'};
+  $uDateloc       = $FORM{'udateloc'};
+  $uDateformat    = $FORM{'udateformat'};
+  $uHeadlineloc   = $FORM{'uheadlineloc'};
+  $uSourceloc     = $FORM{'uSourceloc'};
+  $uSingleLineFeeds = $FORM{'usinglelinefeeds'};
+  $uEnd           = $FORM{'uend'};
+  $c_created_on   = $FORM{'c_created_on'};
+  $c_created_on   = &get_nowdate unless $c_created_on;
+  return($uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);
+}
+
+sub store_contributor
+{
+   my ($status,$uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = @_;
+
+   $c_created_on = &get_nowdate if($status eq 'new' and !$c_created_on);
+
+   &DB_write_contributor("",$status,$uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+      if($DB_users > 0);
+	
+   &write_contributor_flatfile($uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);
+
+   return($uid);
+}
+
+
+sub write_contributor_flatfile
+{
+ my ($uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = @_;
+ my $found = 'N';
+ my $c_created_on = $nowdate;
+
+ $uid = $uidmax + 1 unless($uid);
+
+ &backup_setup_flatfile($contributors_path,$contributors_bkppath,$contributors_orig);  # in common.pl
+
+ open(CONTRIBUTORS, ">>$contributors_path");
+ for ($contribidx = 0; $contribidx < $CONTRIBSIZE; $contribidx++) {
+	my $line = $CONTRIBARRAY[$contribidx];
+	unless($line) {
+		print "con451 CONTRIBARRAY line is empty<br>\n";
+		close(CONTRIBUTORS);
+		exit;
+	}
+	my ($lineuid,$rest) = split(/^/,$line);
+	if($lineuid == $uid) {
+	     print CONTRIBUTORS "$uid,$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on\n";
+		 $found = 'Y';
+	}
+	else {
+ 	   print CONTRIBUTORS "$line\n";
     }
  }
- print PRTCONTRIB "<tr>";
- print PRTCONTRIB "<td><font size=1 face=verdana>$access&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$userid&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$pin&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$lastdate&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$lastname&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$firstname&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$mi&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$addr&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$city&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$state&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$zip&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$phone&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$useremail&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$pay&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$handle&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$permissions&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$usercomment&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uBlanks&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uSeparator&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uLocSep&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uSkipon&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uSkipoff&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uSkip&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uEmpty&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uDateloc&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uDateFormat&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uHeadlineloc&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uSourceloc&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uSingleLineFeeds&nbsp;</font></td>\n";
- print PRTCONTRIB "<td><font size=1 face=verdana>$uEnd&nbsp;</font></td>\n";
- print PRTCONTRIB "\n";
+ print CONTRIBUTORS "$uid^$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on\n"
+     unless($found eq 'Y');
+ print CONTRIBUTORS "$contrib_eofline\n";          # EOF indicator
+ close(CONTRIBUTORS);
 }
 
-
-## 000800
-
-sub do_roles
+sub DB_write_contributor   ## NOTE: this must be preceeded by a write to the user table for userid, email, and handle
 {
-  local($action) = $_[0];
+  my($sth,$status,$c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = @_;
 
-  @roles = (
-   "S=Summarize articles",
-   "s=Section Editor",
-   "E=Events Calendar",
-   "A=Send us articles",
-   "N=News Link Chasing",
-   "G=Grassroots Organizer",
-   "P=Programs/Presentations",
-   "M=Media/Publicity",
-   "F=Forum (email) leader",    
-   "I=Web Graphics",
-   "L=Write Letters"
-  );
-  local($selected);
-  
-  foreach $role_expanded(@roles) {
-     local($role,$descr) = split(/=/,$role_expanded,2);
-     
-     if($action eq 'email') {
-     	if($nPayrole =~ /$role/) {
-     	   $selected = ' x ';
-     	}
-     	else {
-     	   $selected = '   ';
-     	}
-        if($roles_expanded =~ /[A-Za-z0-9]/) {
-           $roles_expanded = "$roles_expanded\n$selected$role_expanded;";
-        }
-        else {
-           $roles_expanded = "\n$selected$role_expanded;"; 
-        }   #end_ifelse  	 	
-     } #endif    	
-  } #end foreach
-  
-## if($action eq 'form') <input type=checkbox.... see signup.html
-
-  return $roles_expanded if($action eq 'email');
+  unless($sth) {
+    $sth = &DB_prepare_contributor_insert if($status eq 'new');
+    $sth = &DB_prepare_contributor_update if($status eq 'old');
+  }
+  $created_dt = &get_nowdate;   #in date.pl
+# c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on
+  $sth->execute($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+     if($status eq 'new');  
+  $sth->execute($uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_uid,$c_created_on,$c_uid)
+     if($status eq 'old');    
+ }
+ $sth->finish();
 }
 
-sub get_payrole
+
+sub DB_contributor_exists
 {
- local($roles) = $_[0];
- local(@roles) = split(/;/,$roles);
- local($xrole);
- foreach $xrole (@roles) {
-    if($xrole =~ / x /) {
-      ($rest,$xrole) = split(/ x /,$xrole,2);
-      ($xrole,$rest) = split(/=/,$xrole,2); 
-      if($xroles =~ /[A-Za-z0-9]/) {
-         $xroles = "$xroles;$xrole";
-      }
-      else {
-         $xroles = "$xrole"; 
-      }   #end_ifelse  
-    }	     	
-  } #end foreach
-    
- return($xroles);	
+  my($c_uid,$c_created_on) = @_;
+
+  my $sth = $dbh->prepare('SELECT COUNT(*) FROM contributors WHERE c_uid = ? and c_created_on = ?') 
+	        or die("Couldn't prepare contributor statement: " . $sth->errstr);	
+  $sth->execute($c_uid,$c_created_on);
+  my @row = $sth->fetchrow_array();
+  $sth->finish;
+  print "contrib $c_uid exists<br>\n" if($row > 0);
+  return($row);
 }
 
-sub create_contributor_table  # contact = name, handle, addr, zip, city, state, phone
-                              # user = userid, pin, email updated_on
+sub DB_get_contrib_info_w_uid
 {
- $CONTRIBUTOR_SQL = <<ENDCONTRIBUTOR
-CREATE TABLE `contributors` (
-  `id` tinyint NOT NULL AUTO_INCREMENT,
-  'uidfk'    tinyint NOT NULL;
-  `uaccess` varchar(1) NOT NULL DEFAULT 'P',
-  `ulastname` varchar(30) DEFAULT '',
-  `ufirstname` varchar(30) DEFAULT '',
-  `umiddle` varchar(2) DEFAULT '',
-  `uaddr` varchar(32) DEFAULT '',
-  `ucity` varchar(32) DEFAULT '',
-  `ustate` varchar(2) DEFAULT '',
-  `uzip` varchar(10) DEFAULT '',
-  `uphone` varchar(35) DEFAULT '',
-  `uemail` varchar(100) DEFAULT '',
-  `upayrole` varchar(3) DEFAULT '',
-  `uhandle` varchar(6) DEFAULT '',
-  `upermissions` varchar(60) DEFAULT '',
-  `ucomment` tinytext,   <--------- text
-  `uBlanks` varchar(1) DEFAULT '',
-  `uSeparator` varchar(20) DEFAULT '',
-  `uLocSep` varchar(40) DEFAULT '',
-  `uSkipon` varchar(50) DEFAULT '',
-  `uSkipoff` varchar(50) DEFAULT '',
-  `uSkip` varchar(50) DEFAULT '',
-  `uEmpty` varchar(15) DEFAULT '',
-  `uDateloc` varchar(40) DEFAULT '',
-  `uDateFormat` varchar(40) DEFAULT '',
-  `uHeadlineloc` varchar(40) DEFAULT '',
-  `uSourceloc` varchar(40) DEFAULT '',
-  `uSingleLineFeeds` varchar(1) DEFAULT '',
-  `uEnd` varchar(40) DEFAULT '',
-  `created_on` datetime DEFAULT NULL,
-  `updated_on` datetime DEFAULT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=207 DEFAULT CHARSET=latin1;
-ENDCONTRIBUTOR
+ my($c_uid) = $_[0];
+ my $sth = $dbh->prepare( 'SELECT * FROM users where c_uid = ?' );
+ $sth->execute($c_uid);
+ ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = $sth->fetchrow_array();
+ $sth->finish();
+ return($uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);
 }
+
+sub DB_prepare_get_contributor
+{
+  my $sth = $dbh->prepare( "SELECT c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on FROM contributors where c_uid  = ? and c_created_on = ?" );
+  return($sth);	
+}
+
+sub DB_prepare_select_contributors_list
+{
+  my $sth = $dbh->prepare("SELECT * FROM contributors ORDER BY 'cast(c_uid as unsigned)'");
+	 return($sth);
+#  my $sth = $dbh->prepare( "SELECT c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on FROM contributors where c_uid  = ? and c_created_on = ?" );
+  return($sth);	
+}
+
+
+sub DB_prepare_contributor_insert  
+{                          #  15 variables
+   my $sth = $dbh->prepare( "INSERT INTO contributors (c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on) 
+						  VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
+						
+#	$sth = $dbh->prepare("INSERT IGNORE INTO contributor (c_uid,uBlanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on) 
+#						           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE()");
+						
+  return($sth);
+}
+
+sub DB_prepare_contributor_update 
+{
+   my $sth = $dbh->prepare( "UPDATE contributors SET uBlanks=?,useparator=?,ulocsep=?,uskipon=?,uskipoff=?,uempty=?,
+	udateloc=?,udateformat=?,uheadlineloc=?,usourceloc=?,usinglelinefeeds=?,uend=? WHERE c_uid = ? AND c_created_on = ?" );
+  return($sth);
+}
+
+sub import_contributors   ## called from users.pl after users imported
+{ 
+  $dbh = &db_connect() unless($dbh);
+
+  &create_contributor_table;   # Drops table
+
+  print "<b>Import contributors from contributors flatfile</b> ..contributors_path $contributors_path<br>\n";
+
+  my $sth = &DB_prepare_contributor_insert;
+
+  open(CONTRIBUTORS, "$contributors_path") or die("Can't open contributors flatfile");
+  while(<CONTRIBUTORS>)
+  {
+    chomp;
+    my $line = $_;   
+
+    my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+ 	     = split(/\^/,$line,15);
+
+     last if($c_uid == 0);
+
+     print "$line";
+	  
+	 $sth->execute($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);
+  }
+  $sth->finish;
+  close(CONTRIBUTORS);
+}
+
+sub export_contributors
+{
+  $dbh = &db_connect() unless($dbh);
+
+  my $sth = &DB_prepare_select_contributors_list;
+
+  $sth->execute();
+
+  &backup_setup_flatfile($contributors_path,$contributors_bkppath,$contributor_orig);  # in common.pl
+
+  print "<b>Export contributors to contributors flatfile</b> ..contributors_path $contributors_path<br>\n";
+
+  open(CONTRIBUTORS, ">>$contributors_path");
+
+  while (my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+    = $sth->fetchrow_array()) {
+	
+	 print CONTRIBUTORS "$c_uid^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on\n";
+	 print "$c_uid^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on<br>\n";
+
+  }
+  print CONTRIBUTORS "$eofline\n";  #flatfile needs and end 
+
+  close(CONTRIBUTORS);
+}
+
+
+sub create_contributor_table
+{
+ $dbh->do("DROP TABLE contributors");
+
+print "CONTRIBUTOR table dropped<br>\n";
+ 
+ my $CONTRIBUTOR_SQL = <<ENDCONTRIB1;
+CREATE TABLE contributors (
+  c_uid            smallint NOT NULL,
+  ublanks          varchar(1)  DEFAULT '',
+  useparator       varchar(20) DEFAULT '',
+  ulocsep          varchar(40) DEFAULT '',
+  uskipon          varchar(50) DEFAULT '',
+  uskipoff         varchar(50) DEFAULT '',
+  uskip            varchar(50) DEFAULT '',
+  uempty           varchar(15) DEFAULT '',
+  udateloc         varchar(40) DEFAULT '',
+  udateformat      varchar(40) DEFAULT '',
+  uheadlineloc     varchar(40) DEFAULT '',
+  usourceloc       varchar(40) DEFAULT '',
+  usinglelinefeeds varchar(1)  DEFAULT '',
+  uend             varchar(40) DEFAULT '',
+  c_created_on     date        DEFAULT '19970101',
+  UNIQUE (c_uid));
+ENDCONTRIB1
+
+$dbh->do($CONTRIBUTOR_SQL);
+
+print "CONTRIBUTOR table created<br>\n";
+}
+
 
 1;

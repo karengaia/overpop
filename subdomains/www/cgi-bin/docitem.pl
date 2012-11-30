@@ -700,7 +700,6 @@ undef  $EITEM{'updated_on'};   ## End NEW VARIABLES
   undef $msgline_anydate;
   undef $msgline_anysrc;
   undef $hdline;
-  undef $srcsep;
   undef @stdVariables;
   undef $msgline;
   undef $dweek;
@@ -1316,33 +1315,33 @@ sub clear_work_variables
              
 sub put_data_to_array    #used in template_ctrl to marry templates with data
 {
- $DOCARRAY{deleted}      = $deleted;
- $DOCARRAY{outdated}     = $outdated;
- $DOCARRAY{nextdocid}    = $nextdocid;
+ $DOCARRAY{'deleted'}      = $deleted;
+ $DOCARRAY{'outdated'}     = $outdated;
+ $DOCARRAY{'nextdocid'}    = $nextdocid;
 
- $DOCARRAY{skippubdate}  = $skippubdate;
- $DOCARRAY{woapubdatetm} = $woapubdatetm;
- $DOCARRAY{reappeardate} = $reappeardate;
+ $DOCARRAY{'skippubdate'}  = $skippubdate;
+ $DOCARRAY{'woapubdatetm'} = $woapubdatetm;
+ $DOCARRAY{'reappeardate'} = $reappeardate;
 
- $DOCARRAY{sourcefk}     = $sourcefk;
- $DOCARRAY{skipsource}   = $skipsource;
- $DOCARRAY{author}       = $author;
- $DOCARRAY{skipauthor}   = $skipauthor;
+ $DOCARRAY{'sourcefk'}     = $sourcefk;
+ $DOCARRAY{'skipsource'}   = $skipsource;
+ $DOCARRAY{'author'}       = $author;
+ $DOCARRAY{'skipauthor'}   = $skipauthor;
 
- $DOCARRAY{dtemplate}    = $dtemplate;
+ $DOCARRAY{'dtemplate'}    = $dtemplate;
 
- $DOCARRAY{skiplink}     = $skiplink;
+ $DOCARRAY{'skiplink'}     = $skiplink;
 
- $DOCARRAY{skipheadline} = $skipheadline;
- $DOCARRAY{subheadline}  = $subheadline;
+ $DOCARRAY{'skipheadline'} = $skipheadline;
+ $DOCARRAY{'subheadline'}  = $subheadline;
 
- $DOCARRAY{regionfks}     = $regionfks;
- $DOCARRAY{skipregion}   = $skipregion;
- $DOCARRAY{skipregion}   = $skipregion;
- $DOCARRAY{summarizerfk} = $summarizerfk;
- $DOCARRAY{suggesterfk}  = $suggesterfk;
- $DOCARRAY{changebyfk}   = $changebyfk;
- $DOCARRAY{updated_on}   = $updated_on;
+ $DOCARRAY{'regionfks'}     = $regionfks;
+ $DOCARRAY{'skipregion'}   = $skipregion;
+ $DOCARRAY{'skipregion'}   = $skipregion;
+ $DOCARRAY{'summarizerfk'} = $summarizerfk;
+ $DOCARRAY{'suggesterfk'}  = $suggesterfk;
+ $DOCARRAY{'changebyfk'}   = $changebyfk;
+ $DOCARRAY{'updated_on'}   = $updated_on;
 
 
  $DOCARRAY{'owner'}          = $owner;
@@ -1379,44 +1378,44 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
  $DOCARRAY{'usercomment'}    = $usercomment; 
  $DOCARRAY{'pay'}            = $pay;
  
- $DOCARRAY{docid}       = $docid;
- $DOCARRAY{priority}    = $priority;
- $DOCARRAY{pubdate}     = $pubdate;
- $DOCARRAY{pubday}      = $pubday;
- $DOCARRAY{pubmonth}    = $pubmonth;
- $DOCARRAY{pubyear}     = $pubyear;
- $DOCARRAY{expdate}     = $expdate;
- $DOCARRAY{expday}      = $expday;
- $DOCARRAY{expmonth}    = $expmonth;
- $DOCARRAY{expyear}     = $expyear;
- $DOCARRAY{sysdate}     = $sysdate;
- $DOCARRAY{srcdate}     = $srcdate;
- $DOCARRAY{source}      = $source; 
- $DOCARRAY{dTemplate}   = $dTemplate; 
- $DOCARRAY{straightHTML} = $straightHTML;
- $DOCARRAY{dBoxStyle}    = $dBoxStyle;
- $DOCARRAY{link}        = $link;
- $DOCARRAY{link2nd}     = $link2nd;
- $DOCARRAY{selflink}    = $selflink;
- $DOCARRAY{headline}    = $headline; 
- $DOCARRAY{region}      = $region; 
- $DOCARRAY{regionhead}  = $regionhead;
- $DOCARRAY{topic}       = $topic;  
- $DOCARRAY{body}        = $body;
- $DOCARRAY{points}      = $points;
- $DOCARRAY{fullbody}    = $fullbody; 
- $DOCARRAY{freeview}    = $freeview; 
- $DOCARRAY{comment}     = $comment; 
- $DOCARRAY{bodyprenote} = $bodyprenote;
- $DOCARRAY{bodypostnote} = $bodypostnote;
- $DOCARRAY{note}        = $note; 
- $DOCARRAY{miscinfo}    = $miscinfo; 
- $DOCARRAY{keywords}    = $keywords; 
- $DOCARRAY{special}      = $special; 
- $DOCARRAY{imagefile}   = $imagefile; 
- $DOCARRAY{imageloc}    = $imageloc;
- $DOCARRAY{imagedescr}     = $imagealt;
- $DOCARRAY{sectsubs}    = $sectsubs;
+ $DOCARRAY{'docid'}       = $docid;
+ $DOCARRAY{'priority'}    = $priority;
+ $DOCARRAY{'pubdate'}     = $pubdate;
+ $DOCARRAY{'pubday'}      = $pubday;
+ $DOCARRAY{'pubmonth'}    = $pubmonth;
+ $DOCARRAY{'pubyear'}     = $pubyear;
+ $DOCARRAY{'expdate'}     = $expdate;
+ $DOCARRAY{'expday'}      = $expday;
+ $DOCARRAY{'expmonth'}    = $expmonth;
+ $DOCARRAY{'expyear'}     = $expyear;
+ $DOCARRAY{'sysdate'}     = $sysdate;
+ $DOCARRAY{'srcdate'}     = $srcdate;
+ $DOCARRAY{'source'}      = $source; 
+ $DOCARRAY{'dTemplate'}   = $dTemplate; 
+ $DOCARRAY{'straightHTML'} = $straightHTML;
+ $DOCARRAY{'dBoxStyle'}    = $dBoxStyle;
+ $DOCARRAY{'link'}        = $link;
+ $DOCARRAY{'link2nd'}     = $link2nd;
+ $DOCARRAY{'selflink'}    = $selflink;
+ $DOCARRAY{'headline'}    = $headline; 
+ $DOCARRAY{'region'}      = $region; 
+ $DOCARRAY{'regionhead'}  = $regionhead;
+ $DOCARRAY{'topic'}       = $topic;  
+ $DOCARRAY{'body'}        = $body;
+ $DOCARRAY{'points'}      = $points;
+ $DOCARRAY{'fullbody'}    = $fullbody; 
+ $DOCARRAY{'freeview'}    = $freeview; 
+ $DOCARRAY{'comment'}     = $comment; 
+ $DOCARRAY{'bodyprenote'} = $bodyprenote;
+ $DOCARRAY{'bodypostnote'} = $bodypostnote;
+ $DOCARRAY{'note'}        = $note; 
+ $DOCARRAY{'miscinfo'}    = $miscinfo; 
+ $DOCARRAY{'keywords'}    = $keywords; 
+ $DOCARRAY{'special'}      = $special; 
+ $DOCARRAY{'imagefile'}   = $imagefile; 
+ $DOCARRAY{'imageloc'}    = $imageloc;
+ $DOCARRAY{'imagedescr'}     = $imagealt;
+ $DOCARRAY{'sectsubs'}    = $sectsubs;
  $DOCARRAY{worth}       = $worth;
  $DOCARRAY{recsize}     = $recsize;
  $DOCARRAY{newsprocsectsub}  = $newsprocsectsub;
@@ -1489,7 +1488,7 @@ sub write_doc_item
      print "Invalid sysdate=$sysdate or docid-$docid; Could not write out docitem at doc1185 Error message: $! <br>\n";
   }
   if($docid =~ /-/) {
-     &write_index_straight($emailedSS,$docid);     # in sections.pl
+     &write_index_straight($emailedSS,$docid);     # in indexes.pl
      &DB_update_sectsub_idx($idx_insert_sth,$sectsubfk,$docid,$stratus,$delsectsubs) unless($DB_docitem < 1);    # in sections.pl
   }
   return($docid);
@@ -2176,6 +2175,7 @@ CREATE TABLE docitems (
    updated_on     date          default null,
    UNIQUE (docid) );
 ENDDOCITEM
+#  indexes pubdate sysdate woapubdatetm headline (20)
 
 # INSERT INTO tablename (col_date) VALUE (CURDATE() )";           ###   date type = 'YYYY-MM-DD'
 }

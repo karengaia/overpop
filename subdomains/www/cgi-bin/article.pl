@@ -24,6 +24,7 @@ if($args) {
 }
 
 print "Content-type: text/html\n\n";
+
 require './bootstrap.pl';
 require 'common.pl';        # sets up environment and paths; also has some common routines
 require 'errors.pl';         # error display and termination or return
@@ -33,13 +34,14 @@ require 'database.pl';       # basic database functions
 require 'dbtables_ctrl.pl';  # maintains and retrieves miscellaneous tables: acronyms, switches_codes, list_imports_export links
 ## require 'db_controlfiles.pl'; # not used - rolled into controlfiles.pl
 require 'date.pl';         # parses and processes date data in docitems
-# require 'sections.pl';      # replaced by sectsubs.pl or indexes.pl
 require 'sectsubs.pl';      # maintains and retrieves sections (sectsubs) control data.
 require 'indexes.pl';       # maintains and retrieves indexes control data. Indexes are lists of docitem ids; each list represents a subsection
 require 'sources.pl';       # maintains and retrieves publisher sources
 require 'regions.pl';       # maintains and retrieves region and country data
 ##require 'controlfiles.pl';  # maintains and retrieves miscellaneous tables: acronyms, switches_codes, list_imports_export links
-require 'contributor.pl';   # maintains, verifies and retrieves contributor (volunteer or user) data
+require 'user.pl';          # maintains, verifies and retrieves user data - base of editor and contributor data
+require 'editor.pl';        # maintains, verifies and retrieves editor data
+require 'contributor.pl';   # maintains, verifies and retrieves contributor data
 require 'email2docitem.pl';   ## require 'sepmail.pl'; processes and separates email articles
 require 'docitem.pl';       # maintains and retrieves docitem (article) data; assigns to appropriate subsections
 require 'smartdata.pl';  # extension of docitem.pl used to parse data from an email or single textbox form
@@ -51,8 +53,9 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 
 &DB_get_switches_counts;  #in dbtables_ctrl.pl - Sets switches for using database - Yes or No?	
 &init_display_variables; # in display.pl
-
 &clear_sectsubs_variables;
+&init_users;
+&init_editors;
 &init_contributors;
 &init_paging_variables; # in indexes.pl
 &init_email;  #in send_email.pl
@@ -60,7 +63,6 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 
 if(-f "debugit.yes") {
   $email_filename = "201102180702-2011-02-18-.email";
-  print "art00 filename $email_filename<br>\n";
   &read_emailItem(2);       ## in docitem.pl
   &parse_popnews_email(2);  ## in docitem.pl
       print "  FROM:: $fromEmail ehandle $ehandle eaccess $eaccess userid $euserid\n";
@@ -84,7 +86,6 @@ elsif($ENV{QUERY_STRING} and $ENV{QUERY_STRING} =~ /&/) {
 if($ENV{QUERY_STRING} or -f 'debugit.yes') {
    $queryString = 'Y';
    $cmd         = $info[0];
-
    $aTemplate   = $info[1];
    $qTemplate   = $aTemplate;
    $docid       = $info[2];
@@ -92,6 +93,7 @@ if($ENV{QUERY_STRING} or -f 'debugit.yes') {
    $action      = $docid if($docid =~ /[a-zA-Z]/);
    $qFrom       = $docid;
    $thisSectsub = $info[3];
+   $info_3      = $info[3];
    $qSectsub    = $thisSectsub;
    $qTo         = $thisSectsub;
    $doclist     = $info[4];
@@ -132,20 +134,19 @@ if($ENV{QUERY_STRING} or -f 'debugit.yes') {
 
 else {
    &parse_form;  #in common.pl
-   $cmd       = $FORM{cmd};
+   $cmd       = $FORM{'cmd'};
 
-   $aTemplate = $FORM{template};
+   $aTemplate = $FORM{'template'};
    if($aTemplate =~ /;/) {
      ($qHeader,$aTemplate,$qFooter) = split(/;/,$aTemplate);
    }
-   $action      = $FORM{action};
-   $docid       = $FORM{docid};
-   $userid      = $FORM{userid} if $FORM{userid};
-   $pin         = $FORM{pin};
-   $password    = $FORM{password};
-   $ipform      = $FORM{ipform};
-   $thisSectsub = $FORM{thisSectsub};
-   $owner       = $FORM{owner};
+   $action      = $FORM{'action'};
+   $docid       = $FORM{'docid'};
+   $userid      = $FORM{'userid'} if $FORM{'userid'};
+   $upin        = $FORM{'upin'};
+   $ipform      = $FORM{'ipform'};
+   $thisSectsub = $FORM{'thisSectsub'};
+   $owner       = $FORM{'owner'};
 }
 ($userid,$rest) = split(/;/,$userid,2) if($userid =~ /;/);
 
@@ -176,6 +177,8 @@ if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets 
    $viewOwnerUpdt     = $OWNER{'viewOwnerUpdt'};
    $metaViewOwnerUpdt = $OWNER{'metaViewOwnerUpdt'};
 }		
+
+
 #        ##### PROCESS THE VARIOUS COMMANDS
 
 if($cmd eq 'storeform'
@@ -191,9 +194,41 @@ if($cmd eq 'storeform'
    }
 }
 
+elsif($cmd eq 'do_editoracct') {
+	&do_editoracct;            #in user.pl 
+	exit;
+}
+
+elsif($cmd eq "login_volunteer") {
+    $userid          = $FORM{'userid'};
+    $upin            = $FORM{'upin'};
+	$operator_userid = $FORM{'opax'};
+	($userdata,$ulastname,$ufirstname,$umiddle,$uid) = &check_user($userid,$upin,'name');  ## in user.pl
+	print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display%app%$uid%$operator_userid\">";
+	exit;
+}
+
+elsif($cmd eq "start_acctapp-XXX") {   #used elsewhere - delete
+    $uid        = $FORM{'uid'};
+    $userid     = $FORM{'userid'};
+    $upin       = $FORM{'upin'};
+    $uemail     = $FORM{'uemail'};
+    &verify_new_editor($userid,$upin,$uemail) unless($operator_access =~ /[ABCD]/);          # in editor.pl
+    &write_user_acct;
+}
+
+elsif($cmd eq "update_user-XXX") {
+   &update_user;          # in editor.pl
+}
+
+elsif($cmd eq "write_acctapp") {    #Approve users - executed from article.pl?display%article_control
+  &write_acctapp;             # in editor.pl
+}
+
+
 if($cmd eq "list_sepmail") {
 	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
-	local(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
+	my(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
 	closedir(POPMAILDIR);
 
 	foreach $filename (@popnewsfiles) {
@@ -210,14 +245,25 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 # my $otemplate = 'ownerUpdate';
 
   if($aTemplate =~ /docUpdate/ or ($owner and $aTemplate =~ /$OWNER{'oupdatetemplate'}/) ) {   #$o_updt_template
-	  $firstname     = "";
-	  $lastname      = "";
-	  $action = "new" unless($action or $docid);
-	  $operator_access = 'A' if($userid =~ /A/);
+	   $firstname     = "";
+	   $lastname      = "";
+	   $action = "new" unless($action or $docid);
+	   $operator_access = 'A' if($userid =~ /A/);
   }
   elsif($aTemplate eq 'article_control') {
-	 &print_article_control;
-	 exit;
+	   &print_article_control;
+	   exit;
+  }
+  elsif($aTemplate eq 'app') {
+	   $operator_userid = $info[3];
+	   $uid = 0;
+	   $uid             = $info[2];
+#NEW NEW NEW  	($userdata,$operator_access,$permissions,$user_visable) = &check_user($operator_userid,98989,'access');  ## in user.pl
+#OLD OLD	   my($userdata,$operator_access) = &read_contributors(N,N,_,_,$operator_userid,98989) if($operator_userid ne "");  ## args=print?, html file?, handle, email, acct#
+       $operator_access = 'A' if($operator_userid eq 'A3491');  #temporary
+
+	   &print_volunteer_app($operator_access,$uid,'editor');   # in user.pl   args = $opAccess, $uid, $form
+	   exit;
   }
   else {
 	   if($aTemplate eq 'select_login') {
@@ -231,9 +277,8 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 
 elsif($cmd eq "processlogin") {
   $firstname     = "";
-   $lastname      = "";
-   $pin = $password if($password and !$pin);
-  ($userdata, $access,$permissions) = &check_user($userid,$pin);  ## in common.pl
+   $lastname     = "";
+   ($userdata,$access,$permissions,$user_visable) = &check_user($userid,$upin,'access');  ## in user.pl
    $operator_access  = $access;
    $op_permissions   = $permissions;
    if($owner) { 
@@ -269,6 +314,7 @@ elsif($cmd eq "processlogin") {
 	exit(0);
 }
 
+
 elsif($cmd eq "display_section"
    or $cmd eq "print_select"
    or $cmd eq "display_subsection"
@@ -282,6 +328,7 @@ elsif($cmd eq "display_section"
       $access = "A";
    }
    else {
+## NEW NEW NEW	($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
 	   ($userdata,$access) = &read_contributors(N,N,_,_,$userid,98989) if($userid ne "");  ## args=print?, html file?, handle, email, acct#
 	   if(($userdata =~ /BAD/ or $access !~ /[ABCD]/)
 	        and $cmd =~ /print_select|process_select_login/) {
@@ -289,7 +336,7 @@ elsif($cmd eq "display_section"
        }
     }
     $operator_access  = $access;
-    $addsectsubs = $FORM{addsectsubs};
+    $addsectsubs = $FORM{'addsectsubs'};
 
     if($cmd =~ /process_select_login/) {
          $cmd = "print_select"    if($action =~ /print_select/);
@@ -316,10 +363,10 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
      $supress_nonsectsubs = 'Y'
               if($cmd =~ /print_select|display_subsection/);
 
-     $select_kgp  = $FORM{select_kgp};
-     $chk_pubdate = $FORM{chk_pubdate};
-     $startDocid  = $FORM{start_docid};
-     $sortorder   = $FORM{sortorder};
+     $select_kgp  = $FORM{'select_kgp'};
+     $chk_pubdate = $FORM{'chk_pubdate'};
+     $startDocid  = $FORM{'start_docid'};
+     $sortorder   = $FORM{'sortorder'};
      $start_found = 'N';
 
      &printInvalidExit("Nothing was selected - hit your Back button and correct") 
@@ -361,7 +408,7 @@ elsif($cmd eq "storeform") {
    }
 
    if($ipform eq 'newArticle' or $ipform eq 'docUpdate' or $ipform eq 'volunteerDocForm') {
-      ($userdata, $access, $permissions) = &check_user($userid,$pin);  ## in contributor.pl
+	   my($userdata,$access,$permissions,$user_visable) = &check_user($userid,$upin,'access');  ## in user.pl
        if($newsprocsectsub =~ /Headlines_priority/) {
           $newsprocsectsub = $headlinesSS;
           $priority = "6";
@@ -388,8 +435,7 @@ elsif($cmd eq "storeform") {
       
    }
    elsif($owner) {
-	    ($userdata, $access, $permissions) = &check_user($userid,$pin);  ## in contributor.pl
-	
+	    ($userdata,$access,$permissions,$user_visable) = &check_user($userid,$upin,'access');  ## in user.pl
 	    $ownersectsub = $FORM{"ownersectsub"};
   }
   &storeform;    ## this is in docitem.pl
@@ -422,7 +468,7 @@ elsif($cmd eq "list_sepmail") {
 
 elsif($cmd eq "adminlogin") {
 ##    &check_user($userid,98989);
-    ($userdata, $access) = &check_user($userid,98989);
+	($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
     if ($access =~ /[ABCD]/) {
 #     $aTemplate = "select_prelim";
 #     $print_it = 'Y';
@@ -436,11 +482,11 @@ elsif($cmd eq "adminlogin") {
 
 elsif($cmd =~ /parseNewItem/) {
   $docid    = "";
-  $fullbody = $FORM{fullbody};
-  $handle   = $FORM{handle};
-  $sectsubs = $FORM{sectsubs};
-  $pdfline  = $FORM{pdfline};
-  $ipform   = $FORM{ipform};	
+  $fullbody = $FORM{'fullbody'};
+  $handle   = $FORM{'handle'};
+  $sectsubs = $FORM{'sectsubs'};
+  $pdfline  = $FORM{'pdfline'};
+  $ipform   = $FORM{'ipform'};	
 
   &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
 
@@ -473,8 +519,7 @@ elsif($cmd =~ /parseNewItem/) {
 ##       Comes here after items have been selected from a list
 
 elsif($cmd =~ /selectItems/) {
-	#     &check_user($userid,98989);
-##     ($userdata, $access) = &check_user($userid,$pin);
+##     ($userdata, $access) = &check_user($userid,$upin); #	($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
 #     $thisSectsub = $FORM{thisSectsub};
 #     $owner       = $FORM{owner};
     if($thisSectsub =~ /$emailedSS/) {
@@ -556,7 +601,7 @@ elsif($cmd eq "getownerinfo") {
 
 elsif($cmd eq "do_line_cmd") {
 	 my $line_cmd = $info[1];  #query_string
-	 &do_imbedded_commands($line_cmd,"P");
+	 &do_imbedded_commands($line_cmd,"P");   #in template_ctrl
 }
 
 elsif($cmd eq "import" or $cmd eq "export") {
@@ -570,26 +615,18 @@ elsif($cmd eq "import" or $cmd eq "export") {
 }
 
 elsif($cmd eq "updateCvrtItems") {
-     ($userdata, $access) = &check_user($userid,98989);
+	 ($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
      if ($access =~ /[ABCD]/) {
      	$thisSectsub = $convertSS;
      	&updt_select_list_items;
      }
 }
 
-elsif($cmd eq "start_acctapp") {
-   &verify_new_acct;          # in contributor.pl
-}
-
-elsif($cmd eq "write_acctapp") { 
-  &write_acctapp;             # in contributor.pl
-}
-
 elsif($cmd eq "contactWOA") {
-   $sectsub    = $FORM{sectsub};
-   $recipient  = $FORM{email};
-   $username   = $FORM{username};
-   $comment    = $FORM{usercomment};
+   $sectsub    = $FORM{'sectsub'};
+   $recipient  = $FORM{'email'};
+   $username   = $FORM{'username'};
+   $comment    = $FORM{'usercomment'};
 
    if($recipient =~ /[a-zA-Z0-9]+@[a-zA-Z0-9]+\.[a-zA-Z0-9]{1,3}/
        and $comment !~ /[advertising|SPAM]/
@@ -635,7 +672,7 @@ elsif($cmd eq 'print_users') {
    $print_contributors = 'Y';
 ## $acctnum = "ZZZZ";
    $ckuserid  = "ZZZZ";
-##     found in contributors.pl
+### NEW NEW	($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
    ($userdata,$access) = &read_contributors(Y,N,H,E,$ckuserid,98989);
 ## $userdata = &read_contributors(Y,N,H,E,$acctnum);
 }
@@ -656,10 +693,10 @@ elsif($cmd eq "popnewsWeekly") {
 }
 
 elsif($cmd eq "email2list") {
-    ($userdata, $access) = &check_user($userid,$pin);
-    $emaillist = $FORM{emaillist};
-    $esubject  = $FORM{subject};
-    $emailmsg  = $FORM{emailmsg};
+	($userdata,$access,$permissions,$user_visable) = &check_user($userid,$pin,'access');  ## in user.pl
+    $emaillist = $FORM{'emaillist'};
+    $esubject  = $FORM{'subject'};
+    $emailmsg  = $FORM{'emailmsg'};
     &email2list($emailmsg,$esubject,$emaillist); ## found in common.pl
 }
 
@@ -675,6 +712,7 @@ elsif($cmd eq "printtables") {
 }
 
 else {
+  &printUserMsgExit("No command found. Terminating. (location:art741)") unless($cmd);
   &printUserMsgExit("Command $cmd not found. Terminating. (location:art741)");
 }
 
@@ -696,8 +734,6 @@ sub print_article_control
 }
 
 
-###  00890 EMAIL #########
-
 ##                   called from docitem.pl
 sub ck_popnews_weekly
 {
@@ -712,7 +748,6 @@ sub ck_popnews_weekly
 
  my $max    = &padCount6($cMaxItems);
  my $popcnt = &padCount6($popnews_cnt);
-
  print "<br><big>Population News Weekly count $popnews_cnt of $cMaxItems</big><br><br>\n";
 
  if($popcnt > $max) {
@@ -741,7 +776,8 @@ sub email_review_not_used
 {
  $userid = $suggestAcctnum if($ipform eq 'suggest');
  $userid = $sumAcctnum     if($ipform eq 'summarize');
- ($userdata,$access) = &read_contributors(N,N,_,_,$userid,98989); ## args=print?, html file?, handle, email, acct#
+	($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
+###    ($userdata,$access) = &read_contributors(N,N,_,_,$userid,98989); ## args=print?, html file?, handle, email, acct#
 #$userdata = &read_contributors(N,N,,,$acctnum);    ## args=print?, html file?, handle, email, acct#
 
  if($ipform eq 'docUpdate' and $access =~ /[AB]/) {
