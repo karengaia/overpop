@@ -94,12 +94,12 @@ sub DB_get_users_2array
 
 sub set_array_values
 {
-	my($useridx,$userid,$uemail,$uid,$uhandle,$uline) = @_;
-    $USERINDEX{$userid}    = $uline;
-    $USERemINDEX{$uemail}  = $uline;
-    $USERidINDEX{$uid}     = $uline;
+	my($useridx,$userid,$uemail,$uid,$uhandle,$line) = @_;
+    $USERINDEX{$userid}    = $uid;
+    $USERemINDEX{$uemail}  = $line;
+    $USERidINDEX{$uid}     = $line;
     $USERhandleINDEX{$uhandle} = 'Y';
-    $USERARRAY[$useridx]   = $uline;	
+    $USERARRAY[$useridx]   = $line;	
 }
 
 
@@ -108,6 +108,20 @@ sub get_user_row {
 	my $urow = $USERidINDEX{$uid};
 	my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = split_user($urow);
 	return($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate);		
+}
+
+sub get_user_row_userid {
+	my $userid = $_[0];
+	my $uid = $USERINDEX{$userid};
+	my $urow = $USERidINDEX{$uid};
+	my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = split_user($urow);
+	return($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate);		
+}
+
+sub get_user_uid {
+	my $userid = $_[0];
+	my $uid = $USERINDEX{$userid};
+	return($uid);		
 }
 
 sub get_user_email_handle($uid) {
@@ -119,10 +133,9 @@ sub get_user_email_handle($uid) {
 }
 
 sub check_user
-{ 
-  my($ckuserid,$ckpin,$access_name) = @_;
-
-  	if($ckuserid =~ /^\+/) {
+{ 	
+   my($ckuserid,$ckpin,$access_name) = @_;
+   if($ckuserid =~ /^\+/) {
       my $user_visable = 'Y';
       ($rest,$ckuserid) = split(/\+/,$ckuserid,2);
    }
@@ -164,7 +177,8 @@ sub validate_users
  my($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate);
 
  if($ckuserid and $USERINDEX{$ckuserid}) {
-	$line = $USERINDEX{$ckuserid};
+	$uid =  $USERINDEX{$ckuserid};
+	$line = $USERidINDEX{$uid};
 	($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = &split_user($line) if($line);
 	$userdata = 'SAMEID' if($ckuserid eq $userid);
 	$userdata = "$userdata;PINOK" if(($ckpin and $ckpin =~ /$upin/) or $ckpin =~ /98989/);
@@ -220,7 +234,8 @@ sub get_put_user_to_docarray
 sub get_user_form_values
 {
   my $uid        = $FORM{'uid'};
-  my $userid     = $FORM{'userid'};
+    ($uid,$rest) = split(/;/,$uid);
+ my $userid     = $FORM{'userid'};
   my $upin       = $FORM{'upin'};
   my $uemail     = $FORM{'uemail'};
   my $uapproved  = $FORM{'uapproved'};
@@ -354,7 +369,7 @@ sub DB_write_user
 #	   $uid = $dbh->last_insert_id("", "", "users", "") or die("last_insert_id failed"); 
    }
    else {
-	  $sth = $dbh->prepare( "UPDATE users SET userid = ?, upin = ?, uemail = ?, uapproved = ?, uhandle = ?, ulastdate = CURDATE()) WHERE uid = ?");
+	  $sth = $dbh->prepare( "UPDATE users SET userid = ?, upin = ?, uemail = ?, uapproved = ?, uhandle = ?, ulastdate = CURDATE() WHERE uid = ?");
 	  $sth->execute($userid,$upin,$uemail,$uapproved,$uhandle,$uid);
    }
    $sth->finish();
@@ -381,9 +396,9 @@ sub DB_update_user_not_used
 
 sub check_user_exists
 {                  # called from editors.pl
- my $uid = $_[0];        
+ my $uid = $_[0];
+my $line = $USERidINDEX{$uid};    
     if($uid and $uid != 0 and $USERidINDEX{$uid}) {
-        my $line = $USERidINDEX{$uid};
         return('old');      # return status 
     }
     else {

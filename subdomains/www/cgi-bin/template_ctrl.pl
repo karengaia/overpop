@@ -800,15 +800,15 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[SUMMARIZER_NAME\]/) {
-         &get_summarizer_name;  ## found in contributor.pl
+         &print_user_name($sumAcctnum,'Summarizer');  ## found in editor.pl
    }
 
    elsif($linecmd =~ /\[OPERATOR_NAME\]/) {
-         &get_operator_name;  ## found in contributor.pl
+         &print_user_name($op_userid,'Current User');  ## found in editor.pl
    }
 
    elsif($linecmd =~ /\[SUGGESTOR_NAME\]/) {
-         &get_suggestor_name($suggestAcctnum);  ## found in contributor.pl
+         &print_user_name($suggestAcctnum,'Suggestor');  ## found in editor.pl
    }
 
    elsif($linecmd =~ /\[STD_ITEM_TOP\]/) {

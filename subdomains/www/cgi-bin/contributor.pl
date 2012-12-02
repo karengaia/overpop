@@ -470,7 +470,7 @@ sub write_contributor_flatfile
 
 sub DB_write_contributor   ## NOTE: this must be preceeded by a write to the user table for userid, email, and handle
 {
-  my($sth,$status,$c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = @_;
+  my($sth,$status,$c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = @_;
 
   unless($sth) {
     $sth = &DB_prepare_contributor_insert if($status eq 'new');
@@ -478,9 +478,10 @@ sub DB_write_contributor   ## NOTE: this must be preceeded by a write to the use
   }
   $created_dt = &get_nowdate;   #in date.pl
 # c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on
-  $sth->execute($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
+  $sth->execute($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
      if($status eq 'new');  
-  $sth->execute($uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_uid,$c_created_on,$c_uid)
+		
+  $sth->execute($uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on,$c_uid)
      if($status eq 'old');    
  }
  $sth->finish();
@@ -537,9 +538,9 @@ sub DB_prepare_contributor_insert
 }
 
 sub DB_prepare_contributor_update 
-{
-   my $sth = $dbh->prepare( "UPDATE contributors SET uBlanks=?,useparator=?,ulocsep=?,uskipon=?,uskipoff=?,uempty=?,
-	udateloc=?,udateformat=?,uheadlineloc=?,usourceloc=?,usinglelinefeeds=?,uend=? WHERE c_uid = ? AND c_created_on = ?" );
+{   
+  my $sth = $dbh->prepare( "UPDATE contributors SET ublanks=?,useparator=?,ulocsep=?,uskipon=?,uskipoff=?,uskip=?,uempty=?,
+	udateloc=?,udateformat=?,uheadlineloc=?,usourceloc=?,usinglelinefeeds=?,uend=?,c_created_on=? WHERE c_uid = ?" );
   return($sth);
 }
 

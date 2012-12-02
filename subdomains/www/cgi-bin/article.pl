@@ -143,7 +143,7 @@ else {
    $action      = $FORM{'action'};
    $docid       = $FORM{'docid'};
    $userid      = $FORM{'userid'} if $FORM{'userid'};
-   $upin        = $FORM{'upin'};
+   $upin        = $FORM{'pin'};
    $ipform      = $FORM{'ipform'};
    $thisSectsub = $FORM{'thisSectsub'};
    $owner       = $FORM{'owner'};
@@ -195,7 +195,7 @@ if($cmd eq 'storeform'
 }
 
 elsif($cmd eq 'do_editoracct') {
-	&do_editoracct;            #in user.pl 
+	&do_editoracct;        #in user.pl 
 	exit;
 }
 

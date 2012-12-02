@@ -95,7 +95,7 @@ sub split_editor
 {
   my $line = $_[0];
   ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on)
-     = split(/\^/,$line,14);
+     = split(/\^/,$line,15);
   return($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on);
 }
 
@@ -167,7 +167,7 @@ sub do_editoracct {  ### Comes here from article.pl to process the volunteer app
 
  my($status) = &check_user_exists($uid);   # in user.pl - is it 'new' or 'update' ?
 
-if($userid or $uemail) {
+ if($userid or $uemail) {
      ($uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$u_created_on)
         = &get_editor_form_values;  #in editor.pl
 
@@ -177,7 +177,6 @@ if($userid or $uemail) {
     $operator_access = 'A' if($opax eq 'A3491');
 
     &verify_editor($status,$operator_access,$userid,$upin,$uemail,$uhandle,$ulastname,$ufirstname,$ustate,$ucity,$ucomment);
-	print "ed181 status $status uid $uid userid $userid upin $upin uemail $uemail ..app $uapproved .. handle $uhandle,$ulastdate)<br>\n";
 
     ($uid) = &store_user($status,$uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate);  #in user.pl
 
@@ -217,6 +216,7 @@ if($userid or $uemail) {
 sub verify_editor  ## from article.pl
 { 
  my($status,$op_access,$userid,$upin,$ckemail,$uhandle,$ulastname,$ufirstname,$ustate,$ucity,$ucomment) = @_;
+
   $userid = &trim($userid);
    unless($userid) {
        print "<p>&nbsp;</p><p> You must supply a userid.</p>\n";
@@ -237,7 +237,7 @@ sub verify_editor  ## from article.pl
 	   }
    }
 
-   my ($userdata,$uid) = &validate_users($userid,"",$ckemail,"",$uhandle); ## in users.pl
+   my($userdata,$uid) = &validate_users($userid,"",$ckemail,"",$uhandle); ## in users.pl
 
    if($status eq 'new') {
 	   if($ckemail and $userid and $userdata =~ /SAMEEMAIL/ and $userdata =~ /SAMEID/) {
@@ -479,16 +479,18 @@ sub get_role
  return($xroles);	
 }
 
-sub get_operator_name
+sub print_user_name
 {
- my $op_userid = $_[0];
- if($op_userid) {
-   ($userdata, $uaccess) = &read_contributors(N,N,_,_,$op_userid,98989);
-   print MIDTEMPL "Current User: $ufirstname $ulastname" if($userdata =~ /GOOD/);
+ my($userid,$usertype) = @_;
+ if($userid) {
+	my $uid = &get_user_uid($userid);   # in user.pl
+    my($uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on)  
+         = &get_editor_row($uid);
+    print MIDTEMPL "$usertype: $ufirstname $umiddle $ulastname<br>\n" if($ulastname or $ufirstname or $umiddle);
  }
 }
 
-sub get_summarizer_name
+sub get_summarizer_name_not_used
 {
  my $sumAcctnum = $_[0];
  if($sumAcctnum) {
@@ -498,7 +500,7 @@ sub get_summarizer_name
 }
 
 
-sub get_suggestor_name
+sub get_suggestor_name_not_used
 {
  my $suggestAcctnum = $_[0];
  if($suggestAcctnum) {
@@ -651,7 +653,7 @@ sub DB_prepare_get_editor_row
 sub DB_prepare_editor_update
 {
   my $dbh = $_[0];
-  my $sth = $dbh->prepare( "UPDATE users SET uaccess = ?,ulastname = ?,ufirstname = ?,umiddle = ?,uaddr = ?,ucity = ?,ustate = ?,uzip = ?,uphone = ?,urole = ?,upay = ?,upermissions = ?,ucomment = ?,e_created_on = ? WHERE e_uid = ?");
+  my $sth = $dbh->prepare( "UPDATE editors SET uaccess = ?,ulastname = ?,ufirstname = ?,umiddle = ?,uaddr = ?,ucity = ?,ustate = ?,uzip = ?,uphone = ?,urole = ?,upay = ?,upermissions = ?,ucomment = ?,e_created_on = ? WHERE e_uid = ?");
   return($sth);
 }
 
