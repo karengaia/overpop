@@ -601,10 +601,13 @@ sub import_users_first_time     ## IMPORTS TO users, editors, and contributors t
 	    $usr_sth->execute($userid,$pin,$email,$uapproved,$handle,$ulastdate);
 	
 	    $uid = &DB_get_uid($userid);
-
-	    $contributor_sth->execute($uid,$ublanks,$useparator,$ulocsep,$uskipon,$uskipoff,$uskip,$uempty,$udateloc,$udateformat,$uheadlineloc,$usourceloc,$usinglelinefeeds,$uend,$ulastdate)
-		    if($ublanks or $useparator or $ulocsep or $uskipon or $uskipoff or $uskip or $udateloc or $udateformat or $uheadlineloc or $usourceloc or $usinglelinefeeds or $uend);
-        
+##   0  	#####  	first  	%NA  	%NA  	#####  	  	  	  	subject&&1&:  	  	N  	%NA 
+        if($ublanks eq 0 and $uSeparator eq '#####' and $ulocsep eq 'first' and $uskipon eq '%NA' and $uskipoff eq '$NA' and $uskip eq '#####' and $uend eq '%NA') {
+	    }  # skip default settings which were set by for most editors
+	    else {
+	        $contributor_sth->execute($uid,$ublanks,$useparator,$ulocsep,$uskipon,$uskipoff,$uskip,$uempty,$udateloc,$udateformat,$uheadlineloc,$usourceloc,$usinglelinefeeds,$uend,$ulastdate)
+		        if($ublanks or $useparator or $ulocsep or $uskipon or $uskipoff or $uskip or $udateloc or $udateformat or $uheadlineloc or $usourceloc or $usinglelinefeeds or $uend);
+        }
         $editor_sth->execute($uid,$uaccess,$lastname,$firstname,$middle,$addr,$city,$state,$zip,$phone,$payrole,$permissions,$usercomment,$ulastdate)
             if($uaccess or $lastname or $firstname);
 	}

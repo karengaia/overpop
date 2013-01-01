@@ -6,20 +6,8 @@ header("Content-type: text/javascript");
 
 // Calculated from US Census Bureau values supplied annually - see spreadsheet
 
+
 $old_date_pop_table = array(
-"10/01/10-6872195424",
-"11/01/10-6878656906",
-"12/01/10-6884909953",
-"01/01/11-6891371434",
-"02/01/11-6897832916",
-"03/01/11-6903669093",
-"04/01/11-6910130575",
-"05/01/11-6916383622",
-"06/01/11-6922845104",
-"07/01/11-6929098151");
-
-
-$date_pop_table = array(
 "09/01/11-6959135290",
 "10/01/11-6965469791",
 "11/01/11-6972015442",
@@ -32,7 +20,18 @@ $date_pop_table = array(
 "06/01/12-7016990398",
 "07/01/12-7023324899");
 
-$un_us_diff = 28200000;   // see UN_US_difference.xls
+$date_pop_table = array(
+"12/01/12-7055639015",
+"01/01/13-7062186320",
+"02/01/13-7068733624",
+"03/01/13-7074647319",
+"04/01/13-7081194623",
+"05/01/13-7087530725",
+"06/01/13-7094078029",
+"07/01/13-7100414131");
+
+//$un_us_diff = 28200000;   // see UN_US_difference.xls
+$un_us_diff = 0;   // see UN_US_difference.xls
 date_default_timezone_set('UTC');
 
 $nowtimesecs = time();  //  off by about 20 hours from US Census

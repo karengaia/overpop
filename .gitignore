@@ -69,7 +69,7 @@ subdomains/www/mail-list/_save/*
 subdomains/www/mauve*
 subdomains/www/maidu/*
 subdomains/www/Maidu_webpage/*
-!subdomains/www/Maidu_webpage/*.php
+subdomains/www/Maidu_webpage/*.php
 subdomains/www/media_PowerPoint_movies/*
 subdomains/www/pdfs_documents/*
 subdomains/www/*.csv
@@ -90,6 +90,7 @@ subdomains/www/woatest.css
 subdomains/www/www.tmproj
 subdomains/www/autosubmit/control/contributors.1orig
 subdomains/www/autosubmit/control/contributors.orig
+subdomains/www/autosubmit/control/contributors_old.html
 subdomains/www/autosubmit/control/editors.html
 subdomains/www/autosubmit/control/users.html
 subdomains/www/autosubmit/controlExport/contributors.html
