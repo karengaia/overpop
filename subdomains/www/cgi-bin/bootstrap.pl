@@ -31,7 +31,7 @@ $PATHS{'public_dir'}     = $public_dir;
 $PATHS{'cgi_dir'}        = $cgi_dir;
 
 require "$base_dir/settings.pl";
-	
+
 push @INC, $cgi_dir;
 
 1;

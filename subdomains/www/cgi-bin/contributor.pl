@@ -17,7 +17,7 @@ sub init_contributors
   $contributor_orig      = "$controlpath/contributors.orig";  #save original file for contributors, editors, and editors - must preserve
   &read_contributors_to_array;  #in users.pl - needed to get index by handle
   
-  $contrib_eofline = "0^^^^^^^^^^^^^";
+  $contrib_eofline = "0^end^^^^^^^^^^^^";
 }
 
 
@@ -622,8 +622,7 @@ CREATE TABLE contributors (
   usourceloc       varchar(40) DEFAULT '',
   usinglelinefeeds varchar(1)  DEFAULT '',
   uend             varchar(40) DEFAULT '',
-  c_created_on     date        DEFAULT '19970101',
-  UNIQUE (c_uid));
+  c_created_on     date        DEFAULT '19970101');
 ENDCONTRIB1
 
 $dbh->do($CONTRIBUTOR_SQL);

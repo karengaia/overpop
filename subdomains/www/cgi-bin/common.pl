@@ -24,10 +24,10 @@ sub get_site_info
  $GLVARS{'email_std_end'}     = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n 6610 Folsom Auburn Rd. Ste 5-4\n Folsom CA 95630-2146\n $adminEmail\n";
  $GLVARS{'std_headtop'}       = "<html xmlns=\"http://www.w3.org/1999/xhtml\" >\n<head>\n";
  $GLVARS{'std_meta'}          = "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
- $contactEmail = "karen4329\@karengaia.net";
- $contactEmail_html = "karen4329&#64;karengaia.net";
- $contactEmail = "karen4329\@karengaia.net";
- $adminEmail = "karen4329\@karengaia.net";
+ $contactEmail                = "karen4329\@karengaia.net";
+ $contactEmail_html           = "karen4329&#64;karengaia.net";
+ $contactEmail                = "karen4329\@karengaia.net";
+ $adminEmail                  = "karen4329\@karengaia.net";
  $email_std_end = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n 6610 Folsom Auburn Rd. Ste 5-4\n Folsom CA 95630-2146\n $adminEmail\n";
 
 ## Maybe just need public => "/www" in Telana server
@@ -266,20 +266,37 @@ sub backup_setup_flatfile
 	  if($fileorigpath) {
 	      system "cp $filepath $fileorigpath" unless(-f $fileorigpath);   # backup original if first time
 	  }
-
+      my $secs = 0;
 	  unlink($filebkppath)  if(-f $filebkppath);
-	  sleep (3);
-	  $result = "File bkp was not deleted - $filebkppath in backup_unlink_flatfile  cm263" if(-f $filebkppath);
+	  while(-f $filebkppath) {
+	     sleep (5);
+	     $secs = $secs + 5;
+	     if($secs > 40) {
+		    $result = "File bkp was not deleted - $filebkppath in backup_unlink_flatfile  cm263" if(-f $filebkppath);
+		    &printInvalidExit($result);
+	     }
+	  }
 
 	  system "cp $filepath $filebkppath";   # back up old users.html path
-	  sleep (3);
-	  $result = "File was not copied to bkp - $filebkppath in  backup_unlink_flatfile  cm263" unless(-f $filebkppath);
-
+	  $secs = 0;
+	  until(-f $filebkppath) {
+	     sleep (5);
+	     $secs = $secs + 5;
+	     if($secs > 40) {
+		    $result = "File was not copied to bkp - $filebkppath in  backup_unlink_flatfile  cm263" unless(-f $filebkppath);
+		    &printInvalidExit($result);
+	     }
+	  }
 	  unlink($filepath);
-	  sleep (3);
-	  $result = "File was not deleted - $filepath in backup_unlink_flatfile  cm263" if(-f $filepath);
-	
-	  &printInvalidExit($result) if($result);
+	  $secs = 0;
+	  while(-f $filepath) {
+	     sleep (5);
+	     $secs = $secs + 5;
+	     if($secs > 40) {
+	        $result = "File was not deleted - $filepath in backup_unlink_flatfile  cm263" if(-f $filepath);		    
+	        &printInvalidExit($result);
+	     }
+	  }
   }
 
   if($SVRinfo{'environment'} == 'development') {  ## set permissions if using Karen's Mac as the server

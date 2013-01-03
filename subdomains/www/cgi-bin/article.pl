@@ -17,6 +17,8 @@
 ## 2011 Nov    - pulled out template_ctrl.pl and display.pl; now article.pl is just a controller.
 
 
+## push @INC, "/www/overpopulation.org/subdomains/www/cgi-bin";  ## telana
+
 $args = $_[0];   # In case we do it from the command line
 if($args) {
   my @args = split(/,/,$args);
@@ -24,7 +26,6 @@ if($args) {
 }
 
 print "Content-type: text/html\n\n";
-
 require './bootstrap.pl';
 require 'common.pl';        # sets up environment and paths; also has some common routines
 require 'errors.pl';         # error display and termination or return
@@ -677,8 +678,8 @@ elsif($cmd eq 'print_users') {
 ## $userdata = &read_contributors(Y,N,H,E,$acctnum);
 }
 
-elsif($cmd eq "DBctrl") {
-	&DB_controller($info[1],$info[2]);
+elsif($cmd eq "DBctrl") {	
+	&DB_controller($info[1],$info[2],$info[3],$info[4],$info[5]);  #in DB tables_ctrl
 }
 
 elsif($cmd eq "convert_old_subsection") {

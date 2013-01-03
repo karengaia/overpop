@@ -169,9 +169,10 @@ document.getElementById('actitle').value = ac[1];
 <!-- LEFT COLUMN -->
   <td width="20%" valign="top">
 <br>
-69.51.83.202 - Telavant IP address
-<br><br>
-69.51.83.203 - Overpopulation.org IP addr
+<b>IP address</b><br>
+69.51.83.202 - Telavant 
+<br>
+69.51.83.203 - Overpopulation.org
 <br><br>
 
 <b>Server:</b>&nbsp;
@@ -198,15 +199,9 @@ Hits: [hitCount]<br>
 
 <b class="head">Helper/Volunteer Aids</b><br>
 <a target="_blank" href="http://[PUBLICURL]/autosubmit/guestAdmin.html">Guest Admin</a><br>
-<a target="_blank" href="http://[PUBLICURL]/autosubmit/summarize.html">Summarize instructions</a><br>
-<a target="_blank" href="http://[PUBLICURL]/autosubmit/apply.html">Application</a><br>
-<a target="_top" href="http://[PUBLICURL]/volunteer_page.html">Volunteer page</a><br>
+<a target="_top" href="http://[PUBLICURL]/volunteer.html">Volunteer application/Summarize instructions</a><br>
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%fly%Volunteer_intro">
 Volunteer Inside Pg(fly)</a><br>
-<br>
-<b>Quick Fix files (not used)</b><br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%quickchange%dir">
-Quickchange</a>
 <br><br>
 
 <table>
@@ -283,6 +278,7 @@ Quickchange</a>
 <br><b>Action:</b><br>
 <select size="1" name="action">
 <option value="display_subsection">A. View chosen subsection</option>
+<option value="display_section">A. View chosen section</option>
 <option value="display_prepage">B. View preliminary web page prior to publishing</option>
 <option value="move_webpage">C. Move page to public web page</option>
 <option value="print_select">D. Select from a list and chose action on selected</option>
@@ -292,7 +288,6 @@ Quickchange</a>
 </select>
 
 <br>
-
 <b>Template:</b>&nbsp;
 <select size="1" name="aTemplate">
 <option value="default">default</option>
@@ -328,6 +323,19 @@ Quickchange</a>
 <option value="stdItem">stdItem</option>
 </select>
 <br>
+<br><b>Qstring Variables:</b> (other than default) (not yet installed)<br>
+<table>
+	<tr><td>2.docid/<br>fly/action</td><td>5.userid/<br>pgnum</td><td>6.<br>maxpg</td><td>7.<br>header</td><td>8.<br>footer</td><td>9.<br>sort*</td><td>11.<br>owner</td></tr>
+<tr><td><input type="text" name="q2"  size="6" maxlength = "6"value=""></td>
+	<td><input type="text" name="q5"  size="6" maxlength = "10" value=""></td>
+	<td><input type="text" name="q6"  size="3" maxlength = "3" value=""></td>
+	<td><input type="text" name="q7"  size="8" maxlength = "40" value=""></td>
+	<td><input type="text" name="q8"  size="8" maxlength = "40" value=""></td>
+	<td><input type="text" name="q9" size="1" maxlength = "2" value=""></td>
+	<td><input type="text" name="q11" size="6" maxlength = "6" value=""></td>
+</tr>
+<tr><td colspan=7>*Sort codes:</td></table><br> 
+
 <b class="head">Filters: </b> &nbsp;Select:<br>
 
 <table><tr>
@@ -479,7 +487,54 @@ Volunteer/User/Editor/Contributor app/admin</a><br>
 </tr><tr>
   <td colspan="3">&nbsp;
 	
-[DBTABLES]
+<!-- DBTABLES -->
+
+<br>&nbsp; &nbsp;<big><b>Table Maintenance - dbtables_ctrl.pl Functions - - - - - - - - - - - - - </b></big><br>
+<table border=1 class="shaded"><tr><td>&nbsp;</td>
+	<td><b>Table</b></td><td><b>Cmd</b></td><td><b>From</b></td><td><b>To</b></td><td><b>More</b></td></tr>
+	<!-- Import users 1st time (imports to editors and contributors tables as well)-->
+    <tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%users%1st"><b>run</b></a>
+        <td>users</td><td>import</td><td>1st time flatfile contributors.html</td><td> to DB users/editors/contributors tables</td><td></td></tr>
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%users%2nd"><b>run</b></a>
+	    <td>users</td><td>import</td><td>subsequest time flatfile users.html</td><td> to DB users table</td><td></td></tr>
+	<!-- Export users -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%users%"><b>run</b></a>
+		<td>users</td><td>export</td><td>DB users table </td><td> to users.html flatfile</td><td></td></tr>
+	<!-- Import editors -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%editors%"><b>run</b></a>
+		<td>editors</td><td>import</td><td>editors.html flatfile </td><td> to DB editors table</td><td></td></tr>
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%editors%"><b>run</b></a>
+		<td>editors</td><td>export</td><td>DB editors table </td><td> to editors.html flatfile</td><td></td></tr>
+
+	<!-- Import contributors -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%contributors%"><b>run</b></a>
+		<td>contributors</td><td>import</td><td>editors.html flatfile </td><td> to DB contributors table</td><td></td></tr>
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%editors%"><b>run</b></a>
+		<td>contributors</td><td>export</td><td>DB contributors table </td><td> to contributors.html flatfile</td><td></td></tr>
+
+	
+<!-- Import sectsubs -->
+    <tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%sectsubs"><b>run</b></a>
+        <td>sectsubs</td><td>import</td><td>new style flatfile sections.html</td><td> to DB sectsubs table</td><td>(TRUNCATE 1st!!)</td></tr>
+<!-- Export sectsubs -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%sectsubs"><b>run</b></a>
+	<td>sectsubs</td><td>export</td><td>DB sectsubs table</td><td>new style flatfile sections.html</td><td></td></tr>
+<!-- Import regions -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%regions"><b>run</b></a>
+	<td>regions</td><td>import</td><td>flatfile regions.html</td><td> to DB regions table</td><td>(TRUNCATE 1st!!)</td></tr>
+<!-- Import sources -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%sources"><b>run</b></a>
+	<td>sources</td><td>import</td><td>flatfile sources.html</td><td> to DB sources table</td><td>(TRUNCATE 1st!!)</td></tr>
+<!-- Import docitems and indexes -->
+	<tr><td><a target=\blank\ href="http://[SCRIPTPATH]/article.pl?DBctrl%import%docitems"><b>run</b></a>
+	<td>docitems</td><td>import</td><td>flatfiles /autosubmit/items/docid.itm <br>and /autosubmit/sections/sectsubname.idx</td><td> to DB docitems and indexes tables</td><td>(TRUNCATE 1st!!)</td></tr>
+<!-- Export docitems only -->
+    <tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%docitems"><b>run</b></a>
+    <td>docitems</td><td>export</td><td>DB docitems table</td><td>to flatfiles /autosubmit/items/docid.itm</td><td></td></tr>
+<!-- Export indexes only -->
+	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%indexes"><b>run</b></a>
+	<td>docitems</td><td>export</td><td>DB indexes tables</td><td>to flatfiles /autosubmit/sections/sectsubname.idx</td><td></td></tr>
+</table>
 
 <br>
 <b class="head">Convert old Subsection</b>

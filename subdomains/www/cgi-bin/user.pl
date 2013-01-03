@@ -19,7 +19,7 @@ sub init_users   ## call this in article.pl <--------------- TODO ##############
   $usersbkppath    = "$bkpcontrolpath/users.html";
   $userspath       = "$controlpath/users.html";
   $users_orig      = "";   #original file is in contributors.html
-  $eofline = "0^^^^^^^";
+  $eofline = "0^end^^^^^^";
 
   $dbh = &db_connect() unless($dbh);
   ($usersize,$uidmax) = &read_users_to_array;
@@ -33,6 +33,11 @@ sub clear_users {
   %USERidINDEX  = {};
   @USERARRAY    = ();
   %USERhandleINDEX = {};
+
+  for (keys %USERhandleINDEX)
+    {
+        delete $USERhandleINDEX{$_};
+    }
   $uid       = 0;
   $userid    = "";
   $upin      = "";
@@ -46,7 +51,7 @@ sub read_users_to_array
 {	
  my $usersize = 0;
  my $uidmax = 0;
- if($DB_users eq 1) {
+ if($DB_users > 0) {
 	  ($usersize,$uidmax) = &DB_get_users_2array;
   }
   else {
@@ -65,6 +70,9 @@ sub flatfile_get_users_2array
       chomp;
       my $uline = $_;  
       my($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = split_user($uline);
+
+		print"usr77 uid $uid .. $uhandle ... $USERhandleINDEX{$uhandle}<br>\n";
+		
       &set_array_values($useridx,$userid,$uemail,$uid,$uhandle,$uline);
       $useridx = $useridx + 1;
       $uidmax = $uid if($uid > $uidmax);
@@ -83,7 +91,8 @@ sub DB_get_users_2array
   my $useridx = 0;
   my $uidmax = 0;
   while (my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = $sth->fetchrow_array()) {
-	  my $uline = "$uid^$userid^$upin^$uemail^$uapproved^$uhandle^$ulastdate"; 
+	  my $uline = "$uid^$userid^$upin^$uemail^$uapproved^$uhandle^$ulastdate"; 	
+#		print"usr96 uid $uid .. $uhandle ... $USERhandleINDEX{$uhandle}<br>\n";
       &set_array_values($useridx,$userid,$uemail,$uid,$uhandle,$uline);
       $useridx = $useridx + 1;
       $uidmax = $uid if($uid > $uidmax);
@@ -94,12 +103,12 @@ sub DB_get_users_2array
 
 sub set_array_values
 {
-	my($useridx,$userid,$uemail,$uid,$uhandle,$line) = @_;
+	my($userid,$userid,$uemail,$uid,$uhandle,$line) = @_;	
     $USERINDEX{$userid}    = $uid;
     $USERemINDEX{$uemail}  = $line;
     $USERidINDEX{$uid}     = $line;
     $USERhandleINDEX{$uhandle} = 'Y';
-    $USERARRAY[$useridx]   = $line;	
+    $USERARRAY[$userid]   = $line;	
 }
 
 
@@ -148,9 +157,18 @@ sub check_user
       exit;
   }
 
- my ($userdata,$uid) = &validate_users($ckuserid,"","",$ckpin);
- if($userdata =~ /BAD/) {
-      &printUserMsgExit("Sorry. The userID ($ckuserid) or password you gave is not valid.<br />Hit your BACK button to correct.  ...usr292");
+ my ($userdata,$uid) = &validate_users($ckuserid,"","",$ckpin,"");
+
+ if($userdata =~ /HOLD/) {
+     &printUserMsgExit("Sorry. Your account is on hold. Please email $contactEmail to get the hold removed.  <br><br><br><br>usr163");
+     exit;
+ }
+ elsif($userdata =~ /NOT_APPROVED/) {
+     &printUserMsgExit("Sorry. Your account has not yet been approved.<br />Please wait for approval or email $contactEmail if you have questions.  <br><br><br><br>usr161");
+     exit;
+ }
+ elsif($userdata =~ /BAD/) {
+      &printUserMsgExit("Sorry. The userID ($ckuserid) or password you gave is not valid.<br />Hit your BACK button to correct.  <br><br><br><br>usr292");
       exit;
  }
  elsif($access_name eq 'uid') {
@@ -183,6 +201,9 @@ sub validate_users
 	$userdata = 'SAMEID' if($ckuserid eq $userid);
 	$userdata = "$userdata;PINOK" if(($ckpin and $ckpin =~ /$upin/) or $ckpin =~ /98989/);
 	$userdata = "$userdata;SAMEEMAIL" if(($ckemail and $uemail) and ($ckemail =~ /$uemail/ or $uemail =~ /$ckemail/));
+	$userdata = "$userdata;NOT_APPROVED" if($uapproved == 0 or $uapproved > 2);
+	$userdata = "$userdata;HOLD"         if($uapproved == 2);
+	$userdata = "$userdata;APPROVED"     if($uapproved == 1);
  }
  elsif($ckemail and $USERemINDEX{$chkuemail}) {
    	$line = $USERemINDEX{$chkuemail};
@@ -572,14 +593,14 @@ sub alter_user_table_after_import
 sub import_users_first_time     ## IMPORTS TO users, editors, and contributors the first time.
 { 
   $dbh = &db_connect() if(!$dbh);
-
+  print "First import - users, editors, contributors<br>\n";
   &create_user_table_1st_import($dbh);
   &create_editor_table($dbh);  # Drops and re-creates
   &create_contributor_table($dbh);  # Drops and re-creates
 
   my $usr_sth         = $dbh->prepare( "INSERT INTO users (userid,upin,uemail,uapproved,uhandle,ulastdate) VALUES ( ?, ?, ?, ?, ?, ?)" );
-  my $editor_sth      = &DB_prepare_editor_insert;
-  my $contributor_sth = &DB_prepare_contributor_insert;
+  my $editor_sth      = &DB_prepare_editor_insert($dbh);
+  my $contributor_sth = &DB_prepare_contributor_insert($dbh);
 
   my $contributorspath = "$controlpath/contributors.html";
  print "<b>Import users from contributors</b> ..contributorspath $contributorspath<br>\n";
@@ -594,22 +615,35 @@ sub import_users_first_time     ## IMPORTS TO users, editors, and contributors t
 		   $uheadlineloc,$usourceloc,$usinglelinefeeds,$uend)
 		     = split(/\^/,$uline,30);
 		
-	print "uaccess $uaccess ..userid $userid ..upin $upin ..lastname $lastname .. firstname $firstname ..handle $handle<br>\n";  
+#	print "uaccess $uaccess ..userid $userid ..upin $upin ..lastname $lastname .. firstname $firstname ..handle $handle<br>\n";  
     my $uapproved = 1;
 
 	unless ($userid =~ /endID/) {
 	    $usr_sth->execute($userid,$pin,$email,$uapproved,$handle,$ulastdate);
 	
 	    $uid = &DB_get_uid($userid);
-##   0  	#####  	first  	%NA  	%NA  	#####  	  	  	  	subject&&1&:  	  	N  	%NA 
-        if($ublanks eq 0 and $uSeparator eq '#####' and $ulocsep eq 'first' and $uskipon eq '%NA' and $uskipoff eq '$NA' and $uskip eq '#####' and $uend eq '%NA') {
+print "uid $uid userid $userid email $email uaccess $uaccess ..userid $userid ..upin $upin ..lastname $lastname .. firstname $firstname ..handle $handle<br><br>\n";
+       if($ublanks eq 0 and $uSeparator eq '#####' and $ulocsep eq 'first' and $uskipon eq '%NA' and $uskipoff eq '$NA' and $uskip eq '#####' and $uend eq '%NA') {
 	    }  # skip default settings which were set by for most editors
 	    else {
 	        $contributor_sth->execute($uid,$ublanks,$useparator,$ulocsep,$uskipon,$uskipoff,$uskip,$uempty,$udateloc,$udateformat,$uheadlineloc,$usourceloc,$usinglelinefeeds,$uend,$ulastdate)
 		        if($ublanks or $useparator or $ulocsep or $uskipon or $uskipoff or $uskip or $udateloc or $udateformat or $uheadlineloc or $usourceloc or $usinglelinefeeds or $uend);
+        }        ##          e_uid,uaccess,ulastname,ufirstname,umiddle,uaddr,ucity,ustate,uzip,uphone,urole,upay,upermissions,ucomment,e_created_on
+        if($uaccess or $lastname or $firstname) {
+		    if ($payrole and $payrole =~ /[a-zA-Z]/) {
+			       $pay = 0;
+			       $role = $payrole;
+		    }
+		    elsif($payrole) {
+		           $pay = $payrole;
+		           $role = "";
+		    }
+		    else {
+			       $pay = 0;	
+			       $role = "";
+		   }
+	       $editor_sth->execute($uid,$uaccess,$lastname,$firstname,$middle,$addr,$city,$state,$zip,$phone,$role,$pay,$permissions,$usercomment,$ulastdate)
         }
-        $editor_sth->execute($uid,$uaccess,$lastname,$firstname,$middle,$addr,$city,$state,$zip,$phone,$payrole,$permissions,$usercomment,$ulastdate)
-            if($uaccess or $lastname or $firstname);
 	}
   }
   $usr_sth->finish;

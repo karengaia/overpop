@@ -14,7 +14,7 @@ sub init_editors
   $editorsbkppath    = "$bkpcontrolpath/editors.html";
   $editorspath       = "$controlpath/editors.html";
   $editors_orig      = "";   #original file is in contributors.html
-  $editors_eofline   = "0^^^^^^^^^^^^^^";
+  $editors_eofline   = "0^end^^^^^^^^^^^^^";
 
   &clear_editors;
 
@@ -37,7 +37,7 @@ sub clear_editors
   $ustate         = "";
   $uzip           = "";
   $uphone         = "";
-  $role           = "";
+  $urole           = "";
   $upay           = 0.00;
   $ucomment       = "";
   $upermissions   = "";
@@ -46,7 +46,7 @@ sub clear_editors
 
 sub read_editors_to_array
 {	
- if($DB_users eq 1) {
+ if($DB_users > 0) {
 	 $EDITORSIZE = &DB_get_editors_2array;
   }
   else {
@@ -188,7 +188,7 @@ sub do_editoracct {  ### Comes here from article.pl to process the volunteer app
        if($uBlanks or $uSeparator or $uSkipon or $uSkipoff or $uDateloc or $uHeadlineloc or $uDateformat or $uEnd);
 
     if($status eq 'new' and ($ulastname or $ufirstname) and !$opax) {
-		&editor_email_verify($uid,$userid,$uemail,$upin,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$ucomment);
+		&editor_email_verify($uid,$userid,$uemail,$upin,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$ucomment);
 		print "<p>&nbsp;</p><p>Thank you, $ufirstname, for applying for a WOA account.</p>\n";
 		print "<p>You will receive a request by email to verify your email address.</p>\n";
 		print "<p>Please simply 'reply' to it.</p>\n";
@@ -229,8 +229,8 @@ sub verify_editor  ## from article.pl
         print "<p>Hit your BACK button to correct.</p><p>&nbsp;</p>";
         exit;
    }
-   unless($op_access =~ /[ABCD]/ or $uBlanks or $uSeparator or $uSkipon or $uSkipoff or $uDateloc or $uHeadlineloc or $uDateformat or $uEnd) {
-	   unless($ulastname and $ufirstname and $uemail and ($ustate or $ucity) and $upin and $ucomment) {
+   unless($op_access =~ /[ABCD]/) {
+        unless($ulastname and $ufirstname and $ckemail and ($ustate or $ucity) and $upin and $ucomment) {
 	        print "<p>&nbsp;</p><p>Required fields are first and last name, password, and a ";
 	        print "reason for volunteering</p>\n <p>Hit your BACK button to correct.</p><p>&nbsp;</p>";
 	           exit;
@@ -279,7 +279,7 @@ sub end_verify_msg
 
 sub editor_email_verify
 {
- my($uid,$userid,$uemail,$upin,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$ucomment) = @_;
+ my($uid,$userid,$uemail,$upin,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$ucomment) = @_;
 
  $roles_expanded = &do_roles('email',$urole);
 
@@ -573,7 +573,7 @@ sub DB_print_editors
 {
   my $uCount = 0;
 
-  my $sth = $dbh->prepare("SELECT e.e_uid,e.lastname,e.ufirstname,e.umiddle,u.uhandle,u.uemail,e.uaddr,e.ucity,e.ustate,e.uzip,e.uphone,e.urole,e.pay,e.upermissions,'substr(e.ucomment,1,20)',e.e_created_on FROM editors as e, users as u WHERE e.c_uid = u.uid ORDER BY 'cast(u.uid as unsigned)'");
+  my $sth = $dbh->prepare("SELECT e.e_uid,e.lastname,e.ufirstname,e.umiddle,u.uhandle,u.uemail,e.uaddr,e.ucity,e.ustate,e.uzip,e.uphone,e.urole,e.upay,e.upermissions,'substr(e.ucomment,1,20)',e.e_created_on FROM editors as e, users as u WHERE e.c_uid = u.uid ORDER BY 'cast(u.uid as unsigned)'");
   $sth->execute();
 
   while (my ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uhandle,$uemail,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on) 
@@ -635,11 +635,11 @@ sub print_editor
 
 ###         DATABASE SUBROUTINES
 
-sub DB_prepare_editor_insert 
+sub DB_prepare_editor_insert
 {
   my $dbh = $_[0];
-     $sql = "INSERT INTO editors (e_uid,uaccess,ulastname,ufirstname,umiddle,uaddr,ucity,ustate,uzip,uphone,urole,upay,upermissions,ucomment,e_created_on) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-     $sth = $dbh->prepare($sql) or die "Couldn't prepare insert statement: " . $sth->errstr;
+  $sql = "INSERT INTO editors (e_uid,uaccess,ulastname,ufirstname,umiddle,uaddr,ucity,ustate,uzip,uphone,urole,upay,upermissions,ucomment,e_created_on) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
+  $sth = $dbh->prepare($sql) or die "Couldn't prepare insert statement: " . $sth->errstr;
   return($sth);
 }
 
@@ -666,7 +666,7 @@ sub DB_prepare_select_editors_list
 
 sub DB_update_editor
 {
- my($sth,$e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$role,$upay,$upermissions,$ucomment,$e_updated_on,$e_created_on) = $_[0];
+ my($sth,$e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_updated_on,$e_created_on) = $_[0];
  $sth->execute($uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on,$e_uid);
 }
 
@@ -686,7 +686,7 @@ sub DB_get_editor_row     ## Get one row only
  $sth->execute($uid);
  ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on) = $sth->fetchrow_array();
  $sth->finish();
- return($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$role,$upay,$upermissions,$ucomment,$e_created_on);
+ return($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on);
 }
 
 
@@ -731,7 +731,7 @@ sub export_editors
   $sth->execute();
 
   open(EDITORS, ">>$editorspath");  
-  while (my ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$role,$upay,$upermissions,$ucomment,$e_created_on)
+  while (my ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on)
     = $sth->fetchrow_array()) {
       print EDITORS "$e_uid^$uaccess^$ulastname^$ufirstname^$umiddle^$uaddr^$ucity^$ustate^$uzip^$uphone^$urole^$upay^$upermissions^$ucomment^$e_created_on\n";
       print "$e_uid^$uaccess^$ulastname^$ufirstname^$umiddle^$uaddr^$ucity^$ustate^$uzip^$uphone^$urole^$upay^$upermissions^$ucomment^$e_created_on<br>\n";
@@ -765,8 +765,7 @@ CREATE TABLE editors (
   upay           decimal(5,2) DEFAULT 0.00,
   upermissions   varchar(60)  DEFAULT '',
   ucomment       varchar(300) DEFAULT '',
-  e_created_on   date         DEFAULT '19970101',
-  UNIQUE (e_uid));
+  e_created_on   date         DEFAULT '19970101');
 ENDEDITOR1
 
 $dbh->do($EDITOR_SQL);

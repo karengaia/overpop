@@ -29,7 +29,7 @@ sub DB_controller {       #comes here from article.pl
 	    &export_docitems($one,$two,$three) if($DBcmd =~ /export/);   # in docitems.pl
 	}
 	elsif($table =~ /users/) { 
-	    &import_users_first_time if($DBcmd =~ /import/ and $one eq '1st');   # in users.pl  #imports users, editors, contributors
+        &import_users_first_time if($DBcmd =~ /import/ and $one eq '1st');   # in users.pl  #imports users, editors, contributors
 		&import_users            if($DBcmd =~ /import/ and $one ne '1st');   # in users.pl 
 	    &export_users            if($DBcmd =~ /export/);   # in users.pl
 	}
@@ -116,7 +116,7 @@ sub DB_get_switches_counts
     $idx_insert_sth = "";
 
 	unless($dbh) {
-		$dbh = &db_connect() or die("could not connect");
+		$dbh = &db_connect() or die("could not connect");  #in database.pl
 	}
 
  	if(!$dbh or -f "$pophome/dbconnect.off") {
