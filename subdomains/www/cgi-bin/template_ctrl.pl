@@ -630,8 +630,16 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[BODY\]/) {
-        $body = &do_body_comment($body);
-        print $MIDTEMPL "$body";
+	    if($body) {
+            $body = &do_body_comment($body); #in docitem.pl
+	        print $MIDTEMPL "$body";
+	    }
+	    else {
+            my $tempbody = substr($fullbody,200);
+            $tempbody = "$tempbody\n\n$points" if($points);
+            $tempbody = &do_body_comment($tempbody); #in docitem.pl
+	        print $MIDTEMPL "$tempbody";
+        }
    }
 
    elsif($linecmd =~ /\[COMMENT\]/ and $comment =~ /[A-Za-z0-9]/) {
@@ -1192,102 +1200,6 @@ sub do_5lines
        }
     }
   }
-}
-
-sub do_body_comment
-{
-  $bodycom = $_[0];
-##print "tem1102 now_email $now_email body $body\n";
-  if($now_email eq 'Y') {
-     $bodycom     =~ s/\r/" "/g;
-     $bodycom     =~ s/\n/" "/g;
-     $bodycom     =~ s/<i>/""/g;
-     $bodycom     =~ s/<\/i>/""/g;
-  }
-  else {
-	 $bodycom =~ s/ {1-9}\n/\n/g;  # get rid of trailing spaces
-	 my @bodylines = split(/\n/,$bodycom);
-	 my $url = "";
-	 my $acronym = "";
-	 my $word = "";
-	 my $title = "";
-	 $bodycom = "";
-	foreach $bodycomline (@bodylines) {
-	    if($bodycomline =~ /#http/ or $bodycomline =~ /#[A-Z]/ or $bodycomline =~ /#mp3#http/) { #link or acronym
-		   my @words = split(/ /,$bodycomline);
-		   $bodycomline = "";
-		   foreach $word (@words) {
-		       if($word =~ /^#([http|https]:\/\/.*)/ or $word =~ /##([http|https]:\/\/.*)/ or $word =~ /#mp3#(http:\/\/.*)/) {
-				   $url = $1;
-				   if($word =~ /##[http|https]:/) {   #   2 ##s = clickable url
-					  $word = "<small><a target=\"blank\" href=\"$url\">$url<\/a><\/small>";
-				   }
-                   elsif($template eq "newsalertItem") {
-				        $word = "Click left arrow ";
-                   }
-				   elsif($word =~ /#mp3#http:/) {   #   2 ##s = clickable url
-					    $word .= "<object width=\"300\" height=\"42\"> <param name=\"src\" value=\"$url\">";
-$word = <<ENDWORD;
-<param name="autoplay" value="false">
-<param name="controller" value="true">
-<param name="bgcolor" value="#FFFFFF">
-<embed 
-ENDWORD
-                         $word .= "src=\"$url\" autostart=\"false\" loop=\"false\" width=\"300\" height=\"42\" controller=\"true\" bgcolor=\"#FFFFFF\"><\/embed><\/object>";	
-				   }
-                   else {	
-				        $word = "<a target=\"blank\" href=\"$url\">Click here<\/a>";
-                   }	      
-		       }
-		       elsif($word =~ /^#([A-Za-z0-9\-]{2,30})/) {  
-			      $acronym = $1;
-			      $title = &get_title($acronym);  # in dbtables_ctrl.pl
-                  if($title) {
-			          $word = "<acronym title=\"$title\">$acronym<\/acronym>";
-                  }
-                  else {
-	                  $word = $acronym;
-                  }
-		       }
-		       $bodycomline = "$bodycomline$word ";
-		   }
-		   $bodycomline =~ s/^ +//;  #trim leading spaces
-		   $bodycomline =~ s/ +$//;  #trim leading spaces
-	    }
-	    $bodycom = "$bodycom$bodycomline\n";
-	 }
-	 $bodycom =~ s/^\n+//;  #trim leading line returns
-	 $bodycom =~ s/\n$//;  #trim trailing line returns
-	 $bodycom =~ s/\n$//;  #trim trailing line returns
-	 $bodycom =~ s/\n$//;  #trim trailing line returns	
-	 $bodycom =~ s/\r$//;  #trim trailing line returns
-	 $bodycom =~ s/\r$//;  #trim trailing line returns
-	 $bodycom =~ s/\r$//;  #trim trailing line returns
-	
-     if($template =~ /straight|link/
-	     or $bodycom =~ /<font|<center|<blockquote|<div|<table|<li|<dl|<dt|<dd/) {
-	   $bodycom = &xhtmlify($docid,$template,$bodycom);  ## in docitem.pl
-	 }
-	 elsif ($bodycom =~ /\n\n/ and $template !~ /newsalertItem/) {
-	      $bodycom =~ s/\n\n/<\/p><p>\n/g;
-	 }
-	 else {
-	      $bodycom =~ s/\n/<br>\n/g;
-	}
-  }
-  $bodycom =~ s/\r/<br>/g;
-  $bodycom =~ s/<\/p><p>$//g;   ## delete last paragraph
-  $bodycom =~ s/<\/p><p>\n/<\/p>\n\n<p>/g;
-  $bodycom =~ s/<br.{0-2}>//gi;   ## all line breaks
-  $bodycom =~ s/<BR \/>//g;
-  $bodycom = &apple_convert($bodycom);  # takes care of encoding
-  $bodycom =~ s/ & / &#38; /g; ## ampersand to html code
-  $bodycom =~ s/=27/&39#;/g;   ## single quote to html code
-  $bodycom =~ s/<br>$//;  #trim trailing line returns
-  $bodycom =~ s/<br>$//;  #trim trailing line returns
-  $bodycom =~ s/<br>$//;  #trim trailing line returns
-  $bodycom =~ s/<br>$//;  #trim trailing line returns
-  return($bodycom);
 }
 
 
