@@ -11,8 +11,6 @@ sub set_date_variables   # from article.pl
   $todaydate = &get_nowdate;
 
   ($nowyyyy,$nowmm,$nowdd) = &getnowdate_elements;
-
-  $t3monthsago = &get_3monthsago;
   
   $chkmonth = "January|February|March|April|May|June|July|August|September|October|November|December";
   $chk_abbrvmonth = "Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec";
@@ -66,20 +64,22 @@ sub set_date_variables   # from article.pl
 
 sub find_date_in_line {    #comes here from smartdata.pl
 	($dtkey,$msgline_anydate,$msgline_date,$msgline) = @_;
+	
 	my $head = "";
 	if($dtkey and $msgline =~ /$dtkey/ and !$msgline_anydate and !$msgline_date) {
-	       $msgline_date = $msgline;
+		$msgline_date = $msgline;
 	}
 	elsif($msgline =~ /^DD /) {
 		$msgline_date = $msgline;
 		$msgline_date =~ s/DD //;
 	}
 	elsif($msgline =~ /.{5,}?DATE:/) {
+		print "sm70 DATE: $msgline_anydate<br>\n";
 		($head,$msgline_anydate) = split(/DATE:/,$msgline,2);
 	}
 	elsif($msgline =~ /^([DATE:|date:|DATELINE])/) {
 		my $datetag = $1;
-		$msgline_anydate =~ s/$datetag // unless($msgline_anydate);
+		$msgline_date =~ s/$datetag // unless($msgline_anydate);
 	}
 	elsif( ($msgline =~ /$chkyear/ and $msgline =~ /$chkmonth/)
 		  or $msgline =~ /[0-9]{1,4}[\/-][0-9]{1,4}[\/-][0-9]{1,4}/) {
@@ -109,6 +109,7 @@ sub assemble_pubdate  # from docitem.pl
 sub print_srcdate
 {
  my($pubyear,$pubmonth,$pubday) = split(/-/,$pubdate,3);
+
  if($pubdate =~ /no date/ or $pubdate = "" or $pubyear eq '0000' or $pubyear !~ /[0-9]{4}/) {
     $srcdate = "";
  }
@@ -121,13 +122,15 @@ sub print_srcdate
       $month = @months[$pubmm];
       $month = $month[1] if($month[0] = '0');
       if($pubday =~ /[A-Za-z0-9]/ and $pubday ne '00') {
+	    $pubday =~ s/\s$//;
         $srcdate= "$month $pubday, $pubyear";
       }
       else {
          $srcdate= "$month $pubyear";
       }
     }
-    print MIDTEMPL "$srcdate &nbsp;" if($nodata =~ /N/);
+    print $MIDTEMPL "$srcdate, " if($source);
+    print $MIDTEMPL "$srcdate" unless($source);
  }
 }
 
@@ -137,8 +140,12 @@ sub print_srcdate
 sub refine_date
 {
  my($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc) = @_;
-
  my $pubdate = "0000-00-00";
+
+ if(!$msgline_date and $ehandle =~ /push/ and $msgline2 =~ /^Date: /) {
+	 $msgline_date = $msgline2;
+     $msgline_date =~ s/Date: //;
+ }
 
  if($msgline_date) {
 	($pubdate,$pubyear) = &basic_date_parse($msgline_date,$uDateloc);
@@ -903,10 +910,31 @@ sub get_7daysago
    return($pubyear,$pubmonth,$pubday);
 }
 
+sub get_somedaysago
+{
+ my $numdays = $_[0];
+   $diffsecs  = ($numdays * 3600 * 24);
+   $sysdt = &calc_date('days',$diffsecs,'-');
+   $yyyy  = $sysyear;
+   $mm    = $sysmm;
+   $dd    = $sysdd;
+   return("$yyyy$mm$dd");
+}
+#######       These can go away
 sub get_3monthsago
 {
    $diffsecs  = (90 * 3600 * 24);
    $sysdt = &calc_date('3mo',$diffsecs,'-');
+   $yyyy  = $sysyear;
+   $mm    = $sysmm;
+   $dd    = $sysdd;
+   return("$yyyy$mm$dd");
+}
+
+sub get_6weeksago
+{
+   $diffsecs  = (42 * 3600 * 24);
+   $sysdt = &calc_date('6wk',$diffsecs,'-');
    $yyyy  = $sysyear;
    $mm    = $sysmm;
    $dd    = $sysdd;

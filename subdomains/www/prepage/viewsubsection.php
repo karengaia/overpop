@@ -1,7 +1,8 @@
 <?php
 require './../php/bootstrap.php';  /* FIXED THIS MISSPELLING in GIT_PATHS - was boostrap.php*/
-$sectionname = $_SERVER['QUERY_STRING'];
-$sourcepage = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%$sectionname";
+$qstring = $_SERVER['QUERY_STRING'];
+list($sectionname,$x,$pagenum) = explode('%',$qstring);
+$sourcepage = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_subsection%%%$sectionname%%$pagenum";
 ?>
 <!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
 <!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 

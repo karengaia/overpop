@@ -1,16 +1,10 @@
-<html>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
 <head>
-<title>[cTitle}</title>
-</head>
-<body>
+<title>Select & Process Items - WOA!!</title>
 
-<form method="post" name="itemsSelect" action=
-"http://[SCRIPTPATH]/article.pl">
-<input type="hidden" name="cmd" value="selectItems">
-<input type="hidden" name="thisSectsub" value="[thisSectsub]">
-<input type="hidden" name="ipform" value="select_top">
-
-<script LANGUAGE="JavaScript">
+<script language="javascript" type="text/javascript">
 
 <!--
 function CheckAll()
@@ -19,9 +13,44 @@ function CheckAll()
    var e = document.itemsSelect.elements[i];
    if (e.name.match(/^selitem/))
       e.checked = document.itemsSelect.allbox.checked;
- }
+  }
 }
+
+function setvar(varname,fromvar)
+{	
+ eval("document.getElementById('" + varname + "').value = fromvar;");
+}
+
+
 //-->
 </script>
+
+<style>
+	html {background-color:#969;}
+	body {margin-left: 40px; margin-right: 60px; font-size: 1.0em; color: #050505; background:#eee;}
+	h1   {font-family:arial;font-size:20px;font-weight:bold;color:##712E82;text-align:center;}
+	b    {font-family: verdana;font-size:12px;font-weight:bold;}
+	table tr td {font-size:100%;}
+	cite  {font-family:"comic sans ms"; font-size:10px; font-style: normal; display: inline;}
+	span  {font-family:verdana; font-size:10px;}
+	label {font-family:verdana; font-size:12px; font-weight:bold;}
+	input, textarea {font-size:12px; font-family: arial; border: 1px solid #ccc; background: #fff; }
+	select {font-size: 12px; font-family: arial; border: 1px solid #ccc; background: #fff;}
+	p     {font-family:arial font-size:12px;}
+	.grey {color:#666666;}
+	cite.verdana {font-family:verdana;}
+	div#hiddenregion {border: 2px solid #ccc; margin-left:4px; padding:5px;visibility:hidden;}
+	div#hiddensource {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	div#hiddenacronym {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	div#sectsub {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+</style>
+</head>
+
+<form method="post" name="itemsSelect" action=
+"http://[SCRIPTPATH]/article.pl">
+<input type="hidden" name="cmd" value="selectItems">
+<input type="hidden" name="thisSectsub" value="[thisSectsub]">
+<input type="hidden" name="ipform" value="select_top">
+
 <font size=2 face=arial><input name="allbox" type="checkbox" value="moxnix" onClick="CheckAll();">
 &nbsp;Check/uncheck all<p>

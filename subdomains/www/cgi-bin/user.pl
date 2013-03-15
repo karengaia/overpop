@@ -70,8 +70,6 @@ sub flatfile_get_users_2array
       chomp;
       my $uline = $_;  
       my($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = split_user($uline);
-
-		print"usr77 uid $uid .. $uhandle ... $USERhandleINDEX{$uhandle}<br>\n";
 		
       &set_array_values($useridx,$userid,$uemail,$uid,$uhandle,$uline);
       $useridx = $useridx + 1;
@@ -105,9 +103,9 @@ sub set_array_values
 {
 	my($userid,$userid,$uemail,$uid,$uhandle,$line) = @_;	
     $USERINDEX{$userid}    = $uid;
-    $USERemINDEX{$uemail}  = $line;
+    $USERemINDEX{$uemail}  = $uid;
     $USERidINDEX{$uid}     = $line;
-    $USERhandleINDEX{$uhandle} = 'Y';
+    $USERhandleINDEX{$uhandle} = $uid;
     $USERARRAY[$userid]   = $line;	
 }
 
@@ -135,10 +133,18 @@ sub get_user_uid {
 
 sub get_user_email_handle($uid) {
 	my $uid = $_[0];
-    $uline = $USERidINDEX{$uid};
+    my $uline = $USERidINDEX{$uid};
 	my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) 
-	   = split(/^/,$urow,8);
+	   = split(/^/,$uline,7);
 	return($uemail,$uhandle);
+}
+
+sub get_user_userid($uid) {
+	my $uid = $_[0];
+    my $uline = $USERidINDEX{$uid};
+	my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) 
+	   = split(/^/,$uline,7);
+	return($userid);
 }
 
 sub check_user
@@ -152,11 +158,18 @@ sub check_user
       my $user_visable = 'N';
    }
 
-  if($ckuserid !~ /[A-Za-z0-9]{2}/ or $ckuserid =~ /Userid/ or $ckpin !~ /[A-Za-z0-9]{2}/) {
-      &printUserMsgExit("You must supply a userid and password, or, if you do not have one, you must register.<br /> Hit your BACK button to correct.");
-      exit;
+  if($access_name =~ /access/) {
+	  unless($ckuserid or $ckpin) {
+	      &printUserMsgExit("You must supply a userid or password.");
+	      exit;
+	  }
   }
-
+  else {
+	  if($ckuserid !~ /[A-Za-z0-9]{2}/ or $ckuserid =~ /Userid/ or $ckpin !~ /[A-Za-z0-9]{2}/) {
+	      &printUserMsgExit("You must supply a userid and password, or, if you do not have one, you must register.<br> Hit your BACK button to correct.");
+	      exit;
+	  }
+  }
  my ($userdata,$uid) = &validate_users($ckuserid,"","",$ckpin,"");
 
  if($userdata =~ /HOLD/) {
@@ -194,6 +207,8 @@ sub validate_users
  my $userdata = "";
  my($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate);
 
+$uidx = $USERINDEX{$ckuserid};
+
  if($ckuserid and $USERINDEX{$ckuserid}) {
 	$uid =  $USERINDEX{$ckuserid};
 	$line = $USERidINDEX{$uid};
@@ -206,9 +221,8 @@ sub validate_users
 	$userdata = "$userdata;APPROVED"     if($uapproved == 1);
  }
  elsif($ckemail and $USERemINDEX{$chkuemail}) {
-   	$line = $USERemINDEX{$chkuemail};
-	($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = &split_user($line) if($line);
-    $userdata = 'SAMEEMAIL' if($chkemail =~ /$uemail/ or $uemail =~ /$chkemail/);
+   	$uid = $USERemINDEX{$chkuemail};
+    $userdata = 'SAMEEMAIL' if($uid);
  }
  elsif($ckuid and $USERidINDEX{$ckuid}) {
    	$line = $USERidINDEX{$chkuid};
@@ -652,6 +666,5 @@ print "uid $uid userid $userid email $email uaccess $uaccess ..userid $userid ..
 
   close(CONTRIBUTORS);
 }
-
 
 1;

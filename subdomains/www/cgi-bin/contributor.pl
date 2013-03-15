@@ -26,12 +26,14 @@ sub clear_contributor_values
   $CONTRIBSIZE  = 0;
   %CONTRIBINDEX = {};
   @CONTRIBARRAY = ();
+  $CONTRIB_DATA = "";    # holds current row of contributor values
   $c_uid         = 0;
   $uBlanks       = "";
   $uSeparator    = "";
   $uLocSep       = "";
   $uSkipon       = "";
   $uSkipoff      = "";
+  $uStart        = "";
   $uSkip         = "";
   $uEmpty        = "";
   $uDateloc      = "";
@@ -39,7 +41,14 @@ sub clear_contributor_values
   $uHeadlineloc  = "";
   $uSourceloc    = "";
   $uSingleLineFeeds = "";
+  $uStop         = "";
   $uEnd          = "";
+  $uStart_blankct = 0;
+  $uStop_blankct  = 0;
+  $uSep_blankct   = 0;
+  $stop_blankCRs = "";
+  $sep_blankCRs  = "";
+  $start_blankCRs = "";
   return;
 }
 
@@ -66,9 +75,10 @@ sub flatfile_get_contributors_2array
 		     = &split_contributor($line);
 	  last if($c_uid == 0);
 	  $uhandle = $USERhandleINDEX{$c_uid};
-	  $CONTRIBINDEX{$c_uid}       = $line;
-	  $CONTRIBhandleUID{$uhandle} = $c_uid;
-	  $CONTRIBARRAY[$contrib_idx] = $line;
+	  $uemail  = $USERemINDEX{$c_uid};
+	  $contrib_values = "$c_uid^$userid^$uemail^$uhandle^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$created_on";
+	  $CONTRIBINDEX{$c_uid}         = $contrib_values;
+	  $CONTRIBARRAY[$contrib_idx]   = $contrib_values;
 	  $contrib_idx = $contrib_idx + 1;
   }
   close(CONTRIBUTORS);
@@ -86,12 +96,12 @@ sub DB_get_contributors_2array
 
   while (my ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) 
      = $sth->fetchrow_array()) {
-	  my $line = "$c_uid^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on";
-
+	  my $row = "$c_uid^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$c_created_on";
 	  $uhandle = $USERhandleINDEX{$c_uid};
-	  $CONTRIBINDEX{$c_uid}      = $line;
-	  $CONTRIBhandleUID{$uhandle}   = $c_uid;
-	  $CONTRIBARRAY[$contrib_idx]   = $line;
+	  $uemail  = $USERemINDEX{$c_uid};
+	  my $contrib_values = "$c_uid^$userid^$uemail^$uhandle^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$created_on";
+	  $CONTRIBINDEX{$c_uid}         = $contrib_values;
+	  $CONTRIBARRAY[$contrib_idx]   = $contrib_values;
 	  $contrib_idx = $contrib_idx + 1;
   }
   $sth->finish;	
@@ -127,24 +137,102 @@ sub split_contributor  # from email2docitem.pl --- change name to get_contributo
 {	             
   $line = $_[0];
   ($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on)
-     = split(/\^/,$line,15);
+     = split(/\^/,$line,14);
    return($c_uid,$uBlanks,$useparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd);
 }
 
+sub get_contributor {    #from email2docitem.pl
+	  my($handle,$fromemail) = @_;
+	  my ($cuid, $userResults,$line);
+	
+	  if ($handle or $fromemail) {
+        $cuid = $USERhandleINDEX{$handle} if($handle);
+#        $cuid = $USERemINDEX{'$fromemail'} if($fromemail and !$handle);
+        $contrib_values = $CONTRIBINDEX{$cuid} if($cuid);
+# print "con150 ..cuid $cuid ..handle $handle ..fromemail $fromemail line $line<br>\n";
+	  }
 
-sub check_contributor   #from email2docitem.pl
+	  if($contrib_values) {
+		$userResults = "MATCH";
+	    ($c_uid,$userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) 
+		     = split(/\^/,$contrib_values,18);
+#		print "con158 c_uid $c_uid ..handle $handle ..uSeparator $uSeparator ..contrib_values $contrib_values<br>\n";
+	  }
+	  else {              # set defauults if none of the above
+		  $userResults = "NOTFOUND";
+		  $uhandle      = 'unk';
+		  $uLocSep    = 'first';
+		  $uSeparator = '#####';
+		  $uBlanks    = '0';
+		  $uSkipon    = '%NA';
+		  $uSkipoff   = '%NA';
+		  $uSkip      = '@#&#%%@';
+		  $uEnd = "text\/html|text/html";
+	  }
+	
+	  unless($uSkip) {
+	       if($uSeparator =~ /#####/) {
+		       $uSkip      = '#####';
+		   }
+		   else {
+			   $uSkip      = '%NA';
+		   }
+	  }
+
+	  $uStart  = $uSkipoff;  # rename
+	  $uStop   = $uEnd;
+
+	  my ($srcloc,$srckey,$srcpart,$srcsep) = split(/&/,$uSourceloc,4);      # these are not used anywhere
+	  my ($hdloc,$uHdkey,$uHdpart,$uHdsep)  = split(/&/,$uHeadlineloc,4);    # only $uHeadkey is used in smartdata.pl
+	  my ($dtloc,$uDtkey,$dtpart,$dtsep)    = split(/&/,$uDateloc,4);        # only $uDtkey is used in smartdata.pl
+
+	  $uStop = "@#&#%%@" if(!$uStop);  # impossible - but null won't work
+	  $uSkip = "@#&#%%@" if(!$uSkip);  # impossible - but null won't work
+	  $uSeparator = "########" unless($uSeparator);
+
+	  if($uStop =~ /blanks=[0-9]/) {
+		 ($rest,$uStop_blankct) = split(/=/,$uStop,2);
+		 $stop_blankCRs = "";
+		 for ($i=1; $i<=$CONTRIB_DATA; $i++) {
+			 $stop_blankCRs = "$stop_blankCRs\n";
+		 }
+	  }
+	  if($uSeparator =~ /blanks=[0-9]/) {
+		($rest,$uSep_blankct) = split(/=/,$uSeparator,2);
+		$sep_blankCRs = "";
+		for ($i=1; $i<=$uSep_blankct; $i++) {
+			$sep_blankCRs = "$sep_blankCRs\n";
+		}
+	  }
+	
+	  if($uStart =~ /blanks=[0-9]/) {
+		($rest,$uStart_blankct) = split(/=/,$uStart,2);
+		$start_blankCRs = "";
+		for ($i=1; $i<=$uStart_blankct; $i++) {
+			$start_blankCRs = "$start_blankCRs\n";
+		}
+	  }
+		
+	  $CONTRIB_DATA =
+	 "$userid^$uemail^$uhandle^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$uStart^$uStop^$uHeadkey^$uDtkey^$uStop_blankct^$uSep_blankct^$uStart_blankct^$stop_blankCRs^$sep_blankCRs^$start_blankCRs";
+	  return($userResults,$handle,$uEnd);
+}
+
+sub check_contributor_old  
 {
   my($ehandle,$fromemail) = @_;
 
-  my($userResults,$contrib_row) = &read_contributors('N',$ehandle,$fromemail);
+  my($c_uid,$userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+		   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on,$uStop,$uHeadkey,$uDtkey);
 
-  my($c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
-	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) = split(/^/,$contrib_row,17);
-	
-  if($userResults = "MATCH") {
+  my($userResults,$contrib_values) = &read_contributors('N','Y','',$ehandle,$fromemail); # print,return-row,userid,handle,email
+
+  if($userResults =~ /MATCH/) {
+	  ($c_uid,$userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) 
+	     = split(/\^/,$contrib_values,18);
   }
   else {              # set defauults if none of the above
-	  $handle      = 'unk';
+	  $uhandle      = 'unk';
 	  $uLocSep    = 'first';
 	  $uSeparator = '#####';
 	  $uBlanks    = '0';
@@ -153,7 +241,6 @@ sub check_contributor   #from email2docitem.pl
 	  $uSkip      = '@#&#%%@';
 	  $uEnd = "text\/html|text/html";
   }
-
   unless($uSkip) {
        if($uSeparator =~ /#####/) {
 	       $uSkip      = '#####';
@@ -162,47 +249,56 @@ sub check_contributor   #from email2docitem.pl
 		   $uSkip      = '%NA';
 	   }
   }
+
   $uStart  = $uSkipoff;  # rename
   $uStop   = $uEnd;
 
-  ($srcloc,$srckey,$srcpart,$srcsep) = split(/&/,$uSourceloc,4);  # these are not used anywhere
-  ($hdloc,$uHdkey,$uHdpart,$uHdsep)  = split(/&/,$uHeadlineloc,4); # only $uHeadkey is used in smartdata.pl
-  ($dtloc,$uDtkey,$dtpart,$dtsep)    = split(/&/,$uDateloc,4);        # only $uDtkey is used in smartdata.pl
-
-  ($rest,$c_blank_ct) = split(/=/, $uSeparator, 2) if($uSeparator =~ /blanks/); ## NOT USED??? $c_blank_cnt not found.  ????################
-  $uBlanks = $c_blank_ct if($c_blank_ct);
+  my ($srcloc,$srckey,$srcpart,$srcsep) = split(/&/,$uSourceloc,4);      # these are not used anywhere
+  my ($hdloc,$uHdkey,$uHdpart,$uHdsep)  = split(/&/,$uHeadlineloc,4);    # only $uHeadkey is used in smartdata.pl
+  my ($dtloc,$uDtkey,$dtpart,$dtsep)    = split(/&/,$uDateloc,4);        # only $uDtkey is used in smartdata.pl
 
   $uStop = "@#&#%%@" if(!$uStop);  # impossible - but null won't work
   $uSkip = "@#&#%%@" if(!$uSkip);  # impossible - but null won't work
   $uSeparator = "########" if(!$uSeparator);
-	
-  $CONTRIB_DATA = "$uemail^$uhandle^$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$uStart^$uStop^$uHeadkey^$uDtkey";       # set a global variable to be used in 
-  
-  return($uhandle);
+
+  if($uStop =~ /blanks/) {
+	($rest,$uStop_blankct) = split(/blanks/,$uStop,2);
+	$uStop = "";
+	$uEnd = "";
+	$stop_blankCRs = "";
+	for ($i=1; $i++; $i=$uStop_blankct) {
+		$stop_blankCRs = "$stop_blankCRs\n";
+	}
+  }
+  if($uSeparator =~ /blanks/) {
+	($rest,$uSep_blankct) = split(/blanks/,$uSeparator,2);
+	$uSeparator = "";
+	$sep_blankCRs = "";
+	for ($i=1; $i++; $i=$uSep_blankct) {
+		$sep_blankCRs = "$sep_blankCRs\n";
+	}
+  }
+  if($uStart =~ /blanks/) {
+	($rest,$uStart_blankct) = split(/blanks/,$uStart,2);
+	$uSkipoff = "";
+	$uStart = "";
+	$start_blankCRs = "";
+	for ($i=1; $i++; $i=$uStart_blankct) {
+		$start_blankCRs = "$start_blankCRs\n";
+	}
+  }
+
+
+                   ##### set a global variable to be used in email2docitem.pl	
+# P0040^@pushjournal.org^push^0^-------^pre^^Articles^lexisnexis^^anydate&Date :^^line1^^Y^Personal Preferences^2002-01-13
+  $CONTRIB_DATA =
+ "$userid^$uemail^$uhandle^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$uStart^$uStop^$uHeadkey^$uDtkey^$uStop_blankct^$uSep_blankct^$uStart_blankct^$stop_blankCRs^$sep_blankCRs^$start_blankCRs";
+
+  return($userResults,$uhandle,$uEnd);
 }
 
 
-
-sub read_contributors
-{
-   my($print_contributors,$ckhandle,$ckemail) = @_;
-
-   if($DB_users eq 1) {
-	  if($print_contributors eq 'Y') {
-		  my $uCount = &DB_print_contributors;
-		  return ($uCount);
-	  }
-	  else {
-	      my($userResults,$contrib_row) = &DB_get_contributor($ckhandle,$ckemail);
-      }
-   }
-   else {
-	  my($uline) = &flatfile_read_contributors($print_contributors,$ckhandle,$ckemail);
-   }
-   return($userResults,$contrib_row);
-}
-
-sub get_contributor_values # from email2docitem.pl --- change name to get_contributor_values
+sub get_contributor_values_XX # moved logic to get_contributor
 {	             
   $uline = $_[0];
  
@@ -239,6 +335,7 @@ sub get_contributor_values # from email2docitem.pl --- change name to get_contri
 	$uStop = "@#&#%%@" if(!$uStop);  # impossible - but null won't work
 	$uSkip = "@#&#%%@" if(!$uSkip);  # impossible - but null won't work
 	$uSeparator = "########" if(!$uSeparator);
+	 
 	$CONTRIBDATA = "$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$uStart^$uStop^$uHdkey^$uDtkey";
 	return($uBlanks,$useparator,$uLocSep,$uSkipon,
 	   $uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
@@ -246,38 +343,74 @@ sub get_contributor_values # from email2docitem.pl --- change name to get_contri
 }
 
 
+sub read_contributors    # from contributor.pl &read_contributors('N',$userid,$uhandle,$uemail); 
+                         # or article.pl &read_contributors('N',$userid,'','')
+{
+   my($print_contributors,$return_row,$ckuserid,$ckhandle,$ckemail) = @_;
+
+   my($userResults,$contrib_row);
+
+  if($DB_users > 0) {
+	  if($print_contributors eq 'Y') {
+		  my $uCount = &DB_print_contributors;
+		  return ($uCount);
+	  }
+	  else {
+	      ($userResults,$contrib_row) = &DB_get_contributor($return_row,$ckuserid,$ckhandle,$ckemail);
+      }
+   }
+   else {
+	  ($userResults,$contrib_row) = &flatfile_read_contributors($print_contributors,$return_row,$chkuserid,$ckhandle,$ckemail);
+   }
+   return($userResults,$contrib_row);
+}
+
+
 sub flatfile_read_contributors
 {
-  my($print_contributors,$ckhandle,$ckemail) = @_;
+  my($print_contributors,$return_row,$ckuserid,$ckhandle,$ckemail) = @_;
   
-  $uCount = $uCount + 1;
+  my $result_msg = "";
+  my $uCount = $uCount + 1;
   $lock_file = "$contributors.busy";
 ##   &waitIfBusy($lock_file, 'lock'); 
   open(CONTRIBUTORS, "$contributors");
   while(<CONTRIBUTORS>) {
       chomp;
-      $uLine = $_;     
+      my $uLine = $_;     
       $uCount = $uCount + 1;
 
-	  ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on)
+	  my($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,
+	        $uSingleLineFeeds,$uEnd,$created_on)
 	     = split(/\^/,$uLine,15);
 
-	  my($uemail,$uhandle) = &get_user_email_handle($c_uid);   #in user.pl
-		
-	  $contrib_row = "$uemail^$uhandle^$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd";
+	  my($userid,$uemail,$uhandle) = &get_user_email_handle($c_uid);   #in user.pl
 	
       if($print_contributors eq 'Y') {
-           &print_contributor($uCount,$c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
-		   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on);
+           &print_contributor($uCount,$c_uid,$userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,
+           $uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on);
       }
       else {
 	      if($ckuseremail and $ckuseremail =~ /$contrib_row/) {
-	         return('EMAILMATCH',$uline);
+		     $result_msg = "EMAILMATCH";
 	      }
 	      elsif($ckhandle and $ckhandle =~ /$contrib_row/) {
-	         return('HANDLEMATCH',$uline);
+			 $result_msg = "HANDLEMATCH";
+	      }
+	      elsif($ckuserid and $ckuserid =~ /$contrib_row/) {
+             $result_msg = "USERIDMATCH";
 	      }
 	  }
+	  if($result_msg =~ /MATCH/) {
+		  if($return_row == 'Y') {
+			  $contrib_row = "$userid^$uemail^$uhandle^$uBlanks^$useparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd";
+			  return($result_msg,$contrib_row);
+		  }
+		  else {
+			return($result_msg);
+		  }
+     }
+		
   }  ## end while
   close(CONTRIBUTORS);
   unlink "$lock_file";
@@ -287,24 +420,36 @@ sub flatfile_read_contributors
       return ($uCount);
   }
   else {
-	  return("NOMATCH","");
+	  return("NOTFOUND");
   }
 }
 
 
 sub DB_get_contributor {
- my($ckhandle,$ckemail) = @_;
-  $ckhandle = 'qwxzty' unless($ckhandle);   #If no handle, make match impossible
-  $ckemail  = 'qwxzty' unless($ckemail);    #Ditto for email
-  my $sth = $dbh->prepare("SELECT c.c_uid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE u.uemail CONTAINS ? or u.uhandle = ?");
-  $sth->execute($ckemail,$ckhandle);
-  my($c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+  my($return_row,$ckuserid,$ckhandle,$ckemail) = @_;
+  my $sth;
+  if($ckemail =~ /[A-Za-z0-9]/ and $ckemail =~ /\@/ and $ckemail =~ /\./) {
+     $sth = $dbh->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and INSTR( ?, uemail )");
+      $sth->execute($ckemail);
+  }
+  elsif($ckhandle =~ /[A-Za-z0-9]/) {
+      $sth = $dbh->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and u.uhandle LIKE ?");
+      $sth->execute($ckhandle);
+  }
+  elsif($ckuserid =~ /[A-Za-z0-9]/) {
+      $sth = $dbh->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and u.userid LIKE ?");
+      $sth->execute($ckuserid);
+  }
+  else {
+	  print "Invalid search - ckuserid $ckuserid; ckhandle $ckhandle; or ckemail $ckemail<br>\n";
+  }
+  my($c_uid,$userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
 	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) = $sth->fetchrow_array();
   $sth->finish;
 
-  return('MATCH',$c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
-	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) if($c_uid);
-  return('NOMATCH') unless($c_uid);
+  my $contrib_row = "$c_uid^$userid^$uemail^$uhandle^$uBlanks^$uSeparator^$uLocSep^$uSkipon^$uSkipoff^$uSkip^$uEmpty^$uDateloc^$uDateformat^$uHeadlineloc^$uSourceloc^$uSingleLineFeeds^$uEnd^$created_on";
+  return("MATCH",$contrib_row) if($c_uid);
+  return("NOTFOUND");
 }
 
 
@@ -331,7 +476,7 @@ sub DB_print_contributors
 
 sub print_contributor
 {
- my($c_uid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
+ my($c_uid,$userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat, 
 	   $uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$created_on) = @_;
 ## to do: parse through 
  if($uCount < 2) {	
@@ -340,6 +485,7 @@ sub print_contributor
     if($mod == 0 or $uCount == 1) {
        print  "<tr>";
        print  "<td><font size=1 face=verdana><b>c_uid</b></font></td>\n";
+       print  "<td><font size=1 face=verdana><b>userid</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>email</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>handle</b></font></td>\n";
        print  "<td><font size=1 face=verdana><b>uBlanks</b></font></td>\n";
@@ -361,6 +507,7 @@ sub print_contributor
  }
  print "<tr>";
  print "<td><font size=1 face=verdana>$c_uid&nbsp;</font></td>\n";
+ print "<td><font size=1 face=verdana>$userid&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uemail&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uhandle&nbsp;</font></td>\n";
  print "<td><font size=1 face=verdana>$uBlanks&nbsp;</font></td>\n";
@@ -420,7 +567,7 @@ sub get_contributor_form_values
   return($uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on);
 }
 
-sub store_contributor
+sub store_contributor    # from editor.pl when processing volunteer app (also does contributors on same form)
 {
    my ($status,$uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = @_;
 

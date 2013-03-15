@@ -20,6 +20,7 @@ subdomains/mobile/index.html
 subdomains/karenpittsMac.yes
 subdomains/www/.htaccess.swp
 subdomains/www/*.html
+subdomains/www/PopBasics/
 subdomains/www/US/
 !volunteers.html
 subdomains/www/*.htm
@@ -27,6 +28,8 @@ subdomains/www/*.htm
 *.bak
 *.bkp
 subdomains/www/autosubmit/control/count.txt
+subdomains/www/autosubmit/control/sections_save.html
+subdomains/www/autosubmit/control/sections_bkp.html
 subdomains/www/autosubmit/elists/*.elist
 subdomains/www/autosubmit/itemsSave/*
 subdomains/www/autosubmit/itemsBkp/*
@@ -41,6 +44,7 @@ subdomains/www/autosubmit/sections/*.bak
 subdomains/www/autosubmit/sections/*.cnt
 subdomains/www/autosubmit/sections/*.cnt.cnt
 subdomains/www/autosubmit/sepmail/*
+subdomains/www/autosubmit/status/027841.saveold
 subdomains/www/autosubmit/templates/*.mid
 subdomains/www/autosubmit/templatesMid/*.mid
 subdomains/www/autosubmit/volunteerEmail.txt
@@ -49,6 +53,9 @@ subdomains/www/cgi-bin/_git_hold*
 subdomains/www/cgi-bin/bk_*
 subdomains/www/cgi-bin/bkp_*
 subdomains/www/cgi-bin/email/*
+subdomains/www/cgi-bin/controlfiles_empty.pl
+subdomains/www/cgi-bin/db_controlfiles_empty.pl
+subdomains/www/cgi-bin/misc_dbtables_empty.pl
 subdomains/www/cgi-bin/new_changes_maybe*
 subdomains/www/cgi-bin/new_mod*
 subdomains/www/cgi-bin/not_used*
@@ -84,6 +91,7 @@ subdomains/www/prepage/*.bkup
 subdomains/www/prepage/*.html
 subdomains/www/prepage/*.txt
 subdomains/www/slideshow/*
+subdomains/www/star.jpg
 subdomains/www/telana-index.php
 subdomains/www/woa.css
 subdomains/www/woatest.css
@@ -105,3 +113,4 @@ subdomains/www/cgi-bin/contactWOA_notused.pl
 subdomains/www/cgi-bin/contributor_old.pl
 subdomains/www/cgi-bin/docitem_save.pl
 subdomains/www/cgi-bin/indexes_save.pl
+subdomains/www/autosubmit/sections/Archives2007Aug-2006Sep

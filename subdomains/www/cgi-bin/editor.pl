@@ -99,6 +99,16 @@ sub split_editor
   return($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on);
 }
 
+sub get_editor_access
+{
+  my($userid) = $_[0];
+  my $uid = &get_user_uid($userid);
+  my $row = $EDITORINDEX{$e_uid} = $line;
+  ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on) 
+      = &split_editor($row);
+  return($uaccess);
+}
+
 sub get_editor_form_values
 {
   $uaccess        = $FORM{'uaccess'};

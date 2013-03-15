@@ -73,19 +73,19 @@ sub refine_region
 {
   my ($region,$src_region) = @_;
   $region = "" if($region =~ /Global/);
-  $region = &get_regions("A","",$headline) unless($region);
+#  $region = &get_regions("A","",$headline) unless($region); #this is called earlier, in smartdata.pl
             # Use regionname from source if no region found. But not from US or UK source
-  $region = $src_region unless($region or $src_region =~ /U\.S\.|U\.K\./);
+#  $region = $src_region unless($region);
 
-  if(!$region) {
-    my ($fullbody1,$fullbody2,$fullbody3,$fullbody4,$fullbody5,$fullbody6,$rest) = split(/\n/,$fullbody,7);
-    my $fullbodyTop = "$fullbody1\n$fullbody2\n$fullbody3\n$fullbody4\n$fullbody5\n$fullbody6";
-    $region = &get_regions("A","",$fullbodyTop);
-  }
+#  if(!$region) {
+#    my ($fullbody1,$fullbody2,$fullbody3,$fullbody4,$fullbody5,$fullbody6,$rest) = split(/\n/,$fullbody,7);
+#    my $fullbodyTop = "$fullbody1\n$fullbody2\n$fullbody3\n$fullbody4\n$fullbody5\n$fullbody6";
+#    $region = &get_regions("A","",$fullbodyTop);
+#  }
   $region = $src_region if(!$region and $src_region); #Use regionname from source if no region found.
   $region = "Global" unless($region);
 
-  $regionhead = "Y" if($headline !~ /$region/);
+  $regionhead = "Y" if($headline !~ /$region/ and $region !~ /Global/);
   return($region,$regionhead);
 }
 
@@ -116,34 +116,38 @@ sub get_regions
         print MIDTEMPL ">$regionname</option>\n";        	
     }
 
-	elsif($region and $region =~ /$regionname/ and $print_region =~ /[N]/) {
+	elsif($region and $region =~ /$regionname/ and $print_region =~ /N/) {
 		return($regionid,$seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$members_ids,$continent_grp,$location,$extended_name,$regionid,$seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$continent_grp,$location,$extended_name,$f1st2nd3rd_world,$fertility_rate,$population,$pop_growth_rate,$sustainability_index,$humanity_index);
 	}
 	
 	else {  # find regions for new article
+		next if($regionname =~ /Global/);
+		$region =~ s/$1//g if($region =~ /(Global;+)/);
+		 $region =~ s/;$//;
 		if($chkarea and ($chkarea =~ /$regionname/ or ($regionmatch and $chkarea =~ /$regionmatch/) ) ) {
-		    if($rnotmatch and $chkarea =~ /$rnotmatch/) {
-			}
-			else {
+		    unless($rnotmatch and $chkarea =~ /$rnotmatch/) {
+#			     print "reg133 ln $chkarea<br>\n";
+#			     print "reg134 match region $region ..regionname $regionname ..regionmatch $regionmatch ..rnotmatch $rnotmatch ..r_type $r_type<br>\n";
 				if($r_type eq 'p') { #US states for example
-				    $region1 = "U\.S\.;$region1" if($location eq 'US' and $region1 !~ /U\.S\./);
+				    $region = "$region;U\.S\." if($location eq 'US' and $region !~ /U\.S\./);
 				}
 				else {
-				   $region1 = "$region1;$regionname" if($regionname !~ /$region1/);
-				   $region1 =~ s/^;+//;
+				   $region = "$region;$regionname" unless($region =~ /$regionname/);
 			    }
+
             }
-		}
-	}
+		}		
+	} 
  } # END foreach
 
- $region1 =~ s/^;+//;  #get rid of leading semi-colons
- $region1 =~ s/^;//;
- $region1 =~ s/;;/;/;
- $region1 =~ s/;;/;/;
- $region1 =~ s/;$//;
+ $region =~ s/^;+//;  #get rid of leading semi-colons
+ $region =~ s/^;//;
+ $region =~ s/^;+//;
+ $region =~ s/;;/;/;
+ $region =~ s/;;/;/;
+ $region =~ s/;$//;
 
- return($region1);
+ return($region);
 }
 
 sub print_likely_regions

@@ -1,70 +1,64 @@
 #!/usr/bin/perl --
 
-# 2012 April 22 
+# 2013 Feb 19
 
-#        selecteditems_crud.pl - moved from article.pl to display.pl to here
+#   selecteditems_crud.pl
 
-##### 00430 SELECT ITEMS FROM A LIST AND PROCESS ##########
+##### TAKES SELECTED ITEMS FROM A LIST AND PROCESS ; Entry from article.pl ##########
 
-sub updt_select_list_items
+sub updt_select_list_items    # for emailed articles,  we do select_email instead
 {              # called by article.pl
- my($thisSectsub,$ipform) = @_;
+ my($listSectsub,$ipform) = @_;
+ $DELETELIST = "";
  $selected_found = 'N';
+ $index_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
+ my $startTime = time;
+
  if($ipform !~ /chaseLink/) {
-    print "<h3>The following is a list of the items you have selected.</h3><br><br><br>\n";
+    print "<h3>The following is a list of the items you have selected. ...sel15</h3><br><br><br>\n";
  }
  $docid9998 = $FORM{docid9998};   # $ipform =~ /chaseLink/
  $pgItemnbr = 1;
  $pgitemcnt = &padCount4($pgItemnbr);
 
  &get_select_form_values;  # in docitem.pl
- $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
+# $selitem = 'Y' if($listSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-7]/);
 
- $index_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
-
- my $startTime = time;
-
- until($selitem =~ /Z/) {
-#### while($pgitemcnt ne '9998') {   ## dummy search - it will never reach 9998
-
+ until($selitem =~ /Z/ or $pgItemnbr > 100) {
+	
     if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and !$priority) #there may not be any item 0001
        {}
     elsif($ipform =~ /chaseLink/ and   ## skip if volunteer filled out the form and it has same docid
        $docid eq $docid9998 and
        ($FORM{headline9998} or $FORM{fullbody9998} or $FORM{body9998}) )
        {}
-    elsif($priority =~ /[1-6D]/
-       or ($ipform =~ /chaseLink/ and $selitem !~ /N/ and $docid !~ /$docid9998/)  ) {
-        $form_priority = $priority;   ## save for when we get doc and override
-        if($selitem =~ /Y/) {
-            $selected_found = 'Y';
-            &do_updt_selected;  #in docitem.pl
-
-			# Lets add this $mailfile to a list and unlink after all are processed or at start of next cycle.
-			#      unlink $mailfile if($thisSectsub =~ /Suggested_emailedItem/); 
-		} 
+    elsif($selitem =~ /Y/) {
+        $form_priority = $priority;   ## save for when we get doc and override	
+        $selected_found = 'Y';
+        &do_updt_selected($listSectsub);  #in docitem.pl
     }
 
     if($pgItemnbr ne "" and $pgItemnbr > 0) {
        $pgItemnbr = $pgItemnbr + 1;
        $pgitemcnt = &padCount4($pgItemnbr);
        &get_select_form_values;   # in docitem.pl
-       $selitem = 'Y' if($thisSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-6]/);
+#       $selitem = 'Y' if($listSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-7]/);
     }
 
     exit if(&tooMuchLooping($startTime,120,'art430')); #stop if > 1 minute
 
- } #while
+ } #until
 
  if($ipform =~ /chaseLink/ and $selitem =~ /Z/) {
     $pgitemcnt = "9998";
-    $thisSectsub = "";
+    $listSectsub = "";
     &get_select_form_values;   # in docitem.pl
     goto &storeform;  ## in docitem.pl -- the last item has no item ct and is as if it were alone and not in the list
  }
 
+ &deleteFromIndex_deletelist($listSectsub, $from_updt_subsec_idx); #in indexes.pl - uses $DELETED LIST
 
-print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpath/article.pl?display_section%%%$thisSectsub%%%10\">Back to $thisSectsub List</a><br></b></font>\n";
+print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpath/article.pl?display_subsection%%%$listSectsub%%%10\">Back to $listSectsub List</a><br></b></font>\n";
 
  undef $FORM{thisSectsub};
  undef $FORM{addsectsubs};
@@ -119,13 +113,13 @@ endselitem:
 
  if($DELETELIST) {
    if($deleteto eq 'Y') {
-       $rSectsubid  = $FORM{addsectsubs};
+       $rSectsubid = $listSectsub = $FORM{'addsectsubs'};
        &delete_from_index_by_list($rSectsubid,$DELETELIST);  #in indexes.pl
        &DB_delete_from_indexes_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
    }
 
    if($delselected eq 'Y') {
-       $rSectsubid  = $FORM{thisSectsub};
+       $rSectsubid = $listSectsub = $FORM{'thisSectsub'};
        &delete_from_index_by_list($rSectsubid,$DELETELIST);   # in indexes.pl
        &DB_delete_from_indexes_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
    }
@@ -176,6 +170,7 @@ sub prelim_select_items
  }
 
  $thisSectsub = $FORM{thisSectsub};
+ $listSectsub = $thisSectsub;
  $rSectsubid  = $FORM{thisSectsub} if($moveselected eq 'Y' or $set_skiphandle eq 'Y');
  $fOrder      = $FORM{sortorder};
  $itemstratus = $FORM{itemstratus};
@@ -207,19 +202,16 @@ sub prelim_select_items
  $count          = 0;
  print $GLVARS{'std_headtop'} . "<title>$owner action on selected items $thisSectsub<\/title>\n";
  print $GLVARS{'std_meta'};
-# print "<html xmlns=\"http://www.w3.org/1999/xhtml\" ><head><title>$owner action on selected items $thisSectsub<\/title>\n";
-# print "<meta http-equiv=\"Content-Type\" content=\"text/html; charset=iso-8859-1\" />\n";
-# my $lc_owner = lc($owner);
-# $aTemplate = $lc_owner . "Update";
- $aTemplate = $OWNER{oupdatetemplate}; 
- my $ownerformcss = $OWNER{ocsspath};
+
+ $aTemplate = $OWNER{'oupdatetemplate'}; 
+ my $ownerformcss = $OWNER{'ocsspath'};
  print "<link rel=\"stylesheet\" type=\"text/css\" href=\"/css/$ownerformcss.css\" media=\"Screen\" />\n" 
    if($owner);
  print "</head><body>\n";
- print "<h3>The following is a list of the items you have selected.<h3>\n";
+ print "<h3>The following is a list of the items you have selected. ...sel214<h3>\n";
  print "<p>&nbsp;They have been added to $addsectsubs. Sortorder is $sortorder and default is $dOrder</p>\n"
      if($addsectsubs =~ /[A-Za-z0-9]/ and $deleteto ne 'Y');
- print "<p>&nbsp;They have been deleted from $thisSectsub</p>\n"
+ print "<p>&nbsp;They have been deleted from $listSectsub</p>\n"
      if($delselected eq 'Y');
  print "<p>&nbsp;They have been deleted from the target sectsub $delsectsubs</p>\n"
      if($deleteto eq 'Y');
@@ -233,8 +225,6 @@ sub prelim_select_items
  }
 
 }
-
-##00460
 
 sub do_selected
 {
@@ -286,51 +276,53 @@ sub do_selected
 }
 
 
-sub select_email
+sub select_email    #comes here from article.pl
 {        #         CAPTURE EMAILED SUGGESTED ARTICLES 
  $rSectsubname = $rSectsubid = $emailedSS;  # Trying to rename sectsubid to sectsubname
- &split_section_ctrlB($rSectsubname);
+ &split_section_ctrlB($rSectsubname);   # in sectsubs.pl - returns 	$id,$seq,$cSectsubid,$fromsectsubid,$cIdxSectsubid,$cSubdir,$cPage,$cCategory,$cVisable,$cPreview,$cOrder,$cPg2order,$cTemplate,$cTitleTemplate,$cTitle,$cAllOr1,$cMobidesk,$cDocLink,$cHeader,$cFooter,$cFTPinfo,$cPg1Items,$cPg2Items,$cPg2Header,$cMore,$cSubtitle,$cSubtitletemplate,$cMenuTitle,$cKeywordsmatch
  $SSid = $cSSid;    # primary key for section on DB
  my $lMaxItems = $cMaxItems + 1;
 
+#	print "doc289 not found - $mailpath/2013-02-19-347-link-1.itm<br>\n" unless(-f "$mailpath/2013-02-19-347-link-1.itm");
+#	print "doc290 found - $mailpath/2013-02-19-347-link-1.itm<br>\n" if(-f "$mailpath/2013-02-19-347-link-1.itm");
+	
  $pgItemnbr = 1;
  $pgitemcnt = &padCount4($pgItemnbr);
  my $startTime = time;
- $index_insert_sth = &DBprepare_idx_insert(""); #in indexes table; prepare only once
+ $index_insert_sth = &DB_prepare_idx_insert("") if($DB_indexes > 0); #in indexes table; prepare only once
 
  $selected = $FORM{"selitem$pgitemcnt"};
 
+ print "<div style=\"font-size:70%; font-family:verdana\"><br><b>The following items have been selected</b> ... ... ...  ... sel297<br><br>\n";
+
  while($selected !~ /Z/ and $pgitemcnt < $lMaxItems) {
 ### note: this docid is the email docid, not the regular docid
-    $selectdocid  = $FORM{"sdocid$pgitemcnt"};
-    $selected     = $FORM{"selitem$pgitemcnt"};
+    $selectdocid    = $FORM{"sdocid$pgitemcnt"};
+    $selected       = $FORM{"selitem$pgitemcnt"};
+    $selectlink     = $FORM{"link$pgitemcnt"};
+    $selectpriority = $FORM{"priority$pgitemcnt"};
+    last unless($selectdocid);         # go until there blank docied
 
-    if($selected =~ /Y/) {
-         &process_popnews_email($selectdocid,$index_insert_sth);  ## in docitem.pl   XXX
+    if($selected =~ /Y/) {     ## process_popnews_email is in docitem.pl
+         &process_popnews_email($selectdocid,$selectlink,$selectpriority,$index_insert_sth)
+            unless($selectpriority =~ /D/); 
+         print "$selectdocid --- deleted<br>\n" if($selectpriority =~ /D/);
+#print "sel310 unlinking $mailpath/$selectdocid.itm<br>\n";
+         unlink "$mailpath/$selectdocid.itm";
     }
-
-
-# ZZZZ	print "art2790 del from index ..rSectsubname $rSectsubname ..selectdocid $selectdocid<br>\n";
-#print "art770 TURNED OFF FOR TESTING: unlink $mailpath/$selectdocid.itm<br>\n";
-    unlink "$mailpath/$selectdocid.itm";      #remove file and remove from Suggested_emailedItem index
-#    &delete_from_index($rSectsubname,$selectdocid);  # in sections.pl  # this should be done in process_popnews_email
-#    &DB_delete_from_indexes ($SSid,$selectdocid) unless($DB_indexes < 1);
 
     if($pgItemnbr ne "" and $pgItemnbr > 0) {
        $pgItemnbr = $pgItemnbr + 1;
        $pgitemcnt = &padCount4($pgItemnbr);
     }
 
-    exit if(&tooMuchLooping($startTime,120,'art2801')); #stop if > 1 minute
+    exit if(&tooMuchLooping($startTime,120,'sel318')); #stop if > 1 minute
 
  } #while
-
+print "</div>\n";
  undef $selectdocid;
  undef $selected;
-
 ##  now display the new Section again
-
-print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_section%%%Suggested_suggestedItem%%$userid%10\">";
 }
 
 1;

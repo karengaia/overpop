@@ -16,24 +16,34 @@
 
 sub process_template
 {
-  my($template,$print_it,$email_it,$htmlfile_it) = @_;
-  &put_data_to_array;     # in docitem.pl
+ my($template,$print_it,$email_it,$htmlfile_it,$ctr) = @_;
+ $DOCARRAY{'cPage'}       = $cPage;
+ $DOCARRAY{'cTitle'}      = $cTitle;
+ $DOCARRAY{'cTitle2nd'}   = $cTitle2nd;
+ $DOCARRAY{'cSubtitle'}   = $cSubtitle;
+ $DOCARRAY{'cSubid'}      = $cSubid; 
+ $DOCARRAY{'rSectsubid'}  = $rSectsubid;
+ $DOCARRAY{'thisSectsub'} = $listSectsub;
+ $DOCARRAY{'cSectsubid'}  = $cSectsubid;
+
+#  &put_data_to_array;     # in docitem.pl
+
   if($print_it eq 'Y') {
      $nowPEH = 'P';
      $now_print = 'Y';
-     &template_merge_print($template); 
+     &template_merge_print($template,$ctr); 
      $now_print = 'N';
   }
   if($email_it eq 'Y') {
      $nowPEH = 'E';
      $now_email = 'Y';
-     &template_merge_print($template);
+     &template_merge_print($template,$ctr);
      $now_email = 'N';
   }
   if($htmlfile_it eq 'Y') {
      $nowPEH = 'H';
      $now_htmlfile = 'Y';
-     &template_merge_print($template);
+     &template_merge_print($template,$ctr);
      $now_htmlfile = 'N';
   }
 }
@@ -43,7 +53,7 @@ sub process_template
 
 sub template_merge_print
 {
-my $aTemplate = $_[0];
+ my ($aTemplate,$ctr) = @_;
 #  Template named at start of program (aTemplate) overrides all others
 #   - except aTemplate is overridden for 'generate_WOA_html' (list of docs) routine.
 #   ..cTemplate is from section control
@@ -65,26 +75,32 @@ my $aTemplate = $_[0];
  else {
     @templates = $tTemplate;
  }
-$midfile = "$templateMidpath$slash$templfile.mid";
-open(MIDTEMPL, ">$midfile") or print "tem72 cannot open midfile $midfile<br>\n";
+ $midfile = "$templateMidpath$slash$templfile-$ctr.mid";
+
+ $MIDTEMPL = "MIDTEMPL$ctr";
+ open($MIDTEMPL, ">$midfile") or die "tem80 cannot open midfile $midfile<br>\n";
    foreach $template (@templates) {	
-      &do_template($template);
+      &do_template($template,$ctr);
 }
-close(MIDTEMPL);
+close($MIDTEMPL);
+
  open(OUTFILE, ">>$outfile") if($outfile);
  $javascript = 'N';
- $template_path1 = "$templateMidpath/$templfile.mid";
- $template_path2 = "$templateMidpath/$templfile\.mid";
+ $template_path1 = "$templateMidpath/$templfile-$ctr.mid";
+ $template_path2 = "$templateMidpath/$templfile-$ctr.mid";   ## ?????
 
  if (-f "$template_path2") {
-    open(MIDTEMP2, "$templateMidpath/$templfile.mid");
+	$MIDTEMP2 = "MIDTEMP2-$ctr";
+    open($MIDTEMP2, "$template_path2") or die("cant open");
+#    open($MIDTEMP2, "$templateMidpath/$templfile-$ctr.mid") or die("cant open");
   }
  else {
-    &printUserMsgExit ("ERROR: reason: template_merge $templateMidpath/$templfile\.mid not found .. could not open<br>\n");
+    &printUserMsgExit ("ERROR: reason: template_merge $templateMidpath/$templfile-$ctr\.mid not found .. could not open<br>\n");
  }
 
+#return;
  my $img_ctr = 0;
- while(<MIDTEMP2>)
+ while(<$MIDTEMP2>)
  {
      chomp;
      $line = $_;
@@ -95,13 +111,13 @@ close(MIDTEMPL);
      $javascript = 'N' if($line =~ /\<\/[sS][cC][rR][iI][pP][tT]/ or $line =~ /\[JS_OFF\]/);
 
      if($line =~ /docfullbody/) {
-     	$docfullbody = $DOCARRAY{fullbody};
+     	$docfullbody = $DOCARRAY{'fullbody'};
         $docfullbody =~ s/\"/&quote\;/g;
-        $DOCARRAY{fullbody} = $docfullbody;
+        $DOCARRAY{'fullbody'} = $docfullbody;
      }
-
      $line =~ s/\[(\S+)\]/$DOCARRAY{$1}/g  if($javascript =~ /N/);
-     
+
+#	print "tem119 after regexp  $DOCARRAY{'docid'} line $line<br>\n";     
      if($cMobidesk =~ /mobi/ or $qMobidesk =~ /mobi/) { # if mobile version
          $line =~ s/<!--.*-->// ;                        # get rid of comments
          if($line =~ /<img/) {
@@ -119,16 +135,12 @@ close(MIDTEMPL);
         print OUTFILE "$line\n" if($outfile and $now_htmlfile =~ /Y/);
         print"$line\n" if($now_print eq 'Y');
      }
-
-##     last if($line =~ /<\/html>/);  It was dying before storeform could finish doing idx
  }
-
- close(MIDTEMP2);
-
+ close($MIDTEMP2);
+#return;
  close(OUTFILE) if ($outfile);
-
-unlink "$templateMidpath/$templfile.mid";
-
+	
+ unlink "$template_path2";
  @templates = "";
 }
 
@@ -136,7 +148,8 @@ unlink "$templateMidpath/$templfile.mid";
 
 sub do_template
 {
- my $template = $_[0];
+ my($template,$ctr) = @_;
+
  $default_class = "";
 
  unless($template) {
@@ -162,14 +175,14 @@ unless(-f "$templatefile") {
     &printSysErrExit($errmsg);
  }
 
- unless($template =~ /select_top|select_end/ and $cmd ne 'print_select') {
+# unless($template =~ /select_top|select_end|select_end0/ and $cmd ne 'print_select') {
    $javascript = 'N';
-   open(TEMPLATE, "$templatefile") or die "art1081 cannot open template $templatefile";
-   while(<TEMPLATE>)  {
+   $TEMPLATE = "TEMPLATE$ctr";
+   open($TEMPLATE, "$templatefile") or die "art1081 cannot open template $templatefile";
+   while(<$TEMPLATE>)  {
      chomp;
      $line = $_;
 ##        Process IN-LINE TEMPLATE
-
      if($line =~ /TEMPLATE=/) {
         ($rest, $intemplate) = split(/=/,$line);
          ($intemplate,$rest) = split(/]/,$intemplate);
@@ -196,8 +209,8 @@ unless(-f "$templatefile") {
           last if($stop eq 'Y');
      }
    }     ## end while
-   close(TEMPLATE);
- }
+   close($TEMPLATE);
+# }
 }
 
 
@@ -244,18 +257,18 @@ sub process_imbedded_commands
    if($javascript =~ /N/ and ($line =~ /\[([A-Z0-9_]+)\]/ or $line =~ /\[([A-Z0-9_]+.*)\]/ ) ) {
    	$linecmd = $1;
    	if($linecmd =~ /[a-z]/ and $linecmd !~ /=/) {  #data plugins are lowercase or mixed case
-   	   print MIDTEMPL "$line\n";
+   	   print $MIDTEMPL "$line\n";
    	}
    	else {
            ($beginline,$endline) = split(/\[$linecmd\]/,$line,2);
            $linecmd = "[$linecmd]";
-           print MIDTEMPL $beginline if($beginline =~ /[A-Za-z0-9]/);
+           print $MIDTEMPL $beginline if($beginline =~ /[A-Za-z0-9]/);
 ##   print "<font size=1 face=verdana color=#CCCCCC>bb-$beginline c-$linecmd e-$endline</font><br>\n";
       	   &do_imbedded_commands($linecmd,"T");
    	}
    }
    else {
-    	print MIDTEMPL "$line\n";
+    	print $MIDTEMPL "$line\n";
    }
 }
 
@@ -264,40 +277,40 @@ sub do_imbedded_commands
 {
    my ($linecmd,$printmode) = @_;   #  T=template  P=Print
    if($linecmd =~ /\[ADVANCE\]/ and ($access =~ /[ABCD]/ or $op_userid =~ /P0004|P0083|P0008/) ) {
-          print MIDTEMPL "<br><br><input type=\"checkbox\" name=\"advance\" ";
-          print MIDTEMPL " value=\"Y\"><b>Advance this item</b> to\n";
+          print $MIDTEMPL "<br><br><input type=\"checkbox\" name=\"advance\" ";
+          print $MIDTEMPL " value=\"Y\"><b>Advance this item</b> to\n";
           if($action eq 'new') {
-          	print MIDTEMPL "NEEDS SUMMARY list <font size=1 face=\"comic sans ms\">(From where you can add a summarization)</font>\n";
+          	print $MIDTEMPL "NEEDS SUMMARY list <font size=1 face=\"comic sans ms\">(From where you can add a summarization)</font>\n";
           }
           else {
-          	print MIDTEMPL "preliminary <b>NEWS DIGEST</b> page - ready for publication\n";
+          	print $MIDTEMPL "preliminary <b>NEWS DIGEST</b> page - ready for publication\n";
           }
-          print MIDTEMPL "<font size=1 face=\"comic sans ms\"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n";
-          print MIDTEMPL "(Use only when admin review needs to be bypassed)</font><p>\n";
+          print $MIDTEMPL "<font size=1 face=\"comic sans ms\"><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;\n";
+          print $MIDTEMPL "(Use only when admin review needs to be bypassed)</font><p>\n";
    }
 
    elsif($linecmd =~ /\[LAST_FTPDATE\]/) {
    	if(-f $lastFTPfile) {
            @datetime = stat($lastFTPfile);
            my $lastFTPdate = &datetime_prep('yyyy-mm-dd',@datetime);
-           print MIDTEMPL "$lastFTPdate";
+           print $MIDTEMPL "$lastFTPdate";
         }
    }
 
    elsif($linecmd =~ /\[CGISITE\]/) {
-       print MIDTEMPL "$cgiSite";
+       print $MIDTEMPL "$cgiSite";
    }
 
    elsif($linecmd =~ /\[CGIPATH\]/) {
-       print MIDTEMPL "$cgiPath";
+       print $MIDTEMPL "$cgiPath";
    }
 
    elsif($linecmd =~ /\[SCRIPTPATH\]/) {
-       print MIDTEMPL "$scriptpath";
+       print $MIDTEMPL "$scriptpath";
    }
 
    elsif($linecmd =~ /\[PUBLICURL\]/) {
-       print MIDTEMPL "$publicUrl";
+       print $MIDTEMPL "$publicUrl";
    }
 
    elsif($linecmd =~ /\[PAGES_INDEX\]/) {  # 'N' = not end of subsection
@@ -309,15 +322,15 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[OPAX\]/) {
-		print MIDTEMPL "$operator_userid";
+		print $MIDTEMPL "$operator_userid";
    }
 
    elsif($linecmd =~ /\[DIV_CLASS\]/) {
-		print MIDTEMPL "<div $dBoxStyle</div>" if($dBoxStyle);
+		print $MIDTEMPL "<div $dBoxStyle</div>" if($dBoxStyle);
    }
 
    elsif($linecmd =~ /\[END_DIV_CLASS\]/) { 
-		print MIDTEMPL "</div>" if($dBoxStyle);
+		print $MIDTEMPL "</div>" if($dBoxStyle);
    }
 
    elsif($linecmd =~ /\[FILEDIR\]/) {
@@ -329,7 +342,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[RTCOL_TOP\]/ and $cRtCol eq 'R') {
-       print MIDTEMPL "<TABLE align=right width=35% cellspacing=5>";
+       print $MIDTEMPL "<TABLE align=right width=35% cellspacing=5>";
    }
 
    elsif($linecmd =~ /\[FLYIMG=/) {
@@ -337,36 +350,36 @@ sub do_imbedded_commands
        ($imgname,$rest)  = split(/]/,$imgname);
 
        if($fly =~ /fly/ or $cFly =~ /fly/) {
-          print MIDTEMPL "\"$publicUrl/$imgname\"";
+          print $MIDTEMPL "\"$publicUrl/$imgname\"";
        }
        else {
-       	  print MIDTEMPL "\"/$imgname\"";
+       	  print $MIDTEMPL "\"/$imgname\"";
        }
    }
 
    elsif($linecmd =~ /\[BEGIN_TR\]/) {
-       print MIDTEMPL "<tr><td>";
+       print $MIDTEMPL "<tr><td>";
    }
 
    elsif($linecmd =~ /\[END_TR\]/) {
-       print MIDTEMPL "<\/td>";
+       print $MIDTEMPL "<\/td>";
    }
 
    elsif($linecmd =~ /\[RTCOL_END\]/) {
-       print MIDTEMPL "<\/td><\/table>";
+       print $MIDTEMPL "<\/td><\/table>";
    }
 
    elsif($linecmd =~ /\[BOXCLASS\]/) {
-		print MIDTEMPL " class=\"$dStyleClass\" " if($dStyleClass);
+		print $MIDTEMPL " class=\"$dStyleClass\" " if($dStyleClass);
    }
 
    elsif($linecmd =~ /\[2ND_CLASS\]/) {
-		print MIDTEMPL " $dBoxStyle" if($dBoxStyle);
+		print $MIDTEMPL " $dBoxStyle" if($dBoxStyle);
    }
 
    elsif($linecmd =~ /\[HITCOUNT\]/) {
        &get_hitcount;
-       print MIDTEMPL "$hitCount";
+       print $MIDTEMPL "$hitCount";
    }
 
    elsif($linecmd =~ /\[USER\]/) {
@@ -374,55 +387,55 @@ sub do_imbedded_commands
    }
 
     elsif($linecmd =~ /\[CMD_APP\]/) {
-    print MIDTEMPL 'start_acctapp' unless($uid > 0);
-    print MIDTEMPL 'update_acct'   if($uid > 0);
+    print $MIDTEMPL 'start_acctapp' unless($uid > 0);
+    print $MIDTEMPL 'update_acct'   if($uid > 0);
     }
 
    elsif($linecmd =~ /\[HIDEDIV\]/) {
-       print MIDTEMPL " class=\"hide\" " unless($operator_access =~ /[ABCD]/ );
+       print $MIDTEMPL " class=\"hide\" " unless($operator_access =~ /[ABCD]/ );
    }
 
    elsif($linecmd =~ /\[APPROVED_CHECKYES\]/) {
-       print MIDTEMPL " checked " if($uapproved == 1);
+       print $MIDTEMPL " checked " if($uapproved == 1);
    }
 
    elsif($linecmd =~ /\[APPROVED_CHECKNO\]/) {
-       print MIDTEMPL " checked " unless($uapproved == 1);
+       print $MIDTEMPL " checked " unless($uapproved == 1);
    }
 
    elsif($linecmd =~ /\[CHECKED=*.\]/) {
       my ($rest, $value) = split(/=/,$linecmd);
       ($value,$rest)  = split(/\]/,$value);
-      print  MIDTEMPL " checked " if($upayrole) =~ /$value/;
+      print  $MIDTEMPL " checked " if($upayrole) =~ /$value/;
    }
 
    elsif($linecmd =~ /\[APPLY_CHANGE\]/) {
-       print MIDTEMPL "CHANGE" if($uid > 0);
-       print MIDTEMPL "APPLY"  unless($uid > 0);
+       print $MIDTEMPL "CHANGE" if($uid > 0);
+       print $MIDTEMPL "APPLY"  unless($uid > 0);
    }
 
    elsif($linecmd =~ /\[SUBTITLE\]/) {
-         print MIDTEMPL "<br><br><br><center><font face=arial size=5><b>$cSubtitle</b><\/font><\/center>"
+         print $MIDTEMPL "<br><br><br><center><font face=arial size=5><b>$cSubtitle</b><\/font><\/center>"
          if($cSubtitle);
    }
 
    elsif($linecmd =~ /\[CTITLE\]/) {
      if($cTitle =~ /[A-Za-z0-9]/) {
-	    print MIDTEMPL "\"$cTitle\"";
+	    print $MIDTEMPL "\"$cTitle\"";
 	 }
 	 else {
-		print MIDTEMPL "this ";
+		print $MIDTEMPL "this ";
 	 }
    }
 
    elsif($linecmd =~ /\[TODAY\]/ or $linecmd eq 'TODAY') {
        $month = @months[$nowmm-1];
        print "$month $nowdd, $nowyyyy" if($printmode eq 'P');       
-       print MIDTEMPL "$month $nowdd, $nowyyyy" if($printmode eq 'T');
+       print $MIDTEMPL "$month $nowdd, $nowyyyy" if($printmode eq 'T');
    }
 
    elsif($linecmd =~ /\[BLOCKQUOTE\]/) {
-       print MIDTEMPL "<BLOCKQUOTE>\n" if($cBlockquote eq 'B');
+       print $MIDTEMPL "<BLOCKQUOTE>\n" if($cBlockquote eq 'B');
    }
 
    elsif($linecmd =~ /\[MODDELNEW\]/) {
@@ -430,17 +443,17 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[SYSDATE\]/) {
-         print MIDTEMPL "$nowyyyy-$nowmm-$nowdd-$nowhh-$nowmn-$nowss";
+         print $MIDTEMPL "$nowyyyy-$nowmm-$nowdd-$nowhh-$nowmn-$nowss";
    }
 
    elsif($linecmd =~ /\[PRIORITY\]/) {
-         &get_priority;
+         &get_priorities($priority);
    }
 
    elsif($linecmd =~ /\[PUBDAY\]/) {
 	      ($pubyear,$pubmonth,$pubday) = split(/-/,$pubdate,3);
-          print MIDTEMPL "$pubday" if($pubday ne '00');
-          print MIDTEMPL "  " if($pubday eq '00');
+          print $MIDTEMPL "$pubday" if($pubday ne '00');
+          print $MIDTEMPL "  " if($pubday eq '00');
    }
 
    elsif($linecmd =~ /\[PUBMONTHS\]/) {
@@ -453,8 +466,8 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[EXPDAY\]/) {
-          print MIDTEMPL "$expday" if($expday ne '00');
-          print MIDTEMPL "  " if($expday eq '00');
+          print $MIDTEMPL "$expday" if($expday ne '00');
+          print $MIDTEMPL "  " if($expday eq '00');
    }
 
    elsif($linecmd =~ /\[EXPMONTHS\]/) {
@@ -478,8 +491,14 @@ sub do_imbedded_commands
 	     if($sstarts_with_the =~ /T/) {
 		     $source = "The $source";
 	     }
-         print MIDTEMPL "$source";
+         print $MIDTEMPL "$source";
       }
+  }
+
+  elsif($linecmd =~ /\[AUTHOR\]/) {
+     if($author and !$skipauthor) {
+	    print $MIDTEMPL "&nbsp;&nbsp;By: $author";
+     }
   }
 
   elsif($linecmd =~ /\[DATE_SOURCE\]/) {
@@ -488,22 +507,22 @@ sub do_imbedded_commands
       	$source = "";
       }
       else {
-        print MIDTEMPL "$source";
+        print $MIDTEMPL "$source";
       }
   }
 
   elsif($linecmd =~ /\[HEADLINE\]/) {
-      print MIDTEMPL "\r\r" if($now_email eq 'Y');
-      print MIDTEMPL "<p>" if($now_print eq 'Y');
+      print $MIDTEMPL "\r\r" if($now_email eq 'Y');
+      print $MIDTEMPL "<p>" if($now_print eq 'Y');
 # changed meaning of $regionhead - now: Y = 'override' region in headline
       if($headline !~ /$region/ and $region !~ /Global/ and $regionhead = 'N') {
-          print MIDTEMPL "$region: $headline";
+          print $MIDTEMPL "$region: $headline";
       }
       else {
-          print MIDTEMPL "$headline";
+          print $MIDTEMPL "$headline";
       }
-      print MIDTEMPL "\r" if($now_email eq 'Y');
-      print MIDTEMPL "<br>" if($now_print eq 'Y');
+      print $MIDTEMPL "\r" if($now_email eq 'Y');
+      print $MIDTEMPL "<br>" if($now_print eq 'Y');
   }
 
 ## 0100
@@ -514,7 +533,7 @@ sub do_imbedded_commands
 
    elsif($linecmd =~ /\[OTHERSOURCE\]/) {
       if( ($docid =~ /[0-9]/) and ($sourcefound =~ /N/) ) {
-         print MIDTEMPL $source;
+         print $MIDTEMPL $source;
       }
    }
 
@@ -523,53 +542,57 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[LIKELYREGIONS\]/ and $region =~ /;/) {
-      	print MIDTEMPL "<select size=2 multiple name=\"region$pgitemcnt\">\n";
+      	print $MIDTEMPL "<select size=2 multiple name=\"region$pgitemcnt\">\n";
         &print_likely_regions;              # in controlfile.pl
-        print MIDTEMPL "<\/select><br>\n";
+        print $MIDTEMPL "<\/select><br>\n";
    }
 
    elsif($linecmd =~  /\[REGION\]/) {
-       print MIDTEMPL "$region" if($region !~ /;/);
+       print $MIDTEMPL "$region" if($region !~ /;/);
    }
 
    elsif($linecmd =~ /\[REGIONHEAD\]/) {
-        print MIDTEMPL " checked " if($regionhead eq 'Y');
+        print $MIDTEMPL " checked " if($regionhead eq 'Y');
    }
 
    elsif($linecmd =~ /\[SSTARTSWTHE\]/) {
-        print MIDTEMPL " checked " if($sstarts_with_the eq 'T');
+        print $MIDTEMPL " checked " if($sstarts_with_the eq 'T');
    }
 
    elsif($linecmd =~ /\[RSTARTSWTHE\]/) {
-        print MIDTEMPL " checked " if($rstarts_with_the eq 'T');
+        print $MIDTEMPL " checked " if($rstarts_with_the eq 'T');
    }
 
    elsif($linecmd =~ /\[ALINK\]/) {
          &do_link if($link =~ /[A-Za-z0-9]/  or $selfLink =~ /Y/);
    }
 
+   elsif($linecmd =~ /\[LINK\]/) {
+         print $MIDTEMPL "$link";
+   }
+
    elsif($linecmd =~ /\[A_NAME\]/) {
 	     if($rDocLink =~ /doclink/) {
-		     print MIDTEMPL "<a name=$docid><\/a>\n";
+		     print $MIDTEMPL "<a name=$docid><\/a>\n";
 	     }
 	     else {
-		     print MIDTEMPL "<!-- doc $docid  - - ?display%login%$docid%-->";
+		     print $MIDTEMPL "<!-- doc $docid  - - ?display%login%$docid%-->";
 	     }
    }
 
    elsif($linecmd =~ /\[END_ALINK\]/) {
-          print MIDTEMPL "</a>" if($link =~ /[A-Za-z0-9]/  or $selfLink =~ /Y/);
+          print $MIDTEMPL "</a>" if($link =~ /[A-Za-z0-9]/  or $selfLink =~ /Y/);
    }
 
    elsif($linecmd =~ /\[HLINK\]/) {
    	 $link = "http://$link" if($link !~ /http:\/\//);
          $link = "\"$link\"";
-         print MIDTEMPL "$link";
+         print $MIDTEMPL "$link";
    }
 
    elsif($linecmd =~ /\[LINK\]/) {
-         print MIDTEMPL "$link\r"   if($link =~ /[0-9A-Za-z]/ and $now_email eq 'Y');
-         print MIDTEMPL "$link<br>" if($link =~ /[0-9A-Za-z]/ and $now_print eq 'Y');
+         print $MIDTEMPL "$link\r"   if($link =~ /[0-9A-Za-z]/ and $now_email eq 'Y');
+         print $MIDTEMPL "$link<br>" if($link =~ /[0-9A-Za-z]/ and $now_print eq 'Y');
    }
 
    elsif($linecmd =~ /\[SELECT_TEMPLATE\]/) {
@@ -585,7 +608,7 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[STRAIGHT_CHECK\]/) {
-         print MIDTEMPL " checked" if($straightHTML eq 'Y');
+         print $MIDTEMPL " checked" if($straightHTML eq 'Y');
    }
 
    elsif($linecmd =~ /\[PERIOD_RADIOS\]/) {
@@ -595,31 +618,31 @@ sub do_imbedded_commands
    elsif($linecmd =~ /\[HEADLINE_PERIOD\]/ and $headline =~ /[A-Za-z]/) {
       if($regionhead eq 'Y' and $headline !~ /$region/
          and $region =~ /[A-Za-z0-9]/ and $region !~ /Global/) {
-        print MIDTEMPL "$region: $headline";
+        print $MIDTEMPL "$region: $headline";
       }
       else {
-        print MIDTEMPL "$headline";
+        print $MIDTEMPL "$headline";
       }
    }
 
    elsif($linecmd =~ /\[SUBHEADLINE\]/ and $subheadline) {
-       print MIDTEMPL "<h5>$subheadline</h5>";
+       print $MIDTEMPL "<h5>$subheadline</h5>";
    }
 
    elsif($linecmd =~ /\[BODY\]/) {
         $body = &do_body_comment($body);
-        print MIDTEMPL "$body";
+        print $MIDTEMPL "$body";
    }
 
    elsif($linecmd =~ /\[COMMENT\]/ and $comment =~ /[A-Za-z0-9]/) {
          $comment = &do_body_comment($comment);
-         print MIDTEMPL "<div class=\"comment\">$comment</div>\n";
+         print $MIDTEMPL "<div class=\"comment\">$comment</div>\n";
    }
 
    elsif($linecmd =~ /\[COMMENT\]/) {
        if($comment eq "") {}
        else {
-          print MIDTEMPL "<div class=\"comment\">$comment</div>\n";
+          print $MIDTEMPL "<div class=\"comment\">$comment</div>\n";
         }
    }
 
@@ -636,11 +659,11 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[FREEVIEW_CHECK\]/) {
-         print MIDTEMPL " checked" if($freeview eq 'Y');
+         print $MIDTEMPL " checked" if($freeview eq 'Y');
    }
 
    elsif($linecmd =~ /\[SELFLINK_CHECK\]/) {
-         print MIDTEMPL " checked" if($selfLink eq 'Y');
+         print $MIDTEMPL " checked" if($selfLink eq 'Y');
    }
 
    elsif($linecmd =~ /\[HANDLE\]/) {
@@ -666,11 +689,11 @@ sub do_imbedded_commands
 ## 0110
 
    elsif($linecmd =~ /\[NEEDSSUM\]/) {
-        print MIDTEMPL " checked " if($needsSum eq 'Y');
+        print $MIDTEMPL " checked " if($needsSum eq 'Y');
    }
 
    elsif($linecmd =~ /\[CKENDTABLE\]/) {
-        print MIDTEMPL " checked " if($endtable eq 'Y');
+        print $MIDTEMPL " checked " if($endtable eq 'Y');
    }
 
    elsif($linecmd =~ /\[REDARROW\]/) {
@@ -678,68 +701,70 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[DOCLINK\]/) {
-	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%login%$docid%$qSectsub\">$docid</a>";
+	  print $MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%login%$docid%$qSectsub\">$docid</a>";
    }
 #   elsif($linecmd =~ /\[CSWPDOCLINK\]/) {   # can get rid of this one
-#	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%cswplogin%$docid%$sectsubs\">$docid</a>";
+#	  print $MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%cswplogin%$docid%$sectsubs\">$docid</a>";
 #   }
 
    elsif($linecmd =~ /\[OWNERDOCLINK\]/) {
 	  my $o_logintemplate = $OWNER{ologintemplate};
-	  print MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%$o_logintemplate%$docid%$qSectsub\">$docid</a>";
+	  print $MIDTEMPL "<a href=\"http://$scriptpath/article.pl?display%$o_logintemplate%$docid%$qSectsub\">$docid</a>";
    }
    elsif($linecmd =~ /\[OWNERCHANGEADD\]/) {
 	  if(!$docid) {
-		print MIDTEMPL "<strong class=\"red\"><big>A-1. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\">Add new webpage item<\/strong>";
-		print MIDTEMPL "<input name=\"action\" type=\"hidden\" value=\"new\" >";
+		print $MIDTEMPL "<strong class=\"red\"><big>A-1. <\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\">Add new webpage item<\/strong>";
+		print $MIDTEMPL "<input name=\"action\" type=\"hidden\" value=\"new\" >";
 	  }
 	  else {
-	     print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"><strong class=\"red\"><big>A-1.<\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\"> CHANGE item below &nbsp;  &nbsp; or</strong>&nbsp;&nbsp;";
-		 print MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"><strong class=\"red\"><big>A-2. <\/big><\/strong><strong>ADD a new item<\/strong> ";
+	     print $MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"mod\" checked=\"checked\"><strong class=\"red\"><big>A-1.<\/big><\/strong><strong style=\"font-family:geneva;font-size:1.0em;\"> CHANGE item below &nbsp;  &nbsp; or</strong>&nbsp;&nbsp;";
+		 print $MIDTEMPL "<input name=\"action\" type=\"radio\" value=\"new\" onclick=\"clearItem();\"><strong class=\"red\"><big>A-2. <\/big><\/strong><strong>ADD a new item<\/strong> ";
       }
    }
 
    elsif($linecmd =~ /\[OWNER_CSS\]/) {
 	  if($owner) {
 	     my $csspath = $OWNER{'ocsspath'};
-	     print MIDTEMPL "$csspath";
+	     print $MIDTEMPL "$csspath";
       }
    }
 
    elsif($linecmd =~ /\[OWNER_SAVEPAGE\]/) {
 	  my $ownerwebdir = "$owner" . "_webpage";
-	     print MIDTEMPL "http://$publicUrl/php/savepage.php?$ownerwebdir/index.php%$ownerwebdir/index.html";
+	     print $MIDTEMPL "http://$publicUrl/php/savepage.php?$ownerwebdir/index.php%$ownerwebdir/index.html";
    }
 
    elsif($linecmd =~ /\[REFRESH_URL\]/) {
       ($userid,$rest) = split(/;/,$userid);
       my $oupdatetemplate  = $OWNER{'oupdatetemplate'};
       $ownersectsub = $OWNER{'odefaultSS'} unless($ownersectsub);
-	  print MIDTEMPL "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$oupdatetemplate%$ownersectsub%$owner%$userid%$ownerSubs";
+	  print $MIDTEMPL "http://$publicUrl/prepage/viewOwnerUpdate.php?$docid%$oupdatetemplate%$ownersectsub%$owner%$userid%$ownerSubs";
    }
 
    elsif($linecmd =~ /\[PRIORITY_STAR\]/) {
-       print MIDTEMPL "<img src=\"\/star.gif\" alt=\"high priority\" border=0 height=11 width=11 valign=bottom>"
+       print $MIDTEMPL "<img src=\"\/star.jpg\" alt=\"high priority\" border=0 height=11 width=11 valign=bottom>"
          if($priority =~ /6/);
+       print $MIDTEMPL "<img src=\"\/stars_two.jpg\" alt=\"highest priority\" border=0 height=11 width=22 valign=bottom>"
+         if($priority =~ /7/);
    }
 
    elsif($linecmd =~ /\[OOPS\]/) {
        if($sectsubs =~ /$newsdigestSS/ and $qSectsub =~ /$headlinesSectid/) {
-	       print MIDTEMPL "&nbsp; ..Oops! This article has already been summarized. Will fix this soon (I hope)...&nbsp;"
+	       print $MIDTEMPL "&nbsp; ..Oops! This article has already been summarized. Will fix this soon (I hope)...&nbsp;"
        }
    }
 
    elsif($linecmd =~ /\[SUMMARIZE_IT\]/) {
-        print MIDTEMPL "<input type=\"radio\" name=\"action\" ";
-        print MIDTEMPL " value=\"summarize\"> Summarize it. <br>\n";
+        print $MIDTEMPL "<input type=\"radio\" name=\"action\" ";
+        print $MIDTEMPL " value=\"summarize\"> Summarize it. <br>\n";
    }
 
    elsif($linecmd =~ /\[ENDTABLE\]/ and $endtable =~ /Y/) {
-      print MIDTEMPL "<\/td><\/table>";
-      print MIDTEMPL "<\/div>";
-      print MIDTEMPL "<\/ul>";
-      print MIDTEMPL "<\/blockquote>";
-      print MIDTEMPL "<\/center>";
+      print $MIDTEMPL "<\/td><\/table>";
+      print $MIDTEMPL "<\/div>";
+      print $MIDTEMPL "<\/ul>";
+      print $MIDTEMPL "<\/blockquote>";
+      print $MIDTEMPL "<\/center>";
    }
 
    elsif($linecmd =~ /\[ACRONYMS\]/) {
@@ -748,8 +773,8 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[THISSECTION\]/) {
-       if( ($action ne 'new') and ($thisSectsub ne "") ) {
-          print MIDTEMPL "<p>This section: $thisSectsub<p>\n" ;
+       if( ($action ne 'new') and ($listSectsub ne "") ) {
+          print $MIDTEMPL "<p>This section: $listSectsub<p>\n" ;
        }
    }
 
@@ -812,11 +837,15 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[STD_ITEM_TOP\]/) {
-	print MIDTEMPL "<a name=\"$docid\"></a>\n";
-	 	if($savecmd =~ /print_select/ or $sectsubs =~ /Suggested_emailedItem/) {
-          print MIDTEMPL "<input type=\"checkbox\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
-          print MIDTEMPL "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\">\n";
+	print $MIDTEMPL "<a name=\"$docid\"></a>\n";
+	 	if($cmd =~ /print_select/ or  $savecmd =~ /print_select/ or $sectsubs =~ /Suggested_emailedItem/) {
+          print $MIDTEMPL "<input type=\"checkbox\" id=\"selitem$pgitemcnt\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
+          print $MIDTEMPL "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\">\n";
         }
+   }
+   elsif($linecmd =~ /\[SEL_ITEM_TOP\]/) {
+	  print $MIDTEMPL "<input type=\"checkbox\" id=\"selitem$pgitemcnt\" name=\"selitem$pgitemcnt\" value=\"Y\">\n";
+      print $MIDTEMPL "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\">\n";
    }
 
    elsif($linecmd =~ /\[END_SELECT\]/and $cmd eq 'print_select') {
@@ -825,19 +854,19 @@ sub do_imbedded_commands
             $pgItemnbr = $pgItemnbr + 1;
             $pgitemcnt = &padCount4($pgItemnbr);
          }
-         print MIDTEMPL "<input type=\"hidden\" name=\"selitem$pgitemcnt\" value=\"Z\">\n";
+         print $MIDTEMPL "<input type=\"hidden\" name=\"selitem$pgitemcnt\" value=\"Z\">\n";
    }
 
    elsif($linecmd =~ /\[FLOATSTYLE\]/) {
-	     print MIDTEMPL " style=\"float:right;\"" if($savecmd = 'print_select');
+	     print $MIDTEMPL " style=\"float:right;\"" if($savecmd = 'print_select');
    }
 
    elsif($linecmd =~ /\[EMAILED\]/) {
       if($cSubid eq $emailedSub) {
-          print MIDTEMPL "<input type=\"hidden\" name=\"emailed$pgitemcnt\" value=\"Y\">\n";
+          print $MIDTEMPL "<input type=\"hidden\" name=\"emailed$pgitemcnt\" value=\"Y\">\n";
       }
       else {
-          print MIDTEMPL "<input type=\"hidden\" name=\"emailed$pgitemcnt\" value=\"N\">\n";
+          print $MIDTEMPL "<input type=\"hidden\" name=\"emailed$pgitemcnt\" value=\"N\">\n";
       }
    }
 
@@ -845,11 +874,11 @@ sub do_imbedded_commands
      @sectsubs = split(/;/,$sectsubs);
      foreach $sectsub (@sectsubs) {
         ($sectsubid,$rest) = split(/`/,$sectsub,2);
-        if($thisSectsub =~ /$convertSS/) {
-            print MIDTEMPL "$sectsubid;";
+        if($listSectsub =~ /$convertSS/) {
+            print $MIDTEMPL "$sectsubid;";
         }
         else {
-            print MIDTEMPL "<a target=_top href=\"http://$scriptpath/article.pl?display_section%%%$sectsubid%\">$sectsubid<\/a>;"
+            print $MIDTEMPL "<a target=_top href=\"http://$scriptpath/article.pl?display_section%%%$sectsubid%\">$sectsubid<\/a>;"
         }
      }
    }
@@ -862,17 +891,40 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[MOVEWEBPAGE\]/ and $access =~ /[ABCD]/) {
-       print MIDTEMPL "<a href=\"http://$scriptpath/moveutil.pl?move%$pagenames";
-       print MIDTEMPL "\">&nbsp;Move $pagenames to public web page</a><br>\n";
+       print $MIDTEMPL "<a href=\"http://$scriptpath/moveutil.pl?move%$pagenames";
+       print $MIDTEMPL "\">&nbsp;Move $pagenames to public web page</a><br>\n";
    }
 
    elsif($linecmd =~ /\[MOVEWEBPAGE2MINS\]/) {
-       print MIDTEMPL "<meta http-equiv=\"refresh\" content=\"15;url=http://$scriptpath/moveutil.pl?move%$pagenames\">"
+       print $MIDTEMPL "<meta http-equiv=\"refresh\" content=\"15;url=http://$scriptpath/moveutil.pl?move%$pagenames\">"
          if($pagenames =~ /[A-Za-z0-9]/);
    }
 
    elsif($linecmd =~ /\[MAKEPUBLIC]\]/) {
-	   print MIDTEMPL "<br>$qPrtmove 4-$info[4] 6-$info[6]  7-$info[7] 8-$info[8]<a href=\"http://$scriptpath/moveutil.pl?move%$cPage\"><b>Move $cPage to public page</b></a><br>\n"; 
+	   print $MIDTEMPL "<br>$qPrtmove 4-$info[4] 6-$info[6]  7-$info[7] 8-$info[8]<a href=\"http://$scriptpath/moveutil.pl?move%$cPage\"><b>Move $cPage to public page</b></a><br>\n"; 
+   }
+
+   elsif($linecmd =~ /\[GOOGLESEARCH\]/) {
+#		     print $MIDTEMPL "src=\"https://www.google.com/search?q=Victory+in+Womens+rights\""; 
+       my $search = "";
+       my $hdsrc = $headline . ' ' . $source;
+       ($hdsrc,$rest) = split(/\(/,$hdsrc); #remove parens at end of source
+       ($hdsrc,$rest) = split(/&#40;/,$hdsrc);
+	   my @hdsrcwords = split(/ /,$hdsrc);
+	   foreach my $hdsrcword (@hdsrcwords) {
+		  $search = "$search+$hdsrcword";
+	    }
+		$search =~  s/^\+//;
+	    print $MIDTEMPL "https://www.google.com/search?q=$search"; 
+   }
+
+   elsif($linecmd =~ /\[FLINK\]/) {
+	    if($ehandle =~ /link/i and $link =~ /http/) {
+           print $MIDTEMPL "$link";
+        }
+        else {
+	       print $MIDTEMPL "#";
+	    }
    }
 
    elsif($linecmd =~ /\[SHOWSECTSINFRAMES\]/) {
@@ -888,42 +940,42 @@ sub do_imbedded_commands
 	
 	      $pagename = &getpagename($sectsubid);   ## in sections.pl
 	      if($sectsubid =~ /$mobileSS/) { # mobile does not go through php 
-              print MIDTEMPL $preframe ."http://$scriptpath/moveutil.pl?move%$pagename" . $postframe;
+              print $MIDTEMPL $preframe ."http://$scriptpath/moveutil.pl?move%$pagename" . $postframe;
           }
           elsif($sectsubid =~ /$newsdigestSS|WOAcommon|NewsDigest/) { #news digest has both newsItem and index
 	          if($sectsubid =~ /$newsdigestSS/) {
-		          print MIDTEMPL "<br><b>NewsIndex</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsindex%$newsIndexSS" . $postframe;
+		          print $MIDTEMPL "<br><b>NewsIndex</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsindex%$newsIndexSS" . $postframe;
                   sleep 15;
-                  print MIDTEMPL "<br><b>NewsHeadlines</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsheadlines%$newsHeadlinesSS" . $postframe;	
+                  print $MIDTEMPL "<br><b>NewsHeadlines</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsheadlines%$newsHeadlinesSS" . $postframe;	
 		          sleep 10;
 		      }
-	          print MIDTEMPL $preframe . "http://$cgiSite/prepage/savePagePart.php?$pagename%$sectsubid" . $postframe;
+	          print $MIDTEMPL $preframe . "http://$cgiSite/prepage/savePagePart.php?$pagename%$sectsubid" . $postframe;
           }
           elsif($sectsubid =~ /HowToHelp_alerts/) {
-			     print MIDTEMPL "<br><b>NewsAlerts</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsalerts%$newsAlertsSS" . $postframe;	
+			     print $MIDTEMPL "<br><b>NewsAlerts</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsalerts%$newsAlertsSS" . $postframe;	
 			     sleep 10;
-			     print MIDTEMPL $preframe . "http://$cgiSite/php/savesection.php?$pagename%$sectsubid" . $postframe;	
+			     print $MIDTEMPL $preframe . "http://$cgiSite/php/savesection.php?$pagename%$sectsubid" . $postframe;	
           }
           else {            # all sections (page 2) 
-              print MIDTEMPL $preframe . "http://$cgiSite/php/savesection.php?$pagename%$sectsubid" . $postframe;	
+              print $MIDTEMPL $preframe . "http://$cgiSite/php/savesection.php?$pagename%$sectsubid" . $postframe;	
           }
           sleep 15;
           $sectsub_ctr = $sectsub_ctr + 1;
        } # end foreach
        if($sectsubs =~ /$newsdigestSS/) {
-	          print MIDTEMPL "<br><br><a target=\"_blank\" href =\"http://$cgiSite/php/saveindex.php?\">Save NewsDigest to index.html</a><br><br>\n";
+	          print $MIDTEMPL "<br><br><a target=\"_blank\" href =\"http://$cgiSite/php/saveindex.php?\">Save NewsDigest to index.html</a><br><br>\n";
 	   } 
    }
 
    elsif($linecmd =~ /\[ONSUBMIT\]/ and -f $futzingON) {
-##     print MIDTEMPL "onsubmit=\"buildResultDocument\(\)\"";
+##     print $MIDTEMPL "onsubmit=\"buildResultDocument\(\)\"";
    }
 
    else {
-       print MIDTEMPL "$linecmd" if($linecmd =~ /[A-Za-z0-9]/);
+       print $MIDTEMPL "$linecmd" if($linecmd =~ /[A-Za-z0-9]/);
    }
 
-   print MIDTEMPL "$endline\n";
+   print $MIDTEMPL "$endline\n";
 }
 
 ## 0130
@@ -933,14 +985,14 @@ sub do_imbedded_commands
  for($mm=0;$mm<12;$mm++) {
    $mo  = $mm + 1;
    $mo  = "0$mo" if($mo < 10);
-   print MIDTEMPL "<option id=\"mm$mo\" value=$mo";
-   print MIDTEMPL " selected" if($mo eq $pubmonth);
-   print MIDTEMPL ">$months[$mm]</option>\n";
+   print $MIDTEMPL "<option id=\"mm$mo\" value=$mo";
+   print $MIDTEMPL " selected" if($mo eq $pubmonth);
+   print $MIDTEMPL ">$months[$mm]</option>\n";
  }
 
- print MIDTEMPL "<option value=\"_\"";
- print MIDTEMPL " selected" if($pubmonth eq "00");
- print MIDTEMPL ">_</option>\n";
+ print $MIDTEMPL "<option value=\"_\"";
+ print $MIDTEMPL " selected" if($pubmonth eq "00");
+ print $MIDTEMPL ">_</option>\n";
 }
 
 sub get_expmonths
@@ -948,27 +1000,27 @@ sub get_expmonths
  for($mm=0;$mm<12;$mm++) {
    $mo  = $mm + 1;
    $mo  = "0$mo" if($mo < 10);
-   print MIDTEMPL "<option value=$mo";
-   print MIDTEMPL " selected" if($mo eq $expmonth);
-   print MIDTEMPL ">$months[$mm]</option>\n";
+   print $MIDTEMPL "<option value=$mo";
+   print $MIDTEMPL " selected" if($mo eq $expmonth);
+   print $MIDTEMPL ">$months[$mm]</option>\n";
  }
 
- print MIDTEMPL "<option value=\"_\"";
- print MIDTEMPL " selected" if($expmonth eq "00" or $expyear eq "0000");
- print MIDTEMPL ">_</option>\n";
+ print $MIDTEMPL "<option value=\"_\"";
+ print $MIDTEMPL " selected" if($expmonth eq "00" or $expyear eq "0000");
+ print $MIDTEMPL ">_</option>\n";
 }
 
 sub get_pubyears
 {
  $yearsago = '1990';
  $nextyr   = $nowyyyy + 2;
- print MIDTEMPL "<option value=\"no date\"";
- print MIDTEMPL " selected" if($pubyear eq '0000');
- print MIDTEMPL ">no date</option>\n";
+ print $MIDTEMPL "<option value=\"no date\"";
+ print $MIDTEMPL " selected" if($pubyear eq '0000');
+ print $MIDTEMPL ">no date</option>\n";
  for($yr=$nextyr;$yr>$yearsago;$yr--) {
-    print MIDTEMPL "<option id=\"yyyy$yr\" value=\"$yr\"";
-    print MIDTEMPL " selected" if($yr eq $pubyear);
-    print MIDTEMPL ">$yr</option>\n";
+    print $MIDTEMPL "<option id=\"yyyy$yr\" value=\"$yr\"";
+    print $MIDTEMPL " selected" if($yr eq $pubyear);
+    print $MIDTEMPL ">$yr</option>\n";
  } # END for
 }
 
@@ -976,27 +1028,28 @@ sub get_expyears
 {
  $yearsago = $nowyyyy - 10;
  $nextyr   = $nowyyyy + 2;
- print MIDTEMPL "<option value=\"no date\"";
- print MIDTEMPL " selected" if($expyear eq '0000');
- print MIDTEMPL ">no date</option>\n";
+ print $MIDTEMPL "<option value=\"no date\"";
+ print $MIDTEMPL " selected" if($expyear eq '0000');
+ print $MIDTEMPL ">no date</option>\n";
  for($yr=$yearsago;$yr<$nextyr;$yr++) {
-    print MIDTEMPL "<option value=$yr";
-    print MIDTEMPL " selected" if($yr eq $expyear);
-    print MIDTEMPL ">$yr</option>\n";
+    print $MIDTEMPL "<option value=$yr";
+    print $MIDTEMPL " selected" if($yr eq $expyear);
+    print $MIDTEMPL ">$yr</option>\n";
  } # END for
 }
 
 ##137
 
-sub get_priority
+sub get_priorities
 {
- print MIDTEMPL  "<font size=1 face=verdana><select name=\"priority\">\n";
- for($i=0;$i<7;$i++) {
-   print MIDTEMPL "<option value=\"$i\"";
-   print MIDTEMPL " selected" if($priority eq $i);
-   print MIDTEMPL ">$i</option>\n";
- }
- print MIDTEMPL "<\/select></font>\n";
+   my $priority = $_[0];
+   $priority = 5 unless($priority =~ /[1-7]/);
+   print $MIDTEMPL "<option value=\"D\">D</option>\n";
+   for($i=7;$i>3;$i--) {
+     print $MIDTEMPL "<option value=\"$i\"";
+     print $MIDTEMPL " selected" if($priority eq $i);
+     print $MIDTEMPL ">$i</option>\n";
+   }
 }
 
 ##138
@@ -1025,14 +1078,14 @@ sub get_borderbkgrnd
  "BGi^colors/Thistle.gif^18.strong thistle background"
  );
 
- print MIDTEMPL  "<select size=2 name=\"borderBG\">\n";
+ print $MIDTEMPL  "<select size=2 name=\"borderBG\">\n";
  foreach $bbg (@borderBGs) {
    ($value,$descr) = split(/\^/,$bbg,2);
-   print MIDTEMPL "<option value=\"$value\"";
-   print MIDTEMPL " selected" if($borderBG eq $value);
-   print MIDTEMPL ">$descr</option>\n";
+   print $MIDTEMPL "<option value=\"$value\"";
+   print $MIDTEMPL " selected" if($borderBG eq $value);
+   print $MIDTEMPL ">$descr</option>\n";
  }
- print MIDTEMPL "<\/select><br>\n";
+ print $MIDTEMPL "<\/select><br>\n";
 }
 
 
@@ -1043,7 +1096,7 @@ sub do_link
   $target = " " if($cMobidesk =~ /mobi/);
   if($selfLink =~ /Y/) {
 	   local($prt) = "<a$target"."href=\"$scriptpath/article.pl?display%fullArticle%$docid\">";
-      print MIDTEMP $prt;
+      print $MIDTEMP $prt;
    }
   else {
       $link =~ s/^\s+//;                         # eliminate leading white spaces
@@ -1057,14 +1110,14 @@ sub do_link
            $link =~ "http:\/\/$link"
                if($link !~ /^http:\/\// and $link !~ /^https:\/\//);
            local($prt) = "<a$target"."href=\"$link\">";
-           print MIDTEMPL $prt;
+           print $MIDTEMPL $prt;
       }
       elsif( ($link =~ /\.htm/) or ($link =~ /\.html/) or ($link[0] eq '#') ) {
-           print MIDTEMPL "<a href=\"$link\">";
+           print $MIDTEMPL "<a href=\"$link\">";
       }
       else {
            $link = "http:\/\/$link" if($link !~ /^http\/\//);
-           print MIDTEMPL "<a$target href=\"$link\">";
+           print $MIDTEMPL "<a$target href=\"$link\">";
       }
       $link = $save;
   }
@@ -1089,13 +1142,13 @@ sub do_redarrow
  my $greybutton = "/plain_grey_button.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
 
   if($nodata eq 'Y' or $cVisable =~ /[STB]/) {  ## non-article pieces
-   	   print MIDTEMPL "$link$imgtag$invisibledot";
+   	   print $MIDTEMPL "$link$imgtag$invisibledot";
    }
   elsif($cSectid =~ /[Hh]eadlines/) {
-       print MIDTEMPL "$link$imgtag$redarrow";
+       print $MIDTEMPL "$link$imgtag$redarrow";
    }
   else {
-       print MIDTEMPL "$link$imgtag$greybutton";
+       print $MIDTEMPL "$link$imgtag$greybutton";
    }
 }
 
@@ -1106,21 +1159,21 @@ sub print_period_radios
   @punctARRAY = (".-period", ",-comma", "&nbsp;-space", "<br>-line break");
   foreach $punct (@punctARRAY) {
    ($punct,$punctname) = split(/-/,$punct);
-   print MIDTEMPL "<input name=\"period\" type=\"radio\" ";
+   print $MIDTEMPL "<input name=\"period\" type=\"radio\" ";
    if( ($period eq $punct) or ($period eq "" and $punctname eq "period") ) {
-      print MIDTEMPL " checked";
+      print $MIDTEMPL " checked";
    }
-   print MIDTEMPL " value=\"$punct\"> $punctname";
+   print $MIDTEMPL " value=\"$punct\"> $punctname";
   } # END for
 }
 
 sub do_title
 {
   if($cTitle =~ /[A-Za-z0-9]/) {
-    print MIDTEMPL "\"$cTitle\"";
+    print $MIDTEMPL "\"$cTitle\"";
   }
   else {
-	print MIDTEMPL "this ";
+	print $MIDTEMPL "this ";
   }
 }
 
@@ -1135,7 +1188,7 @@ sub do_5lines
     if($line =~ /[A-Za-z0-9]/) {
        $linecnt = $linecnt + 1;
        if($linecnt < 7) {
-          print MIDTEMPL "$line<br>\n";
+          print $MIDTEMPL "$line<br>\n";
        }
     }
   }
@@ -1258,28 +1311,28 @@ sub do_points
 	$points =~ s/ & / &#38; /g; ## ampersand to html code
 	$points =~ s/=27/&39#;/g;   ## single quote to html code
 
-	print MIDTEMPL "$points";
+	print $MIDTEMPL "$points";
 	$points = $save;
 }
 
 sub do_handle
 {
   if($sumAcctnum ne "" and $skiphandle ne 'Y') {
-     ($userdata,$access) = &read_contributors(N,N,_,_,$sumAcctnum,98989); # args=print?, html file?, handle, email, acct#
-     print MIDTEMPL "<span class=\"smallfont\"> $handle </span>"
+	 ($userdata,$access) = &read_contributors('N','N',$sumAcctnum,'_',98989); # args=print?, html file?, handle, email, acct#
+     print $MIDTEMPL "<span class=\"smallfont\"> $handle </span>"
             if($userdata eq "GOOD" and $handle =~ /[A-Za-z0-9]/);
   }
 }
 
 sub skip_handle
 {
- ($userdata,$access) = &read_contributors(N,N,$handle,_,);     ## args=print?, html file?, handle, email, acct#
+ ($userdata,$access) = &read_contributors('N','N',$userid,$handle,"",);     ## args=print?, html file?, handle, email, acct#
 
- if($handle ne "" and $userdata eq "GOOD") {
-    print MIDTEMPL "<input type=\"checkbox\" name=\"skiphandle\" value=\"Y\"";
-    print MIDTEMPL " checked" if($action eq "new" and $access =~ /[ABC]/);
-    print MIDTEMPL " checked" if($skiphandle eq 'Y');
-    print MIDTEMPL <<END;
+ if($uhandle ne "" and $userdata eq "GOOD") {
+    print $MIDTEMPL "<input type=\"checkbox\" name=\"skiphandle\" value=\"Y\"";
+    print $MIDTEMPL " checked" if($action eq "new" and $access =~ /[ABC]/);
+    print $MIDTEMPL " checked" if($skiphandle eq 'Y');
+    print $MIDTEMPL <<END;
 >&nbsp;Hide initials (handle)</font>
 END
  }
@@ -1304,7 +1357,7 @@ sub do_fullbody
   elsif($now_email eq 'Y') {
      $fullbody =~ s/\r/ /g;
   }
-  print MIDTEMPL "$fullbody";
+  print $MIDTEMPL "$fullbody";
   $fullbody = $save;
 }
 
@@ -1314,16 +1367,16 @@ sub do_fullbody
 sub check_url
 {
   if( ($link eq "") and ($userdata eq 'BAD') ) {
-     print MIDTEMPL "<b><font color=purple size=4 face=arial>";
-     print MIDTEMPL "There is no link to the full article.\n";
-     print MIDTEMPL "Please wait until your account <br>number \n";
-     print MIDTEMPL "is assigned to view this article \n";
-     print MIDTEMPL "from our archives.</b></font><br></td></table>\n";
+     print $MIDTEMPL "<b><font color=purple size=4 face=arial>";
+     print $MIDTEMPL "There is no link to the full article.\n";
+     print $MIDTEMPL "Please wait until your account <br>number \n";
+     print $MIDTEMPL "is assigned to view this article \n";
+     print $MIDTEMPL "from our archives.</b></font><br></td></table>\n";
      $stop = 'Y';
   }
   else {
      if($link ne "") {
-        print MIDTEMPL "Let me know ($adminEmail) if link does not work.<br>\n";
+        print $MIDTEMPL "Let me know ($adminEmail) if link does not work.<br>\n";
      }
   }
 }
@@ -1331,10 +1384,10 @@ sub check_url
 sub do_modelnew
 {
  if($action eq "new") {
-       print MIDTEMPL "<input type=\"hidden\" name=\"action\" value=\"new\">";
+       print $MIDTEMPL "<input type=\"hidden\" name=\"action\" value=\"new\">";
  }
  elsif($operator_access =~ /[AB]/) {
-       print MIDTEMPL <<END;
+       print $MIDTEMPL <<END;
          <input type="radio" name="action" value="update" checked>
            Update &nbsp;
          <input type="radio" name="action" value="clone">
@@ -1382,7 +1435,7 @@ sub print_select_template
   "right^right",
   "center^center");
 
- print MIDTEMPL "<select name=\"dTemplate\">\n" if($aTemplate !~ /cvrtUpdtItem/);
+ print $MIDTEMPL "<select name=\"dTemplate\">\n" if($aTemplate !~ /cvrtUpdtItem/);
  if($dTemplate =~ /[A-Za-z0-9]/) {
  	$ckTemplate = $dTemplate}
  else {
@@ -1390,13 +1443,13 @@ sub print_select_template
  }
  foreach $lTemplate (@lTemplates) {
      ($lTemplate,$descr) = split(/\^/,$lTemplate);
-     print MIDTEMPL "<option value=\"$lTemplate\" ";
-     print MIDTEMPL "selected " if($ckTemplate =~ /$lTemplate/);
-     print MIDTEMPL ">$descr</option>\n";
+     print $MIDTEMPL "<option value=\"$lTemplate\" ";
+     print $MIDTEMPL "selected " if($ckTemplate =~ /$lTemplate/);
+     print $MIDTEMPL ">$descr</option>\n";
  }
- print MIDTEMPL "</select>\n";
+ print $MIDTEMPL "</select>\n";
 
- print MIDTEMPL "&nbsp;&nbsp;<select name=\"dBoxStyle\">\n";
+ print $MIDTEMPL "&nbsp;&nbsp;<select name=\"dBoxStyle\">\n";
  if($dBoxStyle =~ /[A-Za-z0-9]/) {
  	$ckBoxStyle = $dBoxStyle}
  else {
@@ -1404,18 +1457,18 @@ sub print_select_template
  }
  foreach $lBoxStyle (@lBoxStyles) {
      ($lBoxStyle,$descr) = split(/\^/,$lBoxStyle);
-     print MIDTEMPL "<option value=\"$lBoxStyle\" ";
-     print MIDTEMPL "selected " if($ckBoxStyle =~ /$lBoxStyle/);
-     print MIDTEMPL ">$descr</option>\n";
+     print $MIDTEMPL "<option value=\"$lBoxStyle\" ";
+     print $MIDTEMPL "selected " if($ckBoxStyle =~ /$lBoxStyle/);
+     print $MIDTEMPL ">$descr</option>\n";
   }
 
-  print MIDTEMPL "</select>\n";
+  print $MIDTEMPL "</select>\n";
 }
 
 
 sub print_select_all_templates
 {
- print MIDTEMPL "<select name=\"dTemplate\">\n" if($aTemplate !~ /cvrtUpdtItem/);
+ print $MIDTEMPL "<select name=\"dTemplate\">\n" if($aTemplate !~ /cvrtUpdtItem/);
 
  local($ckTemplate);
  local $ext = "htm";
@@ -1425,24 +1478,24 @@ sub print_select_all_templates
 
  local(@lTemplates);
 
- print MIDTEMPL "<option value=\"default>default template</option>\n";
+ print $MIDTEMPL "<option value=\"default>default template</option>\n";
 
  open(TEMPLATELST, "$listname");
      while(<TEMPLATELST>) {
         chomp;
         $lTemplate = $_;
-        print MIDTEMPL "<option value=\"$lTemplate\" ";
-        print MIDTEMPL ">$descr</option>\n";
+        print $MIDTEMPL "<option value=\"$lTemplate\" ";
+        print $MIDTEMPL ">$descr</option>\n";
      } #endwhile
  close(TEMPLATELST);
- print MIDTEMPL "</select>\n";
+ print $MIDTEMPL "</select>\n";
 }
 
 ##00215
 
 sub print_select_format_NOT_USED
 {
- print MIDTEMPL "<select name=\"wFormat\" size=2 multiple>\n" if($aTemplate !~ /cvrtUpdtItem/);
+ print $MIDTEMPL "<select name=\"wFormat\" size=2 multiple>\n" if($aTemplate !~ /cvrtUpdtItem/);
  @formats =
  ("NA^none",
   "div^align right",
@@ -1465,15 +1518,15 @@ sub print_select_format_NOT_USED
 
   foreach $aFormat (@formats) {
      ($aFormat,$descr) = split(/\^/,$aFormat);
-     print MIDTEMPL "<option value=\"$aFormat\" ";
+     print $MIDTEMPL "<option value=\"$aFormat\" ";
      if($aFormat =~ /[A-Za-z0-9]/) {}
      else {
      	$aFormat = 'default';
      }
-     print MIDTEMPL "selected " if($wFormat =~ /$aFormat/);
-     print MIDTEMPL ">$descr</option>\n";
+     print $MIDTEMPL "selected " if($wFormat =~ /$aFormat/);
+     print $MIDTEMPL ">$descr</option>\n";
   }
-  print MIDTEMPL "</select><br>\n";
+  print $MIDTEMPL "</select><br>\n";
 }
 
 ## 0220
@@ -1484,13 +1537,13 @@ sub print_select_format_NOT_USED
 
 sub get_sortorder
 {
- print MIDTEMPL "<select size=1 name=\"sortorder\">\n";
+ print $MIDTEMPL "<select size=1 name=\"sortorder\">\n";
  @sort_order_codes = (
   "N;keep order as is",
   "U;use subsection default",
   "P;reverse publish date",
   "p;publish date",
-  "A;priority 6=highest",
+  "A;priority 7=highest",
   "D;reverse system date",
   "d;system date",
   "H;headline",
@@ -1504,9 +1557,9 @@ sub get_sortorder
      ($tcode,$tdescr) = split(/;/,$pair,2);
      $selected = "";
      $selected = "selected" if($tcode =~ /$cOrder/ or $tcode =~ 'N' and $cOrder =~ /[FL]/);
-     print MIDTEMPL "<option value=\"$tcode\" $selected>$tdescr</option>\n";
+     print $MIDTEMPL "<option value=\"$tcode\" $selected>$tdescr</option>\n";
   }
-  print MIDTEMPL "</select>\n";
+  print $MIDTEMPL "</select>\n";
 }
 
 

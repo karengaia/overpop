@@ -1,14 +1,37 @@
 <!-- emailedItem.htm -->
-<br><br>
-[STD_ITEM_TOP]
-<font size=1 face=arial>[docid]</font>&nbsp;
-[ALINK]
-<font size=2 face=arial><b>[headline]</b></font></a>
-<font size=1 face=arial>[srcstyle] [handle]
-[SRCDATE]
-&nbsp;[source] [endsrcstyle]<br><font size=1 face=arial>
-[1ST5_LINES]
-</font>
-<a href=
-"http://[SCRIPTPATH]/article.pl?display%login%[docid]">
-[REDARROW]
+<table><tr valign="top">
+<td size="10%" valign="top">
+[SEL_ITEM_TOP]
+</td><td>
+<select size="5" name="priority[pgitemcnt]"
+onClick="document.getElementById('selitem[pgitemcnt]').checked = true;document.getElementById('skipitem[pgitemcnt]').checked = false;">
+>
+[PRIORITY]
+</select>
+<br> <input name="skipitem[pgitemcnt]" type=radio onClick="document.getElementById('selitem[pgitemcnt]').checked = false;"><cite>Skip</cite>
+</td><td width="600px">
+<input type="text" name="link[pgitemcnt]" size="55" maxlength="200"
+value="[LINK]"><br>
+<cite><a href="http://[SCRIPTPATH]/article.pl?display%login%[docid]">
+[docid]</a>&nbsp;
+<a target="_blank" href="[GOOGLESEARCH]">Google it</a></cite>
+<a href="[link]" 
+target="frame[pgitemcnt]"><cite>toFrame</cite></a>
+<br>
+<cite>Headline:&nbsp;&nbsp;   <input name="titlize[pageitemcnt]" type=radio value="Y">Titlize</cite><br>
+<input type="text" name="headline[pgitemcnt]" size="55" maxlength="200"
+value="[headline]"><br>
+<cite>Source:</cite><br>
+<input type="text" name="source[pgitemcnt]" size="55" maxlength="200"
+value="[source]"><br>
+
+<cite>Fullbody:</cite><br>
+<textarea name="fullbody[pgitemcnt]" wrap="soft" rows="6" maxrows="150" cols="50">
+RR Global
+DD [TODAY]
+[fullbody]</textarea>
+
+</td><td width="700px"> <!--  id="loadContainer[pgitemcnt]" -->
+<iframe id="frame[pgitemcnt]"
+ src="#" width="750px" height="215px" name="frame[pgitemcnt]"></iframe>
+</td></tr></table>

@@ -1,8 +1,10 @@
 <p>
 <TABLE><TD width=40% valign=top  cellpadding=0 cellspacing=0>
 
-<font size=1 face=arial><b>#[pgitemcnt]</b> ... [docid]
-	
+<font size=1 face=arial><b>#[pgitemcnt]</b> ... 
+[DOCLINK]
+
+<input type="hidden" id="selitem[pgitemcnt]" name="selitem[pgitemcnt]" value="">	
 <input type="hidden" name="pgitemcnt[pgitemcnt]" value="[pgitemcnt]">
   <label>&nbsp;&nbsp;&nbsp;<b>Headline</b></label> &nbsp;
   <input name="titlize[pgitemcnt]" type=checkbox value="Y">
@@ -11,25 +13,25 @@
   <cite><input type="checkbox" name="regionhead[pgitemcnt]" 
 [REGIONHEAD]
    value="Y"> <cite>Region in headline</cite>
-
+<!-- *REDARROW* -->
   <textarea name="headline[pgitemcnt]" wrap="soft" rows=2 cols="80">[headline]</textarea>
-[REDARROW]
 
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
 <label for="subheadline">Subhead:</label>
-<input type="text" name="subheadline" size="80" maxlength="150"
+<input type="text" name="subheadline" size="80" maxlength="400"
 value="
 [subheadline]
 ">
 <br>
 
 <label>By:</label>&nbsp;&nbsp;
-<input type="text" name="author" size="75" maxlength="150"
+<input type="text" name="author" size="53" maxlength="150"
 value="
 [author]
-">&nbsp;&nbsp;<input type="checkbox" name="skipauthor" 
+">&nbsp;<input type="checkbox" name="skipauthor" 
 [SKIPAUTHOR]
-    value="Y"> <cite>Skip author</cite>
+    value="Y"><cite>Skip author</cite>
+<input type="checkbox" name="lfx2[pgitemcnt]" value="Y"><cite>LFx2</cite>
 <br>
 
 <cite>
@@ -41,14 +43,15 @@ value="
 <br>
   <font face=verdana size=1 color="666666"><input type=submit value="GO" name="submit[pgitemcnt]"></font>
 &nbsp;&nbsp;&nbsp;&nbsp;<label for="unique">Unique:</label>&nbsp;
-<input type="text" name="unique[pgitemcnt]" size="50" maxlength="50"
+<input type="text" name="unique[pgitemcnt]" size="45" maxlength="50"
 value="
 [unique]
 ">
-<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  <input name="clearmisc[pgitemcnt]" type=radio value="N" onclick="setvar('miscinfo[pgitemcnt]','');">Clear misc&nbsp;
+<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Misc
 <textarea id="miscinfo[pgitemcnt]" 
-name="miscinfo[pgitemcnt]" rows="3	" maxrows="5" cols="70">
-Misc: [miscinfo]</textarea>
+name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
+[miscinfo]</textarea>
 
  
 </TD><TD width=50% valign=top>
@@ -74,26 +77,25 @@ Misc: [miscinfo]</textarea>
 [PUBYEARS]
 </select></font>
 
-  <br><font size=1 face=verdana>
-         <input type="text" name="link[pgitemcnt]" size="85" maxlength="200" value="[link]">
+  <br>
+ <textarea name="link[pgitemcnt]" wrap="soft" rows=2 cols="70">[link]</textarea>
+<!--         <input type="text" name="link[pgitemcnt]" size="75" maxlength="200" value="[link]"> -->
 
 <table><td valign="top">
-<label><b>Priority</b></label>&nbsp;
-  <select size=4 name="priority[pgitemcnt]" 
-  onClick="setvar('sectsubs[pgitemcnt]', 'Headlines_sustainability');">
-  <option value="D">D</option>
-  <option value="_">_</option>
-  <option value="6">6</option>
-  <option value="5">5</option>
-  <option value="4">4</option>
-  <option value="3">3</option>
-  <option value="2">2</option>
-  <option value="1">1</option>
+	
+<label><b>Priority</b></label><br><br><br>
+  <label><b>Source</b></label>
+</td><td valign="top">
+  <select size = "4" name="priority[pgitemcnt]" 
+  onClick="setvar('sectsubs[pgitemcnt]', 'Headlines_sustainability');setvar('selitem[pgitemcnt]', 'Y')">
+	[PRIORITY]
+	(7=highest)
+   </select>
 
 
-</td><td>&nbsp;</td><td valign=top>
+</td><td valign=top>
 
-  <table><tr><td valign="bottom">
+  <table><tr><td valign="top">
   <label><b>Region</b></label><br>
         
     &nbsp;&nbsp;<cite>
@@ -108,16 +110,16 @@ Misc: [miscinfo]</textarea>
 "> 
 </td></table>
  
-  <label>Source</label>&nbsp;
-    <cite>
-  <input name="sourcelink[pgitemcnt]" type=radio value="Y"> Get src from link&nbsp;
-  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');"> Clear&nbsp;
-  <input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');"> Pull &nbsp;
-  <input type="checkbox" name="addsource[pgitemcnt]" value="Y"> Add &nbsp; Linkmatch:
-   </cite>
-   <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="17" maxlength="150" value="">
-    <br>
-  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="85" maxlength="100" value="[source]"> 
+ <cite>
+  <input name="sourcelink[pgitemcnt]" type=radio value="Y">From link&nbsp;
+  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');">Clear&nbsp;
+  <input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">Pull &nbsp;
+  <input type="checkbox" name="addchgsource[pgitemcnt]" value="A"> Add &nbsp; Linkmatch:
+   <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="14" maxlength="150" value="">
+   <input type="checkbox" name="sstarts_with_the[pgitemcnt]" value="T">The &nbsp;
+    <br>   </cite>
+  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="73" maxlength="100" value="[source]"> 
+
 
 <br>
 
@@ -130,7 +132,7 @@ Misc: [miscinfo]</textarea>
 	    <input name="sspull[pgitemcnt]" type=radio value="c" onClick="setvar('sectsubs[pgitemcnt]', '')"> Clear &nbsp
 </cite></small>
 <br>
-  <input type="text" id="sectsubs[pgitemcnt]"  name="sectsubs[pgitemcnt]" size="85" maxlength="200" value="[sectsubs]">
+  <input type="text" id="sectsubs[pgitemcnt]"  name="sectsubs[pgitemcnt]" size="73" maxlength="200" value="[sectsubs]">
 
 
 <br>
@@ -139,13 +141,13 @@ Misc: [miscinfo]</textarea>
 	   onclick="var2var( 'body[pgitemcnt]',
 	'fullbody[pgitemcnt]');"><cite>Get full article</cite>
   <br>
-  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="soft" rows="8" cols=75">[body]</textarea>
+  <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="soft" rows="7" cols=70">[body]</textarea>
 
 
 
-   <br><label>Comment</label>&nbsp;
-    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="soft" rows="2" cols=65">[comment]</textarea> 
-	<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=95 maxsize=300 value="[note]">
+   <br><label><small>Comment</small></label><br>
+    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="soft" rows="2" cols=70">[comment]</textarea> 
+	<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=65 maxsize=300 value="[note]">
  
 </TD></TABLE>
 

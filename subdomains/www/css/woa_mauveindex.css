@@ -55,6 +55,8 @@ h1 a, h2 a, h3 a, h4 a, h5 a, h6 a {
 
 	table.fixed {table-layout:fixed;}
 	
+	table.grid {padding-top:5px;padding-bottom:5px;}
+	
 	table.layout {
 		width:100%;
 		table-layout:fixed;
@@ -418,9 +420,9 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 	  }
 	a.tinyimg  {text-decoration: none; color: #000;}			
 
-    div#popmedia {border: 3px solid #6f9025; margin-top:30px;}
+    div#popmedia {border: 2px solid #6f9025; margin-top:20px;}
     div#popmedia a h6 {font-size: 15px; font-weight: bold; font-family: "arial black", impact, sans-serif; color:#003355;
-                     padding-top: 10px; margin-bottom: 4px; text-align:center; height:12px;}
+                     padding-top: 7px; margin-bottom: 4px; text-align:center; height:12px;}
     div#popmedia a p {font-size: 15px; font-weight:normal; font-family: "arial narrow" sans-serif; 
                     color:#003355; text-align:center; margin-top:4px; padding-bottom: 8px;}
 	
@@ -655,6 +657,7 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 	/*    NEWSITEM (all articles) */
 	div.newsitem {
 	  max-width: 650px;min-width:250px;
+	  max-height:500px;overflow-y:auto;overflow-x:hidden;
 	  background: #fff;  /* white */
 	/* font is set for <p> in general (above)*/
 	  margin: 20px 20px 25px 20px;

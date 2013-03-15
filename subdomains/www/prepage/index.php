@@ -43,6 +43,7 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 			 <?php readfile("./pg1_pics.html"); ?>
 		</div>
     
+
 		<div class="sidebar sidebar_lft_list pinkbeige">
 			<?php readfile("./videos.html"); ?>
 			<br>

@@ -165,7 +165,7 @@ sub separate_parse_email {
  		    unlink $bkpfilepath;
 		    exit(0);
 		};		
-		$line = &line_end_fix($line); #  eliminate non-ascii line endings
+		$line = &line_fix($line); #  eliminate non-ascii line endings
 		chomp($line);
 	    $line =~ s/^=A0 //;
 	
@@ -494,7 +494,7 @@ sub ck_dup_email
  return("");
 }
 
-sub line_end_fix 
+sub line_fix 
 {
  local($datafield) = $_[0];
  $datafield =~ s/\n\r/\n/g;

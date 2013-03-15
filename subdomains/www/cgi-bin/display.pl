@@ -40,7 +40,7 @@ sub create_html
   $rDoclink = $cDocLink;
   $email_it = 'Y' if($cVisable eq 'E');
 
-  if($rPage) {
+  if($rPage and $rPage !~ /emailed|summarized|suggested/) {
      $htmlfile_it = 'Y';
 
      $lock_file = "$statuspath/$rPage.busy";
@@ -109,9 +109,14 @@ print "dis94 ..rSectsubid $rSectsubid <br>\n";
 }
 
 sub do_subsection {
-  my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it) = @_;
-   
+ my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it) = @_;
+
  &split_section_ctrlB($rSectsubid);
+ $pg2Max = $qItemMax;
+ $pg2Max = $cPg2Items unless($itemMax);
+ $pg1max  = $qPg1max;
+ $pg1max  = $cPg1Items unless($qPg1max);
+
  $savetemplate = $aTemplate;
  $aTemplate = "";
  $save_printit = $print_it;
@@ -137,7 +142,7 @@ sub do_subsection {
      }
      if($cmd eq 'print_select' and !$qHeader) {
          $aTemplate = "select_top";
-         &process_template($aTemplate,'Y',$email_it,$htmlfile_it) unless($thisSectsub =~ /[$suggestedSS|CSWP|MAIDU]/ or $owner);  #in template_ctrl.pl
+         &process_template($aTemplate,'Y',$email_it,$htmlfile_it) unless($listSectsub =~ /[$suggestedSS|CSWP|MAIDU]/ or $owner);  #in template_ctrl.pl
          $aTemplate = "";
      }
 
@@ -145,7 +150,7 @@ sub do_subsection {
 	    if($qMobidesk =~ /mobi/ or $cMobidesk =~ /mobi/) {
 		   $aTemplate = "WOAmobileTop";
 	    }
-	    elsif ($thisSectsub =~ /$suggestedSS/) {
+	    elsif ($listSectsub =~ /$suggestedSS/) {
 	        $aTemplate  = "selectUpdt_Top";
 	    }
      }
@@ -168,6 +173,7 @@ sub do_subsection {
  else {
     $aTemplate = "stdSubtitle" if($cTitle and $rSectsubid !~ /NewsDigest_NewsItem/);
  }
+
  &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
  $aTemplate = "";
 
@@ -183,7 +189,10 @@ sub do_subsection {
     $dFilename = $cSectsubid;
  }
 
-if(-f $doclistname) {
+ if($rSectsubid =~ /$emailedSS/) {
+    $nodata = 'N';	
+ }
+ elsif(-f $doclistname) {
     $nodata = 'N';
     $nodata = 'Y' if(-z $doclistname);
  }
@@ -192,6 +201,7 @@ if(-f $doclistname) {
  }
 
 #                          do template even if no items
+ $aTemplate = $cTemplate;
  if($nodata eq 'Y' and $cTemplate) {
     &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($cTemplate !~ /Item/); #in template_ctrl.pl
  }
@@ -199,12 +209,11 @@ if(-f $doclistname) {
     &process_doclist($rSectsubid,$doclistname);
  }
 
- if($cmd =~ /print_select/ and $thisSectsub !~ /$suggestedSS/ and !$qFooter) {
-    $aTemplate = 'select_end';
+ if($cmd =~ /print_select/ and $listSectsub !~ /$suggestedSS/ and !$qFooter) {
+    $aTemplate = 'select_end0';
      &process_template($aTemplate,'Y',$email_it,$htmlfile_it);  #in template_ctrl.pl
      $aTemplate = "";
  }
-
  if($cFooter or $qFooter) {
      $aTemplate = $cFooter if($cFooter);
      $aTemplate = $qFooter if($qFooter);
@@ -220,30 +229,29 @@ if(-f $doclistname) {
 
 sub process_doclist
 {
-  my ($rSectsubid,$doclistname) = @_;
-#		$SSARRAY{'cPage'}
-
- if($DB_doclist > 0 and $rSectsubid !~ /$emailedSS/ and $cAllOr1 =~ /all/) {
-	&do_doclist_sql($dFilename);     # in sectsubs.pl
-   return;
- }
- $lock_file = "$dFilename.busy";
- &waitIfBusy($lock_file, 'lock');
+ my ($rSectsubid,$doclistname) = @_;
  $expired = "";
 
  my $counts = &get_start_stop_count($pg_num);  # in sectsubs.pl
  ($start_count,$stop_count) = split(/:/,$counts,2);
  $prev_docid = "000000";
 
- if($rSectsubid =~ /$emailedSS/) {
+ if($DB_doclist > 0 and $rSectsubid !~ /$emailedSS/ and $cAllOr1 =~ /all/) {
+	&do_doclist_sql($dFilename);     # in sectsubs.pl
+   return;
+ }
+
+ if($rSectsubid =~ /$emailedSS/) {	
     &process_popnews_list;
  }
  elsif($cAllOr1 =~ /1only/) {
     &process_1only_list;
  }
  else {
+	$lock_file = "$dFilename.busy";
+	&waitIfBusy($lock_file, 'lock');
     &push_items_to_sort;
-    &sort_and_out;
+    &sort_and_out;     
     $docid = "";
     undef @unsorted;
     undef @sorted;
@@ -256,31 +264,73 @@ sub process_doclist
 
 sub process_popnews_list
 {
- $totalItems = 1;
- $ckItemnbr = 1;
+  $totalItems = 1;
+  $ckItemnbr  = 1;
+  opendir(MAILDIR, "$mailpath");  # overpopulation.org/popnews_inbox <- This is emailed2docitem.pl puts it
+  my(@mailfiles) = grep /^.+\.(itm|email)$/, readdir(MAILDIR);
+  closedir(MAILDIR);
+#           FIRST PASS
 
- open(INFILE, "$doclistname");
- while(<INFILE>) {
-	   chomp;
-	   $line = $_;
-	   ($docid,$docloc) = split(/\^/,$line,3);
-		&get_doc_data($docid,'N');
-	    &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count);  ## skip dups
-	    $prev_docid = $docid;
-	    $ckItemnbr  = $ckItemnbr + 1;
-	    $ckItemcnt  = &padCount6($ckItemnbr);
-	    last if($ckItemcnt > $stop_count);
-	    if($pgItemnbr ne "" or $pgItemnbr > 0) {
-            $pgItemnbr = $pgItemnbr + 1;
-	        $pgitemcnt = &padCount4($pgItemnbr);
-	    }
-	    $totalItems = $totalItems + 1;
-	    $ckItemnbr  = $ckItemnbr + 1;
- } #end file
- close(INFILE);
- $totalItems = $totalItems - 1 unless($totalItems < 1);
- &set_item_count($totalItems,$doclistname); #in indexes.pl
+  my $filename = "";
+  foreach $filename (@mailfiles) {
+     $filepath = "$mailpath/$filename";
+     ($fdocid,$rest) = split(/\.itm/,$filename) if($filename =~ /itm$/);
+     ($fdocid,$rest) = split(/\.email/,$filename) if($filename =~ /email$/);
+
+     &do_one_mail($filepath,$fdocid,$ckItemnbr);  
+
+     $ckItemcnt  = &padCount6($ckItemnbr);
+     if($pgItemnbr ne "" or $pgItemnbr > 0) {
+         $pgItemnbr = $pgItemnbr + 1;
+         $pgitemcnt = &padCount4($pgItemnbr);
+     }
+     $totalItems = $totalItems + 1;
+     $ckItemnbr  = $ckItemnbr + 1;
+     last if($ckItemcnt > $stop_count);
+  } # end foreach 
+
+#  $totalItems = $totalItems - 1 unless($totalItems < 1);
+#  &set_item_count($totalItems,$doclistname); #in indexes.pl
 }
+
+sub do_one_mail
+{
+ my ($filepath,$fdocid,$ckItemnbr) = @_;
+ &clear_doc_data;     #in docitem.pl
+
+ $docid = $fdocid;
+
+ if(-f $filepath) {
+   open(MAILFILE, "$filepath") or die"Could not open mail file @ $filepath";
+ }
+ else {
+	print "File does not exist $filepath<br>\n";
+ }
+
+ while(<MAILFILE>)
+ {
+     chomp;
+     $line = $_;
+    if($line !~ /\^/) {
+       $DATA{$name} = "$DATA{$name}\n$line";
+     }
+     else {
+       ($name, $value) = split(/\^/,$line);
+       $DATA{$name} = $value;
+     }
+      $printout .= "$line<br>\n" if($printit =~ /Y/); # printit not the same as $print_it passed in as arg
+ }
+ close(MAILFILE);
+
+ ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+    = &extract_docitem_variables;     # in docitem.pl
+
+    $select_item = &do_we_select_item;   # in docitem.pl
+   if($select_item) {
+		 &print_one_doc($aTemplate,'Y','N','N',$ckItemnbr);  ## skip dups do_one_doc in docitem.pl
+    }
+}
+
 
 sub process_1only_list
 {
@@ -391,12 +441,13 @@ sub push_items_to_sort
  } #end file
  close(INFILE);
  $totalItems = $totalItems - 1 unless($totalItems < 1);
+ &set_item_count($totalItems,$doclistname);       #in indexes.pl
 #       Only do count file if an item has been changed, added, deleted; not just on display
- $time4countfile = "$autosubdir/status/time4count.txt";
- if(-f $time4countfile) {
-    &set_item_count($totalItems,$doclistname) if(-f $time4countfile); #in indexes.pl
-    unlink $time4countfile;
- }
+# $time4countfile = "$autosubdir/status/time4count.txt";
+# if(-f $time4countfile) {
+#    &set_item_count($totalItems,$doclistname) if(-f $time4countfile); #in indexes.pl
+#    unlink $time4countfile;
+# }
  unlink "$lock_file";
 }
 
@@ -418,6 +469,7 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 ##
 ##         is in docitem.pl
     my $save_docid = $docid;
+#          ## do_one_doc is in docitem.pl
     &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
     $docid = $save_docid;
      if($skip_item !~ /Y/ or $select_item eq 'Y') {
@@ -441,7 +493,7 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
 sub do_html_page
 {
- local($savedocid) = $docid;
+ my($savedocid) = $docid;
 
  @chgsectsubs = split(/;/,"$chgsectsubs");
  local($didsections) = "";

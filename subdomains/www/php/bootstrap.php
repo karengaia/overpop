@@ -22,7 +22,7 @@ if (file_exists($_development_file)) {
 else {
   $CONFIG['environment'] = 'production';
   $CONFIG['cgi_path']    = 'cgi-bin/cgiwrap/popaware';
-  $CONFIG['servername']  = 'www.overpopulation.org';	
+  $CONFIG['servername']  = 'http://www.overpopulation.org';	
 }
 
 require $CONFIG['app_dir'] . '/settings.php';

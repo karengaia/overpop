@@ -232,7 +232,7 @@ sub get_source_linkmatch
 }
 
  ##            from docitem.pl
-sub add_new_source
+sub add_new_source_not_used
 {
  $sourcenew = $FORM{source};
  if($FORM{source} and $sourcenew =~ /[A-Za-z0-9]/) {
@@ -276,27 +276,29 @@ sub source_to_template_array
 
 sub add_updt_source_values 
 {
-  my($source,$addchgsource) = @_;
+  my($source,$addchgsource,$docupdate) = @_;
   $sourcename = $source;
   return('Missing Source name or not add(A) or update(U)') if($addchgsource !~ /[AU]/ or (!$source));
-  $sourceid         = $FORM{"sourceid$pgitemcnt"};
-  $sstarts_with_the = $FORM{"sstarts_with_the$pgitemcnt"};
-  $shortname        = $FORM{"shortname$pgitemcnt"};
-  $shortname_use    = $FORM{"shortname_use$pgitemcnt"};
-  $sourcematch      = $FORM{"sourcematch$pgitemcnt"};
-  $linkmatch        = $FORM{"linkmatch$pgitemcnt"};
-  $snotmatch        = $FORM{"snotmatch$pgitemcnt"};
-  $sregionname      = $FORM{"sregionname$pgitemcnt"};
-  $sregionid        = $FORM{"sregionid$pgitemcnt"};
-  $region_use       = $FORM{"regionuse$pgitemcnt"};
-  $subregion        = $FORM{"subregion$pgitemcnt"};
-  $subregionid      = $FORM{"subregionid$pgitemcnt"};
-  $subregion_use    = $FORM{"subregion_use$pgitemcnt"};
-  $locale           = $FORM{"locale$pgitemcnt"};
-  $locale_use       = $FORM{"locale_use$pgitemcnt"};
-  $headline_regex   = $FORM{"headline_regex$pgitemcnt"};
-  $linkdate_regex   = $FORM{"linkdate_regex$pgitemcnt"};
-  $date_format      = $FORM{"date_format$pgitemcnt"};
+  if($docupdate =~ /docupdate/) {
+	  $sourceid         = $FORM{"sourceid$pgitemcnt"};
+	  $sstarts_with_the = $FORM{"sstarts_with_the$pgitemcnt"};
+	  $shortname        = $FORM{"shortname$pgitemcnt"};
+	  $shortname_use    = $FORM{"shortname_use$pgitemcnt"};
+	  $sourcematch      = $FORM{"sourcematch$pgitemcnt"};
+	  $linkmatch        = $FORM{"linkmatch$pgitemcnt"};
+	  $snotmatch        = $FORM{"snotmatch$pgitemcnt"};
+	  $sregionname      = $FORM{"sregionname$pgitemcnt"};
+	  $sregionid        = $FORM{"sregionid$pgitemcnt"};
+	  $region_use       = $FORM{"regionuse$pgitemcnt"};
+	  $subregion        = $FORM{"subregion$pgitemcnt"};
+	  $subregionid      = $FORM{"subregionid$pgitemcnt"};
+	  $subregion_use    = $FORM{"subregion_use$pgitemcnt"};
+	  $locale           = $FORM{"locale$pgitemcnt"};
+	  $locale_use       = $FORM{"locale_use$pgitemcnt"};
+	  $headline_regex   = $FORM{"headline_regex$pgitemcnt"};
+	  $linkdate_regex   = $FORM{"linkdate_regex$pgitemcnt"};
+	  $date_format      = $FORM{"date_format$pgitemcnt"};
+  }
 
   if($addchgsource =~ /A/) {
 ## TODO: add check for duplicates before inserting look for dup on linkmatch; also get rid of blank linkmatches: change to NULL and then make linkmatch unique

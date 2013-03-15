@@ -9,6 +9,8 @@ sub read_sectCtrl_to_array
  @SSARRAY = ();
  $SSARRAY{'qOrder'} = $qOrder;
 
+ &clear_section_ctrl;    # set Globals
+
  &read_sections_control_2array; 
 
 ##   special sections that we work with
@@ -129,12 +131,127 @@ sub DB_getrows_2array
  }
 }
 
-sub ck_headlines_priority {   #from article.pl
-  my $sectsubs = $_;
+sub clear_section_ctrl
+{                                    #Set Globals
+ $ckItemcnt = 0;    ## ck for max
+ $pgitemcnt = "";   ##page
+ $pg1Max    = 0;
+ $pg2Max    = 0;
+ $start_count = '000001';
+ $ckItemnbr = 1;
+ $ckItemcnt = &padCount6($ckItemnbr);
+ $default_itemMax = '100';
+ $totalItems     = 0;
+ $seq            = 0;
+ $sectsub        = "";
+ $fromsectsubid  = 0;
+ $fromsectsub    = "";
+ $cIdxSectsubid  = "";
+ $cWebsite       = "";
+ $cSubdir        = "";
+ $cPage          = "";
+ $cCategory      = "";
+ $cVisable       = "";
+ $cPreview       = "";
+ $cOrder         = "";
+ $cPg2order      = "";
+ $cTemplate      = "";
+ $cTitleTemplate = "";
+ $cTitle         = "";
+ $cSubtitle      = "";
+ $cAllOr1        = "";
+ $cMobidesk      = "";
+ $cDoclink       = "";
+ $cHeader        = "";
+ $cFooter        = "";
+ $cFTPinfo       = "";
+ $cMaxItems      = "";
+ $cPg1Items      = "";
+ $cPg2Items      = "";
+ $cPg2Header     = ""; 
+ $cMore          = "";
+ $cSubtitle      = "";
+ $cSubtitletemplate = "";
+ $cMenuTitle     = "";
+ $cKeywordsmatch = "";
+ $cPg1max        = "";
+ $cFly           = "";
+}
+
+sub split_section_ctrlB
+{
+ my($sectsubname) = $_[0];
+ $sectsubinfo = $CSINDEX{$sectsubname};
+# print "sec983 sectsubname $sectsubname ..sectsubinfo $sectsubinfo <br>\n";
+ &split_sectionCtrl($sectsubinfo);
+}
+
+sub split_sectionCtrl
+{
+	my($sectsubinfo) = $_[0];
+	&clear_section_ctrl;
+	($id,$seq,$cSectsubid,$fromsectsubid,$cIdxSectsubid,$cSubdir,$cPage,$cCategory,$cVisable,$cPreview,$cOrder,$cPg2order,$cTemplate,$cTitleTemplate,$cTitle,$cAllOr1,$cMobidesk,$cDocLink,$cHeader,$cFooter,$cFTPinfo,$cPg1Items,$cPg2Items,$cPg2Header,$cMore,$cSubtitle,$cSubtitletemplate,$cMenuTitle,$cKeywordsmatch)
+	      = split(/\^/,$sectsubinfo);
+	($cSectid,$cSubid) = split(/_/,$cSectsubid,2);
+	  $cSSid = $id;
+		
+#print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..fromsectsubid $fromsectsubid ..fromsectsub $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";	
+	$cPg2Items = $cPg1Items if($cPg2Items == 0);
+	
+	if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
+		$cMaxItems = $cPg1Items;
+	}
+	elsif($pg_num > 1 and $cPg2Items =~ /[A-Za-z0-9]/) {
+		$cMaxItems = $cPg2Items;
+		$cOrder = $cPg2order;
+	}
+	else {
+		$cMaxItems = $default_itemMax;
+	}
+	if($cOrder =~ /A-Za-z0-9/) {}
+	else {
+#          $cOrder = $default_order ;
+    }
+    $cCategory = &trim($cCategory);  #found in common.pl
+ 
+	$SSARRAY{'id'}            = $id;
+	$SSARRAY{'seq'}           = $seq;
+	$SSARRAY{'cSectsubid'}    = $cSectsubid;
+	$SSARRAY{'fromsectsubid'} = $fromsectsubid;
+	$SSARRAY{'cIdxSectsubid'} = $cIdxSectsubid;
+	$SSARRAY{'cSubdir'}       = $cSubdir;
+	$SSARRAY{'cPage'}         = $cPage;
+	$SSARRAY{'cCategory'}     = $cCategory;
+	$SSARRAY{'cVisable'}      = $cVisable;
+	$SSARRAY{'cPreview'}      = $cPreview;
+	$SSARRAY{'cOrder'}        = $cOrder;
+	$SSARRAY{'cPg2order'}     = $cPg2order;
+	$SSARRAY{'cTemplate'}      = $cTemplate;
+	$SSARRAY{'cTitleTemplate'} = $cTitleTemplate;
+	$SSARRAY{'cTitle'}         = $cTitle;
+	$SSARRAY{'cAllOr1'}        = $cAllOr1;
+	$SSARRAY{'cMobidesk'}      = $cMobidesk;
+	$SSARRAY{'cDocLink'}       = $cDocLink;
+	$SSARRAY{'cHeader'}        = $cHeader;
+	$SSARRAY{'cFooter'}        = $cFooter;
+	$SSARRAY{'cFTPinfo'}       = $cFTPinfo;
+	$SSARRAY{'cPg1Items'}      = $cPg1Items;
+	$SSARRAY{'cPg2Items'}      = $cPg2Items;
+	$SSARRAY{'cPg2Header'}     = $cPg2Header;
+	$SSARRAY{'cMore'}          = $cMore;
+	$SSARRAY{'cSubtitle'}      = $cSubtitle;
+	$SSARRAY{'cSubtitletemplate'} = $cSubtitletemplate;
+	$SSARRAY{'cMenuTitle'}     = $cMenuTitle;
+	$SSARRAY{'cKeywordsmatch'} = $cKeywordsmatch;
+}
+
+sub ck_headlines_priority_not_used {   #from article.pl
+  my ($sectsubs,$priority) = @_;
   if($sectsubs =~ /Headlines_priority/) {
      $sectsubs = $headlinesSS;
-     $priority = "6";
-     $docloc_news = "A";    # priority 6 is the same as docloc (stratus) = "A"
+     $priority = "6" unless($priority =~ /[1-7]/);
+     $docloc_news = "A" if($priority =~ /7/);    # priority 7 is the same as docloc (stratus) = "A"
+     $docloc_news = "B" if($priority =~ /6/);
 # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
 	 return("T");
   }
@@ -250,8 +367,8 @@ sub do_sectsubs
 {			
 
 # 1st, add missing sectsub (from doclist this docitem was on)
- if($docaction ne 'N' and $sectsubs !~ /$thisSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
-      $sectsubs = "$sectsubs;$thisSectsub`M";
+ if($docaction ne 'N' and $sectsubs !~ /$listSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
+      $sectsubs = "$sectsubs;$listSectsub`M";
   }
 
  # If New
@@ -478,7 +595,7 @@ sub add_del_selected_sectsubs
     }
     else {
       $docloc = 'M' if($itemstratus eq 'normal');
-##      $docloc = 'A' if($addsectsubs =~ /$headlinesSectid|$suggestedSS|$summarizedSS/ and $priority =~ /6/);
+##      $docloc = 'A' if($addsectsubs =~ /$headlinesSectid|$suggestedSS|$summarizedSS/ and $priority =~ /7/);
       $sectsubs = "$sectsubs;$first_addsectsub`$docloc";
       $sectsubs =~  s/^;+//;
 
@@ -546,7 +663,7 @@ sub add_extra_sections
       $addsectsubs =~  s/^;+//;
  }
 
- if($thisSectsub and ($thisSectsub !~ /$suggestedSS/ and $ipform =~ /selectUpdt_Top/)) {   ## sectsubs have already been set for Suggested)
+ if($listSectsub and ($listSectsub !~ /$suggestedSS/ and $ipform =~ /selectUpdt_Top/)) {   ## sectsubs have already been set for Suggested)
     @ckaddsectsubs = split(/;/,$addsectsubs);
     $addsectsubs = "";
     foreach $ckSectsub (@ckaddsectsubs) {
@@ -676,7 +793,7 @@ sub change_sectsubs_for_updt_selected
 {
    if($priority  =~ /D/
    or ($ipform =~ /chaseLink/ and $selitem =~ /Y/ and $pgitemcnt !~ /9998/) ) {
-     $delsectsubs = $sectsubs;
+     $delsectsubs = $listSectsub;
      $sectsubs    = $deleteSS;
      $addsectsubs = $deleteSS;
   }
@@ -797,128 +914,7 @@ sub add_updt_sectsub_values
   return($sectsubid);
 }
 
-sub create_sectsubs
-{
-	$dbh = &db_connect();
-	
-	dbh->do("DROP TABLE IF EXISTS sectsubs");
 
-$sql = <<ENDSECTSUBS;
-	CREATE TABLE sectsubs (
-		sectsubid smallint unsigned not null,
-		seq smallint not null, 
-		sectsub varchar(100) not null,
-		fromsectsubid smallint default 0, 
-		fromsectsub varchar(100), 
-		subdir varchar(100), 
-		page varchar(50), 
-		category char(2) default "N", 
-		visable char(1)  default "V", 
-		preview char(1) default "D", 
-		order1 char(1) default "P", 
-		pg2order char(1) default "P", 
-		template varchar(50), 
-		titletemplate varchar(50), 
-		title varchar(100), 
-		allor1 varchar(10) default "all", 
-		mobidesk varchar(10) default "desk",
-		doclink varchar(10) default "doclink",
-		header varchar(50),
-		footer varchar(50),
-		ftpinfo varchar(50),
-		pg1items tinyint unsigned default 7,
-		pg2items tinyint unsigned default 70,
-		pg2header varchar(100),
-		more tinyint unsigned,
-		subtitle varchar(100),
-		subtitletemplate varchar(50),
-		menutitle varchar(60),
-		keywordsmatch varchar(300)
-)
-ENDSECTSUBS
-
-$sth2 = $dbh->prepare($sql);
-$sth2->execute();
-$sth2->finish();
-}
-
-sub export_sectsubs
-{
-  $dbh = &db_connect() if(!$dbh);
-
-print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<br>\n";
-
-  $sth_exportSS = $dbh->prepare("SELECT * FROM sectsubs ORDER BY seq");
-  if(!$sth_exportSS) {
-	 print "Failed in prepare sectsubs export at prepare command, sec89 " . $sth_exportSS->errstr . "<br>\n";
-	 exit;	
-  }
-  $sth_exportSS->execute();
-  if (!$sth_exportSS->rows) {
-	 print "Unexpected error in sectsubs export at rows command, sec139 " . $sth_exportSS->errstr . "<br>\n";
-	 exit;
-  }
-  else {
-	  my $sectionsbkppath = "$expcontrolpath/sections_bkp.html";
-	  my $sectionspath    = "$expcontrolpath/sections.html";
-	  unlink $sectionexppath if(-f $sectionexppath);
-	  sleep (3);
-	  print "File was not deleted - $sectionsexppath<br>\n" if(-f $sectionexppath);
-	  unlink($sectionsbkppath)  if(-f $sectionbkppath);
-	  sleep (3);
-	  print "File was not deleted - $sectionsbkppath <br>\n" if(-f $sectionbkppath);
-	
-	  my $sectionsexppath = "$controlpath/sections_exported.html";
-	  open(EXPSS, ">$sectionsexppath");
-      my $line = "#sectsubid^seq^sectsub^fromsectsubid^fromsectsub^subdir^page^category^visable^preview^order1^pg2order^template^titletemplate^title^allor1^mobidesk^doclink^header^footer^ftpinfo^pg1items^pg2items^pg2header^more^subtitle^subtitletemplate^menutitle^keywordsmatch\n";
-      print EXPSS "$line";  # first line is headers
-      while (my @row = $sth_exportSS->fetchrow_array()) { # print data retrieved
-         my ($sectsubid,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
-         = @row;
-         $line = "$sectsubid^$seq^$sectsub^$fromsectsubid^$fromsectsub^$subdir^$page^$category^$visable^$preview^$order1^$pg2order^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch\n";	
-         print EXPSS "$line";
-         print "$line<br\n";
-      }
-      close(EXPSS);
-	  $sth_exportSS->finish() or die "DB failed finish";
-
-	  system "cp $sectionspath $sectionsbkppath";   # back up old sections.html path
-	  sleep (3);
-	  print "File was not copied to bkp - $sectionsbkppath <br>\n" unless(-f $sectionbkppath);
-	
-      unlink($sectionspath);
- 	  sleep (3);
- 	  print "File was not deleted - $sectionspath<br>\n" if(-f $sectionpath);
- 	  system "cp $sectionsexppath $sectionspath";   # exported sections becomes new sections.html
- 	  sleep (3);
- 	  print "File was not copied to sections file - $sectionspath <br>\n" unless(-f $sectionspath);
-  }
-}
-
-sub import_sectsubs
-{ 
-  $dbh = &db_connect() if(!$dbh);
-  print "<b>Import sectsubs</b> sectionctrl $sectionctrl<br>\n";
-  print "<b>DON'T FORGET TO CHANGE SECTSUBID TO PRIMARY AND AUTOINCREMENT AFTER IMPORTING 1ST TIME ONLY!- ALTER table sectsubs add primary key (sectsubid)</b><br>\n";
-
-  my $sectionsctrl = "$controlpath/sections.html";
-  my $sth = $dbh->prepare( "INSERT INTO sectsubs (sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
-VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
-
-  open(SECTIONS, "$sectionctrl") or die("Can't open sections control");
-  while(<SECTIONS>)
-  {
-    chomp;
-    $line = $_;
-	next if($line =~ /sectsubid\^seq/);
-	($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
-	   = split(/\^/,$line);
-	$sth->execute($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch);								
-print "<br>$line <br>\n";
-  }
-  $sth->finish;
-  close(SECTIONS);
-}
 
 
 #### 200 PRINTING FOR ARTICLE.PL
@@ -936,7 +932,7 @@ sub get_news_only_sections
         $dSectsubs = "Suggested_suggestedItem";
      }
   }
-  $dSectsubs = "Headlines_priority" if($dSectsubs =~ /Headlines_sustainability/ and $priority =~ /6/);
+  $dSectsubs = "Headlines_priority" if($dSectsubs =~ /Headlines_sustainability/ and $priority =~ /[6-7]/);
   my (@xsects) = split(/\|/,$newsSections);  #newsSections created in sub read_sectCtrl_to_array
   my $checked = "";
   my $current_newsSS = "";
@@ -1194,7 +1190,6 @@ SELECTEND
  else {
 	print MIDTEMPL <<ENDSELECT;
 	  <option value="NA">NA</option>
-	  </select></font>
 ENDSELECT
 
 	if($aTemplate =~ /docUpdate/) {
@@ -1358,52 +1353,6 @@ sub prt_move_mauve_pages
 } #end sub
 
 
-#############
-
-#### 00470  SECTIONS CONTROL FILE ###
-
-
-sub clear_section_ctrl
-{
- $default_itemMax = '100';
- $totalItems     = 0;
- $seq            = 0;
- $sectsub        = "";
- $fromsectsubid  = 0;
- $fromsectsub    = "";
- $cIdxSectsubid  = "";
- $cWebsite       = "";
- $cSubdir        = "";
- $cPage          = "";
- $cCategory      = "";
- $cVisable       = "";
- $cPreview       = "";
- $cOrder         = "";
- $cPg2order      = "";
- $cTemplate      = "";
- $cTitleTemplate = "";
- $cTitle         = "";
- $cSubtitle      = "";
- $cAllOr1        = "";
- $cMobidesk      = "";
- $cDoclink       = "";
- $cHeader        = "";
- $cFooter        = "";
- $cFTPinfo       = "";
- $cMaxItems      = "";
- $cPg1Items      = "";
- $cPg2Items      = "";
- $cPg2Header     = ""; 
- $cMore          = "";
- $cSubtitle      = "";
- $cSubtitletemplate = "";
- $cMenuTitle     = "";
- $cKeywordsmatch = "";
- $cPg1max        = "";
- $cFly           = "";
-}
-
-
 sub get_SSid
 {
  my($sectsubname) = $_[0];
@@ -1418,79 +1367,6 @@ sub getpagename {
 	&split_sectionCtrl($cSectsubInfo);
 	return $cPage;
 }
-
-sub split_section_ctrlB
-{
- my($sectsubname) = $_[0];
- $sectsubinfo = $CSINDEX{$sectsubname};
-# print "sec983 sectsubname $sectsubname ..sectsubinfo $sectsubinfo <br>\n";
- &split_sectionCtrl($sectsubinfo);
-}
-
-sub split_sectionCtrl
-{
-	my($sectsubinfo) = $_[0];
-	&clear_section_ctrl;
-	($id,$seq,$cSectsubid,$fromsectsubid,$cIdxSectsubid,$cSubdir,$cPage,$cCategory,$cVisable,$cPreview,$cOrder,$cPg2order,$cTemplate,$cTitleTemplate,$cTitle,$cAllOr1,$cMobidesk,$cDocLink,$cHeader,$cFooter,$cFTPinfo,$cPg1Items,$cPg2Items,$cPg2Header,$cMore,$cSubtitle,$cSubtitletemplate,$cMenuTitle,$cKeywordsmatch)
-	      = split(/\^/,$sectsubinfo);
-	($cSectid,$cSubid) = split(/_/,$cSectsubid,2);
-	  $cSSid = $id;
-		
-#print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..fromsectsubid $fromsectsubid ..fromsectsub $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";	
-	$cPg2Items = $cPg1Items if($cPg2Items == 0);
-	
-	if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
-		$cMaxItems = $cPg1Items;
-	}
-	  elsif($pg_num > 1 and $cPg2Items =~ /[A-Za-z0-9]/) {
-		$cMaxItems = $cPg2Items;
-		$cOrder = $cPg2order;
-	  }
-	  else {
-		$cMaxItems = $default_itemMax;
-	  }
-	  if($cOrder =~ /A-Za-z0-9/) {}
-	  else {
-#          $cOrder = $default_order ;
-      }
-      $cCategory = &trim($cCategory);  #found in common.pl
- 
-	$SSARRAY{'id'}            = $id;
-	$SSARRAY{'seq'}           = $seq;
-	$SSARRAY{'cSectsubid'}    = $cSectsubid;
-	$SSARRAY{'fromsectsubid'} = $fromsectsubid;
-	$SSARRAY{'cIdxSectsubid'} = $cIdxSectsubid;
-	$SSARRAY{'cSubdir'}       = $cSubdir;
-	$SSARRAY{'cPage'}         = $cPage;
-	$SSARRAY{'cCategory'}     = $cCategory;
-	$SSARRAY{'cVisable'}      = $cVisable;
-	$SSARRAY{'cPreview'}      = $cPreview;
-	$SSARRAY{'cOrder'}        = $cOrder;
-	$SSARRAY{'cPg2order'}     = $cPg2order;
-	$SSARRAY{'cTemplate'}      = $cTemplate;
-	$SSARRAY{'cTitleTemplate'} = $cTitleTemplate;
-	$SSARRAY{'cTitle'}         = $cTitle;
-	$SSARRAY{'cAllOr1'}        = $cAllOr1;
-	$SSARRAY{'cMobidesk'}      = $cMobidesk;
-	$SSARRAY{'cDocLink'}       = $cDocLink;
-	$SSARRAY{'cHeader'}        = $cHeader;
-	$SSARRAY{'cFooter'}        = $cFooter;
-	$SSARRAY{'cFTPinfo'}       = $cFTPinfo;
-	$SSARRAY{'cPg1Items'}      = $cPg1Items;
-	$SSARRAY{'cPg2Items'}      = $cPg2Items;
-	$SSARRAY{'cPg2Header'}     = $cPg2Header;
-	$SSARRAY{'cMore'}          = $cMore;
-	$SSARRAY{'cSubtitle'}      = $cSubtitle;
-	$SSARRAY{'cSubtitletemplate'} = $cSubtitletemplate;
-	$SSARRAY{'cMenuTitle'}     = $cMenuTitle;
-	$SSARRAY{'cKeywordsmatch'} = $cKeywordsmatch;
-}
-
-
-
-
-#############
-
 
 
 sub import1st_sectsubs
@@ -1630,6 +1506,130 @@ sub do_2nd_pass_not_used {
 	#	($subdir,$page,$category,$visable,$preview,$order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$maxitems,$fly,$ftptoinfo,$pg2header)
 	($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
 	   = split(/\^/,$line);	
+}
+
+
+sub create_sectsubs
+{
+	$dbh = &db_connect();
+	
+	dbh->do("DROP TABLE IF EXISTS sectsubs");
+
+$sql = <<ENDSECTSUBS;
+	CREATE TABLE sectsubs (
+		sectsubid smallint unsigned not null,
+		seq smallint not null, 
+		sectsub varchar(100) not null,
+		fromsectsubid smallint default 0, 
+		fromsectsub varchar(100), 
+		subdir varchar(100), 
+		page varchar(50), 
+		category char(2) default "N", 
+		visable char(1)  default "V", 
+		preview char(1) default "D", 
+		order1 char(1) default "P", 
+		pg2order char(1) default "P", 
+		template varchar(50), 
+		titletemplate varchar(50), 
+		title varchar(100), 
+		allor1 varchar(10) default "all", 
+		mobidesk varchar(10) default "desk",
+		doclink varchar(10) default "doclink",
+		header varchar(50),
+		footer varchar(50),
+		ftpinfo varchar(50),
+		pg1items tinyint unsigned default 7,
+		pg2items tinyint unsigned default 70,
+		pg2header varchar(100),
+		more tinyint unsigned,
+		subtitle varchar(100),
+		subtitletemplate varchar(50),
+		menutitle varchar(60),
+		keywordsmatch varchar(300)
+)
+ENDSECTSUBS
+
+$sth2 = $dbh->prepare($sql);
+$sth2->execute();
+$sth2->finish();
+}
+
+sub export_sectsubs
+{
+  $dbh = &db_connect() if(!$dbh);
+
+print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<br>\n";
+
+  $sth_exportSS = $dbh->prepare("SELECT * FROM sectsubs ORDER BY seq");
+  if(!$sth_exportSS) {
+	 print "Failed in prepare sectsubs export at prepare command, sec89 " . $sth_exportSS->errstr . "<br>\n";
+	 exit;	
+  }
+  $sth_exportSS->execute();
+  if (!$sth_exportSS->rows) {
+	 print "Unexpected error in sectsubs export at rows command, sec139 " . $sth_exportSS->errstr . "<br>\n";
+	 exit;
+  }
+  else {
+	  my $sectionsbkppath = "$expcontrolpath/sections_bkp.html";
+	  my $sectionspath    = "$expcontrolpath/sections.html";
+	  unlink $sectionexppath if(-f $sectionexppath);
+	  sleep (3);
+	  print "File was not deleted - $sectionsexppath<br>\n" if(-f $sectionexppath);
+	  unlink($sectionsbkppath)  if(-f $sectionbkppath);
+	  sleep (3);
+	  print "File was not deleted - $sectionsbkppath <br>\n" if(-f $sectionbkppath);
+	
+	  my $sectionsexppath = "$controlpath/sections_exported.html";
+	  open(EXPSS, ">$sectionsexppath");
+      my $line = "#sectsubid^seq^sectsub^fromsectsubid^fromsectsub^subdir^page^category^visable^preview^order1^pg2order^template^titletemplate^title^allor1^mobidesk^doclink^header^footer^ftpinfo^pg1items^pg2items^pg2header^more^subtitle^subtitletemplate^menutitle^keywordsmatch\n";
+      print EXPSS "$line";  # first line is headers
+      while (my @row = $sth_exportSS->fetchrow_array()) { # print data retrieved
+         my ($sectsubid,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
+         = @row;
+         $line = "$sectsubid^$seq^$sectsub^$fromsectsubid^$fromsectsub^$subdir^$page^$category^$visable^$preview^$order1^$pg2order^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch\n";	
+         print EXPSS "$line";
+         print "$line<br\n";
+      }
+      close(EXPSS);
+	  $sth_exportSS->finish() or die "DB failed finish";
+
+	  system "cp $sectionspath $sectionsbkppath";   # back up old sections.html path
+	  sleep (3);
+	  print "File was not copied to bkp - $sectionsbkppath <br>\n" unless(-f $sectionbkppath);
+	
+      unlink($sectionspath);
+ 	  sleep (3);
+ 	  print "File was not deleted - $sectionspath<br>\n" if(-f $sectionpath);
+ 	  system "cp $sectionsexppath $sectionspath";   # exported sections becomes new sections.html
+ 	  sleep (3);
+ 	  print "File was not copied to sections file - $sectionspath <br>\n" unless(-f $sectionspath);
+  }
+}
+
+sub import_sectsubs
+{ 
+  $dbh = &db_connect() if(!$dbh);
+  print "<b>Import sectsubs</b> sectionctrl $sectionctrl<br>\n";
+  print "<b>DON'T FORGET TO CHANGE SECTSUBID TO PRIMARY AND AUTOINCREMENT AFTER IMPORTING 1ST TIME ONLY!- ALTER table sectsubs add primary key (sectsubid)</b><br>\n";
+
+  my $sectionsctrl = "$controlpath/sections.html";
+  my $sth = $dbh->prepare( "INSERT INTO sectsubs (sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
+VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
+
+  open(SECTIONS, "$sectionctrl") or die("Can't open sections control");
+  while(<SECTIONS>)
+  {
+    chomp;
+    $line = $_;
+	next if($line =~ /sectsubid\^seq/);
+	($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
+	   = split(/\^/,$line);
+	$sth->execute($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch);								
+print "<br>$line <br>\n";
+  }
+  $sth->finish;
+  close(SECTIONS);
 }
 
 1;

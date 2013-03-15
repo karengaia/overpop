@@ -1,27 +1,0 @@
-sumAcctnum^
-suggestAcctnum^
-priority^D
-pubdate^2011-03-14
-expdate^
-sysdate^2011-03-14
-source^
-link^http://costofwar.com/en/
-selflink^
-headline^Cost of War 
-region^US District of Columbia;
-regionhead^
-topic^
-dTemplate^
-dBoxStyle^
-body^
-fullbody^http://costofwar.com/en/1. Place the following code in the <head> section of your website<script type="text/javascript" src="http://www.costofwar.com/costofwar-embed.js"></script>2. Place the following style declaration somewhere in your page or your CSS stylesheet. Please note: these are the standard CSS declarations we would like you to use, but please feel free to modify the CSS in any way that fits your needs.<style type="text/css"> #costOfWarTotal { text-align: center; width: 270px; font-weight: bold; } #costOfWarTotal_Total { font-size: 1.3em; font-weight: bold; color: #990000; } #costOfWarTotal_Link { font-size: .7em; } </style>3. Place the following code where you wish to place the counter.<div id="costOfWarTotal"> <script language="JavaScript"> initCostOfTotal(); updateCostOfTotal(100); </script> </div>4. That's it! The Total Cost Of War since 2001 counter should appear on your site.
-freeview^
-comment^
-note^
-miscinfo^ 
-keywords^
-unique^
-skiphandle^
-imageloc^
-imagefile^
-sectsubs^delete_deleteItem

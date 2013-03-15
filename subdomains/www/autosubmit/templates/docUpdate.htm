@@ -278,8 +278,10 @@ document.getElementById('mm' + mmstr).selected = true;
 <table cellpadding=5 id="dateregion">
 <td valign="top"><cite>
     Priority &nbsp;
+    <select size="3" name="priority">
 	[PRIORITY]
-	(5=highest)
+	</select>
+	(7=highest)
 	<br><br>
 
 	<!-- - - PUB DATE  - - - - -->
@@ -436,7 +438,7 @@ value="
 <div id="authorlinksummarycomment">
 	
 	<label for="subheadline">Subheadline :</label>&nbsp;&nbsp;
-	<input type="text" name="subheadline" size="90" maxlength="150"
+	<input type="text" name="subheadline" size="90" maxlength="400"
 	value="[subheadline]">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp<input type="checkbox" name="skipsubheadline" 
 	[skipsubheadline]
 	    value="Y"> <cite>skip</cite><br><br>
