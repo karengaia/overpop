@@ -1,10 +1,11 @@
 #!/usr/bin/perl
 
+# intake.pl - Handles the intake of articles, including email and via a form: newItemParse
 
 ## escape these meta characters:   .^*+?{}()[]\|  and / if using as a delimiter
 ##  * Match 0 or more times   + Match 1 or more times    ? Match 1 or 0 times
 
-## July 1, 2011 - Splitting into getmail.pl and new version of sepmail.pl (renamed to email2docitem.pl); 
+## July 1, 2011 - Splitting into getmail.pl and new version of sepmail.pl (renamed to intake.pl); 
 #                 Not doing Feb 22 below
 
 ## Feb 22, 2011 - Reduced functionality, moving most into parsemail.pl, due to large file processing resulting in NO results.
@@ -12,19 +13,26 @@
 
 # 2011 Feb 16 - enlarged functionality: found date, subject, ehandle; did weird character conversion to ascii;
 #              chopped off excess at top and bottom; added sepmail functionality
+
 # 2010 July 22 - buffer too small; broke into lines while reading in
 
 #*********************************************************************
 # DOCUMENTATION -- The winding trail of Email Processing and Selection
 #
 #  1. article.pl?display_subsection%%%Suggested_emailedItem%%adminUserID - cmd = display_subsection
-#      a. Goes to email2docitem.pl &process_popnews_inbox
+#      a. Goes to intake.pl &process_popnews_inbox
 #          * Takes emails delivered to overpopulation.org/popnews_inbox by getmail.pl (straight copy to email)
 #          * Copies to /popnews_bkp; deletes file from popnews_inbox
 #          * Eliminates dups
 #          * Separates if more than one article in an email (&parse_email)
 #          * Puts email in docitem format (&parse_popnews) and writes to popnews_mail
 #        ## not anymore  * writes 'docid' (filename=sent date time + senderid) to index at autosubmit/sections/suggested_emailedItem.idx
+#
+#      a.1 alternatively, an article comes in from a form named newItemParse, which goes from article.pl 
+#            to &pass2_separate_email in intake.pl
+#          * Separates if more than one article in an email (&parse_email)
+#          * Puts email in docitem format (&parse_popnews) and writes to popnews_mail
+
 #      b. Create_html and print selection list of emails (in article.pl)
 #            *Does process_doclist, which directs action to process_popnews_list
 #            Gets emails from popnews_mail
@@ -329,9 +337,8 @@ sub get_header_info {
 
 sub pass2_separate_email {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
  ($ep_type,$handle,$pdfline,$sectsubs,$emailbody,$receiptdate) = @_;
-
+ ($userResults,$uHandle,$uStop) = &get_contributor($handle,""); #in contributor.pl
 #CONTRIB_DATA is also a global set in contributors.pl - get_contributor
-
  ($userid,$uemail,$uhandle,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$uStart,$uStop,$uHeadkey,$uDtkey,$uStop_blankct,$uSep_blankct,$uStart_blankct,$stop_blankCRs,$sep_blankCRs,$start_blankCRs) 
    = split(/\^/,$CONTRIB_DATA,26);
  $MSGBODY = "";	
@@ -669,7 +676,7 @@ sub write_email    #writes what is accumulated in $MSGBODY, a global variable
 	
 	    $addsectsubs = $sectsubs;
         &main_storeform;   #in docitem.pl
-	    return();
+	    goto write_clear;
   }	
   my $op_filename = "$sentdatetm-$ehandle";	
   if($MSGBODY) {
@@ -693,6 +700,7 @@ sub write_email    #writes what is accumulated in $MSGBODY, a global variable
   $empty_msg = 'T';
   print "**** EMPTY FOUND -> $op_filename -$separator_cnt from bkp $inboxfilename<br>\n";
   }
+write_clear:
   &clear_doc_data;   # in docitem.pl
   &clear_doc_variables; # in docitem.pl
   &clear_helper_variables;

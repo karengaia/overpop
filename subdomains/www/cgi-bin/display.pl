@@ -63,13 +63,9 @@ sub create_html
      &clear_doc_variables;
      @DOCARRAY = "";
      undef %DOCARRAY;
-
-#	print "dis69 ..rSectid/sub $rSectid _ $rSubid ..rPage $rPage .. cPage $cPage..cSectid/sub $cSectid _ $cSubid supress_nonsectsubs $supress_nonsectsubs<br>\n";
-
      if($rSectid eq $cSectid) {
         if( ($cmd =~ /display_section/ and $rPage eq $cPage) or
-            ($cmd =~ /[display_subsection|print_select]/ and ($rSectsubid eq $cSectsubid or $supress_nonsectsubs !~ /Y/) ) )  { ##      will work even if no page
-
+            ($cmd =~ /(display_subsection|print_select)/ and ($rSectsubid eq $cSectsubid or $supress_nonsectsubs !~ /Y/) ) )  { ##      will work even if no page
              $found_it = &do_subsection($cSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it);
 	    }
 	  }
@@ -91,25 +87,10 @@ sub create_html
   $print_it    = 'N';
 }
 
-## 00440 ###  GENERATE WOA WEBPAGE ###
-
-sub generate_WOA_webpage___notused
-{
-   my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num) = @_;
-print "dis94 ..rSectsubid $rSectsubid <br>\n";
-
-   &split_section_ctrlB($rSectsubid);
-
-
-  if(($cPage eq $rPage) and ($cSectid eq $rSectid)) {
-	if($rSectsubid =~ /$cSectsubid/ or $supress_nonsectsubs !~ /Y/) {
-       &do_subsection($rSectsubid,,$print_it,$email_it,$htmlfile_it,$pg_num);
-    }
-  }
-}
 
 sub do_subsection {
  my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it) = @_;
+ $listSectsub = $rSectsubid;
 
  &split_section_ctrlB($rSectsubid);
  $pg2Max = $qItemMax;
@@ -177,9 +158,6 @@ sub do_subsection {
  &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
  $aTemplate = "";
 
-
- $aTemplate = $qTemplate;  #time to do detail
-
  if($cIdxSectsubid) {
     $doclistname = "$sectionpath$slash$cIdxSectsubid.idx";
     $dFilename = $cIdxSectsubid;
@@ -201,7 +179,9 @@ sub do_subsection {
  }
 
 #                          do template even if no items
- $aTemplate = $cTemplate;
+ $aTemplate = $qTemplate;  #time to do detail
+ $aTemplate = $cTemplate unless($aTemplate);
+
  if($nodata eq 'Y' and $cTemplate) {
     &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($cTemplate !~ /Item/); #in template_ctrl.pl
  }
@@ -231,7 +211,6 @@ sub process_doclist
 {
  my ($rSectsubid,$doclistname) = @_;
  $expired = "";
-
  my $counts = &get_start_stop_count($pg_num);  # in sectsubs.pl
  ($start_count,$stop_count) = split(/:/,$counts,2);
  $prev_docid = "000000";
@@ -250,6 +229,7 @@ sub process_doclist
  else {
 	$lock_file = "$dFilename.busy";
 	&waitIfBusy($lock_file, 'lock');
+ 
     &push_items_to_sort;
     &sort_and_out;     
     $docid = "";
@@ -466,9 +446,8 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
  foreach $data (@sorted) {
      ($keyfield,$docid,$docloc) = split(/\^/,$data,3);
-##
-##         is in docitem.pl
-    my $save_docid = $docid;
+
+   my $save_docid = $docid;
 #          ## do_one_doc is in docitem.pl
     &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
     $docid = $save_docid;

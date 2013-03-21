@@ -7,7 +7,7 @@
 ##### TAKES SELECTED ITEMS FROM A LIST AND PROCESS ; Entry from article.pl ##########
 
 sub updt_select_list_items    # for emailed articles,  we do select_email instead
-{              # called by article.pl
+{              # called by article.pl on cmd = selectItems
  my($listSectsub,$ipform) = @_;
  $DELETELIST = "";
  $selected_found = 'N';
@@ -25,8 +25,7 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
 # $selitem = 'Y' if($listSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-7]/);
 
  until($selitem =~ /Z/ or $pgItemnbr > 100) {
-	
-    if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and !$priority) #there may not be any item 0001
+   if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and !$priority) #there may not be any item 0001
        {}
     elsif($ipform =~ /chaseLink/ and   ## skip if volunteer filled out the form and it has same docid
        $docid eq $docid9998 and

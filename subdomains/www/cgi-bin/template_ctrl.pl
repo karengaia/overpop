@@ -27,7 +27,6 @@ sub process_template
  $DOCARRAY{'cSectsubid'}  = $cSectsubid;
 
 #  &put_data_to_array;     # in docitem.pl
-
   if($print_it eq 'Y') {
      $nowPEH = 'P';
      $now_print = 'Y';
@@ -629,15 +628,22 @@ sub do_imbedded_commands
        print $MIDTEMPL "<h5>$subheadline</h5>";
    }
 
+
    elsif($linecmd =~ /\[BODY\]/) {
 	    if($body) {
-            $body = &do_body_comment($body); #in docitem.pl
+		    $body = &do_body_comment($body);    #in docitem.pl
 	        print $MIDTEMPL "$body";
 	    }
 	    else {
-            my $tempbody = substr($fullbody,200);
-            $tempbody = "$tempbody\n\n$points" if($points);
-            $tempbody = &do_body_comment($tempbody); #in docitem.pl
+            my $tempbody = substr($fullbody,0,650);
+            if($points) {
+                $tempbody = "$tempbody\n\n$points";
+            }
+            elsif($link and !$owner) {
+	            $tempbody = "$tempbody <small>. . . more at <a target=\"_blank\" href=\"$link\">$source</a><\/small>";
+            }
+		    
+		    $tempbody = &do_body_comment($tempbody);    #in docitem.pl
 	        print $MIDTEMPL "$tempbody";
         }
    }
@@ -875,6 +881,15 @@ sub do_imbedded_commands
       }
       else {
           print $MIDTEMPL "<input type=\"hidden\" name=\"emailed$pgitemcnt\" value=\"N\">\n";
+      }
+   }
+   elsif($linecmd =~ /\[THISSECTSUB\]/) {
+	  &get_section_ctrl($thisSectsub);   #in sectsubs.pl
+      if($thisSectsub and !$cIdxSectsubid) {
+          print $MIDTEMPL "$thisSectsub";
+      }
+      elsif($cIdxSectsubid) {
+          print $MIDTEMPL "$cIdxSectsubid";
       }
    }
 

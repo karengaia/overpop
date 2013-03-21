@@ -57,6 +57,7 @@ sub display_one
 
 sub do_one_doc
  {
+  my $index_insert_sth = $_[0];
   $docid =~ s/^\s//g;   ## trim non-alphanumerics
   $docid =~ s/\s$//g;   ## trim non-alphanumerics
   if(-f "$deletepath/$docid.del" and $doclistname !~ /$deleteSS/
@@ -65,8 +66,7 @@ sub do_one_doc
   }	    	                                
   ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,'N');
-
-  $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
+   $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
 #  $expired = "$expired;$docid"
 #         if($sectsubs !~ /$expiredSS/ and $expdate ne "0000-00-00" and $expdate lt $nowdate);
 
@@ -111,9 +111,8 @@ sub print_one_doc
 sub do_we_select_item
 {
  my $select_item = "Y";	
-# my $news_sectsubs = "$newsdigestSS|$newsScan2Sectid";
-# my $prenews_sectsubs = "$headlinesSS|$suggestedSS|$summarizedSS|$emailedSS|$volunteerSS";
-# print "doc117 listSectsub $listSectsub sectsubs $sectsubs ..cIdxSectsubid $cIdxSectsubid<br>\n";
+
+# print "doc117 docid $docid listSectsub $listSectsub sectsubs $sectsubs ..cIdxSectsubid $cIdxSectsubid<br>\n";
  my $listSS = "";
  if($cIdxSectsubid) {
 	$listSS = $cIdxSectsubid;
@@ -128,6 +127,8 @@ sub do_we_select_item
 	$select_item = 'Y';
  }
  elsif($listSS and $sectsubs and $sectsubs !~ /$listSS/ and $listSS !~ /$emailedSS/) {
+	 print "doc132 docid $docid listSectsub $listSectsub sectsubs $sectsubs ..cIdxSectsubid $cIdxSectsubid<br>\n";
+	
 	$select_item = '';
  }
  else {
@@ -786,6 +787,7 @@ sub get_select_form_values
 {
   $priority       = "5";
   $docid          = $FORM{"docid$pgitemcnt"};
+  $docid          = $FORM{"sdocid$pgitemcnt"} unless($docid);
   $priority       = $FORM{"priority$pgitemcnt"} if($FORM{"priority$pgitemcnt"} =~ /[D1-7]/);
   $selitem        = $FORM{"selitem$pgitemcnt"};
 }
@@ -806,6 +808,7 @@ sub get_more_select_form_values
  $regionhead     = $FORM{"regionhead$pgitemcnt"} if($FORM{"regionhead$pgitemcnt"} =~ /[YN]/);
  $addregion      = $FORM{"addregion$pgitemcnt"}  if($FORM{"addregion$pgitemcnt"} =~ /[AU]/);
  $fSectsubs      = $FORM{"sectsubs$pgitemcnt"}   if($FORM{"sectsubs$pgitemcnt"});
+ $fSectsubs      = $listSectsub if(!$fSectsubs and $listSectsub =~ /Suggested_suggestedItem/);
  $source         = $FORM{"source$pgitemcnt"}     if($FORM{"source$pgitemcnt"});
  $linkmatch      = $FORM{"linkmatch$pgitemcnt"}     if($FORM{"linkmatch$pgitemcnt"});
  $sstarts_with_the = $FORM{"sstarts_with_the$pgitemcnt"} if($FORM{"sstarts_with_the$pgitemcnt"});
@@ -1715,6 +1718,8 @@ sub write_doc_data_out
   $points = &apple_convert($points) if($points =~ /[A-Za-z0-9]/);
   print DATAOUT "points\^$points\n";
 
+  $extract = "E" if(!$body and $points);
+
   $fullbody =~  s/^\n+//;  #get rid of leading line feeds
 
   if($fullbody =~ /^##FIX##/) {
@@ -1909,8 +1914,13 @@ sub DBdocitemExists   #TODO this does not work - TRY returning the row!!!!!!!!!!
   $sth->execute($docid);
   my @row = $sth->fetchrow_array();
   $sth->finish;
-  print "doc1808 Exists<br>\n" if($row > 0);
-  return($row);
+  if($row or $row > 0) {
+     print "doc1808 Exists<br>\n";
+     return("T");
+  }
+  else {
+     return("");	
+  }
 }
 
 sub DB_prepare_doc_insert

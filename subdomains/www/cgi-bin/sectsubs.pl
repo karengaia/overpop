@@ -99,7 +99,7 @@ sub flatfile_getrows_2array
 sub DB_getrows_2array
 {
  my $ssline = "";
- my $ss_sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch FROM sectsubs ORDER BY seq;";
+ my $ss_sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch FROM sectsubs ORDER BY ABS(seq) ASC;";
  my $ss_sth = $dbh->prepare($ss_sql) or die("Couldn't prepare statement: ".$ss_sth->errstr);	
 
  if($ss_sth) {
@@ -178,11 +178,15 @@ sub clear_section_ctrl
  $cFly           = "";
 }
 
+sub get_section_ctrl {
+	my $thisSectsub = $_[0];
+	&split_section_ctrlB($thisSectsub);
+}
+
 sub split_section_ctrlB
 {
  my($sectsubname) = $_[0];
  $sectsubinfo = $CSINDEX{$sectsubname};
-# print "sec983 sectsubname $sectsubname ..sectsubinfo $sectsubinfo <br>\n";
  &split_sectionCtrl($sectsubinfo);
 }
 

@@ -114,3 +114,4 @@ subdomains/www/cgi-bin/contributor_old.pl
 subdomains/www/cgi-bin/docitem_save.pl
 subdomains/www/cgi-bin/indexes_save.pl
 subdomains/www/autosubmit/sections/Archives2007Aug-2006Sep
+subdomains/www/autosubmit/status/newsMidColumn.busy

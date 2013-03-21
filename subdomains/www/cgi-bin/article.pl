@@ -33,7 +33,7 @@ require 'display.pl';        # takes sectsub info for a particular section or su
 require 'template_ctrl.pl';  # merges data with template; processes template commands for what to do with data.
 require 'database.pl';       # basic database functions
 require 'dbtables_ctrl.pl';  # maintains and retrieves miscellaneous tables: acronyms, switches_codes, list_imports_export links
-require 'email2docitem.pl';  #separates articles in email and removes email headers.
+require 'intake.pl';  #separates articles in email and removes email headers.
 require 'date.pl';         # parses and processes date data in docitems
 require 'sectsubs.pl';      # maintains and retrieves sections (sectsubs) control data.
 require 'indexes.pl';       # maintains and retrieves indexes control data. Indexes are lists of docitem ids; each list represents a subsection
@@ -386,7 +386,7 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 
 	 if($listSectsub =~/$emailedSS/ and $info[6] !~ /skipinbox/) {   # you may need to clean indexes first.
 	 	if($operator_access =~ /[ABC]/) {
- 			&process_popnews_inbox;   # in email2docitem.pl -- Takes intake emails from popnews_inbox and processes 
+ 			&process_popnews_inbox;   # in intake.pl -- Takes intake emails from popnews_inbox and processes 
 	                                  # to popnews_mail which are docitem.itm format; create_html (below) reads them 
 	                                  # from popnews_mail and prints a selection list of emailed items.
 	                                  # Comes back to article.pl which directs to selecteditems_crud
@@ -494,35 +494,39 @@ elsif($cmd eq "adminlogin") {
 }
 
 elsif($cmd =~ /parseNewItem/) {
-	  $docid    = "";
-	  $fullbody = $FORM{'fullbody'};
-	  $handle   = $FORM{'handle'};
-	  $sectsubs = $FORM{'sectsubs'};
-	  $pdfline  = $FORM{'pdfline'};
-	  $ipform   = $FORM{'ipform'};	
-
-	 if($handle =~ /push/) {    ## separate into separate articles, parse, write to file
-	     &do_one_email('P',$fullbody,$handle);   #in email2docitem.pl
+	 $docid    = "";
+	 $fullbody = $FORM{'fullbody'};
+	 $handle   = $FORM{'handle'};
+	 $sectsubs = $FORM{'sectsubs'};
+	 $pdfline  = $FORM{'pdfline'};
+	 $ipform   = $FORM{'ipform'};
+	
+     if($handle =~ /push/) {    ## separate into separate articles, parse, write to file
+	     &do_one_email('P',$fullbody,$handle);   #in intake.pl
     	 print"<meta http-equiv=\"refresh\" content=\"10;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_emailedItem%%A3491%skipinbox\">";
 	 }
 	 else {
-	#	 &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
-		 &pass2_separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in email2docitem.pl
-    	  $sectsubs = $save_sectsubs;	
-		  if($sectsubs =~ /Suggested_suggestedItem/) {
+	#	 &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in intake.pl
+	     $savesectsubs = $sectsubs;
+		 &pass2_separate_email('P',$handle,$pdfline,$sectsubs,$fullbody,"");  #in intake.pl
+    	 $sectsubs = $savesectsubs;
+         if($handle eq 'link') {
+			 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_linkItem%$userid%10\">";
+         }	
+		 elsif($sectsubs =~ /Suggested_suggestedItem/) {
 			 $fullbody = "";
 			 $DOCARRAY = "";   # get ready for the next one
 			 $FORM = "";
 			 $aTemplate = 'newItemParse';
-	         &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
-		     exit;       
+	         &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl       
 	      }
-
-		  $action = "update";
-		  $dSectsubs = $sectsubs;
-		  $operator_access = 'A';
-		  $aTemplate = 'docUpdate';
-		  &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
+          else {
+			  $action = "update";
+			  $dSectsubs = $sectsubs;
+			  $operator_access = 'A';
+			  $aTemplate = 'docUpdate';
+			  &process_template($aTemplate,'Y', 'N','N');    # ($print_it, template) in template_ctrl.pl
+	      }
 		  exit;
 	}
  }
@@ -536,11 +540,10 @@ elsif($cmd =~ /parseNewItem/) {
     if($listSectsub =~ /$emailedSS/) {
      	 &select_email;    # in selecteditems_crud.pl
 		 print"<br><br><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%Suggested_suggestedItem%%$userid%10\">Suggested List</a>\n";
-#		 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_suggestedItem%%$userid%10\">";
+		 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_suggestedItem%%$userid%10\">";
          exit;
      }
-     elsif(($listSectsub =~ /Suggested_suggestedItem/) or
-            $listSectsub =~ /$volunteerSS/) {
+     elsif($listSectsub =~ /(Suggested_suggestedItem|$volunteerSS)/) {
          &updt_select_list_items($listSectsub,$ipform);   # in selecteditems_crud.pl
      }
      else {

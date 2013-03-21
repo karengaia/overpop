@@ -193,7 +193,7 @@ sub get_contributor {    #from email2docitem.pl
 	  if($uStop =~ /blanks=[0-9]/) {
 		 ($rest,$uStop_blankct) = split(/=/,$uStop,2);
 		 $stop_blankCRs = "";
-		 for ($i=1; $i<=$CONTRIB_DATA; $i++) {
+		 for ($i=1; $i<=$uStop_blankct; $i++) {
 			 $stop_blankCRs = "$stop_blankCRs\n";
 		 }
 	  }
