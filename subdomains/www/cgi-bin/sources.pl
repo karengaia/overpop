@@ -149,11 +149,11 @@ sub get_sources
 	      = split(/\^/,$src_entry,19);
 	if($print_src =~ /N/) {
 		$linkmatch = quotemeta($linkmatch) if($linkmatch);
-	    if(   ($chkline and $chkline =~ /$sourcename/)
- 	       or ($chkline and $sourcematch and $chkline =~ /$sourcematch/) 
- 	       or ($link and $linkmatch and $link =~ /$linkmatch/) ) {
-		      if(($chkline and $notmatch and $chkline =~ /$notmatch/)
-		         or ($link and $notmatch and $link =~ /$notmatch/))  { #skip 
+	    if(   ($chkline and $chkline =~ /$sourcename/i)
+ 	       or ($chkline and $sourcematch and $chkline =~ /$sourcematch/i) 
+ 	       or ($link and $linkmatch and $link =~ /$linkmatch/i) ) {
+		      if(($chkline and $notmatch and $chkline =~ /$notmatch/i)
+		         or ($link and $notmatch and $link =~ /$notmatch/i))  { #skip 
 			  }
 			  else {
 		         $sourcename =~  s/^\W+//;  #get rid of leading non-word chars\

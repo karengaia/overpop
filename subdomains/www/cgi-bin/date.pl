@@ -64,14 +64,14 @@ sub set_date_variables   # from article.pl
 
 sub find_date_in_line {    #comes here from smartdata.pl
 	($dtkey,$msgline_anydate,$msgline_date,$msgline) = @_;
-	
-	my $head = "";
+    my $head = "";
 	if($dtkey and $msgline =~ /$dtkey/ and !$msgline_anydate and !$msgline_date) {
 		$msgline_date = $msgline;
 	}
 	elsif($msgline =~ /^DD /) {
 		$msgline_date = $msgline;
 		$msgline_date =~ s/DD //;
+		$msgline =~ "";
 	}
 	elsif($msgline =~ /.{5,}?DATE:/) {
 		print "sm70 DATE: $msgline_anydate<br>\n";

@@ -632,6 +632,12 @@ sub hook_into_system
 # $pubdate = &conform_date($pubdate,'n',$sysdate);
 # $sysdate = &conform_date($sysdate,'n');
 
+ if($docid =~ /-/) {
+    &write_index_straight($emailedSS,$docid);     # in indexes.pl
+    &DB_update_sectsub_idx($idx_insert_sth,$sectsubfk,$docid,$stratus,$delsectsubs) unless($DB_docitem < 1);    # in sections.pl
+    return("");
+ }
+
  if($sectsubs !~ /$deleteSS|$expiredSS/ and $cmd !~ /selectItems|updateCvrtItems/) {
    &add_temporary_sectsubs;
  }
@@ -758,8 +764,7 @@ sub deleteFromIndex_2nd    ## Doesn't work for emailed list - Just delete file f
 		 close(DEL2SECT);
 	 }
 	 else {
-	     &printDataErr_Continue("Idx773 missing list of deletions. Non-fatal error; continuing with processing. Notify admin. Thanks");
-	     return;
+#	     &printDataErr_Continue("Idx773 missing list of deletions. Non-fatal error; continuing with processing. Notify admin. Thanks");
 	 }
  }
 
@@ -825,7 +830,7 @@ sub deleteFromIndex_deletelist
 		 close(DEL2SECT);
 	 }
 	 else {
-	     &printDataErr_Continue("Idx773 missing list of deletions. Non-fatal error; continuing with processing. Notify admin. Thanks");
+#	     &printDataErr_Continue("Idx773 missing list of deletions. Non-fatal error; continuing with processing. Notify admin. Thanks");
 	     return;
 	 }
 	

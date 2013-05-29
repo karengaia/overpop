@@ -1005,6 +1005,7 @@ sub do_imbedded_commands
 
  sub get_pubmonths
 {
+ my $mo = 0;
  for($mm=0;$mm<12;$mm++) {
    $mo  = $mm + 1;
    $mo  = "0$mo" if($mo < 10);

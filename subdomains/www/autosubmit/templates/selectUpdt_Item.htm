@@ -18,7 +18,7 @@
 
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
 <label for="subheadline">Subhead:</label>
-<input type="text" name="subheadline" size="80" maxlength="400"
+<input type="text" name="subheadline[pgitemcnt]" size="80" maxlength="400"
 value="
 [subheadline]
 ">
@@ -98,9 +98,11 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
   <table><tr><td valign="top">
   <label><b>Region</b></label><br>
         
-    &nbsp;&nbsp;<cite>
-  <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">&nbsp;Clear&nbsp;
-  <input name="regionlink[pgitemcnt]" type=radio value="P" onclick="loadRegion('region[pgitemcnt]');">&nbsp; Pull &nbsp;
+    &nbsp;<cite>
+  <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">Clear&nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="P" onclick="loadRegion('region[pgitemcnt]');">Pull &nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="U" checked onclick="setvar('region[pgitemcnt]','U.S.');">US&nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="G" checked onclick="setvar('region[pgitemcnt]','Global');">Glob&nbsp;
   </cite>
    </td><td>
 [LIKELYREGIONS]	

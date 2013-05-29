@@ -64,7 +64,7 @@ sub parse_msg_4variables {
   &clear_msgline_variables;  # in email2docitem.pl
   &clear_helper_variables;   # in email2docitem.pl
 
-  if($emessage =~ /\b(http.*)\b/) {
+  if($emessage =~ /\b(http.*)\b/ and !$link) {
 	 $link = $1;
 	 $link = &chk_link($link);
 	 $link = "htt$link" if($link and $link !~ /http/);
@@ -73,6 +73,7 @@ sub parse_msg_4variables {
   @msglines = split(/\n/,$emessage);    # switch to $msgline and @msglines to match docitem.pl
   my $msgline = "";
   $emsgbody = "";
+  $fullbody = "";
   $linecnt += 1;   #start with 1
   $rebuild_msglines = "";
   $fullbody_on = 'N';
@@ -95,7 +96,7 @@ sub parse_msg_4variables {
             $paragr_linecnt = 0;
             $twolines       = "";
          }
-         $fullbody = "$fullbody\n" if($fullbody_on);
+#         $fullbody = "$fullbody\n" if($fullbody_on);
          $blankcount = $blankcount + 1;
 
      }
@@ -111,7 +112,7 @@ sub parse_msg_4variables {
 #  &assign_msglines($msglineN);
 #  &assign_msglines($msglineN1);
   &assign_paragraphs;         ## last paragraph 
-    
+  
   $docaction = 'N';   # set it at 'New' for now
 
   &refine_headline; 
@@ -130,8 +131,7 @@ sub parse_msg_4variables {
   ($region,$regionhead) = &refine_region($region,$src_region);   # found in regions.pl
 
   $fullbody = &refine_fullbody($fullbody);  
-
-#  $fullbody = &byebye_singleLF($pdfline,$fullbody); #do this after parsing for headline, date, etc
+  $fullbody = &byebye_singleLF($pdfline,'Y',$fullbody); #do this after parsing for headline, date, etc
 
   $miscinfo = "$miscinfo\nhandle: $handle" if($handle and $handle !~ /unk/); 
 
@@ -159,13 +159,17 @@ sub assign_msglines
  }
 
  if($linkck and $link and ($link eq $linkck)) {  # skip because we already have the link
+#	print "sm164 link<br>\n";
  }
  elsif(!$link and $link = &chk_link($msgline) ) {
+#		print "sm167 link<br>\n";
  }
  elsif($misc = &chk_miscinfo($msgline) ) {
+#		print "sm164 MI<br>\n";
 	$miscinfo = "$miscinfo\n$misc";
  }
  elsif(!$subheadline and $subheadline = &chk_subheadline($msgline) ) {
+#		print "sm174 headline<br>\n";
  }
  elsif($ehandle =~ /push/ and $msgline =~ /Author: /) {
 	($headline,$author) = split(/Author: /,$msgline);
@@ -175,27 +179,35 @@ sub assign_msglines
 	if($headline =~ /Date: /i) {
 		($headline,$msgline_date) = split(/Date: /,$headline);
 	}
+#		print "sm184 author<br>\n";
  }
  elsif($ehandle =~ /push/ and $msgline =~ /Source: /) {
 	($headline,$source) = split(/Source: /,$msgline);	
 	if($headline =~ /Date: /i) {
 		($headline,$msgline_date) = split(/Date: /,$headline);
 	}
+#		print "sm191 source<br>\n";
  }
  elsif(!$author and $author = &chk_author($msgline) ) { # By: Author:
+#			print "sm194 author2<br>\n";
  }
- elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:	
+ elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:
+#			print "sm197 source 2<br>\n";	
  }
  elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline)) { # DD Date:
+#	print "sm192 date found msgline_date $msgline_date<br>\n";
  }
  elsif($msgline =~ /^RR /) { # RR - skip this line; pick up region below; region can be in fullbody, headline, etc
+#			print "sm203 region<br>\n";
 	&chk_RR_region($msgline);
  }
  elsif(!$headline) {
+#			print "sm207 headline2<br>\n";
 	$headline = &chk_headline_HH($msgline);
 	$headline = $msgline if(!$headline);
  }
  else {
+#    print "sm212 fullbody msgline $msgline<br>\n";
 	$fullbody_on = 'Y';
 	if($fullbody) {
 		$fullbody = "$fullbody\n$msgline";
@@ -873,8 +885,6 @@ sub fix_fullbody
      $fullbody = $restofbody if($restofbody =~ /[A-Za-z0-9]/);
  }
 
-## we have to go through hoops because of the parens
-## local($endsource) = "";
  my($first);
 
  if($source =~ /\(/  or $fullbody =~ /\(/ ) { }
@@ -1290,12 +1300,14 @@ sub byebye_singleLF {
   return($datafield);
 }
 
+
 sub line_fix   #  eliminate non-ascii line endings
 {
- my $datafield = $_[0];
+ my $datafield = $_[0];    # eliminate DOS line-endings
  $datafield =~ s/\n\r/\n/g;
  $datafield =~ s/\r\n/\n/g;
- $datafield =~ s/\r//g;
+ $datafield =~ s/\r/\n/g;
+# $datafield =~ s/\r//g;
  $datafield =~ s/=20$//g;
  $datafield =~ s/=20//g;
  $datafield =~ s/=3D=30=41//g;  #hidden line break ??

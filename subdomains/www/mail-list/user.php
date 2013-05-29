@@ -30,9 +30,9 @@ if (isset($_GET['u']))
     $e_mail;?>"/><br />
 
  First Name:<br />
- <input type="text" name="firstname" /><br />
+ <input type="text" name="firstname" size="40" /><br />
  Last Name:<br />
- <input type="text" name="lastname" /><br />
+ <input type="text" name="lastname" size="40" /><br />
 </p>
 
 <p>

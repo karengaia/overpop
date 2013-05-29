@@ -1,10 +1,11 @@
 <?php
 require('config.php');
 require 'connect.php';
+require('send_email.php');
 
 $from_name  = 'WOAs Pop Newsletter';
 $from_email = 'popnewsletter@overpopulation.org';
- 
+	
 $action = $_REQUEST['action'];
 
 if (isset($_REQUEST['action']))
@@ -30,12 +31,33 @@ if (isset($_REQUEST['action']))
    break;
    
   case 'Subscribe':
+
+  $sql = "SELECT * FROM ml_users;";
+  $result = mysql_query($sql,$conn);
+
+  if (!mysql_num_rows($result) || mysql_num_rows($result) < 200) 
+  {
+       $num_rows = mysql_num_rows($result);
+       $subject = 'Table Degraded - ml users';
+	   $body = "Table has degraded again - # rows: " . $num_rows;
+	   $email = "karen.gaia.pitts@gmail.com";
+	   $to_name = "Karen Pitts";  
+	   send_email($to_name,$email,$from_name,$from_email,$subject,$body);
+  }
+
    $sql = "SELECT user_id FROM ml_users " .
        "WHERE e_mail='" . $_POST['e-mail'] . "';";
    $result = mysql_query($sql,$conn);
 
    if (!mysql_num_rows($result))
    {
+
+	$subscribe_file = "subscribers.txt";
+	$fh = fopen($subscribe_file, 'a') or die("can't open subscriber flatfile");
+	$stringData = $_POST['ml_id'] . '^' . $user_id . '^' . $_POST['firstname'] . '^' . $_POST['lastname'] . '^' . $_POST['e_mail'] . "\n";
+	fwrite($fh, $stringData);
+	fclose($fh);
+		
     $sql = "INSERT INTO ml_users " .
         "(firstname,lastname,e_mail) ".
         "VALUES ('" . $_POST['firstname'] . "'," .
@@ -75,8 +97,7 @@ if (isset($_REQUEST['action']))
 
    $email = $_POST['e_mail'];
    $to_name = trim($_POST['firstname'] . ' ' . $_POST['lastname']);
-
-   require('send_email.php');  
+ 
    send_email($to_name,$email,$from_name,$from_email,$subject,$body);
        
    $redirect = "thanks.php?u=" . $user_id . "&ml=" .

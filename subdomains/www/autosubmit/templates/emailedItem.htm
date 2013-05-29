@@ -3,21 +3,34 @@
 <td size="10%" valign="top">
 [SEL_ITEM_TOP]
 </td><td>
+<input type="hidden" name="docid[pgitemcnt]" value="[docid]">
+<input type="hidden" name="author[pgitemcnt]" value="[author]">
+<input type="hidden" name="subheadline[pgitemcnt]" value="[subheadline]">
+<input type="hidden" name="unique[pgitemcnt]" value="[unique]">
+<input type="hidden" name="miscinfo[pgitemcnt]" value="[miscinfo]">
+<input type="hidden" name="region[pgitemcnt]"   value="[region]">
+<input type="hidden" name="body[pgitemcnt]"   value="[body]">
+<input type="hidden" name="comment[pgitemcnt]"   value="[comment]">
+<input type="hidden" name="note[pgitemcnt]"   value="[note]">
+<input type="hidden" name="points[pgitemcnt]"   value="[points]">
+
 <select size="5" name="priority[pgitemcnt]"
 onClick="document.getElementById('selitem[pgitemcnt]').checked = true;document.getElementById('skipitem[pgitemcnt]').checked = false;">
 >
 [PRIORITY]
 </select>
-<br> <input name="skipitem[pgitemcnt]" type=radio onClick="document.getElementById('selitem[pgitemcnt]').checked = false;"><cite>Skip</cite>
-</td><td width="600px">
+<br><cite>
+ <input name="skipitem[pgitemcnt]" type=radio onClick="document.getElementById('selitem[pgitemcnt]').checked = false;">Skip</cite>
+</td><td width="600px"><cite>
 <input type="text" name="link[pgitemcnt]" size="55" maxlength="200"
 value="[LINK]"><br>
-<cite><a href="http://[SCRIPTPATH]/article.pl?display%login%[docid]">
+<a href="http://[SCRIPTPATH]/article.pl?display%login%[docid]">
 [docid]</a>&nbsp;
-<a target="_blank" href="[GOOGLESEARCH]">Google it</a></cite>
+<a target="_blank" href="[GOOGLESEARCH]">Google it</a>&nbsp;
 <a href="[link]" 
-target="frame[pgitemcnt]"><cite>toFrame</cite></a>
-<br>
+target="frame[pgitemcnt]">toFrame</a>
+&nbsp;&nbsp;[pubdate]&nbsp;&nbsp;
+[region]</small></cite><br>
 <cite>Headline:&nbsp;&nbsp;   <input name="titlize[pageitemcnt]" type=radio value="Y">Titlize</cite><br>
 <input type="text" name="headline[pgitemcnt]" size="55" maxlength="200"
 value="[headline]"><br>

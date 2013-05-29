@@ -505,15 +505,17 @@ elsif($cmd =~ /parseNewItem/) {
 	     &do_one_email('P',$fullbody,$handle);   #in intake.pl
     	 print"<meta http-equiv=\"refresh\" content=\"10;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_emailedItem%%A3491%skipinbox\">";
 	 }
+	 elsif($handle =~ /link/) {   #list of urls		
+		 $sectsubs = $suggestedSS;
+		 &links_separate('P',$handle,$pdfline,$sectsubs,$fullbody,"");  # in intake.pl
+		 print"<meta http-equiv=\"refresh\" content=\"10;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_linkItem%%A3491%\">";
+	 }
 	 else {
 	#	 &separate_email('P',$handle,$pdfline,$sectsubs,$fullbody);  #in intake.pl
 	     $savesectsubs = $sectsubs;
 		 &pass2_separate_email('P',$handle,$pdfline,$sectsubs,$fullbody,"");  #in intake.pl
-    	 $sectsubs = $savesectsubs;
-         if($handle eq 'link') {
-			 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_linkItem%$userid%10\">";
-         }	
-		 elsif($sectsubs =~ /Suggested_suggestedItem/) {
+	   	 $sectsubs = $savesectsubs;
+         if($sectsubs =~ /Suggested_suggestedItem/) {
 			 $fullbody = "";
 			 $DOCARRAY = "";   # get ready for the next one
 			 $FORM = "";
@@ -535,15 +537,16 @@ elsif($cmd =~ /parseNewItem/) {
 
  elsif($cmd =~ /selectItems/) {
 ##     ($userdata, $access) = &check_user($userid,$upin); #	($userdata,$access,$permissions,$user_visable) = &check_user($userid,98989,'access');  ## in user.pl
-#     $listSectsub = $FORM{listSectsub};
+      $listSectsub = $FORM{'thisSectsub'};
 #     $owner       = $FORM{owner};
+
     if($listSectsub =~ /$emailedSS/) {
      	 &select_email;    # in selecteditems_crud.pl
 		 print"<br><br><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%Suggested_suggestedItem%%$userid%10\">Suggested List</a>\n";
 		 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_suggestedItem%%$userid%10\">";
          exit;
      }
-     elsif($listSectsub =~ /(Suggested_suggestedItem|$volunteerSS)/) {
+     elsif($listSectsub =~ /($suggestedSS|$volunteerSS)/) {
          &updt_select_list_items($listSectsub,$ipform);   # in selecteditems_crud.pl
      }
      else {

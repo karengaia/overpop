@@ -229,7 +229,6 @@ sub process_doclist
  else {
 	$lock_file = "$dFilename.busy";
 	&waitIfBusy($lock_file, 'lock');
- 
     &push_items_to_sort;
     &sort_and_out;     
     $docid = "";
@@ -446,8 +445,7 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
  foreach $data (@sorted) {
      ($keyfield,$docid,$docloc) = split(/\^/,$data,3);
-
-   my $save_docid = $docid;
+  my $save_docid = $docid;
 #          ## do_one_doc is in docitem.pl
     &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
     $docid = $save_docid;

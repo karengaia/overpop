@@ -657,15 +657,15 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 	/*    NEWSITEM (all articles) */
 	div.newsitem {
 	  max-width: 650px;min-width:250px;
-	  max-height:500px;overflow-y:auto;overflow-x:hidden;
+/*	  max-height:500px;overflow-y:auto;overflow-x:hidden; */
 	  background: #fff;  /* white */
 	/* font is set for <p> in general (above)*/
 	  margin: 20px 20px 25px 20px;
 	  margin-left: 20px;
-	  padding: 2px 15px 6px 20px;
+	  padding: 2px -5px 6px 20px;
 	  border-top: solid thin #d0d0d0;
 	  border-left: solid thin #d0d0d0;
-	  border-right: ridge thin #d0d0d0;
+	  border-right: ridge thin #d0d0d0; 
 	  border-bottom: ridge thin #d0d0d0;
 	  }
 	div.newsitem_sidebar {  /* for left or right column */

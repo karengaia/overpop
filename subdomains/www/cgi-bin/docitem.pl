@@ -127,8 +127,6 @@ sub do_we_select_item
 	$select_item = 'Y';
  }
  elsif($listSS and $sectsubs and $sectsubs !~ /$listSS/ and $listSS !~ /$emailedSS/) {
-	 print "doc132 docid $docid listSectsub $listSectsub sectsubs $sectsubs ..cIdxSectsubid $cIdxSectsubid<br>\n";
-	
 	$select_item = '';
  }
  else {
@@ -269,7 +267,6 @@ sub main_storeform {  #from above and also from write_email
  &get_docid;
 #          for sysdate if new
  $sysdate = &calc_date('sys',0,'+');
-
  &do_sectsubs;     # in sectsubs.pl
 
 # &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
@@ -376,10 +373,18 @@ sub do_updt_selected
  ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,'N');  #in docitem.pl
 
-  print "Redo doc264 docid $docid<br>\n" if($fullbody =~ /^[DD|SS|MI|HH|SH|By:|RR] /);
+  &get_more_select_form_values;  ## overrides prior doc values
 
- $fullbody = &parse_msg_4variables('R',$pdfline,$fullbody)   # P ep_type = parse from new form E = comes in from email R = redo
-	    if($fullbody =~ /^[DD|SS|MI|HH|SH|By:|RR] /);
+  $fullbody = &line_fix($fullbody);
+  $fullbody = &apple_line_endings($fullbody);
+  $fullbody  =~ s/^\n*//g;
+  $fullbody  =~ s/\n+$//g;
+
+  if( ($fullbody =~ /^(DD|SS|MI|HH|SH|By:|RR) / or !$source) and $form_priority !~ /D/) {
+     print "Redo docid $docid .... <small>doc264</small><br>\n";
+
+     $fullbody = &parse_msg_4variables('R',$pdfline,$fullbody);   #smartdata.pl : P ep_type = parse from new form E = comes in from email R = redo
+  }
 
   $doc_fullbody = $fullbody if($ipform =~ /chaseLink/);
 ##                   new priority overrides prior priority
@@ -387,14 +392,12 @@ sub do_updt_selected
 
   $priority = "4"  if($ipform =~ /chaseLink/ and $priority !~ /D/); ## drop priority since apparently volunteer didn't fill in form
 
-  &get_more_select_form_values;  ## overrides prior doc values
-
   &change_sectsubs_for_updt_selected; # in sectsubs.pl  THIS IS LIKE DO_SECTSUBS IN STOREFORM.
 
   print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$headline </font><font size=1>ord-$sortorder $sectsubs</font><br>\n";
 
   &write_doc_item($docid,$idx_insert_sth);
- 
+
 #  &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
   &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,'list'); ## -- in indexes.pl
 
@@ -455,11 +458,10 @@ sub do_updt_selected
 	undef  $FORM{'summarizerfk'};
 	undef  $FORM{'suggesterfk'};
 	undef  $FORM{'changebyfk'};
-undef  $FORM{'updated_on'};   ## End NEW VARIABLES
+    undef  $FORM{'updated_on'};   ## End NEW VARIABLES
 
   &clear_doc_variables;
 }
-
 
 
 sub print_review
@@ -1563,6 +1565,7 @@ sub write_doc_item
 { 
   my($docid,$idx_insert_sth) = @_;   # if not in items directory, it is in popnews_mail
   $docid =~ s/\s+$//mg;
+
   return if(!$headline and !$link);
 
   if($addsectsubs =~ /$deleteSS|$expiredSS/) {
@@ -1587,6 +1590,7 @@ sub write_doc_item
 	      system "cp $docpath $itempathsave/$docid.itm" if(-f "$itempath/$docid.itm");
 	  }
   }
+
 #          see if valid data
   if(($sysdate =~ /[0-9]/ and $docid =~ /[0-9]/) or $sectsubs =~ /$emailedSS/ ) { 
 	 open(DATAOUT, ">$docpath") or die();
@@ -1598,11 +1602,6 @@ sub write_doc_item
   }
   else {
      print "Invalid sysdate=$sysdate or docid-$docid; Could not write out docitem at doc1185 Error message: $! <br>\n";
-  }
-
-  if($docid =~ /-/) {
-     &write_index_straight($emailedSS,$docid);     # in indexes.pl
-     &DB_update_sectsub_idx($idx_insert_sth,$sectsubfk,$docid,$stratus,$delsectsubs) unless($DB_docitem < 1);    # in sections.pl
   }
 
   return($docid);

@@ -335,6 +335,50 @@ sub get_header_info {
     return($ehandle,$ext,$date_line,$from_line,$subject_line);
 }
 
+sub links_separate {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
+ ($ep_type,$handle,$pdfline,$sectsubs,$emailbody,$receiptdate) = @_;
+
+ $emailbody = &line_fix($emailbody);
+ $emailbody = &apple_line_endings($emailbody);
+ $emailbody  =~ s/^\n*//g;
+ $emailbody  =~ s/\n+$//g;
+
+ my $save_sectsubs = $sectsubs;
+ &clear_doc_data;      # in docitem.pl
+ &clear_doc_variables;
+# $addsectsubs = $save_sectsubs;
+
+ @emsglines = split(/\n/,$emailbody);
+
+ foreach $emsgline (@emsglines) {
+   chomp $emsgline;
+   if($emsgline =~ /\b(http.*)\b/) {
+	   if($link) {               # Is there a link already? (from previous)
+		   ($source,$region) = &get_source_linkmatch($link);
+	       &main_storeform;      # in docitem.pl - store the link and other data
+	       &clear_doc_data;      # in docitem.pl
+	       &clear_doc_variables; # in docitem.pl
+	   }
+	   $link = $1;
+	   $link = &chk_link($link);
+	   $link = "htt$link" if($link and $link !~ /http/);
+	   $sectsubs = $save_sectsubs;
+	   $pubdate = $todaydate;
+	   $priority = "5";
+	   $docaction = 'N';
+    }
+    elsif($emsgline =~ /[A-Za-z0-9]/) {
+	   $headline = "$headline\n$emsgline";
+    }
+ }   # end of file - finish last link
+ if($link) {               # Is there a link already? (from previous)
+     &main_storeform;      # in docitem.pl - store the link and other data
+     &clear_doc_data;      # in docitem.pl
+     &clear_doc_variables; # in docitem.pl
+ }
+}
+
+
 sub pass2_separate_email {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
  ($ep_type,$handle,$pdfline,$sectsubs,$emailbody,$receiptdate) = @_;
  ($userResults,$uHandle,$uStop) = &get_contributor($handle,""); #in contributor.pl
@@ -380,6 +424,7 @@ sub pass2_separate_email {          ## Not only for multiple articles in one sub
         if($gEPtype eq 'E');
  $emailbody = &line_fix($emailbody);
  $emailbody = &apple_line_endings($emailbody);
+
  @emsglines = split(/\n/,$emailbody);
  foreach $emsgline (@emsglines) {
     chomp $emsgline;
@@ -676,7 +721,7 @@ sub write_email    #writes what is accumulated in $MSGBODY, a global variable
 	
 	    $addsectsubs = $sectsubs;
         &main_storeform;   #in docitem.pl
-	    goto write_clear;
+	    goto write_clear;  # if more than one article on form, we are not done
   }	
   my $op_filename = "$sentdatetm-$ehandle";	
   if($MSGBODY) {
@@ -700,7 +745,8 @@ sub write_email    #writes what is accumulated in $MSGBODY, a global variable
   $empty_msg = 'T';
   print "**** EMPTY FOUND -> $op_filename -$separator_cnt from bkp $inboxfilename<br>\n";
   }
-write_clear:
+
+WRITE_CLEAR:
   &clear_doc_data;   # in docitem.pl
   &clear_doc_variables; # in docitem.pl
   &clear_helper_variables;
