@@ -23,7 +23,7 @@ sub init_docitem_variables
 
    $doc_update_sql = "UPDATE docitem SET deleted=?,outdated=?,nextdocid=?,priority=?,headline=?,regionhead=?,skipheadline=?,
 	subheadline=?,special=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woapubdatetm=?,
-	expdate=?,reappeardate=?,region=?,regionfks=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,excerpt=?,
+	expdate=?,reappeardate=?,region=?,regionfks=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,needsum=?,
 	body=?,fullbody=?,freeview=?,points=?,comment=7,bodyprenote=?,bodypostnote=?,note=?,miscinfo=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
 	imagedescr=?,recsize=?,worth=?,sumAcctnum=?,suggestAcctnum=?,summarizerfk=?,suggesterfk=?,changebyfk=?,updated_on=CURDATE() WHERE docid = ?"
 }
@@ -43,7 +43,7 @@ sub display_one
    $expdate = "$expyear-$expmonth-$expday";
  }
  elsif($docid =~ /[0-9]/) {
-	 ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,$print_it);
    if($sectsubs =~ /$suggestedSS|$emailedSS/ and $access !~ /[ABCD]/
       and $cmd eq "processlogin") {
@@ -64,7 +64,7 @@ sub do_one_doc
       and -f "$printdeletedOFF") {
      return;
   }	    	                                
-  ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+  ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,'N');
    $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
 #  $expired = "$expired;$docid"
@@ -155,13 +155,21 @@ sub do_we_select_item
 
 sub do_body_comment   # from template_ctrl.pl
 {
-  $bodycom = $_[0];
+  ($body_sw,$bodycom) = @_;
 ##print "tem1102 now_email $now_email body $body\n";
   if($now_email eq 'Y') {
      $bodycom     =~ s/\r/" "/g;
      $bodycom     =~ s/\n/" "/g;
      $bodycom     =~ s/<i>/""/g;
      $bodycom     =~ s/<\/i>/""/g;
+  }
+  elsif($body_sw =~ /body/ and !$bodycom) {
+     if($points and $needsum =~ /[45]/) {  #keypoints or keypoints + red arrow
+	      $bodycom = $points;
+     }
+     else {
+	      $bodycom = substr($fullbody,0,450);
+     }  
   }
   else {
 	 $bodycom =~ s/ {1-9}\n/\n/g;  # get rid of trailing spaces
@@ -171,7 +179,7 @@ sub do_body_comment   # from template_ctrl.pl
 	 my $word = "";
 	 my $title = "";
 	 $bodycom = "";
-	foreach $bodycomline (@bodylines) {
+	 foreach $bodycomline (@bodylines) {
 	    if($bodycomline =~ /#http/ or $bodycomline =~ /#[A-Z]/ or $bodycomline =~ /#mp3#http/) { #link or acronym
 		   my @words = split(/ /,$bodycomline);
 		   $bodycomline = "";
@@ -234,6 +242,11 @@ ENDWORD
 	      $bodycom =~ s/\n/<br>\n/g;
 	}
   }
+
+  if($link and !$owner and $sectsubs =~ /$newsdigestSS/ and (!$body or $needsum =~ /[234579]/) ) {
+	 $bodycom = "$bodycom <br><small>. . . more at <a target=\"_blank\" href=\"$link\">$source</a><\/small>";
+  }
+	
   $bodycom =~ s/\r/<br>/g;
   $bodycom =~ s/<\/p><p>$//g;   ## delete last paragraph
   $bodycom =~ s/<\/p><p>\n/<\/p>\n\n<p>/g;
@@ -370,7 +383,7 @@ sub do_updt_selected
 
   $temp = $FORM{"sectsubs$pgitemcnt"};
 
- ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,'N');  #in docitem.pl
 
   &get_more_select_form_values;  ## overrides prior doc values
@@ -438,7 +451,7 @@ sub do_updt_selected
 	undef  $FORM{'skipsource'};
 	undef  $FORM{'author'};
 	undef  $FORM{'skipauthor'};
-	undef  $FORM{'excerpt'};
+	undef  $FORM{'needsum'};
 
 	undef  $FORM{'dtemplate'};
 
@@ -493,7 +506,7 @@ sub process_popnews_email       # from selecteditems_crud.pl when item selected 
  ($edocid,$elink,$epriority,$index_insert_sth) = @_;
  my $found = "";
 	
- ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($edocid,'N');
  if($found) {	
 	 &get_more_select_form_values; #Overrides current docitem with values from form
@@ -530,7 +543,7 @@ if($expired =~ /goofy/) {
 	  $idx_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
       @expired = split(/;/,$expired);
       foreach $docid (@expired) {
-	   ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	   ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 		 = &get_doc_data($docid,N);  ## in docitem.pl
    	   $delsectsubs = $sectsubs;
    	   $addsectsubs = $expiredSS;
@@ -658,7 +671,7 @@ sub fill_email_variables
 	$skipsource   = $EITEM{'skipsource'};
 	$author       = $EITEM{'author'}           if(!$author and $EITEM{'author'});
 	$skipauthor   = $EITEM{'skipauthor'};
-	$excerpt      = $EITEM{'excerpt'}           if(!$excerpt and $EITEM{'excerpt'});
+	$needsum      = $EITEM{'needsum'}           if(!$needsum and $EITEM{'needsum'});
 	$skiplink     = $EITEM{'skiplink'};
 	$skipheadline = $EITEM{'skipheadline'};
 	$subheadline  = $EITEM{'subheadline'}      if(!$subheadline and $EITEM{'subheadline'});
@@ -717,7 +730,7 @@ undef  $EITEM{'sourcefk'};
 undef  $EITEM{'skipsource'};
 undef  $EITEM{'author'};
 undef  $EITEM{'skipauthor'};
-undef  $EITEM{'excerpt'};
+undef  $EITEM{'needsum'};
 
 undef  $EITEM{'dtemplate'};
 
@@ -835,7 +848,7 @@ sub get_more_select_form_values
 
  $author         = $FORM{"author$pgitemcnt"}      if($FORM{"author$pgitemcnt"});
  $skipauthor     = $FORM{"skipauthor$pgitemcnt"}  if($FORM{"skipauthor$pgitemcnt"});
- $excerpt        = $FORM{"excerpt$pgitemcnt"}     if($FORM{"excerpt$pgitemcnt"});
+ $needsum        = $FORM{"needsum$pgitemcnt"}     if($FORM{"needsum$pgitemcnt"});
  $dtemplate      = $FORM{"dtemplate$pgitemcnt"}   if($FORM{"dtemplate$pgitemcnt"});
  $skipheadline   = $FORM{"skipheadline$pgitemcnt"} if($FORM{"skipheadline$pgitemcnt"});
  $subheadline    = $FORM{"subheadline$pgitemcnt"} if($FORM{"subheadline$pgitemcnt"});
@@ -966,7 +979,7 @@ sub get_doc_form_values
   $author       = $FORM{"author$pgitemcnt"};
   $skipauthor   = $FORM{"skipauthor$pgitemcnt"};
 
-  $excerpt      = $FORM{"excerpt$pgitemcnt"};
+  $needsum      = $FORM{"needsum$pgitemcnt"};
 
   $dtemplate    = $FORM{"dtemplate$pgitemcnt"};
 
@@ -1116,14 +1129,14 @@ sub get_doc_data
     
     return $printout if($printit =~ /Y/);
 
-	($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	= &extract_docitem_variables;
  }
  else {
    $found_it = "";
    $headline = "File not found at doc981 - docid *$docid*";
  }        
- return($found_it,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ return($found_it,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 }
 
 sub extract_docitem_variables
@@ -1203,7 +1216,7 @@ sub extract_docitem_variables
 	$skipsource   = $DATA{'skipsource'};
 	$author       = $DATA{'author'};
 	$skipauthor   = $DATA{'skipauthor'};
-	$excerpt      = $DATA{'excerpt'};
+	$needsum      = $DATA{'needsum'};
 	
 	$dtemplate    = $DATA{'dtemplate'};
 
@@ -1238,7 +1251,7 @@ sub extract_docitem_variables
           = &get_sources($printit,$source);   #in sources.pl
     }
 
-	return($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
+	return($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
 }
 
 
@@ -1270,7 +1283,7 @@ sub clear_doc_data
     $DATA{'skipsource'} = 0;
     $DATA{'author'}     = "";
     $DATA{'skipauthor'} = 1;
-    $DATA{'excerpt'}     = "";
+    $DATA{'needsum'}     = "";
     $DATA{'dTemplate'}    = "";
     $DATA{'dtemplate'}    = "";
 
@@ -1367,7 +1380,7 @@ sub clear_doc_variables
     $author             = "";
     $skipauthor         = 1;
 
-    $excerpt            = "";
+    $needsum            = "";
     $dTemplate          = "";
     $dtemplate          = "";
 
@@ -1443,7 +1456,7 @@ sub put_data_to_array    #used in template_ctrl to marry templates with data
  $DOCARRAY{'skipsource'}   = $skipsource;
  $DOCARRAY{'author'}       = $author;
  $DOCARRAY{'skipauthor'}   = $skipauthor;
- $DOCARRAY{'excerpt'}      = $excerpt;
+ $DOCARRAY{'needsum'}      = $needsum;
 
  $DOCARRAY{'dtemplate'}    = $dtemplate;
 
@@ -1671,7 +1684,7 @@ sub write_doc_data_out
   $source =~ &strip_leadingSPlineBR($source);
 ##    $source = &strip_leadingNonAlphnum($source);
   $source =~ s/\s+$//;
-  $source = &titlize($source) if( ($docaction =~ /N/ and !$owner)  or $titlize =~ /Y/); #in smartdata.pl
+#  $source = &titlize($source) if( ($docaction =~ /N/ and !$owner)  or $titlize =~ /Y/); #in smartdata.pl
   print DATAOUT "source\^$source\n";
   print DATAOUT "sourcefk\^$sourcefk\n";
   print DATAOUT "skipsource\^$skipsource\n";
@@ -1680,7 +1693,7 @@ sub write_doc_data_out
   print DATAOUT "author\^$author\n";
   print DATAOUT "skipauthor\^$skipauthor\n";
 
-  print DATAOUT "excerpt\^$excerpt\n";
+  print DATAOUT "needsum\^$needsum\n";
 		
   $link =~ s/\<//g;
   $link =~ s/\<//g;
@@ -1727,6 +1740,7 @@ sub write_doc_data_out
   }
 
   $fullbody = &apple_convert($fullbody) if($docaction =~ /N/ or $fixfullbody =~ /Y/);
+
   print DATAOUT "fullbody\^$fullbody\n";
   print DATAOUT "freeview\^$freeview\n";
 
@@ -1873,19 +1887,19 @@ sub write_docitem_to_DB_not_used
 ## DOTO fix this to subroutine
 		
 	    $doc_insert_sth->execute($n_docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
-		$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
+		$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
 		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
 
 	}
 	else {
 		my $doc_sth = $dbh->prepare( "UPDATE docitem SET deleted=?,outdated=?,nextdocid=?,priority=?,headline=?,regionhead=?,skipheadline=?,
 		subheadline=?,special=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woapubdatetm=?,
-		expdate=?,reappeardate=?,region=?,regionfks=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,excerpt=?
+		expdate=?,reappeardate=?,region=?,regionfks=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,needsum=?
 		body=?,fullbody=?,freeview=?,points=?,comment=7,bodyprenote=?,bodypostnote=?,note=?,miscinfo=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
 		imagedescr=?,recsize=?,worth=?,sumAcctnum=?,suggestAcctnum=?,summarizerfk=?,suggesterfk=?,changebyfk=?,updated_on=CURDATE() WHERE docid = ?" );
 
 		$doc_sth->execute($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
-		$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
+		$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
 		$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$docid);
 	    
 	}
@@ -1926,7 +1940,7 @@ sub DB_prepare_doc_insert
 {
   my($dbh) = $_[0];  # Couldn't execute DB doc insert  : called with 52 bind variables when 50 are needed at docitem.pl line 2110
 
-  my $doc_insert_sql = "INSERT IGNORE INTO docitems (docid,deleted,outdated,nextdocid,priority,headline,regionhead,skipheadline,subheadline,special,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,skippubdate,woapubdatetm,expdate,reappeardate,region,regionfks,skipregion,source,sourcefk,skipsource,author,skipauthor,excerpt,body,fullbody,freeview,points,comment,bodyprenote,bodypostnote,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,imagedescr,recsize,worth,sumAcctnum,suggestAcctnum,summarizerfk,suggesterfk,changebyfk,updated_on) 
+  my $doc_insert_sql = "INSERT IGNORE INTO docitems (docid,deleted,outdated,nextdocid,priority,headline,regionhead,skipheadline,subheadline,special,topic,link,skiplink,selflink,sysdate,pubdate,pubyear,skippubdate,woapubdatetm,expdate,reappeardate,region,regionfks,skipregion,source,sourcefk,skipsource,author,skipauthor,needsum,body,fullbody,freeview,points,comment,bodyprenote,bodypostnote,note,miscinfo,sectsubs,skiphandle,dtemplate,imagefile,imageloc,imagedescr,recsize,worth,sumAcctnum,suggestAcctnum,summarizerfk,suggesterfk,changebyfk,updated_on) 
            VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE() )";
 
   my $doc_insert_sth = $dbh->prepare($doc_insert_sql) or die("Couldn't prepare DB doc insert @doc1818 : " . $sth_docrows_sth->errstr);
@@ -1986,7 +2000,7 @@ sub write_exp_docitem
  print DOCITEM "reappeardate\^$reappeardate\n";
  print DOCITEM "author\^$author\n";
  print DOCITEM "skipauthor\^$skipauthor\n";
- print DOCITEM "excerpt\^$excerpt\n";
+ print DOCITEM "needsum\^$needsum\n";
  print DOCITEM "source\^$source\n";
  print DOCITEM "sourcefk\^$sourcefk\n";
  print DOCITEM "skipsource\^$skipsource\n";
@@ -2125,7 +2139,7 @@ sub import_one_docitem
 {
  my ($docid,$newsSSname,$itemcnt,$timesecs,$doc_insert_sth,$idx_insert_sth) = @_;
 
- my ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ my ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
  = &get_doc_data($docid,'N');
 
  if($headline =~ /File not found/) {
@@ -2224,7 +2238,7 @@ sub import_one_docitem
  $sectsubs =~ s/NA`M;//;
  $sectsubs =~ s/NA;//;
 
- $doc_insert_sth->execute($n_docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$excerpt,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk)
+ $doc_insert_sth->execute($n_docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk)
       or die("Couldn't execute DB doc insert @doc2108 : " . $doc_insert_sth->errstr);
 
  my @sectsubs = split(/;/,$sectsubs);
@@ -2250,7 +2264,7 @@ CREATE TABLE docitems (
    regionhead     char(1)      default 'N',
    skipheadline   tinyint      unsigned not null   default 0,
    subheadline    varchar(200) default '',
-   special         varchar(50) default '',
+   special        varchar(50) default '',
    topic          varchar(50)  default '',
    link           varchar(200) default '',
    skiplink       tinyint      unsigned not null   default 0,
@@ -2270,7 +2284,7 @@ CREATE TABLE docitems (
    skipsource     tinyint      unsigned not null   default 0,
    author         varchar(100) default '',
    skipauthor     tinyint      unsigned not null   default 1,
-   excerpt        char(1)      default ' ',
+   needsum        char(1)      default ' ',
    body           text,
    fullbody       text,
    freeview       char(1)       default 'N',

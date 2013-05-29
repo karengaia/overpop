@@ -493,7 +493,7 @@ elsif($cmd eq "adminlogin") {
     }
 }
 
-elsif($cmd =~ /parseNewItem/) {
+elsif($cmd =~ /parseNewItem/) {    ## <==== Entry for most new articles (May 2013)
 	 $docid    = "";
 	 $fullbody = $FORM{'fullbody'};
 	 $handle   = $FORM{'handle'};

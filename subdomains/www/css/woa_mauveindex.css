@@ -362,18 +362,18 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 
 	span.smallfont {font-size:8px; color:#2f4f4f;}
 		
-	li.smallfontv {
+	div,li.smallfontv {
 		margin-top: 3px; margin-bottom: 3px;
 		font-family: verdana,arial,tahoma,sans-serif;
 	}
-	li.smallfontv span {font-size: 11px;text-decoration:none;}
+	div,li.smallfontv span {font-size: 11px;text-decoration:none;}
 	
-	li.smallfontv small {font-size:8px; color:#2f4f4f;}
+	div,li.smallfontv small {font-size:8px; color:#2f4f4f;}
 	
-	li.smallfontv  a:link {color:#000033;text-decoration:none;}
-	li.smallfontv  a:visited { text-decoration: none;color:purple;}
-	li.smallfontv  a:active { text-decoration:underline;color:#990033;}
-	li.smallfontv  a:hover { text-decoration:underline;color:#990033;}	
+	div,li.smallfontv  a:link {color:#000033;text-decoration:none;}
+	div,li.smallfontv  a:visited { text-decoration: none;color:purple;}
+	div,li.smallfontv  a:active { text-decoration:none;color:#990033;}
+	div,li.smallfontv  a:hover { text-decoration:none;color:#990033;}	
 
 
 	.smallest, p.smallest, span.smallest, div.smallest {
@@ -680,7 +680,7 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 	  border: solid thin #d0d0d0;
 	}
 
-	 div.newsitem p, div.paragraph {
+	div.newsitem p, div.paragraph {
 	  font-family: helmet,arial,freesans,sans-serif;
 	  font-size: .9em;
 	  font-weight: 300;
@@ -689,18 +689,23 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 	  margin-left: 20px;
 	  }
 	
-	  div.newsitem li, p li{
+	 div.newsitem li, p li{
 	  background: #fff;  /* white */
 	  }
-	  div.newsitem a:link {text-decoration: none; color: #557799}
-	  div.newsitem a:visited {text-decoration: none; color: #557777;}
-	  div.newsitem a:active {text-decoration: none; color: #990033;}
-	  div.newsitem a:hover {text-decoration: none; color: #990033;}
+	 div.newsitem a:link {text-decoration: none; color: #557799}
+	 div.newsitem a:visited {text-decoration: none; color: #557777;}
+	 div.newsitem a:active {text-decoration: none; color: #990033;}
+	 div.newsitem a:hover {text-decoration: none; color: #990033;}
 	
-	  div.newsitem p cite {
+	 div.newsitem p cite {
 		  color: #036;
+		  font-size: .8em;
 		  background-color: #F0F0F0;
-		  }
+	 }
+	
+	 div.newsitem table {
+		width:70%;
+		margin-left: 20px;
 	}
 
 
@@ -776,6 +781,32 @@ div#travel {background:#fff url('/img/pg1sidebar/oldWoman_carrying_Firewood.png'
 	  div.headlineitem a:visited {text-decoration: none; color: #555577;}
 	  div.headlineitem a:active {text-decoration: none; color: #990033;}
 	  div.headlineitem a:hover {text-decoration: none; color: #990033;}
+	
+	/*   PRIORITY ITEM */    /* NOT USED - TODO: CHANGE FOR PRIORITY ITEMS */
+	
+	  div.priorityitem {
+	  background: #fff;  /* white */
+	  font-family: verdana,arial,tahoma,sans-serif;
+	  font-size: 80%;
+	  color: #000;
+	  width: 80%;
+	  margin: 3px 20px 0 3px;
+	  padding: 0;
+	  }
+	  div.priorityitem h5 {
+	  font-family: verdana,sans-serif;
+	  font-size: 100%;
+	  font-weight: bold;
+	  }
+	  div.priorityitem small {
+	  font-size: 75%;
+	  font-family: arial,sans-serif;
+	  color:#2f4f4f;
+	  }
+	  div.priorityitem a:link {color:#000033;text-decoration:none;}
+	  div.priorityitem a:visited { text-decoration: none;color:purple;}
+	  div.priorityitem a:active { text-decoration:underline;color:#990033;}
+	  div.priorityitem a:hover { text-decoration:underline;color:#990033;}
 
 
 	/* EVENT - for calendar items */
@@ -1159,7 +1190,6 @@ a.arrow {text-decoration:none; font-size:30px; color:#FF6600;
 	
 a:hover.arrow {color:#CC3300;}
 	
-
 a.tooltip {
 		    position:relative; /*this is the key*/
 		    z-index:8; background-color:transparent;  /*#e3e3e3*/;
@@ -1195,24 +1225,25 @@ a.tooltip {
 		    position:relative; /*this is the key*/
 		    z-index:8;
 		    color:#000;
-		    text-decoration:none;
+		    text-decoration: none !important;
 	}
 	big.tooltip2 {text-decoration:none; font-size:150%; font-weight:bold; color:#CC3300;
 		      line-height:70%;}	
 	big.tooltip2:hover {color:#9999cc;}
 	
-	a.tooltip2:hover {z-index:10; background-color:#e3e3e3; color:#cccccc;}
+	a.tooltip2:hover {z-index:10; background-color:#e3e3e3; color:#cccccc; text-decoration: none !important;}
 	a.tooltip2 span {display: none}
 	a.tooltip2:hover span { /*the span will display just on :hover state*/
 		    display:block;
-		    position:absolute;
-		    top:-1em; left:-37em; width:35em;
-		    border:1px solid #CC3300;
-		    background-color:#F5F3C7; color:#000;
+		    position:absolute; 
+		    top:1em; left:-9em; width:35em;
+		    border:1px solid #8B4513;
+		    background-color:#F2F2F2; color:#5B4D6B; /* #F2F2F2 pale  pink 8B4513*/
 		    margin: 2px;
-		    font-size: 110%;
+		    font-size: 75%;
 		    text-align: left;
-		    text-decoration: none; padding:8px;
+		    text-decoration: none !important;
+		    padding:8px;
 			cursor: help;
 		/* example: <a href="http://www.meyerweb.com/eric/css/">Links<span>A collection
 		of things which interest me, and might interest you</span></a> */

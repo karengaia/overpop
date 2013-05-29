@@ -614,6 +614,10 @@ sub do_imbedded_commands
          &print_period_radios;
    }
 
+   elsif($linecmd =~ /\[NEEDSUM_RADIOS\]/) {
+         &print_needsum_radio_buttons;
+   }
+
    elsif($linecmd =~ /\[HEADLINE_PERIOD\]/ and $headline =~ /[A-Za-z]/) {
       if($regionhead eq 'Y' and $headline !~ /$region/
          and $region =~ /[A-Za-z0-9]/ and $region !~ /Global/) {
@@ -630,26 +634,12 @@ sub do_imbedded_commands
 
 
    elsif($linecmd =~ /\[BODY\]/) {
-	    if($body) {
-		    $body = &do_body_comment($body);    #in docitem.pl
-	        print $MIDTEMPL "$body";
-	    }
-	    else {
-            my $tempbody = substr($fullbody,0,650);
-            if($points) {
-                $tempbody = "$tempbody\n\n$points";
-            }
-            elsif($link and !$owner) {
-	            $tempbody = "$tempbody <small>. . . more at <a target=\"_blank\" href=\"$link\">$source</a><\/small>";
-            }
-		    
-		    $tempbody = &do_body_comment($tempbody);    #in docitem.pl
-	        print $MIDTEMPL "$tempbody";
-        }
+		 $body = &do_body_comment('body',$body);    #in docitem.pl
+	     print $MIDTEMPL "$body";
    }
 
    elsif($linecmd =~ /\[COMMENT\]/ and $comment =~ /[A-Za-z0-9]/) {
-         $comment = &do_body_comment($comment);
+         $comment = &do_body_comment('com',$comment);
          print $MIDTEMPL "<div class=\"comment\">$comment</div>\n";
    }
 
@@ -711,7 +701,26 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[REDARROW\]/) {
-	    &do_redarrow if($rDoclink =~ /doclink/);
+	    &do_redarrow('') if($rDoclink =~ /doclink/);
+   }
+
+   elsif($linecmd =~ /\[REDAROWHEAD\]/) {
+	    &do_redarrow('head') if($rDoclink =~ /doclink/);
+   }
+
+   elsif($linecmd =~ /\[EXTRACT\]/) {
+	    if($body !~ /[A-Za-z0-9]/ and $needsum eq 1) {
+		    print $MIDTEMPL "&nbsp;<i>(Needs Summarization)</i>";		
+	    }
+	    if($needsum =~ /[67]/) {
+		    print $MIDTEMPL "&nbsp;<i>(Extract)</i>";
+	    }
+	    elsif($needsum =~ /[45]/) {
+		    print $MIDTEMPL "&nbsp;<i>(Key points)</i>";
+	    }
+	    elsif($needsum =~ /[89]/) {
+		    print $MIDTEMPL "&nbsp;<i>(Summary)</i>";
+	    }
    }
 
    elsif($linecmd =~ /\[DOCLINK\]/) {
@@ -1119,7 +1128,7 @@ sub do_link
   $target = " target=\"_blank\" ";
   $target = " " if($cMobidesk =~ /mobi/);
   if($selfLink =~ /Y/) {
-	   local($prt) = "<a$target"."href=\"$scriptpath/article.pl?display%fullArticle%$docid\">";
+	  my $prt = "<a$target"."href=\"$scriptpath/article.pl?display%fullArticle%$docid\">";
       print $MIDTEMP $prt;
    }
   else {
@@ -1149,34 +1158,46 @@ sub do_link
 
 sub do_redarrow
 {
+ my $head = $_[0];
  my $link = "";
-   $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
+ $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
+
+ my $imgtag = "<img src=\"";
+ my $redarrow;
+
+ $redarrow = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\">" if($cSectid =~ /[Hh]eadlines/);
+ $redarrow = "/redArrow.gif\" height=\"10\" width=\"10\" border=\"0\" alt=\"doclink\">" unless($cSectid =~ /[Hh]eadlines/);
+ my $invisibledot = "/invisibledot.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\">";
+ my $greybutton = "/plain_grey_button.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\">";
+
  if($owner) {
 #	http://overpop/cgi-bin/article.pl?display%ownerlogin%026391%CSWP_Calendar%%xxxx%%%%%%CSWP
     my $ownerlogin = $OWNER{'ologintemplate'};
     my $ownersubs  = $OWNER{'ownersubs'};
     $link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
+    print $MIDTEMPL "$link$imgtag$greybutton</a>";
  }
+ elsif($cSectid =~ /[Hh]eadlines/) {
+	$link = "<a class=\"tooltip2\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
+#        $bodytemp = substr($fullbody,0,500);    
+	    print $MIDTEMPL "$link$imgtag$redarrow";
+	}
  else {
     $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
- }
- my $imgtag = "<img src=\"";
- my $redarrow = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\"></a>";
- my $invisibledot = "/invisibledot.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
- my $greybutton = "/plain_grey_button.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\"></a>";
 
-  if($nodata eq 'Y' or $cVisable =~ /[STB]/) {  ## non-article pieces
-   	   print $MIDTEMPL "$link$imgtag$invisibledot";
-   }
-  elsif($cSectid =~ /[Hh]eadlines/) {
-       print $MIDTEMPL "$link$imgtag$redarrow";
-   }
-  else {
-       print $MIDTEMPL "$link$imgtag$greybutton";
-   }
+	if($nodata eq 'Y' or $cVisable =~ /[STB]/) {  ## non-article pieces
+	   	   print $MIDTEMPL "$link$imgtag$invisibledot</a>";
+	}
+
+	elsif($head =~ /head/ and $needsum =~ /[1345]/) {
+	       print $MIDTEMPL "$link$imgtag$redarrow</a>";
+	}
+	else {
+	       print $MIDTEMPL "$link$imgtag$greybutton</a>";
+	}
+ }
 }
 
-## 150
 
 sub print_period_radios
 {
@@ -1191,6 +1212,36 @@ sub print_period_radios
   } # END for
 }
 
+
+sub print_needsum_radio_buttons
+{
+  my $needsum_radios = "1;needSum|2;more|3;both|4;key|5;keyArw|6;extrct|7;exmor|8;sum;checked|9;summor|0;clr";
+  print MIDTEMPL <<ENDNEEDSUM;
+<cite style="font-family:arial,freesans,sans-serif;font-size:9x;">
+ENDNEEDSUM
+
+  my @nsradios = split(/\|/,$needsum_radios);
+  my $checked = "";
+  my $checkFound = "N";
+  my($nscode,$nsdescr);
+  foreach $nsradio (@nsradios) {
+	  ($nscode,$nsdescr,$nschecked) = split(/\;/,$nsradio,3);
+      if($needsum and $nscode == $needsum) {	
+	     $checked = "checked";
+	  }
+	  elsif(!$needsum) {
+	     $checked = $nschecked if(!$checkFound);
+	  }
+	  $checked = "checked=\"checked\"" if($checked);
+	  print MIDTEMPL "<input type=\"radio\" name=\"needsum\" value=\"$nscode\" $checked><cite>$nsdescr</cite>";
+      if($checked) {
+	     $checkFound = 'Y';
+      }
+	  $checked = '';
+  }
+}
+
+
 sub do_title
 {
   if($cTitle =~ /[A-Za-z0-9]/) {
@@ -1201,7 +1252,6 @@ sub do_title
   }
 }
 
-##0155
 
 sub do_5lines
 {

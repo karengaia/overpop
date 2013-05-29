@@ -141,7 +141,7 @@ sub parse_msg_4variables {
 
 
 sub assign_msglines
-{
+{  #<=================== TODO : need to merge some of this code into &extract_variables below.
  my $msgline = $_[0];
  $msgline =~  s/^\s+//; # trim annoying leading whitespace
  $msgline =~  s/^ +//;
@@ -245,6 +245,68 @@ sub assign_msglines
  $prevprev_line = $prev_line;
  $prev_line     = $msgline;
 }
+
+
+
+sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should use this for all entries
+                          ## like pass2_separate_email and links_separate (already did)
+{
+ my $msgline = $_[0];
+
+ if($misc = &chk_miscinfo($msgline) ) {
+#		print "sm164 MI<br>\n";
+	$miscinfo = "$miscinfo\n$misc";
+ }
+ elsif(!$subheadline and $subheadline = &chk_subheadline($msgline) ) {
+#		print "sm174 headline<br>\n";
+ }
+ elsif($ehandle =~ /push/ and $msgline =~ /Author: /) {
+	($headline,$author) = split(/Author: /,$msgline);
+	if($headline =~ /Source: /i) {
+		($headline,$source) = split(/Source: /,$headline);	
+	}
+	if($headline =~ /Date: /i) {
+		($headline,$msgline_date) = split(/Date: /,$headline);
+	}
+#		print "sm184 author<br>\n";
+ }
+ elsif($ehandle =~ /push/ and $msgline =~ /Source: /) {
+	($headline,$source) = split(/Source: /,$msgline);	
+	if($headline =~ /Date: /i) {
+		($headline,$msgline_date) = split(/Date: /,$headline);
+	}
+#		print "sm191 source<br>\n";
+ }
+ elsif(!$author and $author = &chk_author($msgline) ) { # By: Author:
+#			print "sm194 author2<br>\n";
+ }
+ elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:
+#			print "sm197 source 2<br>\n";	
+ }
+ elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline)) { # DD Date:
+#	print "sm192 date found msgline_date $msgline_date<br>\n";
+ }
+ elsif($msgline =~ /^RR /) { # RR - skip this line; pick up region below; region can be in fullbody, headline, etc
+#			print "sm203 region<br>\n";
+	&chk_RR_region($msgline);
+ }
+ elsif(!$headline and $msgline =~ /[A-Za-z0-9]/) {
+#			print "sm207 headline2<br>\n";
+	$headline = &chk_headline_HH($msgline);
+	$headline = $msgline if(!$headline);
+ }
+ else {
+#    print "sm212 fullbody msgline $msgline<br>\n";
+#	$fullbody_on = 'Y';
+	if($fullbody) {
+		$fullbody = "$fullbody\r\n$msgline";
+	}
+    else {
+       $fullbody = $msgline;
+    }
+ }
+}
+
 
 sub removed_from_above_dont_need {
  if($linecnt < 9 or $linecnt eq $max_linecnt) {

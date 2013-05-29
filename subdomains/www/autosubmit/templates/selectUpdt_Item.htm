@@ -18,7 +18,7 @@
 
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]">
 <label for="subheadline">Subhead:</label>
-<input type="text" name="subheadline[pgitemcnt]" size="80" maxlength="400"
+<input type="text" name="subheadline[pgitemcnt]" size="100" maxlength="400"
 value="
 [subheadline]
 ">
@@ -52,6 +52,7 @@ value="
 <textarea id="miscinfo[pgitemcnt]" 
 name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 [miscinfo]</textarea>
+<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=80 maxsize=300 value="[note]">
 
  
 </TD><TD width=50% valign=top>
@@ -78,7 +79,7 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 </select></font>
 
   <br>
- <textarea name="link[pgitemcnt]" wrap="soft" rows=2 cols="70">[link]</textarea>
+ <textarea name="link[pgitemcnt]" wrap="soft" rows=2 cols="67">[link]</textarea>
 <!--         <input type="text" name="link[pgitemcnt]" size="75" maxlength="200" value="[link]"> -->
 
 <table><td valign="top">
@@ -142,6 +143,8 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 	<input type="radio" name="getfullbody" value="A" 
 	   onclick="var2var( 'body[pgitemcnt]',
 	'fullbody[pgitemcnt]');"><cite>Get full article</cite>
+  <br>  
+  <input type="radio" name="needsum" value="1">needSum<input type="radio" name="needsum" value="2">more<input type="radio" name="needsum" value="3">both<input type="radio" name="needsum" value="4">key<input type="radio" name="needsum" value="5">keymor<input type="radio" name="needsum" value="6">extrct<input type="radio" name="needsum" value="7">exmor<input type="radio" name="needsum" value="8" checked="checked">sum<input type="radio" name="needsum" value="9">summor<input type="radio" name="needsum" value="0">clr&nbsp;
   <br>
   <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="soft" rows="7" cols=70">[body]</textarea>
 
@@ -149,7 +152,6 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 
    <br><label><small>Comment</small></label><br>
     <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="soft" rows="2" cols=70">[comment]</textarea> 
-	<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=65 maxsize=300 value="[note]">
  
 </TD></TABLE>
 

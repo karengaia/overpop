@@ -335,18 +335,26 @@ sub get_header_info {
     return($ehandle,$ext,$date_line,$from_line,$subject_line);
 }
 
+
 sub links_separate {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
  ($ep_type,$handle,$pdfline,$sectsubs,$emailbody,$receiptdate) = @_;
 
  $emailbody = &line_fix($emailbody);
  $emailbody = &apple_line_endings($emailbody);
- $emailbody  =~ s/^\n*//g;
- $emailbody  =~ s/\n+$//g;
+ $emailbody  =~ s/^\n*//g;   # beginning of line   TODO: need to go line-by-line
+ $emailbody  =~ s/\n+$//g;   # end of line
 
  my $save_sectsubs = $sectsubs;
  &clear_doc_data;      # in docitem.pl
  &clear_doc_variables;
 # $addsectsubs = $save_sectsubs;
+
+ $head = "";
+ my $misc = "";
+ my $date_found = "";
+ my $regions = "";
+ my $answer = "";
+ my $linkck = "";
 
  @emsglines = split(/\n/,$emailbody);
 
@@ -354,6 +362,8 @@ sub links_separate {          ## Not only for multiple articles in one submittal
    chomp $emsgline;
    if($emsgline =~ /\b(http.*)\b/) {
 	   if($link) {               # Is there a link already? (from previous)
+		   $fullbody =~ s/^\n//;
+		   $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
 		   ($source,$region) = &get_source_linkmatch($link);
 	       &main_storeform;      # in docitem.pl - store the link and other data
 	       &clear_doc_data;      # in docitem.pl
@@ -367,11 +377,16 @@ sub links_separate {          ## Not only for multiple articles in one submittal
 	   $priority = "5";
 	   $docaction = 'N';
     }
-    elsif($emsgline =~ /[A-Za-z0-9]/) {
-	   $headline = "$headline\n$emsgline";
+    else {
+	    &extract_variables($emsgline);
     }
- }   # end of file - finish last link
+ }   # EOF - finish last link
+
  if($link) {               # Is there a link already? (from previous)
+	 $fullbody =~ s/^\n//;
+	 $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
+	 ($source,$region) = &get_source_linkmatch($link);
+	
      &main_storeform;      # in docitem.pl - store the link and other data
      &clear_doc_data;      # in docitem.pl
      &clear_doc_variables; # in docitem.pl
