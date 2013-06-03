@@ -124,7 +124,6 @@ sub template_merge_print
  $MIDTEMPL = "MIDTEMPL$ctr";
  open($MIDTEMPL, ">$midfile") or die "tem80 cannot open midfile $midfile<br>\n";
    foreach $template (@templates) {	
-#		print "tmp125 now_print $now_print ..now_htmlfile $now_htmlfile template $template <br>\n";
       &do_template($template,$ctr);
 }
 close($MIDTEMPL);
@@ -217,8 +216,7 @@ sub do_template
  $default_2nd_class = "";
 
  $template =~ s/\s+//g;    ## remove spaces
-
- ($template,$rest) = split(/;/,$tTemplate,2);
+# print "tmp220 ..template $template<br>\n";
 
  $templatefile = "$templatepath/$template\.htm";
 
@@ -229,12 +227,12 @@ unless(-f "$templatefile") {
 
 # unless($template =~ /select_top|select_end|select_end0/ and $cmd ne 'print_select') {
    $javascript = 'N';
-   $TEMPLATE = "TEMPLATE$ctr";
-   open($TEMPLATE, "$templatefile") or die "art1081 cannot open template $templatefile";
-   while(<$TEMPLATE>)  {
+   open(TEMPLATE, "$templatefile") or die "art1081 cannot open template $templatefile";
+   while(<TEMPLATE>)  {
      chomp;
      $line = $_;
-##        Process IN-LINE TEMPLATE
+
+#        Process IN-LINE TEMPLATE
      if($line =~ /TEMPLATE=/) {
         ($rest, $intemplate) = split(/=/,$line);
          ($intemplate,$rest) = split(/]/,$intemplate);
@@ -261,7 +259,7 @@ unless(-f "$templatefile") {
           last if($stop eq 'Y');
      }
    }     ## end while
-   close($TEMPLATE);
+   close(TEMPLATE);
 # }
 }
 
@@ -326,7 +324,7 @@ sub process_imbedded_commands
 sub print_output {
 	my ($printmode,$output) = @_;  #not the same output as in outputfile
 	
-#		print "tmp327 printmode $printmode now_print $now_print ..now_htmlfile $now_htmlfile template $template <br>\n";
+# print "tmp327 printmode $printmode now_print $now_print ..now_htmlfile $now_htmlfile template $template op $output<br>\n";
 	if($printmode =~ /M/) {
 		print $MIDTEMPL "$output";
 	}
@@ -334,7 +332,7 @@ sub print_output {
 		print $INSIDE "$output";	
 	}
 	elsif($printmode =~ /O/) {
-		print $OUTFILE "$output" if($output);
+		print $OUTFILE "$output";
 #        print"$output" if($now_print =~ /Y/);	
 	}
 	elsif($printmode =~ /P/) {
