@@ -129,8 +129,8 @@ sub print_srcdate
          $srcdate= "$month $pubyear";
       }
     }
-    print $MIDTEMPL "$srcdate, " if($source);
-    print $MIDTEMPL "$srcdate" unless($source);
+    &print_output($printmode, "$srcdate, ") if($source);
+    &print_output($printmode, "$srcdate") unless($source);
  }
 }
 

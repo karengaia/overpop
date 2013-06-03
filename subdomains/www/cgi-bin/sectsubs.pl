@@ -949,26 +949,27 @@ sub get_news_only_sections
 	   $current_newsSS = $xsect;
 	} # end if
 	
-	print MIDTEMPL "<input type=\"radio\" name=\"newsprocsectsub\" value=\"$xsect\" $checked ><b><small>$xsect</small></b><br>\n";
+	&print_output('M',"<input type=\"radio\" name=\"newsprocsectsub\" value=\"$xsect\" $checked ><b><small>$xsect</small></b><br>\n");
   } # end outer foreach
-  print MIDTEMPL "<input type=\"radio\" name=\"newsprocsectsub\" value=\"$emailedSS\"><b><small>$xsect</small></b><br>\n";
-  print MIDTEMPL "<input type=\"radio\" name=\"newsprocsectsub\" value=\"NA\"><b><small>None of the above</small></b><br>\n";
+  &print_output('M',"<input type=\"radio\" name=\"newsprocsectsub\" value=\"$emailedSS\"><b><small>$xsect</small></b><br>\n");
+  &print_output('M',"<input type=\"radio\" name=\"newsprocsectsub\" value=\"NA\"><b><small>None of the above</small></b><br>\n");
 
-  print MIDTEMPL <<STRATUSEND2;
+  my $op = <<STRATUSEND2;
   <table><tr><td valign="top">
   <cite class="verdana"><b>Item stratification</b> <br>
   M=middle (normal)<br>&nbsp;</cite></td>
 STRATUSEND2
-  print MIDTEMPL "<td><select name=\"docloc_news\">\n"; # goes with whatever newsprocsectsub chosen
+  &print_output('M',$op);
+  &print_output('M',"<td><select name=\"docloc_news\">\n"); # goes with whatever newsprocsectsub chosen
   $docloc_news = 'M' unless($docloc_news);
   $ck_docloc = $docloc_news;
   &print_doc_order;
-  print MIDTEMPL "<\/td><\/tr><\/table>\n";
+  &print_output('M',"<\/td><\/tr><\/table>\n");
   if($current_newsSS =~ /[A-Za-z0-9]/ and $action ne 'new' and $lifonum and $lifonum > 0) {
 	  $SSid = &get_SSid($current_newsSS);
 	  my($docloc,$lifonum) = &DB_get_lifo_stratus($SSid,$docid); #For now we won't use stratus; later move this up to do docloc
-      print MIDTEMPL "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$current_newsSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n";
-      print MIDTEMPL "<cite>Cannot change Lifonum if changing News Section above</cite><br>\n";
+      &print_output('M', "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$current_newsSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n");
+      &print_output('M', "<cite>Cannot change Lifonum if changing News Section above</cite><br>\n");
   }
 }
 
@@ -987,7 +988,7 @@ sub get_points_sections
 	    $current_pointsSS = $xsect;
 	 } # end if
 	 my($rest,$pointtype) = split("points",$xsect,2);
-     print MIDTEMPL "<input type=\"radio\" name=\"pointssectsub\" value=\"$xsect\" $checked ><cite>$pointtype</cite>&nbsp;&nbsp;";
+     &print_output('M',"<input type=\"radio\" name=\"pointssectsub\" value=\"$xsect\" $checked ><cite>$pointtype</cite>&nbsp;&nbsp;");
   } # end outer foreach
 }
 
@@ -1015,14 +1016,14 @@ sub get_owner_sections
 	} # end if
 	my $option = $xsect;
 	$option = 'Deleted' if($xsect =~ /delete/);
-	print MIDTEMPL "<option value=\"$xsect\" $selected >$option</option>\n";
+	&print_output('M',"<option value=\"$xsect\" $selected >$option</option>\n");
   } # end outer foreach
 
   if($currentSS and $action ne 'new' and $lifonum and $lifonum > 0) {
 	  $SSid = &get_SSid($currentSS);
 	  my($docloc,$lifonum) = &DB_get_lifo_stratus($SSid,$docid); #For now we won't use stratus; later move this up to do docloc
-      print MIDTEMPL "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$currentSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n";
-      print MIDTEMPL "<cite>Cannot change Lifonum if changing CSWP Section above</cite><br>\n";
+      &print_output('M',"<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$currentSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n");
+      &print_output('M',"<cite>Cannot change Lifonum if changing CSWP Section above</cite><br>\n");
   }
 }
 
@@ -1046,8 +1047,8 @@ sub get_current_sections
       &split_section_ctrlB($dSectsubname);  #get section control variables
       $first_time = $first_time + 1;
       if($first_time eq 1) {
-        print MIDTEMPL "<font color=\"#666666\" size=1 face=verdana>If you do not have admin access<br> to a section, none of the above<br>will be available for that section.</font>\n"
-           if($operator_access !~ /[AB]/);
+          &print_output('M',"<font color=\"#666666\" size=1 face=verdana>If you do not have admin access<br> to a section, none of the above<br>will be available for that section.</font>\n")
+             if($operator_access !~ /[AB]/);
       }
       &ck_visability;
 
@@ -1069,47 +1070,51 @@ sub print_current_section
 {
   my ($checked) = "checked=\"checked\"";
 
-  print MIDTEMPL <<END;
+  my $op = <<END;
   <hr>
   <font size="2" face="verdana">
   <input type="checkbox" name="updsectsubs" value="$dSectsubname" $checked><b>$dSectsubname</b><br>
 END
+
+  &print_output('M',$op);
   &print_end_sections;
 }
 
 sub print_end_sections
 {
-  print MIDTEMPL "<table><tr><td><font size=\"1\" face=\"verdana\">\n";
+  &print_output('M',"<table><tr><td><font size=\"1\" face=\"verdana\">\n");
   if($dSectsubs) {
-     print MIDTEMPL "<select name=\"docloc_$dSectsubname\">\n";
+     &print_output('M',"<select name=\"docloc_$dSectsubname\">\n");
      $ck_docloc = $docloc;
   }
   else {
-     print MIDTEMPL "<select name=\"docloc_add\">\n";
+     &print_output('M',"<select name=\"docloc_add\">\n");
      $ck_docloc = 'M';
   }
 
   &print_doc_order;
 
-   print MIDTEMPL <<STRATUSEND;
+  ny $op = <<STRATUSEND;
      </td><td valign="top">
      <cite class="verdana"><b>Item stratification</b> <br>
       M=middle (normal)</cite></td></tr>
 STRATUSEND
 
+  &print_output('M',$op);
+
   if($dSectsubid =~ /[A-Za-z0-9]/ and $lifonum and $lifonum > 0) {
-    print MIDTEMPL "<input type=\"text\" name=\"lifonum_$dSectsubid\" value=\"$lifonum\" size=\"8\"><br>\n";
-    print MIDTEMPL "<cite class=\"verdana\">Change LIFO num<\/cite>\n";
+    &print_output('M',"<input type=\"text\" name=\"lifonum_$dSectsubid\" value=\"$lifonum\" size=\"8\"><br>\n");
+    &print_output('M',"<cite class=\"verdana\">Change LIFO num<\/cite>\n");
   }
 
-  print MIDTEMPL "<\/td><\/tr><\/table>\n";
+  &print_output('M',"<\/td><\/tr><\/table>\n");
 }
 
 sub print_cant_change_section
 {
-  print MIDTEMPL "<input type=\"hidden\" name=\"updsectsubs\" value=\"$dSectsubid\">\n";
-  print MIDTEMPL "<input type=\"hidden\" name=\"docloc_$dSectsubid\" value=\"$docloc\">\n";
-  print MIDTEMPL "<input type=\"hidden\" name=\"lifonum_$dSectsubid\" value=\"$lifonum\">\n";
+  &print_output('M',"<input type=\"hidden\" name=\"updsectsubs\" value=\"$dSectsubid\">\n");
+  &print_output('M',"<input type=\"hidden\" name=\"docloc_$dSectsubid\" value=\"$docloc\">\n");
+  &print_output('M',"<input type=\"hidden\" name=\"lifonum_$dSectsubid\" value=\"$lifonum\">\n");
 }
 
 
@@ -1155,18 +1160,19 @@ sub get_other_sections_old
 
 sub get_addl_sections
 {
- local($catCode,$catnum,$info)  = @_;
+ my($catCode,$catnum,$info)  = @_;
 
  $catnum =  "" if($catnum eq '_');
  if($info eq 'I') {
  }
  elsif($template =~ /docUpdate/) {
-   print MIDTEMPL "<select size=\"15\" multiple name=\"addsectsubs$catnum\">\n";
+   &print_output('M', "<select size=\"15\" multiple name=\"addsectsubs$catnum\">\n");
  }
  elsif($template !~ /selectUpdt|commonDropdowns/) {
-   print MIDTEMPL <<SELECTEND;
+   my $op = <<SELECTEND;
     <font size="1"><select size="10" multiple name="addsectsubs">
 SELECTEND
+   &print_output('M',$op);
  }
 
  $save_sectsubinfo = $CSINDEX{$rSectsubid};
@@ -1180,10 +1186,10 @@ SELECTEND
       or $catCode eq '_') {
          if(&ck_visability) {
 	         if($info eq 'I') {  
-				 print MIDTEMPL "<option value=\"$cSectsub\">$cSectsubid</option>\n";
+				 &print_output('M',"<option value=\"$cSectsub\">$cSectsubid</option>\n");
 		     }
 		     else {
-		         print MIDTEMPL "<option value=\"$cSectsubid\">$cSectsubid</option>\n";
+		         &print_output('M',"<option value=\"$cSectsubid\">$cSectsubid</option>\n");
 		     }
          }
       }
@@ -1192,9 +1198,10 @@ SELECTEND
  if($info eq 'I') {
  }
  else {
-	print MIDTEMPL <<ENDSELECT;
+	my $op = <<ENDSELECT;
 	  <option value="NA">NA</option>
 ENDSELECT
+    &print_output('M', $op);
 
 	if($aTemplate =~ /docUpdate/) {
 	     &print_stratus_add;
@@ -1206,31 +1213,33 @@ ENDSELECT
 } #end sub
 
 sub print_stratus_add {
-  print MIDTEMPL "<br></font><font face=\"comic sans ms\" size=\"1\">\n";
-  print MIDTEMPL <<ENDHERE;
+  &print_output('M',"<br></font><font face=\"comic sans ms\" size=\"1\">\n");
+  my $op = <<ENDHERE;
    (the following tools do not work with multiple adds <br> in this category. Add one at a time
    if <br> using other than default)</font><br>
 
       <table width="70%"><tr><td><cite class="verdana"><b>Item stratification</b> <br>
       &nbsp;&nbsp;&nbsp;M=middle (normal)</cite></td>
 ENDHERE
-  print MIDTEMPL "<td><select name=\"docloc_add$catnum\">\n";
+  &print_output('M',$op);
+  &print_output('M',"<td><select name=\"docloc_add$catnum\">\n");
 
 
   $ck_docloc = $default_docloc;
   &print_doc_order;
-  print MIDTEMPL "<\/tr><\/td><\/table>\n";
+  &print_output('M',"<\/tr><\/td><\/table>\n");
 }
 
 sub print_stratus_current {     # NOT USED ???
-  print MIDTEMPL <<ENDHERE;
+  my $op = <<ENDHERE;
       <br></font>
       <table width="70%"><tr><tr><td><font face="verdana" size="1">Stratus M=default</font></td>
 ENDHERE
-  print MIDTEMPL "<td><font size=\"1\" face=\"verdana\"><select name=\"docloc_$rSectsub\">\n";
+  &print_output('M',$op);
+  &print_output('M',"<td><font size=\"1\" face=\"verdana\"><select name=\"docloc_$rSectsub\">\n");
   $ck_docloc = $default_docloc;
   &print_doc_order;
-  print MIDTEMPL "<\/td><\/tr><\/table>\n";
+  &print_output('M',"<\/td><\/tr><\/table>\n");
 }
 
 sub print_doc_order   ## stratus
@@ -1242,20 +1251,20 @@ sub print_doc_order   ## stratus
   $ck_docloc = 'M' unless($ck_docloc =~ /[A-Z]/);
   foreach $tdocloc(@doc_order_codes) {
      if($tdocloc =~ /$ck_docloc/) {
-          print MIDTEMPL "<option value=\"$tdocloc\" selected>$tdocloc</option>\n";
+          &print_output('M',"<option value=\"$tdocloc\" selected>$tdocloc</option>\n");
      }
      else {
-          print MIDTEMPL "<option value=\"$tdocloc\">$tdocloc</option>\n";
+          &print_output('M',"<option value=\"$tdocloc\">$tdocloc</option>\n");
      }
   }
-  print MIDTEMPL "</select>\n";
+  &print_output('M',"</select>\n");
 }
 
 
 #                 called from article.pl
 sub php_do_pages {
-  print MIDTEMPL "<table width=\"100%\" border=\"0\">\n";
-  local($prev_pagename) = "";	
+  &print_output('M',"<table width=\"100%\" border=\"0\">\n");
+  my $prev_pagename = "";	
   $saveCsectsub = $cSectsub;
   foreach $cSectsub (@CSARRAY) {
       &split_sectionCtrl($cSectsub);
@@ -1264,33 +1273,33 @@ sub php_do_pages {
       if($tVisable eq 'Y' and ($tPreview eq 'Y')) {
           if($cPage and $cPage ne $prev_pagename) {
               if($cSectsubid =~ /$newsdigestSS/) { #news digest has both newsItem and index
-                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid\">News fly</a></td>\n";
-                   print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
+                   &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid\">News fly</a></td>\n");
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n");
 
-                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/index.php?$cSectsubid\">Index view</a></td>\n";
-                   print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/php/saveindex.php?$cPage\">Save index</a></td></tr>\n";
+                   &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/index.php?$cSectsubid\">Index view</a></td>\n");
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/php/saveindex.php?$cPage\">Save index</a></td></tr>\n");
               }
               elsif($cVisable =~ /mo/) { # mobile does not go through php 
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n";
-                   print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$scriptpath/moveutil.pl?move%$cPage\">Move $cPage</a></td></tr>\n";
+	               &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n");
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$scriptpath/moveutil.pl?move%$cPage\">Move $cPage</a></td></tr>\n");
               }
               elsif($cVisable =~ /hd/) {   # head info is invisible unless it is in a textbox box - But it doesn't work because TB becomes part of meta or cssjs
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
-                   print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
+	               &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n");
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n");
               }
               elsif($cVisable =~ /pp/) {   # page parts other than head parts (mostly Page 1) 
-	               print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n";
-                   print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n";
+	               &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n");
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n");
               }
               else {            # all sections (page 2) 
-                   print MIDTEMPL "<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$cSectsubid\">$cPage view</a></td>\n";
-                   print MIDTEMPL "<td><a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">Save/View</a></td></tr>\n";	
+                   &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$cSectsubid\">$cPage view</a></td>\n");
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">Save/View</a></td></tr>\n");	
               }
               $prev_pagename = $cPage;
           }  #cPage
       } # visable        
    }
-   print MIDTEMPL "</tr></table>\n";
+   &print_output('M',"</tr></table>\n");
    
    $cSectsub = $saveCsectsub;  ## restore previous sectsub and split it
    &split_sectionCtrl($cSectsub);
@@ -1348,7 +1357,7 @@ sub prt_move_mauve_pages
      &split_sectionCtrl($cSectsub);
      &ck_visability;
      if($tVisable eq 'Y' and $tPreview eq 'Y') {  
-	   print MIDTEMPL "<a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">$cSectsubid</a><br>\n";
+	     &print_output($printmode,"<a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">$cSectsubid</a><br>\n");
      }
  } #end foreach
 

@@ -496,7 +496,7 @@ sub print_user_name
 	my $uid = &get_user_uid($userid);   # in user.pl
     my($uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on)  
          = &get_editor_row($uid);
-    print MIDTEMPL "$usertype: $ufirstname $umiddle $ulastname<br>\n" if($ulastname or $ufirstname or $umiddle);
+    &print_output($printmode, "$usertype: $ufirstname $umiddle $ulastname<br>\n") if($ulastname or $ufirstname or $umiddle);
  }
 }
 
@@ -505,7 +505,7 @@ sub get_summarizer_name_not_used
  my $sumAcctnum = $_[0];
  if($sumAcctnum) {
    ($userdata, $uaccess) = &read_contributors(N,N,_,_,$sumAcctnum,98989) ; 
-   print MIDTEMPL " ..Summarizer: $ufirstname $ulastname" if($userdata =~ /GOOD/);
+   &print_output($printmode, " ..Summarizer: $ufirstname $ulastname") if($userdata =~ /GOOD/);
  }
 }
 
@@ -515,7 +515,7 @@ sub get_suggestor_name_not_used
  my $suggestAcctnum = $_[0];
  if($suggestAcctnum) {
    ($userdata, $uaccess) = &read_contributors(N,N,_,_,$suggestAcctnum,98989); ## args=print?, html file?, handle, email, acct# 
-   print MIDTEMPL " .. Suggester: $ufirstname $ulastname" if($userdata =~ /GOOD/);
+   &print_output($printmode, " .. Suggester: $ufirstname $ulastname") if($userdata =~ /GOOD/);
  }
 }
 

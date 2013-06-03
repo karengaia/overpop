@@ -154,7 +154,7 @@ sub do_subsection {
  else {
     $aTemplate = "stdSubtitle" if($cTitle and $rSectsubid !~ /NewsDigest_NewsItem/);
  }
-
+# print "dis157 ..aTemplate $aTemplate print_it Y email_it $email_it htmlfile_it $htmlfile_it<br>\n";
  &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
  $aTemplate = "";
 
@@ -306,7 +306,7 @@ sub do_one_mail
 
     $select_item = &do_we_select_item;   # in docitem.pl
    if($select_item) {
-		 &print_one_doc($aTemplate,'Y','N','N',$ckItemnbr);  ## skip dups do_one_doc in docitem.pl
+		 &print_one_doc($aTemplate,'Y','N','N',$ckItemnbr);  ## skip dups prt_one_doc in docitem.pl
     }
 }
 
@@ -349,7 +349,7 @@ sub process_1only_list
 ##    print "<!-- art877 pre do_one ..docid $docid ..ckItemcnt $ckItemcnt ..-->\n";
     if($ckItemnbr == 1) {
         if($docloc =~ /d/) {
-          &do_one_doc($index_insert_sth);   ## Display the first item -- sub found in docitem.pl
+          &prt_one_doc($docid);   ## Display the first item -- sub found in docitem.pl
           $docloc = 'n';  ## change from do display to don't display
         }
         else { ## if first one is not a 'd', then set all to 'd'
@@ -445,9 +445,9 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
  foreach $data (@sorted) {
      ($keyfield,$docid,$docloc) = split(/\^/,$data,3);
-  my $save_docid = $docid;
-#          ## do_one_doc is in docitem.pl
-    &do_one_doc($index_insert_sth) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
+    my $save_docid = $docid;
+#          ## prt_one_doc is in docitem.pl
+    &prt_one_doc($docid) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
     $docid = $save_docid;
      if($skip_item !~ /Y/ or $select_item eq 'Y') {
 	    if($docid ne $prev_docid ) {

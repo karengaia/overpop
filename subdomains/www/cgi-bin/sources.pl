@@ -166,14 +166,14 @@ sub get_sources
 	     }	
 	}
     elsif ($print_src =~ /[YF]/) {   #print_src = Yes or Form
-       print MIDTEMPL "<option value=\"$src_entry\" ";
+       &print_output('M',"<option value=\"$src_entry\" ");
 
        if($sourcename and $source and ($sourcename =~ /$source/)){
-      	  print MIDTEMPL " selected" ;
+      	  &print_output('M'," selected");
           $sourcefound = 'Y';
           &source_to_template_array($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format);  
        }
-	   print MIDTEMPL ">$sourcename</option>\n";	
+	   &print_output('M',">$sourcename</option>\n");	
     }
  }
  if ($print_src =~ /[YF]/) {

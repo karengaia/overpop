@@ -77,6 +77,7 @@ subdomains/www/mauve*
 subdomains/www/maidu/*
 subdomains/www/Maidu_webpage/*
 subdomains/www/Maidu_webpage/*.php
+subdomains/www/mail-list/subscribers.txt
 subdomains/www/media_PowerPoint_movies/*
 subdomains/www/pdfs_documents/*
 subdomains/www/*.csv

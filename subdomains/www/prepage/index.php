@@ -2,8 +2,7 @@
 require './../php/bootstrap.php';
 $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_section%%%";
 ?>
-<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"> 
-<!--   logo/header and 3 column layout design and css hand coding mostly by abstractmachines dot net :: --> 
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <head> 
 <title>WOA!! World Ovepopulation Awareness</title>
