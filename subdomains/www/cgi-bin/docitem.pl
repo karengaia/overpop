@@ -15,11 +15,16 @@
 
 sub init_docitem_variables
 {
-   $DOCARRAY = "";
+   $DOCARRAY        = "";
+   $parent_docid    = "";
+   $parent_sectsubs = "";
+   $parent_needsum  = "";
    &clear_doc_data; 
    &clear_doc_variables;
    &clear_helper_variables;
    &clear_msgline_variables;
+   $INSIDE = "";
+   $INSIDE_FOUND = "";
 
    $doc_update_sql = "UPDATE docitem SET deleted=?,outdated=?,nextdocid=?,priority=?,headline=?,regionhead=?,skipheadline=?,
 	subheadline=?,special=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woapubdatetm=?,
@@ -43,49 +48,59 @@ sub display_one
    $expdate = "$expyear-$expmonth-$expday";
  }
  elsif($docid =~ /[0-9]/) {
-	 ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 ($found,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,$print_it);
-   if($sectsubs =~ /$suggestedSS|$emailedSS/ and $access !~ /[ABCD]/
+  if($sectsubs =~ /$suggestedSS|$emailedSS/ and $access !~ /[ABCD]/
       and $cmd eq "processlogin") {
      $errmsg = "Sorry, you cannot access this article until it has been pre-processed. Please check the various Headlines lists";
      &printInvalidExit;
    }
+   elsif(!$found) {
+	 &printSkipContinue("Item # $docid not found or deleted or inside empty; normal");  ## in errors.pl
+	 return("");
+   }
  }
   &put_data_to_array;
   &process_template($aTemplate,'Y','N','N');  #in template_ctrl.pl
+## ????  &process_template($aTemplate,'N','N','N');
 }
 
 sub prt_one_doc
  {
-  my($indocid,$intemplate,$inside) = @_; 
-#  my $index_insert_sth = $_[0];
+  my($indocid,$intemplate) = @_; 
+  my $found = "";
   $aTemplate  = $intemplate if($intemplate);
   $docid = $indocid;
   $docid =~ s/^\s//g;   ## trim non-alphanumerics
   $docid =~ s/\s$//g;   ## trim non-alphanumerics
   if(-f "$deletepath/$docid.del" and $doclistname !~ /$deleteSS/
       and -f "$printdeletedOFF") {
-     return;
+     return("");
   }	
+  ($found,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	 = &get_doc_data($docid,"");  # 2nd arg = $print_it
+  return("") if(!$found);
+  $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
 
- ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
-	 = &get_doc_data($docid,'N');
-   $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
-	
   if($cmd eq 'init_section') {
        $sectsubs = $thisSectsub;
  ##    &write_doc_item($docid);   DISABLED UNTIL NEEDED
   }
-  elsif($inside =~ /Y/) {
-		  &put_data_to_array;
-		  &process_inside_template($aTemplate,$docid);   #in template_ctrl 
-  }
-  else {
+  elsif($INSIDE) {   
+	   return("") if($sectsubs =~ /$newsdigestSS/);  #skip if article moved to newsDigest
+	   $INSIDE_FOUND = 'Y';
+	   &put_data_to_array;
+	   &process_inside_template($aTemplate,$docid);   #in template_ctrl
+	   &IO_priority5($docid);
+	   return("Y");   #found
+ }
+ else {
      $select_item = &do_we_select_item($docid);
-     if($skip_item !~ /Y/ and $select_item eq 'Y') {
-		  &print_one_doc ($docid,$aTemplate,$print_it,$email_it,$htmlfile_it,$ckItemnbr)
-     }                           
-  } #end else
+     return("") if($skip_item =~ /Y/ or $select_item !~ /Y/);
+
+	 &print_one_doc ($docid,$aTemplate,$print_it,$email_it,$htmlfile_it,$ckItemnbr);
+	 return("Y");                  
+ } #end else
 
  if($fix_sectsub =~ /Y/) {
  ##       $body = "";
@@ -102,6 +117,7 @@ sub prt_one_doc
  ##   &fix_fullbody;       
  ##   &write_doc_item($docid,$doc_insert_sth);
   }
+  return("Y");    # found, not skipped
 }
 
 sub print_one_doc 
@@ -171,7 +187,7 @@ sub do_body_comment   # from template_ctrl.pl
 	      $bodycom = $points;
      }
      else {
-	      $bodycom = substr($fullbody,0,450);
+	      $bodycom = substr($fullbody,0,450) . "...";
      }  
   }
   else {
@@ -182,26 +198,12 @@ sub do_body_comment   # from template_ctrl.pl
 	 my $word = "";
 	 my $title = "";
 	 $bodycom = "";
-	 foreach $bodycomline (@bodylines) {
+	 foreach $bodycomline (@bodylines) {    # substitute inside template merged with data for this docid earlier in process
 		if($bodycomline =~ /^@@([0-9]{6})/) {
 		    my $indocid = $1;
-	        $bodycomline = "";
-	        $now_print = 'Y';
-	        $filepath = "$templateMidpath$slash$indocid.mid";  # $filename = $docid
-	        unless (-f $filepath) { print "Filepath for formatted 'Inside' article not found - $filepath<br>\n";}
-#			print "doc193 BODYcmd @@ $docid ..indocid $indocid body $bodycom<br>\n";
-
-	        open(INSIDART, "$filepath") or die "doc216 cannot open inside file $filepath<br>\n";	
-		    while(<INSIDART>) {
-		        chomp;
-		        my $inline = $_;
-		        $bodycom = "$bodycom$inline\n";
-		    }
-		    close(INSIDART);
-		    $word = "";
-		    $found_inside = 'Y';
-		    
-			unlink $filepath  or printDataErr_Continue("Could not delete $filepath : $! @ doc226<br>\n");
+#			print "doc200 ..indocid $indocid ... <br><br>*** $INSIDEMERGE{$indocid}*** <br><br>\n";
+		    $bodycomline = $INSIDEMERGE{$indocid} if($INSIDEMERGE{$indocid});  
+#		    $INSIDEMERGE{$indocid} = "";
 		}		
 	    elsif($bodycomline =~ /#http/ or $bodycomline =~ /#[A-Z]/ or $bodycomline =~ /#mp3#http/) { #link or acronym
 		   my @words = split(/ /,$bodycomline);
@@ -286,7 +288,6 @@ ENDWORD
 }
 
 
-
 ### ########  STOREFORM   ###########
 
 sub storeform
@@ -299,10 +300,13 @@ sub storeform
 }
 
 sub main_storeform {  #from above and also from write_email
- $docaction = 'N' unless($docid);
- &get_docid;
+ unless($docid) {
+   $docaction = 'N';
+   &get_docid;
+   $sysdate = &calc_date('sys',0,'+');
+ }
 #          for sysdate if new
- $sysdate = &calc_date('sys',0,'+');
+
  &do_sectsubs;     # in sectsubs.pl
 
 # &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
@@ -406,7 +410,7 @@ sub do_updt_selected
 
   $temp = $FORM{"sectsubs$pgitemcnt"};
 
- ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ ($found,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($docid,'N');  #in docitem.pl
 
   &get_more_select_form_values;  ## overrides prior doc values
@@ -529,7 +533,7 @@ sub process_popnews_email       # from selecteditems_crud.pl when item selected 
  ($edocid,$elink,$epriority,$index_insert_sth) = @_;
  my $found = "";
 	
- ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ ($found,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 	 = &get_doc_data($edocid,'N');
  if($found) {	
 	 &get_more_select_form_values; #Overrides current docitem with values from form
@@ -566,7 +570,7 @@ if($expired =~ /goofy/) {
 	  $idx_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
       @expired = split(/;/,$expired);
       foreach $docid (@expired) {
-	   ($found,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+	   ($found,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
 		 = &get_doc_data($docid,N);  ## in docitem.pl
    	   $delsectsubs = $sectsubs;
    	   $addsectsubs = $expiredSS;
@@ -1061,7 +1065,7 @@ sub get_doc_form_values
 
   $docloc_add  = $FORM{"docloc_add"};
   $docloc_news = $FORM{"docloc_news"} unless($docloc_news);
-#print "doc777 ..priority $priority ..docloc_news $docloc_news ..newsprocsectsub $newsprocsectsub<br>\n";   
+  
   if($FORM{"skiphandle$pgitemcnt"}) {
      $skiphandle  = $FORM{"skiphandle$pgitemcnt"};
   }
@@ -1109,10 +1113,13 @@ sub get_doc_form_values
 
 sub get_doc_data
 {
-  ($docid,$print_it)  = @_;
-  return("") unless($docid);
+  my($indocid,$print_it)  = @_;
+  return("") unless($indocid);
   my $found_it = "";
+  $printout = "";
   &clear_doc_data;
+  &clear_doc_variables;
+  $docid = $indocid;
 
   if($DB_docitems < 1 or $cmd eq 'import') { ##    flatfile processing
 	  if($docid =~ /-/) {      
@@ -1122,11 +1129,9 @@ sub get_doc_data
 		   $docid =~ s/\s+$//mg;
            $filepath = "$itempath/$docid.itm";
       }
-	  
-	  $found_it = "Y";
-	  $printout = "";
-
+	
 	  if(-f "$filepath") {
+		$found_it = "Y";
 	    open(DATA, "$filepath");
 	#                  one line per field
 	    while(<DATA>)
@@ -1140,61 +1145,80 @@ sub get_doc_data
 	         ($name, $value) = split(/\^/,$line);
 	         $DATA{$name} = $value;
 	       }
-	        $printout .= "$line<br>\n" if($printit =~ /Y/); # printit not the same as $print_it passed in as arg
+	        $printout .= "$line<br>\n" if($print_it =~ /Y/); # printit not the same as $print_it passed in as arg
 	    }
 	    close(DATA);
-
-	    return $printout if($printit =~ /Y/);
-
-		($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
-		 = &extract_docitem_variables;	
+	    return $printout if($print_it =~ /Y/);
+ 	    ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+		  = &extract_docitem_variables;	
 	 }
 	 else {
-	   $found_it = "";
-	   $headline = "File not found at doc981 - docid *$docid*";
-	 }
+	   $headline = "File not found at doc1159 - docid *$docid*";
+	}
   }
   else {	## TODO DB return $row; if not $row: return ""
 	  ($deleted,$priority,$headline,$regionhead,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$region,$regionfks,$source,$sourcefk,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum)
 	   = &DB_get_docitem($docid);
-	   return("");	
+	   $found_it = "Y" unless($deleted =~ /Y/);	
   }
   
-  if($body =~ /@@[0-9]{6}/) {
+  if($body =~ /@@[0-9]{6}/ and !$INSIDE and $sectsubs =~ /$newsdigestSS/) {
+	  $INSIDE = "Y";          ## needed to prevent looping in this recursive routine
 	  $save_template = $aTemplate;
  	
 	#     The only reliable way I know how to get these variables into an array
-	  $save_docvars = "$docid^$deleted^$priority^$headline^$regionhead^$special^$topic^$link^$skiplink^$selflink^$sysdate^$pubdate^$pubyear^$skippubdate^$woapubdatetm^$expdate^$region^$regionfks^$source^$sourcefk^$body^$fullbody^$freeview^$points^$comment^$bodyprenote^$bodypostnote^$note^$miscinfo^$sectsubs^$skiphandle^$dtemplate^$imagefile^$imagedescr^$recsize^$worth^$sumAcctnum^$suggestAcctnum";
-      &get_inside_articles;  # builds html file (data married with template) of each docid of inside articles
+	  $save_docvars = "$docid^$deleted^$priority^$headline^$regionhead^$special^$topic^$link^$skiplink^$selflink^$sysdate^$pubdate^$pubyear^$skippubdate^$woapubdatetm^$expdate^$region^$regionfks^$source^$sourcefk^$body^$fullbody^$freeview^$points^$comment^$bodyprenote^$bodypostnote^$note^$miscinfo^$sectsubs^$skiphandle^$dtemplate^$imagefile^$imagedescr^$recsize^$worth^$sumAcctnum^$suggestAcctnum^$dSectsubs";		
+      $parent_docid    = $docid;
+      $parent_sectsubs = $sectsubs;  #global
+      $parent_needsum  = $needsum;   #global - examined in template_ctrl.pl
+# print "Parent $docid .. body $body ..parent_needsum $parent_needsum<br><br>\n";
+       my $newbody = &get_inside_articles($body);  # builds html file (data married with template) of each docid of inside articles
       $aTemplate = $save_template;
-      ($docid,$deleted,$priority,$headline,$regionhead,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$region,$regionfks,$source,$sourcefk,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum)
+      ($docid,$deleted,$priority,$headline,$regionhead,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$region,$regionfks,$source,$sourcefk,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$dSectsubs)
 	    = split(/\^/,$save_docvars);
-#	  print "doc1173 found @@ and after get_inside docid $docid headline $headline<br>\n";
+	
+	  $body = $newbody;
+
+	  if($INSIDE_FOUND) {
+		 $INSIDE_FOUND = "";
+		 $INSIDE = "";
+	  }
+     else { return (""); }
  }
- return($found_it,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
+ return($found_it,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
 }
 
 sub get_inside_articles {
+ my $body = $_[0];
  my $word = "";
  my $bodybuild = "";
  my $bodyline = "";
  my $indocid= "";
  my $intemplate = "";
+ my $found = "";
+ my $newbody = "";     #rebuild body
  my @bodylines = split(/\n/,$body);
- foreach $bodyline (@bodylines) {		
-     if($bodyline =~ /^@@/) {  ## article within an article
-       if($bodyline =~ /-/) {
- 	       ($indocid,$intemplate) = split(/-/,$word,2) if($bodyline =~ /-/);
-        }
-        else {
-	       $indocid = $bodyline;
-        }
-	     $indocid =~ s/@@//;           ## strip leading @@
-	     $indocid =~ s/ //;            ## strip blanks
-		 $intemplate = "news_insideItem" unless($intemplate);
-	     &prt_one_doc($indocid,$intemplate,'Y');
-      }
+ foreach $bodyline (@bodylines) {	
+	 if($bodyline =~ /^@@[0-9]{6}/ and $parent_sectsubs =~ /$newsdigestSS/) {
+		 my $indocid = substr($bodyline,2,7);
+         my($rest,$insidetemplate) = split(/-/,$bodyline,2) if($bodyline =~ /@@[0-9]{6}-/);
+		 $insidetemplate = "news_insideItem" unless($insidetemplate);
+		 $insidetemplate = "email_insideItem" if($insidetemplate =~ /news_insideItem/ and $now_email =~ /Y/);
+	     $found = &prt_one_doc($indocid,$insidetemplate);   #used recursively
+	     $newbody = "$newbody\n$bodyline" if($found and $newbody);
+	     $newbody = "$bodyline" if($found and !$newbody);
+     }
+     else {
+	    $newbody = "$newbody\n$bodyline" if($newbody);
+		$newbody = "$bodyline\n" if(!$newbody);
+	}
  }
+
+my @sdocids = split(/^/,$save_docids);
+ foreach $sdocid (@sdocids) {
+	print "doc1217 $sdocid INSIDEMERGE $INSIDEMERGE{$sdocid}<br>\n";
+ }
+ return($newbody);
 }
 
 sub extract_docitem_variables
@@ -1308,7 +1332,6 @@ sub extract_docitem_variables
     	($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$regionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format) 
           = &get_sources($printit,$source);   #in sources.pl
     }
-
 	return($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on);
 }
 
@@ -1392,8 +1415,8 @@ sub clear_doc_data
 #22
 }
 
-sub clear_doc_variables
-{
+sub clear_doc_variables     
+{                                       ## These are all globals
 	$nulldate           = '0000-00-00';
 	$nulldatetime       = '0000-00-00 00:00:00';
 	$docaction          = "";
@@ -1640,8 +1663,7 @@ sub write_doc_item
   return if(!$headline and !$link);
 
   if($addsectsubs =~ /$deleteSS|$expiredSS/) {
-     system "touch $deletepath/$docid.del" if($docid ne "");
-   ## TODO DB Set delete flag in record for DB processing.
+     &IO_delete($docid) if($docid ne "");
   }
 
   if($docid =~ /-/) {       ##  from emailed 
@@ -1704,7 +1726,7 @@ sub write_doc_data_out
   print DATAOUT "nextdocid\^$nextdocid\n";
 	
   if($addsectsubs =~ /($newsdigestSS|$headlinesSS|$suggestedSS|$summarizedSS|$headlinesPriSS)/) {
-	   $woapubdatetm = &get_nowdatetime;
+	   $woapubdatetm = &get_nowdatetime;	
   }
   elsif(!$woapubdatetm) {
 	   $woapubdatetm = $epoch_time;
@@ -1896,6 +1918,18 @@ sub remove_dups_from_list    # removes duplicates from a semi-colon separated li
 	$list = "$list;$item" unless($list =~ /$item/);
  }
  return($list);
+}
+
+####  IP/OP OPERATIONS ##########   ODO: add DB version
+
+sub IO_delete {
+  my $docid = $_[0];
+  system "touch $deletepath/$docid.del" unless (-f "$$deletepath/$docid.del");
+}
+
+sub IO_priority5 {  # set priority to 5 if promoted to newsDigest
+	my $docid = $_[0];
+	system "touch $priority5path/$docid.pri5" unless (-f "$priority5path/$docid.pri5");
 }
 
 ####  DATABASE OPERATIONS ##########
@@ -2104,12 +2138,12 @@ sub write_exp_docitem
  chmod 0777, $docpath if($SVRinfo{'environment'} == 'development');
 
  $export_docitem_cnt = $export_docitem_cnt + 1;
-
-########### TODO - export index here!! with stratus
 }
 
+########### TODO - export index here!! with stratus 
+########### TODO - flag articles that are on wrong index (i.e. sectsubs =~ /headlines/ on newsdigest index)
 
-sub import_docitems      
+sub import_docitems    
 {
  my ($newsSSname,$mindocid_n,$maxdocid_n) = @_;  # one of the news or news archives SS - or - docid max and min
 
@@ -2197,10 +2231,10 @@ sub import_one_docitem
 {
  my ($docid,$newsSSname,$itemcnt,$timesecs,$doc_insert_sth,$idx_insert_sth) = @_;
 
- my ($deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
+ my ($found,$docid,$deleted,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfks,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$recsize,$worth,$sumAcctnum,$suggestAcctnum,$summarizerfk,$suggesterfk,$changebyfk,$updated_on)
  = &get_doc_data($docid,'N');
 
- if($headline =~ /File not found/) {
+ if($headline =~ /File not found/ or !$found) {
 	 print "$docid NOTFOUND -- $headline <br>\n";
      &write_index_flatfile('import_NotFound',$docid,'','P','import_NotFound','');  #log - in index.pl
      return;

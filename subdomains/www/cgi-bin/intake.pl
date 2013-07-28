@@ -337,14 +337,15 @@ sub get_header_info {
 
 
 sub links_separate {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
- ($ep_type,$handle,$pdfline,$sectsubs,$emailbody,$receiptdate) = @_;
+ ($ep_type,$handle,$pdfline,$sectsubs,$fbody,$receiptdate) = @_;
 
- $emailbody = &line_fix($emailbody);
- $emailbody = &apple_line_endings($emailbody);
- $emailbody  =~ s/^\n*//g;   # beginning of line   TODO: need to go line-by-line
- $emailbody  =~ s/\n+$//g;   # end of line
+ $fbody = &line_fix($fullbody);
+ $fbody = &apple_line_endings($fbody);
+ $fbody  =~ s/^\n*//g;   # beginning of line   TODO: need to go line-by-line
+ $fbody  =~ s/\n+$//g;   # end of line
 
  my $save_sectsubs = $sectsubs;
+
  &clear_doc_data;      # in docitem.pl
  &clear_doc_variables;
 # $addsectsubs = $save_sectsubs;
@@ -355,42 +356,48 @@ sub links_separate {          ## Not only for multiple articles in one submittal
  my $regions = "";
  my $answer = "";
  my $linkck = "";
+ my $first = 'Y';
+ my $bline = "";
+ my @bodylines = split(/\n/,$fbody);
 
- @emsglines = split(/\n/,$emailbody);
-
- foreach $emsgline (@emsglines) {
-   chomp $emsgline;
-   if($emsgline =~ /\b(http.*)\b/) {
-	   if($link) {               # Is there a link already? (from previous)
-		   $fullbody =~ s/^\n//;
-		   $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
-		   ($source,$region) = &get_source_linkmatch($link);
-	       &main_storeform;      # in docitem.pl - store the link and other data
-	       &clear_doc_data;      # in docitem.pl
-	       &clear_doc_variables; # in docitem.pl
-	   }
+ foreach $bline (@bodylines) {
+   chomp $bline;
+   if($bline =~ /\b(http.*)\b/) {
+	   &links_separate_finish($save_sectsubs) unless($first);
+	   $first = "";
 	   $link = $1;
 	   $link = &chk_link($link);
 	   $link = "htt$link" if($link and $link !~ /http/);
-	   $sectsubs = $save_sectsubs;
-	   $pubdate = $todaydate;
-	   $priority = "5";
-	   $docaction = 'N';
     }
-    else {
-	    &extract_variables($emsgline);
+    elsif($bline =~ /\/\//) {
+		($headline,$rest) = split(/\/\//,$bline,2);
+		@varbits = split(/\/\//,$rest);
+		foreach $varbit (@varbits) {
+		   &extract_variables($varbit,"Y");	# in smartdata.pl
+		}
+	}
+	else {
+	    &extract_variables($bline,"");
     }
- }   # EOF - finish last link
-
- if($link) {               # Is there a link already? (from previous)
-	 $fullbody =~ s/^\n//;
-	 $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
-	 ($source,$region) = &get_source_linkmatch($link);
-	
-     &main_storeform;      # in docitem.pl - store the link and other data
-     &clear_doc_data;      # in docitem.pl
-     &clear_doc_variables; # in docitem.pl
  }
+ &links_separate_finish($save_sectsubs);   # End of bodylines
+}
+
+sub links_separate_finish
+{
+ $sectsubs = $_[0];
+ $fullbody =~ s/^\n//;
+ $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc,$sentdate,$todaydate) 
+     if($pubdate !~ /[0-9]/ or $pubdate =~ /0000-00-00/);
+ ($source,$src_region) = &refine_source($msgline_source,$link) if(!$source);
+ ($source,$region) = &get_source_linkmatch($link);
+# $region = &refine_region($region,$src_region) if(!$region or $region eq 'Global');   # found in regions.pl
+ $priority = "5";
+ $docaction = 'N';
+
+ &main_storeform;      # in docitem.pl - store the link and other data
+ &clear_doc_data;      # in docitem.pl
+ &clear_doc_variables; # in docitem.pl
 }
 
 

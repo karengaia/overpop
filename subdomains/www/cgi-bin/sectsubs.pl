@@ -1094,7 +1094,7 @@ sub print_end_sections
 
   &print_doc_order;
 
-  ny $op = <<STRATUSEND;
+  $op = <<STRATUSEND;
      </td><td valign="top">
      <cite class="verdana"><b>Item stratification</b> <br>
       M=middle (normal)</cite></td></tr>

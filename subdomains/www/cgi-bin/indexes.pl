@@ -15,13 +15,13 @@ sub pushdata_to_sortArray
  if($kDocid ne $docid) {
       $saveDocid = $docid;
       $docid = $kDocid;
-      &get_doc_data;
+      &get_doc_data($docid,'N');
       $docid = $saveDocid;
   }
 
-  $priority       = '5' unless($priority =~ /[1-7]/);
-  $kDocloc = 'M' if($kDocloc !~ /[A-Za-z0-9]/ and $cAllOr1 =~ /all/);
-  $kDocloc = 'd' if($kDocloc !~ /[A-Za-z0-9]/ and $cAllOr1 =~ /1only/);
+  $priority = '5' if($priority !~ /[1-7]/ or -f "$priority5path/$docid.pri5");
+  $kDocloc  = 'M' if($kDocloc !~ /[A-Za-z0-9]/ and $cAllOr1 =~ /all/);
+  $kDocloc  = 'd' if($kDocloc !~ /[A-Za-z0-9]/ and $cAllOr1 =~ /1only/);
 # my $x = &lessthan_3monthsago($sysdate);  #in date.pl
   my $sysdatenum = $sysdate;
   $sysdatenum =~ s/-//g;
@@ -44,7 +44,7 @@ sub pushdata_to_sortArray
      $keyfield = "$kDocloc-$region-$topic";
   }
   elsif($sortorder eq 't') {
-     $kPriority = (7 - $priority);
+     my $kPriority = (7 - $priority);
      $keyfield = "$kDocloc-$priority-$region-$topic";
   }
   elsif($sortorder =~ /[Pp]/) {
@@ -52,7 +52,7 @@ sub pushdata_to_sortArray
      $keyfield = "$kDocloc-$kPubdate";
   }
   elsif($sortorder =~ /d/) {     # headlines priority
-	 $kPriority = 5;
+	 my $kPriority = 5;
      $kPriority = (7 - $priority) if($priority =~ /[0-9]/);
      &get_sort_sysdate;
      &get_sort_pubdate;
@@ -64,11 +64,10 @@ sub pushdata_to_sortArray
      $keyfield = "$kSysdate-$kPubdate";
   }
   elsif($sortorder =~ /[A]/) {
-     $kPriority = 7;
+     my $kPriority = 7;
      $kPriority = (7 - $priority) if($priority >=0);
      &get_sort_sysdate;
      $keyfield = "$kDocloc-$kPriority-$kSysdate";
-     unlink $kPriority;
   }
   elsif($sortorder eq 'H') {
      $keyfield = "$headline";
@@ -86,6 +85,7 @@ sub pushdata_to_sortArray
   else {
      $keyfield = "$kDocloc-$kSeq";
   }
+
 ## print "<font face=arial size=1 color=silver>sec470 $kDocid $keyfield</font><br>\n";
   $pushdata = "$keyfield^$kDocid^$kDocloc";
   $pushdata =~ s/^\^+//;   ## trim leading carets

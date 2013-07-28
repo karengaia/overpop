@@ -133,6 +133,7 @@ sub get_site_info
   $sectionpath    = "$autosubdir/sections";
   $expsectionpath = "$autosubdir/sectionsExport";
   $deletepath     = "$autosubdir/deleted";
+  $priority5path  = "$autosubdir/priority5";
   $keywordpath    = "$autosubdir/keywords";
   $logpath        = "$autosubdir/log";
   $statuspath     = "$autosubdir/status";
@@ -320,16 +321,16 @@ sub waitIfBusy
      @stat = stat("$lock_file");   # Gets stats for a file
      $now = time;
      $age = $now - $stat[9];        # $stat[9]  = timestamp in seconds for last mod
-     if($age gt 20)   {
+     if($age > 20)   {
         unlink  "$lock_file";    # Deletes the lock file if  > 20 secs
-        &errLogit("unlocking $lock_file - too old",$cmd,$action,$docid,$docaction,$operator_access,$userid,$sectsubname);
+#        &errLogit("unlocking $lock_file - too old",$cmd,$action,$docid,$docaction,$operator_access,$userid,$sectsubname);
      }
      else  {
         sleep 1;     # Wait a second
      }
    }
    system "touch $lock_file" if($relock eq 'lock'); #unlock must be done in calling routine
- }
+}
  
 
 sub tooMuchLooping

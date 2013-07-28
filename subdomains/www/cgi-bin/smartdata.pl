@@ -251,8 +251,7 @@ sub assign_msglines
 sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should use this for all entries
                           ## like pass2_separate_email and links_separate (already did)
 {
- my $msgline = $_[0];
-
+ my($msgline,$bit) = @_;
  if($misc = &chk_miscinfo($msgline) ) {
 #		print "sm164 MI<br>\n";
 	$miscinfo = "$miscinfo\n$misc";
@@ -277,14 +276,12 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
 	}
 #		print "sm191 source<br>\n";
  }
- elsif(!$author and $author = &chk_author($msgline) ) { # By: Author:
-#			print "sm194 author2<br>\n";
+ elsif(!$author and $author = &chk_author($msgline,$bit) ) { # By: Author:
  }
  elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:
 #			print "sm197 source 2<br>\n";	
  }
- elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline)) { # DD Date:
-#	print "sm192 date found msgline_date $msgline_date<br>\n";
+ elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline,$bit)) { # DD Date:
  }
  elsif($msgline =~ /^RR /) { # RR - skip this line; pick up region below; region can be in fullbody, headline, etc
 #			print "sm203 region<br>\n";
@@ -305,6 +302,7 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
        $fullbody = $msgline;
     }
  }
+ $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
 }
 
 
@@ -661,18 +659,22 @@ sub chk_subheadline {
 }
 
 sub chk_author {
- my $line = $_[0];
- if($line =~ /^(By: )/ or $line =~ /^(Author: )/ ) {
-    $line =~ s/$1//;
+ my($line,$bit) = @_;
+ $line =  &strip_leadingSPlineBR($line);
+ if($line =~ /^[Bb]y: / or $line =~ /^Author: / or ($bit =~ /Y/ and $line =~ /[Bb]y /) ) {
+    $line =~ s/By//i;
+    $line =~ s/Author//i;
     return($line);	
  }
  return("");
 }
 
 sub chk_date {
-  my ($dtkey,$anydate,$line) = @_;
-  ($msgline_anydate,$msgline_date,$head) = &find_date_in_line($dtkey,$anydate,"",$line); #in date.pl
+  my ($dtkey,$anydate,$line,$bit) = @_;
+
+  ($msgline_anydate,$msgline_date,$head) = &find_date_in_line($dtkey,$anydate,"",$line,$bit); #in date.pl
   return($msgline_date) if($msgline_date);
+  return($msgline_anydate) if($msgline_anydate);
   return ("");
 }
  

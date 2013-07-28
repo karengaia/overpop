@@ -63,7 +63,7 @@ sub set_date_variables   # from article.pl
 }
 
 sub find_date_in_line {    #comes here from smartdata.pl
-	($dtkey,$msgline_anydate,$msgline_date,$msgline) = @_;
+	($dtkey,$msgline_anydate,$msgline_date,$msgline,$bit) = @_;
     my $head = "";
 	if($dtkey and $msgline =~ /$dtkey/ and !$msgline_anydate and !$msgline_date) {
 		$msgline_date = $msgline;
@@ -84,6 +84,7 @@ sub find_date_in_line {    #comes here from smartdata.pl
 	elsif( ($msgline =~ /$chkyear/ and $msgline =~ /$chkmonth/)
 		  or $msgline =~ /[0-9]{1,4}[\/-][0-9]{1,4}[\/-][0-9]{1,4}/) {
 		   $msgline_anydate = $msgline unless($msgline_anydate);
+		   $msgline_date = $msgline if($bit);
 	}
 	return($msgline_anydate,$msgline_date,$head);
 }
@@ -129,17 +130,17 @@ sub print_srcdate
          $srcdate= "$month $pubyear";
       }
     }
-    &print_output($printmode, "$srcdate, ") if($source);
+    &print_output($printmode, "$srcdate, ") if($source);  #in template_ctrl
     &print_output($printmode, "$srcdate") unless($source);
  }
 }
 
 
-## ACCESSSED FROM SMARTDATA.PL
+## ACCESSSED FROM SMARTDATA.PL OR INTAKE.PL
 
 sub refine_date
 {
- my($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc) = @_;
+ my($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc,$sentdate,$todaydate) = @_;
  my $pubdate = "0000-00-00";
 
  if(!$msgline_date and $ehandle =~ /push/ and $msgline2 =~ /^Date: /) {

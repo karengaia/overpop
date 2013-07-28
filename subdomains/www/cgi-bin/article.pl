@@ -46,11 +46,9 @@ require 'docitem.pl';       # maintains and retrieves docitem (article) data; as
 require 'smartdata.pl';     # extension of docitem.pl used to parse data from an email or single textbox form
 require 'send_email.pl';   # sends an email
 require 'selecteditems_crud.pl'; # processes items selected from a list.
-
 &get_site_info;        ## in common.pl	
-&set_date_variables;   ## in date.pl
-
-&DB_get_switches_counts;  #in dbtables_ctrl.pl - Sets switches for using database - Yes or No?	
+&set_date_variables;   ## in date.pl	
+&DB_get_switches_counts;  #in dbtables_ctrl.pl - Sets switches for using database - Yes or No?
 &init_display_variables; # in display.pl
 &clear_sectsubs_variables;
 &init_users;
@@ -280,8 +278,7 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 	   }
 	   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
    }
-
-   &display_one($aTemplate,'Y','N','N'); # in docitem.pl
+  &display_one($aTemplate,'N','N','N'); # in docitem.pl
 }
 
 elsif($cmd eq "processlogin") {
@@ -317,7 +314,7 @@ elsif($cmd eq "processlogin") {
            $aTemplate = "suggest"     if($action eq "new");
            $aTemplate = "fullArticle" if($action eq "view");
        }
-       &display_one($aTemplate,'Y','N','N');   #in docitem.pl
+       &display_one($aTemplate,'N','N','N');   #in docitem.pl
    }
 	exit(0);
 }
@@ -327,12 +324,10 @@ elsif($cmd eq "display_section"
    or $cmd eq "print_select"
    or $cmd eq "display_subsection"
    or $cmd eq "process_select_login") {
-		
    $ss_ctr = 0;
    $savecmd = $cmd;   # we change it below  
    $access = ""; 
-
-  if($owner) {   # http://overpop/cgi-bin/article.pl?display_section%%%CSWP_Calendar%%%%%%%%CSWP
+   if($owner) {   # http://overpop/cgi-bin/article.pl?display_section%%%CSWP_Calendar%%%%%%%%CSWP
       $access = "A";
    }
    else {  
@@ -486,7 +481,7 @@ elsif($cmd eq "adminlogin") {
     if ($access =~ /[ABCD]/) {
 #     $aTemplate = "select_prelim";
 #     $print_it = 'Y';
-        &display_one("select_prelim",'Y','N','N');
+        &display_one("select_prelim",'N','N','N');
     }
     else {
        &printInvalidExit("Sorry, you cannot access this function without authorization.");
@@ -579,6 +574,7 @@ elsif($cmd eq 'display_article') {   # not tested; use viewarticle.php in prepag
 
  if(-f $filepath) {
     &display_one($aTemplate,'Y','N','N');  # maybe it's ("") ??   in docitem.pl
+print "art578 Maybe it should be &display_one($aTemplate,'N','N','N');<br>\n -- line 578";
  }
  else {
     print "$docid not found<br>\n";
@@ -606,7 +602,8 @@ elsif($cmd eq 'displayRange') {
    $filepath = "$itempath/$docid.itm";
 
    if(-f $filepath) {
-      &display_one($aTemplate,'Y','N','N');  #in docitem.pl
+      &display_one($aTemplate,'N','N','N');  #in docitem.pl  
+##     was &display_one($aTemplate,'Y','N','N');
    }
    else {
       print "$docid not found<br>\n";

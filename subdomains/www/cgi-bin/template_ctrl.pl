@@ -55,13 +55,16 @@ sub process_inside_template
  $printmode = 'I'; # Inside op goes to a file with the docid as a name.
  my $beginline = "";
  my $endline = "";
- $now_htmlfile = 'Y';
- $now_print eq 'N';
- $insidefile = "$templateMidpath$slash$docid.mid";
-#	print "tmp60 @@ FOUND inside_template docid $docid ,,aTemplate $aTemplate ..docary_headline $DOCARRAY{'headline'} ...insidefile $insidefile<br>\n";
- 
- $INSIDE = "INSIDE-$docid-$ctr";
- open($INSIDE, ">$insidefile") or die "tem58 cannot open outfile $outfile<br>\n";
+ if($cVisable eq 'E'){
+    $now_email = "Y";
+ }
+ else {
+   $now_htmlfile = "Y";
+   $now_print = "N";
+ } 
+
+ $INSIDEMERGE{$docid} = ""; #We will store the results of the inside merge of data and template here
+
  $templatefilepath = "$templatepath$slash$template.htm";
  open(TPLINSIDE, $templatefilepath) or die "tmp55 cannot open template $templatefilepath<br>\n";	
 
@@ -73,24 +76,23 @@ sub process_inside_template
 		   	$linecmd = $1;
 		   	if($linecmd =~ /[a-z]/ and $linecmd !~ /=/) {  #data plugins are lowercase or mixed case
 			    $line =~ s/\[(\S+)\]/$DOCARRAY{$1}/g;      #substitute data plugins from DOCARRAY
-		   	    print $INSIDE "$line\n";
+			    $INSIDEMERGE{$docid} = "$INSIDEMERGE{$docid}$line\n";
 		   	}
 			else {
 	           ($beginline,$endline) = split(/\[$linecmd\]/,$line,2);
 	           $linecmd = "[$linecmd]";
-	           print $INSIDE $beginline if($beginline =~ /[A-Za-z0-9]/);
+			   $INSIDEMERGE{$docid} = "$INSIDEMERGE{$docid}$beginline\n" if($beginline =~ /[A-Za-z0-9]/);
 	      	   &do_imbedded_commands($linecmd,"I");
-	           print $INSIDE "$endline\n" if($endline =~ /[A-Za-z0-9]/);
+			   $INSIDEMERGE{$docid} = "$INSIDEMERGE{$docid}$endline\n" if($endline =~ /[A-Za-z0-9]/);
 		   	}
 	 }
      else {
-    	print $INSIDE "$line\n";
+		$INSIDEMERGE{$docid} = "$INSIDEMERGE{$docid}$line\n";
      }
      last if($stop eq 'Y');
  }     ## end while
    close(TPLINSIDE);
-   close($INSIDE);
-   $ctr = $ctr+1;
+# print "tmp95 docid $docid ..INSIDEMERGE $INSIDEMERGE{$docid}<br>\n";
 }
   
 
@@ -323,13 +325,16 @@ sub process_imbedded_commands
 
 sub print_output {
 	my ($printmode,$output) = @_;  #not the same output as in outputfile
-	
+
 # print "tmp327 printmode $printmode now_print $now_print ..now_htmlfile $now_htmlfile template $template op $output<br>\n";
 	if($printmode =~ /M/) {
 		print $MIDTEMPL "$output";
 	}
 	elsif($printmode =~ /I/) {
-		print $INSIDE "$output";	
+		$INSIDEMERGE{$docid} = "$INSIDEMERGE{$docid}$output\n";
+#		$inside_buffer = "$inside_buffer tmp610 $docid ..printmode $printmode <br>\n";
+#		$inside_buffer = "$inside_buffer$output\n";
+#		print $INSIDE "$output";	
 	}
 	elsif($printmode =~ /O/) {
 		print $OUTFILE "$output";
@@ -1243,7 +1248,8 @@ sub do_redarrow
 	   	 &print_output($printmode, "$link$imgtag$invisibledot</a>");
 	}
 
-	elsif($head =~ /head/ and $needsum =~ /[1345]/) {
+	elsif($head =~ /head/ and ($needsum =~ /[1345]/ or $parent_needsum =~ /[1345]/) and $docid !~ /$parent_docid/) {
+#		print "tmp1252 ..needsum $needsum ..parent_needsum $parent_needsum body $body<br>\n";
 	     &print_output($printmode, "$link$imgtag$redarrow</a>");
 	}
 	elsif($head !~ /head/) {

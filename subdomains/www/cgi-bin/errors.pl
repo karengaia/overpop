@@ -70,10 +70,17 @@ sub printCompleteExit
 sub printBadContinue
 {
  my $errormsg = $_[0];
- $errmsg = $errormsg if($errormsg =~ /[A-Za-z0-9]/);
+ my $errmsg = $errormsg if($errormsg =~ /[A-Za-z0-9]/);
  print "<div class=\"error\">***WOA SYSTEM ERROR: USAGE ERROR: $errmsg</div>\n";
- &errLogit;
- $errmsg = "";	
+ &errLogit("System $errmsg");	
+}
+
+sub printSkipContinue
+{
+ my $errormsg = $_[0];
+ my $errmsg = $errormsg if(!$errormsg);
+ print "<div class=\"error\">*WOA data: $errmsg</div>\n";
+ &errLogit("Data $errmsg");
 }
 
 sub printDataErr_Continue

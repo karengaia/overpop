@@ -29,7 +29,6 @@ sub create_html
   if($rSectsubid =~ /Volunteer_log/) {   ## <-- Does this work? Where is volunteer's id?
 		$doclistname = "$sectionpath/$rSectsubid.idx";
 		&process_doclist($rSectsubid,$doclistname);
-		exit;
   }
 
   &split_section_ctrlB($rSectsubid);
@@ -42,7 +41,6 @@ sub create_html
 
   if($rPage and $rPage !~ /emailed|summarized|suggested/) {
      $htmlfile_it = 'Y';
-
      $lock_file = "$statuspath/$rPage.busy";
      &waitIfBusy($lock_file, 'lock');
 
@@ -54,6 +52,7 @@ sub create_html
   $pgItemnbr = "";
   $pgitemcnt = "";
   $pgItemnbr = 1;
+
   $pgitemcnt = &padCount4($pgItemnbr);
 
   foreach $cSectsub (@CSARRAY) {
@@ -75,7 +74,6 @@ sub create_html
         last;
      }
   }
-
   if($htmlfile_it eq "Y" and (-f "$statuspath/$rPage.busy")) {
 ##     system "cp $prepagepath/$rPage.html $publicdir/pre.$rPage.html" if (-f "$prepagepath/$rPage.html");
      unlink "$statuspath/$rPage.busy";
@@ -210,8 +208,9 @@ sub do_subsection {
 sub process_doclist
 {
  my ($rSectsubid,$doclistname) = @_;
+#	print "dis213 presort ..dFilename $dFilename ..doclistname $doclistname ..DB_doclist $DB_doclist ..cAllOr1 $cAllOr1<br>\n";
  $expired = "";
- my $counts = &get_start_stop_count($pg_num);  # in sectsubs.pl
+# my $counts = &get_start_stop_count($pg_num);  # in sectsubs.pl
  ($start_count,$stop_count) = split(/:/,$counts,2);
  $prev_docid = "000000";
 
@@ -227,8 +226,8 @@ sub process_doclist
     &process_1only_list;
  }
  else {
-	$lock_file = "$dFilename.busy";
-	&waitIfBusy($lock_file, 'lock');
+	$lock_file = "$statuspath/$dFilename.busy";
+	&waitIfBusy($lock_file, 'lock');	
     &push_items_to_sort;
     &sort_and_out;     
     $docid = "";
@@ -349,7 +348,7 @@ sub process_1only_list
 ##    print "<!-- art877 pre do_one ..docid $docid ..ckItemcnt $ckItemcnt ..-->\n";
     if($ckItemnbr == 1) {
         if($docloc =~ /d/) {
-          &prt_one_doc($docid);   ## Display the first item -- sub found in docitem.pl
+          &prt_one_doc($docid,"");   ## Display the first item -- sub found in docitem.pl
           $docloc = 'n';  ## change from do display to don't display
         }
         else { ## if first one is not a 'd', then set all to 'd'
@@ -360,10 +359,10 @@ sub process_1only_list
 
     print OUTSUB "$docid^$docloc\n";
 
-	  if($docid ne $prev_docid ) {
+	if($docid ne $prev_docid ) {
 	       $ckItemnbr = $ckItemnbr+1;
 	       $ckItemcnt = &padCount6($ckItemnbr);
-	  }
+	}
 
     $prev_docid = $docid;
  }
@@ -402,7 +401,6 @@ sub push_items_to_sort
 
  $totalItems = 1;
  $ckItemnbr = 1;
-
  open(INFILE, "$doclistname");
  while(<INFILE>) {
     chomp;
@@ -416,9 +414,11 @@ sub push_items_to_sort
        &pushdata_to_sortArray; ## in indexes.pl
        $totalItems = $totalItems + 1;
        $ckItemnbr  = $ckItemnbr + 1;
+       last if($total_items > 30);    ##### TEMPORARY FIX
     }
  } #end file
  close(INFILE);
+
  $totalItems = $totalItems - 1 unless($totalItems < 1);
  &set_item_count($totalItems,$doclistname);       #in indexes.pl
 #       Only do count file if an item has been changed, added, deleted; not just on display
@@ -437,7 +437,7 @@ sub sort_and_out
 $ss_ctr = $ss_ctr + 1;
 print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
-### $stop_count = $cMaxItems if($cMaxItems =~ /[0-9]/);
+ $stop_count = $cMaxItems if($cMaxItems =~ /[0-9]/);
  $ckItemnbr = 1;
  $ckItemcnt = &padCount6($ckItemnbr);
 
@@ -447,7 +447,13 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
      ($keyfield,$docid,$docloc) = split(/\^/,$data,3);
     my $save_docid = $docid;
 #          ## prt_one_doc is in docitem.pl
-    &prt_one_doc($docid) if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
+   $INSIDE = "";
+   $INSIDE_FOUND = "";
+   $parent_docid = "";
+   $parent_needsum = "";
+   $parent_sectsubs = "";
+
+   &prt_one_doc($docid,"") if($docid ne $prev_docid and $ckItemcnt > $start_count and $docid =~ /[0-9]/);  ## skip dups
     $docid = $save_docid;
      if($skip_item !~ /Y/ or $select_item eq 'Y') {
 	    if($docid ne $prev_docid ) {
@@ -461,7 +467,7 @@ print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 	 }
      $prev_docid = $docid;
      last if($ckItemcnt > $stop_count);
-  }
+ }
 }
 
 

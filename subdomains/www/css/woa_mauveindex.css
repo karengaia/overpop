@@ -1199,18 +1199,18 @@ a.tooltip {
 	}
 	big.tooltip2 {text-decoration:none; font-size:150%; font-weight:bold; color:#CC3300;
 		      line-height:70%;}	
-	big.tooltip2:hover {color:#9999cc;}
+	big.tooltip2:hover {color:#9999cc;text-decoration: none;}
 	
-	a.tooltip2:hover {z-index:10; background-color:#e3e3e3; color:#cccccc;}
+	a.tooltip2:hover {z-index:10; background-color:#e3e3e3; color:#cccccc;text-decoration: none;}
 	a.tooltip2 span {display: none}
 	a.tooltip2:hover span { /*the span will display just on :hover state*/
-		    display:block;
-		    position:absolute;
-		    top:-1em; left:-37em; width:35em;
+	        display:block;
+	        position:absolute; 
+	        top:1em; left:-9em; width:35em;
 		    border:1px solid #CC3300;
 		    background-color:#F5F3C7; color:#000;
 		    margin: 2px;
-		    font-size: 110%;
+		    font-size: 80%;
 		    text-align: left;
 		    text-decoration: none; padding:8px;
 			cursor: help;
