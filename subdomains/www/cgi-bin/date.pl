@@ -91,7 +91,16 @@ sub find_date_in_line {    #comes here from smartdata.pl
 
 sub assemble_pubdate  # from docitem.pl
 {
-   $pubyear = '0000' if($pubyear eq 'no date');
+ my($pubdate,$pubday,$pubmonth,$pubyear) = @_;
+  if($pubdate) {
+	my ($pubyyyy,$pubmm,$pubdd) = split(/-/,$pubdate,3);
+	$pubyear = $pubyyyy if($pubyyyy >= 1900 and $pubyyyy <= 2900);
+	#strip leading zeros from pubmm and pubdd; pad them back on $pubmonth and pubday
+	$pubmonth = $pubmm if($pubmm =~ /[01|02|03|04|05|06|07|08|09]/ or $pubmm <= 12);
+	$pubday   = $pubdd if($pubdd =~ /[01|02|03|04|05|06|07|08|09]/ or $pubdd <= 31);
+  }
+  $pubyear = '0000' if($pubyear eq 'no date');
+  $pubday = '00' unless($pubday =~ /[01|02|03|04|05|06|07|08|09]/ or $pubdd <= 31); 
   if($pubyear eq '0000') {
      $pubmonth = "00";
      $pubday   = "00";
@@ -516,6 +525,19 @@ sub get_7daysago_old
    $pubyear  = $sysyear;
    $pubmonth = $sysmm;
    $pubday   = $sysdd;
+}
+
+sub get_DBxdaysago   # 2013-07-11 13:41:05
+  { 	 
+   my $numdays = $_[0];
+   my $numsecs  = ($numdays * 3600 * 24);
+   my $timesecs = time;
+   my @datetime = localtime(time);
+   $timesecs = $timesecs - $numsecs;
+   @datetime = localtime($timesecs); 
+   $sysdatetime = &datetime_prep('yyyy-mm-dd-hh-mm-ss',@datetime);
+   my($sysyear,$sysmm,$sysdd,$syshh,$sysmin,$syssec) = split(/-/,$sysdatetime);
+   return("$sysyear-$sysmm-$sysdd $syshh:$sysmin:$syssec");
 }
 
 

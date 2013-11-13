@@ -2,11 +2,9 @@
 
 ## send_email.pl      sends an email
 
-###        I think we can remove this if we change moveutil.pl and utility.pl to do_email ######
-
 sub init_email
 {
-  $email_std_end = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n  9580 Oak Ave Pkwy, Ste 7-104,\n Folsom CA 95630\n $adminEmail\n";	
+  $email_std_end = "Thank you.\n\n Karen Gaia Pitts,\n editor and publisher\n World Population Awareness\n PO Box 3022\n Granite Bay, CA 95746\n $adminEmail\n";	
 }
 
 sub send_email 
@@ -16,6 +14,17 @@ sub send_email
   $replyto   = "replytoEmail";
   $recipient = $fromEmail;
   &do_email;
+}
+
+sub email_admin
+{
+  my $message = $_[0];
+  $recipient = "$adminEmail";
+  my $month = @months[$nowmm-1];
+  my $news_date = "$month $nowdd, $nowyyyy";
+  my $email_msg = "$news_date\n$message";
+  $subject  = "WOA Admin notification $news_date";
+  &do_email($email_msg);    # in send_email.pl
 }
 
 sub do_popnews_wkly_email

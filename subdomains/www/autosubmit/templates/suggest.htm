@@ -1,23 +1,29 @@
-<title>WOA!! Article Submission</title>
-
-<body basefont=arial link="blue" vlink="blue" alink="green"  bgcolor="CCFFCC">
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+ "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" >
+<head>
+	<title>WOA!! Article Submission</title>
+<style>
+	html {background-color:#969; margin: 20px;}
+	body {margin: 5px; padding: 10px; font-size: 1.0em; font-family: sans-serif, arial; color: #000; background-image:newspaperBG2.gif;}
+</style>	
+<body bgcolor="FFFFFF" basefont=arial link="blue" vlink="blue" alink="green">
 
 <blockquote>
 
 <p>
 <table cellpadding=0 cellspacing=0 align=right>
-<tr><td><img src="http://www.[CGISITE]/woaLogoAN.gif" hspace=20></td>
 <tr><td><center>
    <table cellpadding=0 cellspacing=0><td><a target=_top href=
-    "http://www.[CGISITE]">
+    "http://[PUBLICURL]">
     <font face=arial size=2 color="#000000">
     <b>Home</b></a>&nbsp;&nbsp;</td></table>
 </td></table>
 
-<!----- FORM BEGIN --------->
+<!--- FORM BEGIN -->
 
 <form method="post" name="article" action=
-"http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl"
+"http://[SCRIPTPATH]/article.pl"
 onSubmit="setControls()">
 <input type="hidden" name="cmd" value="storeform">
 <input type="hidden" name="sysdate" value="[sysdate]">
@@ -27,11 +33,12 @@ onSubmit="setControls()">
 <input type="hidden" name="body" value="">
 <input type="hidden" name="docid" value="[docid]">
 <input type="hidden" name="ipform" value="suggest">
+<input type="hidden" name="sectsubs" value="Suggested_suggestedItem">
 
 
 <center>
    <b><font size="5" face=arial>
-     Suggested Article/Item Submittal for WOA!!<br></font></b>
+     Suggested Article Submittal for WOA!!<br></font></b>
 <table><td><center>
    <font size=1 face="comic sans ms">
 [TODAY]
@@ -42,151 +49,55 @@ submitter: [firstname] [mi] [lastname]
 <p>
 
 <font size=2 face=arial><br>
- GUIDELINES: Please give either a functioning link (URL) to the article 
- and/or the full text of the article (the link may expire).  Please check  
-<a href="http://www.[CGISITE]/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%recent_recentItem%"> 
-WOA!!s list of recently-submitted articles</a> to avoid sending duplicate
- material. Suggest only recent articles - not older than 6 weeks. 
+ GUIDELINES: Please give at least a functioning link (URL) to the article and the headline. Suggest only recent articles - not older than 6 months. 
  <p>
 Since there are so many articles on population and 
  related side issues, there is no guarantee that suggested 
  articles will be published. Articles are chosen on the basis of their
- relationship to population. Abortion, immigration, and 'population control'
- are sometimes (not always) sensitive matters that often are not published.
+ relationship to population.
 </font>
 <p>
 
 
 <! -------- MAIN TABLE ----->
-             
-<!---------- DATE/SOURCE two cols ---------->
-<table id=datesrc>
 
-<td valign=top id=datecol1>
-<! ---------- PUB DATE --------->
-<b>Article Publish Date: </b><br> 
-[srcdate]
-<br>
-<select name="pubmonth">
-[PUBMONTHS]
-</select>
-
-<input type="text" name="pubday" size="3" maxlength="2" value="[PUBDAY]">
-
-<select name="pubyear">
-[PUBYEARS]
-</select>
-<br>
-<font size=1 face="comic sans ms">  Please wait until page has
-loaded</font>
-
-</td>
-<td> &nbsp;&nbsp; &nbsp; &nbsp; &nbsp;</td>
-
-<td id="sourcecol2" valign=top>
-
-    <b>Article Source :</b>&nbsp;&nbsp;
-    <font size=1 face="comic sans ms"> Publication or organization</font>
-  <br>
-    <select name="selectsource">
-[SOURCES] 
-    <option value=""></option>
-     </select><br>
-     <font size=1 face="comic sans ms">  or other if not on list</font><br>
-      <input type="text" name="source" size="35" maxlength="55"
-value=" 
-[OTHERSOURCE]
-">
-</td>
-</table>
-</font>
 
 <!----- HEADLINE & LINK AREA -------->
 <br>
-<b>Article Headline:</b> &nbsp; &nbsp; <font size=1 face="comic sans ms"> Cut and paste for more accurate results. </font><br>
-<textarea name="headline" wrap="physical" rows="5" cols=80">
-[headline]</textarea><br>
-<p>
-
-<b>Article Source Link <font size=2>(URL):</b></font>
+<b>Article Link <font size=2>(URL):</b></font>
 <font size=1 face="comic sans ms">  &nbsp;(Please provide if a live link is available)</font> <br>
-<textarea name="link" wrap="physical" rows="3" cols=80">[link]</textarea>
+<textarea name="link" wrap="physical" rows="3" cols=95">[link]</textarea>
 <p>
+<b>Article Headline:</b> &nbsp; &nbsp; <font size=1 face="comic sans ms"> Cut and paste for more accurate results. </font><br>
+<textarea name="headline" wrap="physical" rows="3" cols=95">
+[headline]</textarea><br>
+
 <! ------------- BODY, COMMENTS, FULL -- 2 COLS ----------->
 <p>
-    <b>Full Article:</b> &nbsp;&nbsp;
-   <font size=1 face="comic sans ms"> Cut and paste article here if no link or link may expire.
-Copy from a narrowed window for less ragged lines.</font><br>
+    <b>Article:</b> &nbsp;&nbsp;
+   <font size=1 face="comic sans ms"> Cut and paste article here</font><br>
     <textarea name="fullbody" wrap="physical" rows="20" cols=95">
-    [fullbody]</textarea>
+Date:
+Author:
+
+Entire Article:
+</textarea>
 
 <p>
 
     <b>Notation:</b> &nbsp;&nbsp;
    <font size=1 face="comic sans ms">Your remarks to the editor.</font><br>
-    <textarea name="note" wrap="physical" rows="2" cols=80">
+    <textarea name="note" wrap="physical" rows="3" cols=95">
     [note]</textarea>
 <p>
 </font></font>
-
-<br>
-[ADVANCE]
 <p>
 
 <input type=submit value="SUBMIT" name="submit">
 
-<!--------- END OF MAIN TABLE ------->
+<!-- END OF MAIN TABLE -->
 </form>
 
-
-<p>
-<br>
-<br>
-<hr>
-<p>
-<blockquote>
-<font size=3 face=verdana>
-<b>Sections: Normal progression of articles through the Autosubmit System</b></b></font><br>
-<font size=1 face=arial>
-(Not neccessarily every time)</font>
-<p>
-<font size=2 face=arial>
-<table>
-<tr><td valign=top><font size=2 face="arial">1. Email (for emailed items sent by <br>individuals or news clipping services)<br>
-                               -or- Suggested form<br><br>
-</td><td valign=top><font size=2 face="arial"> where I select the article into the database, if appropriate</td>
-<tr><td valign=top><font size=2 face="arial">2. Suggested worklist<br>
-       (and sometimes chaseLink list on volunteer page)<br><br></td><td valign=top><font size=2 face="arial"> where we process it for date, source, and various other corrections</td>
-<tr><td valign=top><font size=2 face="arial">3. Headlines <br><br></td><td valign=top><font size=2 face="arial"> where it stays until someone summarizes it</li>
-<tr><td valign=top><font size=2 face="arial">4. Summarized worklist<p></td><td valign=top><font size=2 face="arial"> where it waits for me to review and then send to the News Digest <br>
-    and the appropriate section</td>
-<tr><td valign=top><font size=2 face="arial">5a. News Digest ---> 6. News Archives</td><td>&nbsp;</td>
-<tr><td valign=top><font size=2 face="arial">5b. Section organized by topic <br>
-(i.e. India or Sustainability or Birth Control)</td><td>&nbsp;</td>
-</table>
-</font>
-
-<br><br><br>
-<font size=3 face=verdana>
-<b>Publishing Sequence</b></font><P>
-<font size=2 face="arial">	
-A page is displayed two different ways: dynamically and statically. Generally
-the public sees the static page and someone working as a volunteer sees the dynamic page, 
-which is generated on the fly so you can see your results immediately. 
-<p>
-An example of a dynamic URL is <br>
-http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?display_section%%%India_intro%
-<br>One drawback to dynamic pages is that images are difficult to display and we
-usually do not attempt to display them. 
-
-<p>If you want to see the static page,
-you have to go to the location of that page - indirectly by going to the front page and navigating
-to the page using the indexes - or directly if you know the URL, like www.population-awareness.net/India.html
-<p>
-Once a webpage has been modified by a volunteer, it goes to the admin for approval, and is
-then FTP'd as a static page to the public area (in otherwords, it is 'published'). 
-When a section editor makes changes, the
-page may advance to the public area immediately.
-</font>
 </blockquote>
 </body>
+</html>

@@ -49,6 +49,7 @@ require 'selecteditems_crud.pl'; # processes items selected from a list.
 &get_site_info;        ## in common.pl	
 &set_date_variables;   ## in date.pl	
 &DB_get_switches_counts;  #in dbtables_ctrl.pl - Sets switches for using database - Yes or No?
+&messages_initialize;     # in errors.pl
 &init_display_variables; # in display.pl
 &clear_sectsubs_variables;
 &init_users;
@@ -88,6 +89,8 @@ elsif($ENV{QUERY_STRING} and $ENV{QUERY_STRING} =~ /&/) {
 }
 
 if($ENV{QUERY_STRING} or -f 'debugit.yes') {
+	##article.pl?0-cmd%1-atemplate%2-docid%3-listSectsub%4-doclist/sectsubid%5-userid/pgnum%6-pgcnt%7-header%8-footer%9-order%10-mobidesk	
+	
    $queryString = 'Y';
    $cmd         = $info[0];
    $aTemplate   = $info[1];
@@ -161,6 +164,7 @@ else {
 ($userid,$rest) = split(/;/,$userid,2) if($userid =~ /;/);
 
 $op_userid = $userid;
+
 if($owner) {
   require 'owner.pl';
   &init_owner;
@@ -176,8 +180,8 @@ if($aTemplate ne 'login') {
    &read_sectCtrl_to_array($qOrder);  # in sectsubs.pl
    &read_sources_to_array;
    &read_regions_to_array;
-   $summarizedCnt = &total_items($summarizedSS); #in indexes.pl
-   $suggestedCnt  = &total_items($suggestedSS); #in indexes.pl
+#   $summarizedCnt = &total_items($summarizedSS); #in indexes.pl  TODO - do these using the DB ----- LATER
+#   $suggestedCnt  = &total_items($suggestedSS); #in indexes.pl
 }
 
 if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets ownersections and ownersubs
@@ -189,8 +193,8 @@ if($owner) {  # 2nd owner must be done after &read_sectCtrl_to_array which gets 
 }		
 
 #        ##### PROCESS THE VARIOUS COMMANDS
-	
-if($cmd eq 'storeform'
+
+ if($cmd eq 'storeform'
    or $cmd eq 'parseNewItem'
    or $cmd eq 'selectItems'
    or $cmd eq 'import'
@@ -203,51 +207,13 @@ if($cmd eq 'storeform'
    }
 }
 
-elsif($cmd eq 'do_editoracct') {
-	&do_editoracct;        #in user.pl 
-	exit;
-}
-
-elsif($cmd eq "login_volunteer") {
+if($cmd eq "login_volunteer") {
     $userid          = $FORM{'userid'};
     $upin            = $FORM{'upin'};
 	$operator_userid = $FORM{'opax'};
 	($userdata,$ulastname,$ufirstname,$umiddle,$uid) = &check_user($userid,$upin,'name');  ## in user.pl
 	print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display%app%$uid%$operator_userid\">";
 	exit;
-}
-
-elsif($cmd eq "start_acctapp-XXX") {   #used elsewhere - delete
-    $uid        = $FORM{'uid'};
-    $userid     = $FORM{'userid'};
-    $upin       = $FORM{'upin'};
-    $uemail     = $FORM{'uemail'};
-    &verify_new_editor($userid,$upin,$uemail) unless($operator_access =~ /[ABCD]/);          # in editor.pl
-    &write_user_acct;
-}
-
-elsif($cmd eq "update_user-XXX") {
-   &update_user;          # in editor.pl
-}
-
-elsif($cmd eq "write_acctapp") {    #Approve users - executed from article.pl?display%article_control
-  &write_acctapp;             # in editor.pl
-}
-
-
-if($cmd eq "list_sepmail") {
-	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
-	my(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
-	closedir(POPMAILDIR);
-
-	foreach $filename (@popnewsfiles) {
-	     if(-f "$sepmailpath/$filename" and $filename =~ /\.email/) {
-		print ".. $sepmailpath/$filename<br>\n";
-	#	    &do_email_file($filename);	
-	     }
-	}
-	print "DONE<br>\n";
-	exit(0);
 }
 
 elsif($cmd eq "display") {  # used to display login, form, template, or docitem 		
@@ -278,6 +244,7 @@ elsif($cmd eq "display") {  # used to display login, form, template, or docitem
 	   }
 	   &get_doc_form_values if($queryString ne 'Y'); #in docitem.pl
    }
+# print "art281 docid $docid ..aTemplate $aTemplate<br>\n";
   &display_one($aTemplate,'N','N','N'); # in docitem.pl
 }
 
@@ -309,6 +276,9 @@ elsif($cmd eq "processlogin") {
                $aTemplate = "docUpdate_ssEditor";
           }
        }
+       elsif($action =~ /update/ and $thisSectsub =~ /$newsdigestSS/) {
+            &printUserMsgExit("Sorry. This article has already been summarized. Please <a href=\"http://overpopulation.org/prepage/viewsection.php?Headlines_sustainability\">click here</a><br> for an up-to-date list of articles needing summarization (most recent at the top)");
+       }
        else {
            $aTemplate = "summarize"   if($action eq "update");
            $aTemplate = "suggest"     if($action eq "new");
@@ -324,6 +294,7 @@ elsif($cmd eq "display_section"
    or $cmd eq "print_select"
    or $cmd eq "display_subsection"
    or $cmd eq "process_select_login") {
+	
    $ss_ctr = 0;
    $savecmd = $cmd;   # we change it below  
    $access = ""; 
@@ -341,7 +312,7 @@ elsif($cmd eq "display_section"
 
    $addsectsubs = $FORM{'addsectsubs'};
 
-    if($cmd =~ /process_select_login/) {
+   if($cmd =~ /process_select_login/) {
          $cmd = "print_select"    if($action =~ /print_select/);
          if($action =~ /fix_sectsub/) {
                $cmd = "display_subsection";
@@ -396,6 +367,7 @@ print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/moveutil.p
 		    &printInvalidExit("You don't have access to process popnews emails"); 
 	    }
 	}	
+	
 	$print_it = 'Y';
     &create_html($rSectsubid,$aTemplate,$pg_num,$supress_nonsectsubs);  #in display.pl
 }
@@ -460,9 +432,9 @@ elsif($cmd eq 'storesectsubs') {  # from article_control form
     exit;
 }
 
-elsif($cmd eq "list_sepmail") {    ## THIS IS OLD - NOT USED
+elsif($cmd eq "list_sepmail") {  ## THIS IS OLD - NOT USED
 	opendir(POPMAILDIR, "$sepmailpath");  # overpopulation.org/popnews_mail 
-	local(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
+	my(@popnewsfiles) = grep /^.+\.email$/, readdir(POPMAILDIR);
 	closedir(POPMAILDIR);
 
 	foreach $filename (@popnewsfiles) {
@@ -541,7 +513,7 @@ elsif($cmd =~ /parseNewItem/) {    ## <==== Entry for most new articles (May 201
 		 print"<meta http-equiv=\"refresh\" content=\"0;url=http://$scriptpath/article.pl?display_subsection%%%Suggested_suggestedItem%%$userid%10\">";
          exit;
      }
-     elsif($listSectsub =~ /($suggestedSS|$volunteerSS)/) {
+     elsif($listSectsub =~ /($suggestedSS|$volunteerSS|$headlinesPriSS)/) {
          &updt_select_list_items($listSectsub,$ipform);   # in selecteditems_crud.pl
      }
      else {
@@ -579,6 +551,11 @@ print "art578 Maybe it should be &display_one($aTemplate,'N','N','N');<br>\n -- 
  else {
     print "$docid not found<br>\n";
  }
+}
+
+elsif($cmd eq 'displayVolunteerLogs') {  #numdays = how many days (up to now) to display
+	$numdays = $info[1];
+	&DB_print_users_doc_log($numdays);   #in user.pl
 }
 
 elsif($cmd eq 'displayRange') {
@@ -621,6 +598,14 @@ elsif($cmd eq "do_line_cmd") {
 	 &do_imbedded_commands($line_cmd,"P");   #in template_ctrl
 }
 
+elsif($cmd eq "update_user-XXX") {
+   &update_user;          # in editor.pl
+}
+
+elsif($cmd eq "write_acctapp") {    #Approve users - executed from article.pl?display%article_control
+  &write_acctapp;             # in editor.pl
+}
+
 elsif($cmd eq "import" or $cmd eq "export") {
   my $table = $info[1];
   my $one = $info[2];
@@ -629,6 +614,11 @@ elsif($cmd eq "import" or $cmd eq "export") {
   &clear_doc_data;     # bring $DATA and variables into global scope ???
   &clear_doc_variables;
   &DB_controller($cmd,$table,$one,$two,$three);    # in dbtables_ctrl.pl  
+}
+
+elsif($cmd eq 'do_editoracct') {
+	&do_editoracct;        #in user.pl 
+	exit;
 }
 
 elsif($cmd eq "updateCvrtItems") {

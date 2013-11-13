@@ -9,6 +9,9 @@
 ##  The admin will review the info and approve the application by forwarding it 
 ##  to popnews@population-awareness.net
 
+## TODO: print a list of all users/contributors/editors, with a button to edit for each row
+## To edit, use the app template. See sub print_volunteer_app below (may only neeed to tie it into article_control)
+
 
 sub init_users   ## call this in article.pl <--------------- TODO ###############
 {        #from article.pl
@@ -157,7 +160,7 @@ sub check_user
    else {
       my $user_visable = 'N';
    }
-
+ 
   if($access_name =~ /access/) {
 	  unless($ckuserid or $ckpin) {
 	      &printUserMsgExit("You must supply a userid or password.");
@@ -173,15 +176,15 @@ sub check_user
  my ($userdata,$uid) = &validate_users($ckuserid,"","",$ckpin,"");
 
  if($userdata =~ /HOLD/) {
-     &printUserMsgExit("Sorry. Your account is on hold. Please email $contactEmail to get the hold removed.  <br><br><br><br>usr163");
+     &printUserMsgExit("Sorry. Your account is on hold. Please email $contactEmail to get the hold removed.  .... <small>#u176</small>");
      exit;
  }
  elsif($userdata =~ /NOT_APPROVED/) {
-     &printUserMsgExit("Sorry. Your account has not yet been approved.<br />Please wait for approval or email $contactEmail if you have questions.  <br><br><br><br>usr161");
+     &printUserMsgExit("Sorry. Your account has not yet been approved.<br />Please wait for approval or email $contactEmail if you have questions.  ... <small>#u180</small>");
      exit;
  }
  elsif($userdata =~ /BAD/) {
-      &printUserMsgExit("Sorry. The userID ($ckuserid) or password you gave is not valid.<br />Hit your BACK button to correct.  <br><br><br><br>usr292");
+      &printUserMsgExit("Sorry. The userID ($ckuserid) or password ($ckpin) you gave is not valid.<br>Hit your BACK button to correct.<br>Email $contactEmail if you forgot your password or userid<br>Go to overpopulation.org/volunteers.html if you have not registered. .... <small>#u184</small>");
       exit;
  }
  elsif($access_name eq 'uid') {
@@ -207,14 +210,23 @@ sub validate_users
  my $userdata = "";
  my($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate);
 
-$uidx = $USERINDEX{$ckuserid};
-
- if($ckuserid and $USERINDEX{$ckuserid}) {
+ $uidx = $USERINDEX{$ckuserid};
+ unless($uidx) {
+    $userdata = 'BAD';
+    $uid = "";
+ }
+ elsif($ckuserid and $USERINDEX{$ckuserid}) {
 	$uid =  $USERINDEX{$ckuserid};
 	$line = $USERidINDEX{$uid};
 	($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) = &split_user($line) if($line);
 	$userdata = 'SAMEID' if($ckuserid eq $userid);
-	$userdata = "$userdata;PINOK" if(($ckpin and $ckpin =~ /$upin/) or $ckpin =~ /98989/);
+	if(($ckpin and $ckpin =~ /$upin/) or $ckpin =~ /98989/) {
+	    $userdata = "$userdata;PINOK";
+	}
+	else {
+       $userdata = 'BAD';
+       return ($userdata,$uid);		
+	}
 	$userdata = "$userdata;SAMEEMAIL" if(($ckemail and $uemail) and ($ckemail =~ /$uemail/ or $uemail =~ /$ckemail/));
 	$userdata = "$userdata;NOT_APPROVED" if($uapproved == 0 or $uapproved > 2);
 	$userdata = "$userdata;HOLD"         if($uapproved == 2);
@@ -420,6 +432,49 @@ sub DB_write_new_user_not_used
  $sth_usr->finish();
 }
 
+sub DB_write_docid_to_user_log
+{
+ my($userid,$docid,$thisSectsub) = @_;
+ my $uid = $USERINDEX{$userid};
+ my $sectsubid = &get_sectsubid($thisSectsub);  #in sectsubs.pl
+ my $now = &get_nowdatetime;  #in date.pl
+ my $sth = $dbh->prepare( "INSERT IGNORE INTO volunteer_log (uid,docid,sectsubid,datetime) VALUES ( ?, ?, ?, ?)" );
+ $sth->execute($uid,$docid,$sectsubid,$now);
+ $sth->finish();
+}
+
+sub DB_print_users_doc_log  #So many days ago until present; comes here from article.pl @@@@@@@@######!!!!!!!!!!!
+{
+  my ($numdays) = $_[0];
+  my $datetime_xdaysago = &get_DBxdaysago($numdays);
+#  my $sth = $dbh->prepare( 'SELECT e.ufirstname, e.ulastname, d.docid, d.headline, s.sectsub FROM volunteer_docs as v, docitems as d, sectsubs as s, editors as e WHERE e.e_uid = v.uid and d.docid = v.docid and s.sectsubid = v.sectsubid and v.datetime > ? ORDER BY v.datetime' );
+  my $sth = $dbh->prepare( 'SELECT e.ufirstname, e.ulastname, s.sectsub FROM volunteer_docs as v, sectsubs as s, editors as e WHERE e.e_uid = v.uid and s.sectsubid = v.sectsubid and v.datetime > ? ORDER BY v.datetime' );
+  print "<table>\n";
+  $sth->execute($datetime_xdaysago);
+#  while ( ($firstname,$lastname,$docid,$headline,$secsub) = $sth->fetchrow_array() )  {
+#	 print "<tr><td> $firstname <\/td><td>$lastname<\/td><td>$docid<\/td><td>$headline<\/td><td>$sectsub<\/td><\/tr>\n";
+  while ( ($firstname,$lastname,$secsub) = $sth->fetchrow_array() )  {
+	 print "<tr><td> $firstname <\/td><td>$lastname<\/td><td>$docid<\/td><td>$sectsub<\/td><\/tr>\n";
+  }
+  print "</table>\n";
+  $sth->finish();
+}
+
+sub DB_print_user_doc_log
+{
+  my $userid = $_[0];
+  my $uid = $USERINDEX{$userid};
+  my $sth = $dbh->prepare( 'SELECT docid FROM volunteer_docs where uid = ?' );
+  $sth->execute($uid);
+  @rows = $sth->fetchrow_array();
+  print "<table>\n";
+  foreach $row (@rows) {
+	 print "<tr><td>user $userid <\/td><td>docid $row<\/td><\/tr>\n";
+  }
+  print "</table>\n";
+  $sth->finish();
+}
+
 
 sub DB_update_user_not_used
 {
@@ -432,7 +487,7 @@ sub DB_update_user_not_used
 sub check_user_exists
 {                  # called from editors.pl
  my $uid = $_[0];
-my $line = $USERidINDEX{$uid};    
+ my $line = $USERidINDEX{$uid};    
     if($uid and $uid != 0 and $USERidINDEX{$uid}) {
         return('old');      # return status 
     }
@@ -665,6 +720,26 @@ print "uid $uid userid $userid email $email uaccess $uaccess ..userid $userid ..
   $contributor_sth>finish;
 
   close(CONTRIBUTORS);
+}
+
+sub create_volunteer_log_table                        
+{
+ $dbh = &db_connect() unless($dbh);
+ $dbh->do("DROP TABLE volunteer_log");
+print "volunteer_log table dropped<br>\n";
+          
+ $VL_SQL = <<ENDVL;
+CREATE TABLE volunteer_log (
+  uid       smallint     NOT NULL,
+  docid     smallint     NOT NULL,
+  sectsubid smallint     NOT NULL,
+  datetime  datetime     NOT NULL default '1997-01-01 01:01:01',
+  PRIMARY KEY (uid, docid));
+ENDVL
+
+  $dbh->do($VL_SQL);
+
+print "volunteer_log table created<br>\n";
 }
 
 1;

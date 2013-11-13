@@ -95,13 +95,12 @@ sub flatfile_getrows_2array
     close(SECTIONS);
     undef $savepage;
 }
-
+###			print "ss113 ..ssline $ssline<br>\n";
 sub DB_getrows_2array
 {
  my $ssline = "";
  my $ss_sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch FROM sectsubs ORDER BY ABS(seq) ASC;";
  my $ss_sth = $dbh->prepare($ss_sql) or die("Couldn't prepare statement: ".$ss_sth->errstr);	
-
  if($ss_sth) {
     $ss_sth->execute() or die "Couldn't execute sectsubs table select statement: ".$ss_sth->errstr;
     if ($ss_sth->rows == 0) {
@@ -121,7 +120,7 @@ sub DB_getrows_2array
           &savePageinfo;
 	      &saveNewsSections;
 	      $CSidx = $CSidx + 1;
-	      $ssline = "";
+	      $ssline = "";	
 	   }
 	}
 	$ss_sth->finish() or die "DB sectsubs failed finish";
@@ -186,7 +185,7 @@ sub get_section_ctrl {
 sub split_section_ctrlB
 {
  my($sectsubname) = $_[0];
- $sectsubinfo = $CSINDEX{$sectsubname};
+ my $sectsubinfo = $CSINDEX{$sectsubname};
  &split_sectionCtrl($sectsubinfo);
 }
 
@@ -267,12 +266,12 @@ sub ck_headlines_priority_not_used {   #from article.pl
 sub get_sectsubid
 {
   my $sectsubname = $_[0];
-  if($DB_sectsubs > 0) {
-	 $id = &DB_get_sectsubid
-  }
-  elsif($CSINDEX{$sectsubname}) {
+  if($CSINDEX{$sectsubname}) {
      $sectsubinfo = $CSINDEX{$sectsubname};
      &split_sectionCtrl($sectsubinfo);
+  }
+  elsif($DB_sectsubs > 0) {
+	 $id = &DB_get_sectsubid
   }
   else {
      $id = 0;
@@ -437,7 +436,7 @@ sub do_sectsubs
 
  # 7th - add some, delete some sectsubs
   &add_del_sectsubs;
-	
+
  # 8th, if no sectsubs, go to default
 
   if($addsectsubs !~ /[0-9A-Za-z]/
@@ -660,7 +659,7 @@ sub add_extra_sections
       if($advance eq 'Y' and $secstubs !~ /$newsdigestSS/) {
           $addsectsubs .= ";$newsdigestSS";
       }
-      elsif($ipform eq 'summarize' and $secstubs !~ /$newsdigestSS|$summarizedSS/) {
+      elsif($ipform eq 'summarize' and $secstubs !~ /$newsdigestSS/) {
           $addsectsubs .= ";$summarizedSS";
       }
 

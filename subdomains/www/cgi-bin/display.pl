@@ -32,6 +32,7 @@ sub create_html
   }
 
   &split_section_ctrlB($rSectsubid);
+
   $rPage    = $cPage;
   $rSubdir  = $cSubdir;
   $rSectid  = $cSectid;
@@ -74,6 +75,7 @@ sub create_html
         last;
      }
   }
+
   if($htmlfile_it eq "Y" and (-f "$statuspath/$rPage.busy")) {
 ##     system "cp $prepagepath/$rPage.html $publicdir/pre.$rPage.html" if (-f "$prepagepath/$rPage.html");
      unlink "$statuspath/$rPage.busy";

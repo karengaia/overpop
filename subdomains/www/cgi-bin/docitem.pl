@@ -287,7 +287,6 @@ ENDWORD
   return($bodycom);
 }
 
-
 ### ########  STOREFORM   ###########
 
 sub storeform
@@ -306,13 +305,10 @@ sub main_storeform {  #from above and also from write_email
    $sysdate = &calc_date('sys',0,'+');
  }
 #          for sysdate if new
-
  &do_sectsubs;     # in sectsubs.pl
 
 # &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
- &write_doc_item($docid,$doc_insert_sth);
-
- &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
+ $docid = &write_doc_item($docid,$doc_insert_sth);
 
  my @save_sort = ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic);
 
@@ -322,6 +318,11 @@ sub main_storeform {  #from above and also from write_email
  ($sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic) = @save_sort;
 
  &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,'single'); ## add to index files in indexes.pl
+
+
+ &email_admin("Item $docid has been summarized by volunteer $sumAcctnum or $userid") if($sectsubs =~ /$summarizedSS/);
+
+ &log_volunteer if($sectsubs =~ /$summarizedSS|$suggestedSS/ or $ipform =~ /chaseLink/);
 
  $sections="";
  $chgsectsubs = "$addsectsubs;$modsectsubs;$delsectsubs";
@@ -436,7 +437,7 @@ sub do_updt_selected
 
   print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$headline </font><font size=1>ord-$sortorder $sectsubs</font><br>\n";
 
-  &write_doc_item($docid,$doc_insert_sth);
+  $docid = &write_doc_item($docid,$doc_insert_sth);
 
 #  &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic); ## add to index files -- in sectsubs.pl
   &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,'list'); ## -- in indexes.pl
@@ -519,6 +520,8 @@ sub print_review
 
 sub log_volunteer
 {
+ &DB_write_docid_to_user_log($userid,$docid,$thisSectsub);
+
  if($sumAcctnum =~ /[A-Za-z0-9]/) {	
      $addsectsubs = "$addsectsubs;Volunteer_log$sumAcctnum"; 
  }
@@ -550,7 +553,7 @@ sub process_popnews_email       # from selecteditems_crud.pl when item selected 
 	$sectsubs = $suggestedSS;
 	$delsectsubs = "";
 
-	&write_doc_item($docid,$doc_insert_sth);
+	$docid = &write_doc_item($docid,$doc_insert_sth);
 
 	# &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic); # in indexes.pl
 	&hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,'list'); # in indexes.pl
@@ -575,7 +578,7 @@ if($expired =~ /goofy/) {
    	   $delsectsubs = $sectsubs;
    	   $addsectsubs = $expiredSS;
    	   $sectsubs    = $expiredSS;
-   	   &write_doc_item($docid,$doc_insert_sth);  ## in docitem.pl
+   	   $docid = &write_doc_item($docid,$doc_insert_sth);  ## in docitem.pl
 #      &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$pubdate,$woapubdatetm,$sysdate,$headline,$region,$topic);
    	   &hook_into_system($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,'single');  # in indexes.pl
      }
@@ -836,10 +839,11 @@ sub get_select_form_values
 
 sub get_more_select_form_values
 {
+ $pubdate        = $FORM{"pubdate$pgitemcnt"} if($FORM{"pubdate$pgitemcnt"});
  $pubday         = $FORM{"pubday$pgitemcnt"};
  $pubmonth       = $FORM{"pubmonth$pgitemcnt"};
  $pubyear        = $FORM{"pubyear$pgitemcnt"};
- &assemble_pubdate;
+ $pubdate = &assemble_pubdate($pubdate,$pubday,$pubmonth,$pubyear); # in date.pl
  $link           = $FORM{"link$pgitemcnt"}       if($FORM{"link$pgitemcnt"});
  $selflink       = $FORM{"selflink$pgitemcnt"};
  $headline       = $FORM{"headline$pgitemcnt"}   if($FORM{"headline$pgitemcnt"});
@@ -847,6 +851,7 @@ sub get_more_select_form_values
  $titlize        = $FORM{"titlize$pgitemcnt"};
  $selflink       = $FORM{"selflink$pgitemcnt"};
  $region         = $FORM{"region$pgitemcnt"}     if($FORM{"region$pgitemcnt"});
+ my($one,$regionid,$three,$region,$rest) = split(/^/,$region,5) if($region =~ /^/);
  $regionhead     = $FORM{"regionhead$pgitemcnt"} if($FORM{"regionhead$pgitemcnt"} =~ /[YN]/);
  $addregion      = $FORM{"addregion$pgitemcnt"}  if($FORM{"addregion$pgitemcnt"} =~ /[AU]/);
  $fSectsubs      = $FORM{"sectsubs$pgitemcnt"}   if($FORM{"sectsubs$pgitemcnt"});
@@ -907,6 +912,7 @@ sub get_doc_form_values
   $priority       = $FORM{"priority"} unless($priority);
   $priority       = $FORM{"priority$pgitemcnt"} unless($priority);
   $sysdate        = $FORM{"sysdate$pgitemcnt"};
+  $pubdate        = $FORM{"pubdate$pgitemcnt"};
   $pubday         = $FORM{"pubday$pgitemcnt"};
   $pubmonth       = $FORM{"pubmonth$pgitemcnt"};
   $pubyear        = $FORM{"pubyear$pgitemcnt"};
@@ -914,7 +920,7 @@ sub get_doc_form_values
   $expmonth       = $FORM{"expmonth$pgitemcnt"};
   $expyear        = $FORM{"expyear$pgitemcnt"};
 
-  &assemble_pubdate; 
+  $pubdate = &assemble_pubdate($pubdate,$pubday,$pubmonth,$pubyear); # in date.pl
   $expyear = '0000' if($expyear eq 'no date');
   if($expyear eq '0000') {
      $expmonth = "";
@@ -943,6 +949,9 @@ sub get_doc_form_values
   $selflink       = $FORM{"selflink$pgitemcnt"};
   $headline       = $FORM{"headline$pgitemcnt"};
   $regionhead     = $FORM{"regionhead$pgitemcnt"};
+  $region         = $FORM{"region$pgitemcnt"} if($FORM{"region$pgitemcnt"});
+  $source         = $FORM{"source$pgitemcnt"} if($FORM{"source$pgitemcnt"});
+  $author         = $FORM{"author$pgitemcnt"} if($FORM{"author$pgitemcnt"});
   $topic          = $FORM{"topic$pgitemcnt"};
   $titlize        = $FORM{"titlize$pgitemcnt"};
   $body           = $FORM{"body$pgitemcnt"};
@@ -991,7 +1000,7 @@ sub get_doc_form_values
   $worth          = $FORM{"worth$pgitemcnt"};
   $recsize        = $FORM{"recsize$pgitemcnt"};
   $thisSectsub    = $FORM{"thisSectsub$pgitemcnt"} if($FORM{"thisSectsub$pgitemcnt"});
-  $listSectsub = $thisSectsub;
+  $listSectsub    = $thisSectsub;
 
   $deleted      = $FORM{"deleted$pgitemcnt"};    ## Start new variables section
   $outdated     = $FORM{"outdated$pgitemcnt"}; 
@@ -2006,8 +2015,8 @@ sub DB_prepare_get_docitem
 sub DB_get_docitem
 {
   my ($sth,$docid) = @_;
-  $row = $sth->exec($docid);
-  return($row);	
+  @row = $sth->exec($docid);
+  return(@row);	
 }
 
 sub DBdocitemExists   #TODO this does not work - TRY returning the row!!!!!!!!!!!!
@@ -2019,7 +2028,7 @@ sub DBdocitemExists   #TODO this does not work - TRY returning the row!!!!!!!!!!
   $sth->execute($docid);
   my @row = $sth->fetchrow_array();
   $sth->finish;
-  if($row or $row > 0) {
+  if(@row or @row > 0) {
      print "doc1808 Exists<br>\n";
      return("T");
   }

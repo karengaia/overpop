@@ -14,6 +14,15 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 </head> 
 
 <body>
+	<div id="fb-root"></div>
+	<script>(function(d, s, id) {
+	  var js, fjs = d.getElementsByTagName(s)[0];
+	  if (d.getElementById(id)) return;
+	  js = d.createElement(s); js.id = id;
+	  js.src = "//connect.facebook.net/en_US/all.js#xfbml=1";
+	  fjs.parentNode.insertBefore(js, fjs);
+	}(document, 'script', 'facebook-jssdk'));</script>
+	
 	<div id="world_population_wrapper">
 	    <div id="header">
 			<div class="menu_container">
@@ -33,15 +42,30 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 			</div>
 			
 	    </div> <!-- header -->
-	
-	<table class="columns"><tr>
+
+	<table lclass="columns"><tr>
+
+<!-- LEFT COLUMN  -->
 		
 	<td id="leftcol">
 		
 		<div>
 			 <?php readfile("./pg1_pics.html"); ?>
 		</div>
+		
+		<div style="margin-left:6px;" class="sidebar" >
     
+        <p><a target="_blank" href="/PopBasics">WOA!!s Population Basics Slideshow</a></p>
+
+       <p><a target="_blank" href="http://howmany.org/Articles/PeopleAndPlanetRights-IPS.pdf">
+		People's Rights, Planet's Rights -
+		Holistic Approaches to a Sustainable Population</a>
+		<small>(pdf) Suzanne York, Institute for Population Studies</small><p>
+		
+        <p><a target="_blank" href="/ArtElphik.pdf">Art Elphick's Pop- ulation Slide Show</a><br>
+	<small>Online or 'in person' in San Diego area</small> <p>	   
+        </div>
+
 
 		<div class="sidebar sidebar_lft_list pinkbeige">
 			<?php readfile("./videos.html"); ?>
@@ -51,9 +75,15 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 		
 		<div class="sidebar sidebar_lft_list taupe">
 			<?php readfile("./popads.html"); ?>
+			<br>
+			<a target="_blank" href="/pdfs_documents/WiseGivingGuide.pdf/">Wise Giving Guide</a>
 		</div>
 
-     </td><td id="centercol">
+     </td>
+
+<!-- CENTER COLUMN  -->
+
+     <td id="centercol">
 
 
 <!-- Quotes  -->
@@ -87,7 +117,11 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 			<?php readfile("./newsMidColumn.html"); ?>	
 			<!-- php $url = $url . "NewsDigest_NewsPhp"; $news = file_get_contents($url); echo $news; -->
 
-</td><td id="rightcol">
+</td>
+
+<!-- RIGHT COLUMN  -->
+
+<td id="rightcol">
 	
 <!-- population clock -->
 
@@ -115,54 +149,76 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 		
 <!-- news index -->
 		
-		<div id="newsIndexBox" class="sidebar sidebar_rt_list mauve_lt">
-		<ul>
-		    <li>
+		<div id="newsIndexBox">
+		<ul><li>
 		        <div class="titleCell">
 		            <h4>News Digest Index <small><small><small>(mouse here)</small></small></small></h4>
 		        </div>
-		        <ul><br>
+		        <ul><br><br>
 					&nbsp;Click on left bullet to see article, this page
-					<!--php $urlfull = $url . "NewsDigest_newsindex"; 
-					$sectsub = file_get_contents($urlfull); 
-					echo $sectsub . '<br>'; 
-					-->
 				   <?php readfile("./newsindex.html"); ?>
 		        </ul>
-		    </li>
-		</ul>
+		</li></ul>
 		</div>
 
-		<div class="sidebar sidebar_rt_list rust">
-			   <?php readfile("./newsalerts.html"); ?>
-			   <a target="_blank" href="/howtohelp.html#alerts"><small>... more ...</small></a>
+<!-- SUBSCRIBE -->
+
+		<div class="sidebar sidebar_rt_list mauve_lt">
+			<?php readfile("./popnewsAd.html"); ?>
+		</div>
+				
+<!-- ALERTS -->
+
+		<div class="sidebar sidebar_rt_list rust" style="max-height:300px;overflow-y:auto;overflow-x:hidden;">
+		<!--	<h4>Action Alerts</h4> -->
+			<?php readfile("./newsalerts.html"); ?>
+         </div>
+
+		<!--
+					<h4>Action Alerts <small>(on Twitter)</small></h4>
+					<a class="twitter-timeline" height="300" href="https://twitter.com/WoaPopAlerts"  data-widget-id="376127859330265089" data-chrome="nofooter noheader"></a>
+					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+		-->
+		
+
+<!-- HELP WOA -->
+
+		<div class="sidebar sidebar_rt_list pinkbeige">
+			<?php readfile("./helpwoa.html"); ?>
+		</div>
+						
+
+<!-- HEADLINES -->
+
+        <div class="sidebar sidebar_rt_list duskyturq2" style="max-height:500px;overflow-y:auto;overflow-x:hidden;">
+			<?php readfile("./newsheadlines.html"); ?>
         </div>
 
-<!-- headlines -->
-		
-		<div class="sidebar sidebar_rt_list duskyturq2">				
-			<?php readfile("./newsheadlines.html"); ?>
-			<p style="text-align:center;"><a target="_blank" href="/headlines.html">See all</a></p>
+<!-- TWITTER HEADLINES -->				
+		<div class="sidebar sidebar_rt_list duskyturq2">
+			<h4>Headlines <small>(on Twitter)</small></h4>				
+			<a class="twitter-timeline" height="300" href="https://twitter.com/WoaPop"  data-widget-id="374252530772881409" data-chrome="nofooter noheader"></a>
+			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 		</div>
 
-<!-- calendar -->
+<!-- CALENDAR -->
 								
 		<div class="sidebar sidebar_rt_list yellowtan">
 			<?php readfile("./calendar.html"); ?>
 		</div>
-
-		<div class="sidebar sidebar_rt_list mauve_lt">
-			<?php readfile("./popnewsEmailAd.html"); ?>
-		</div>
 		
-		<div class="sidebar sidebar_rt_list pinkbeige">
-			<?php readfile("./helpwoa.html"); ?>
-		</div>
+<!-- CARTOONS -->
 		
 		<div class="sidebar_img">
 			 <?php readfile("./cartoons.html"); ?>
 		</div>
+
+<!-- FACEBOOK -->
 		
+		<div class="fb-like-box" data-href="https://www.facebook.com/Overpopulation.org?ref=hl" data-width="299" data-height="600" data-show-faces="false" data-header="true" data-stream="true" data-show-border="true"></div>
+		
+
+<!-- KARENS TRAVELS -->
 		<div id="travel" class="sidebar sidebar_rt_list duskyturq2">
 			<?php readfile("./kGaiasTravels.html"); ?>
 		</div>
@@ -181,7 +237,7 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 </div>
 
 
-
+<script type="text/javascript" src="//assets.pinterest.com/js/pinit.js"></script>
 
 	</body>
 	</html>	

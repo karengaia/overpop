@@ -408,52 +408,67 @@ keywords <input id="keywordsmatch" type="text" size="15" maxlength="50" name="ke
 <!-- RIGHT COLUMN -->
 
 <td style="width:40%;padding-left:15px; vertical-align:top;">
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%newItemParse%%%%A3491">New Article (All-in-One) Form</a><br><br>
-
+<br>
 <b class="head">Acronyms</b>
 <select size="1" id="acronyms" name="acronyms" onChange="loadAcronym();">
 [ACRONYMS]
 </select><br>
 <input id="actitle" type="text" size="25" maxlength="200" name="title" value="[title]">
 <br><br>
-<b class="head">Worklists</b><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Headlines_priority%%%100">Headlines Priority</a>&nbsp;&nbsp;
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%fly%Headlines_sustainability%">Headlines</a><br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsDigest_NewsItem%">News on the fly</a>&nbsp;&nbsp;
-<a target="_blank" href="http://[PUBLICURL]/autosubmit/prepage/newsScan.html">news prepage</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%newItemParse%%%%A3491">New Article (Pre-parse) Form</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%docUpdate%%%%A3491">New Article (everything-admin)</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_newArticle">New Article (volunteer)</a><br>
 <br>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491%clean">Select email</a><br>
+<b class="head">Worklists</b><br>
+<small><a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491%clean">Select email (obsolete)</a><br>
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491%skipinbox">Select email (from ipform)</a><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_emailedItem%%A3491%skipinbox">Select email (from ipform - obsolete)</a><br>
+<a target="_blank" href="http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?list_sepmail%%">List Sepmail (popnews in-obsolete)</a>
+</small><br>
+<br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[suggestedcnt]</span>&nbsp;|&nbsp;
 
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_linkItem%%A3491%">Suggested links (from ipform)</a><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_summarizedItem%%%20">Summarized</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[summarizedcnt]</span> &nbsp;&nbsp;
+<a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%newsitem%%Suggested_suggestedItem%%%50">Suggested list</a>&nbsp;|&nbsp;
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_linkItem%%A3491%">Suggested links </a><br>
+<br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Headlines_priority%%%100">Headlines Priority</a>&nbsp;|&nbsp;
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%fly%Headlines_sustainability%">Headlines </a>&nbsp;|&nbsp;
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%selectUpdt_Item%fly%Headlines_priority%%%20%selectUpdt_Top%selectUpdt_End">Headlines Pri Updt</a>
+<br><br>
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_summarizedItem%%%20">Summarized</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[summarizedcnt]</span> &nbsp;|&nbsp;
 
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%headlineHandleItem%%Suggested_summarizedItem%%%50">Summarized List</a><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%Suggested_suggestedItem%%%10">Suggested</a> que: <span style="color:red;font-weight:bold;font-size:120%;">[suggestedcnt]</span>&nbsp;&nbsp;
-
-<a target="_blank" href="http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display_subsection%newsitem%%Suggested_suggestedItem%%%50">Suggested list</a><br>
-
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%fly%Volunteer_newArticle">New Article</a><br>
 <br>
-<a target="_blank" href="http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?list_sepmail%%">List Sepmail (popnews in)</a><br>
-<br>
-<a target="_blank" href="http://www.overpopulation.org/prepage/viewsection.php?NewsDigest_NewsItem%%10">View Section</a> <br>http://www.overpopulation.org/prepage/viewsection.php?NewsDigest_NewsItem%%10
+<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsDigest_NewsItem%">News on the fly</a>&nbsp;|&nbsp;
+<a target="_blank" href="http://[PUBLICURL]/autosubmit/prepage/newsScan.html">news prepage</a><br>
+
+<br><b>Publishing:</b> 1. <a target="_blank" href="http://[PUBLICURL]/prepage/savePagePart.php?newsMidColumn%NewsDigest_NewsItem">Save newsColumn</a> &nbsp;|&nbsp;
+2. <a target="_blank" href="http://[PUBLICURL]/prepage/index.php?NewsDigest_NewsItem">Index view</a> &nbsp;|&nbsp;
+3. <a target="_blank" href="http://[PUBLICURL]/php/saveindex.php?newsMidColumn">Save index</a>
+<br><br>
+
+<a target="_blank" href="http://www.overpopulation.org/prepage/viewsection.php?NewsDigest_NewsItem%%10">View Section</a>  http://www.overpopulation.org/prepage/viewsection.php?NewsDigest_NewsItem%%10
 <br><br>
 
 <b class="head">Population News Weekly</b><br>
 
-<a  target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsWeekly_WeeklyItem%">
-Print PopNewsWeekly email</a><br>
+
+<a target="_blank" href="https://www.icontact.com/login">iContact (biz, telavant pw):</a> 
+send pop newsletter <br><small>using source from <a target="_blank"
+href="http://[PUBLICURL]/prepage/savePagePart.php?newsWeekly%NewsWeekly_WeeklyItem"> http://[PUBLICURL]/prepage/savePagePart.php?newsWeekly%NewsWeekly_WeeklyItem</a></small>
+<br>
+	
+<a  target="_blank" href="http://[SCRIPTPATH]/article.pl?display_subsection%%%NewsWeekly_WeeklyItem%"><br>
+(Old) Print PopNewsWeekly email</a><br>
 (Do a View->Source and then use Notepad to delete p br and nbsp tags.)<br><br>
-http://overpopulation.org/mail-list/quickmsg.php
-<b>Email Popnews</b>&nbsp;<a target="blank" href="http://overpopulation.org/mail-list/quickmsg.php">List admin PHP</a>
+
+<b>(Obsolete) Email Popnews</b>&nbsp;<a target="blank" href="http://overpopulation.org/mail-list/quickmsg.php">List admin PHP</a>
 <br><br>
 <b class="head">Owner:</b>
 <a target="_blank" href="http://[PUBLICURL]/prepage/viewOwnerUpdate.php?%ownerUpdate%CSWP_Calendar%CSWP%A3491%Calendar;MotherSch;AdminCalendar">CRUD panel for CSWP</a> (best accessed from grey dot)
+
+<br><br>
+<a target="_blank" href="http://[PUBLICURL]/prepage/viewarticle2.php?027925">View Single Article</a> - http://[PUBLICURL]/prepage/viewarticle2.php?027925
 
 <br><br>
 <b class="head">Control files</b><br>
@@ -479,6 +494,8 @@ Volunteer/User/Editor/Contributor app/admin</a><br>
 
 <a target="_blank" href="http://[SCRIPTPATH]/article.pl?display%fullArticle%001707">
 (example)</a>
+
+<small>article.pl?0cmd%1template%2docid%3sectsub%4doclist%5userid/pg%6count%7header%8footer%9order%10mobidesk%11owner%12listnum</small>
 
 </td>
 <td  width="10%">&nbsp;
@@ -587,7 +604,7 @@ Delete items ....<br>
 http://[SCRIPTPATH]/small_utils.pl?deleteItems%011422%014525
 <br><br>
 Display items in a range ...<br>
-http://[SCRIPTPATH]/article.pl?displayRange%fullItem%011421%011455
+http://[SCRIPTPATH]/article.pl?displayRange%headlineItem%029300%029400
 <br><br>
 Backup testBKUP.pl ...<br>
 http://[SCRIPTPATH]/moveutil.pl?bkup%cgi:testBKUP.pl

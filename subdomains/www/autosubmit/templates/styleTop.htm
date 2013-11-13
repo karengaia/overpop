@@ -1,0 +1,37 @@
+<html>
+<head>
+<title>[cTitle]</title>
+</head>
+<style>
+a:link, a:visited, a:active, a:hover {border:0;text-decoration:none;}
+a:hover, a:active {color:#FF0;}
+a.tooltip2 {
+	    position:relative; /*this is the key*/
+	    z-index:8;
+	    color:#000;
+	    text-decoration:none;
+}
+big.tooltip2 a:link, a:visited, a:active, a:hover {border:0;}
+big.tooltip2 {text-decoration:none; font-size:120%; font-weight:bold; color:#0033CC;
+	      line-height:60%;}	
+big.tooltip2:hover {color:#00F;text-decoration: none;}
+
+a.tooltip2:hover {z-index:10; background-color:#e3e3e3; color:#cccccc;text-decoration: none;}
+a.tooltip2 span {display: none}
+a.tooltip2:hover span { /*the span will display just on :hover state*/
+        display:block;
+        position:absolute; 
+        top:1em; left:-.5em; width:23em;
+	    border:1px solid #999;
+	    background-color:#FFF; color:#000;
+	    margin: 0px;
+	    font-size: 85%;
+	    text-align: left;
+	    text-decoration: none; padding:8px;
+		cursor: help;
+	/* example: <a href="http://www.meyerweb.com/eric/css/">Links<span>A collection
+	of things which interest me, and might interest you</span></a> */
+}
+</style>
+<body bgcolor="ffffff" link="#555555" vlink="#555599" alink="#990033">
+<p>

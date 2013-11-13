@@ -180,7 +180,6 @@ sub write_index_flatfile {
  $sectionfile    = "$sectionpath/$rSectsubid.idx";
  $newsectionfile = "$sectionpath/$rSectsubid.new";
  $bkpsectionfile = "$sectionpath/$rSectsubid.bkp";
-
  $lock_file = "$statuspath/$rSectsubid.busy";
  &waitIfBusy($lock_file, 'lock');
 
@@ -199,7 +198,7 @@ sub write_index_flatfile {
  else {
 	open(OUTSUB, ">>$newsectionfile");
  }
- open(INSUB, "$sectionfile") or print "Could not open section index file: $sectionfile - sec432<br>\n";
+ open(INSUB, "$sectionfile") or print "Could not open section index file: $sectionfile - idx201<br>\n";
  while(<INSUB>) {
     chomp;
     $index_written = 'N';

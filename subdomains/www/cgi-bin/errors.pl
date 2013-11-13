@@ -6,10 +6,28 @@
 
 # 2012 Jan 23
 
+sub messages_initialize
+{
+	
+$ERR_END = <<ENDEND;
+</body>
+</html>
+ENDEND
+
+$ERR_TOP = <<ENDTOP;
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+<link rel="stylesheet" href="/css/woa.css" type="text/css">
+</head>
+<h2>Message from WOA: Something unexpected happened</h2><br>
+ENDTOP
+
+}
 
 sub printShadowMsg
 {
- local($msg) = $_[0];
+ my $msg = $_[0];
  print "<div class=\"shadow\">$msg</div>\n";
 }
 
@@ -37,7 +55,7 @@ sub printUserMsgExit
 {
  my $errormsg = $_[0];
  $errmsg = $errormsg if($errormsg);
- print "<div class=\"error\">*** $errmsg</div>\n";
+ print "$ERR_TOP<div style=\"margin-left:20px; margin_top:20px\" class=\"error\">$errmsg</div>$ERR_END\n";
  &errLogit;
  exit;
 }

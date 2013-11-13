@@ -748,7 +748,12 @@ sub do_imbedded_commands
    }
 
    elsif($linecmd =~ /\[1ST5_LINES\]/) {
-         &do_5lines;
+	     if($sectsubs =~ /$summarizedSS/) {
+            &do_5lines($body);
+         }
+         else {
+            &do_5lines($fullbody);	
+         }
    }
 
    elsif($linecmd =~ /\[FREEVIEW_CHECK\]/) {
@@ -1224,8 +1229,7 @@ sub do_redarrow
  my $imgtag = "<img src=\"";
  my $redarrow;
 
- $redarrow = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\">" if($cSectid =~ /[Hh]eadlines/);
- $redarrow = "/redArrow.gif\" height=\"10\" width=\"10\" border=\"0\" alt=\"doclink\">" unless($cSectid =~ /[Hh]eadlines/);
+ $redarrow = "/redArrow.gif\" height=\"10\" width=\"10\" border=\"0\" alt=\"doclink\">" unless($thisSectsub =~ /[Hh]eadlines/);
  my $invisibledot = "/invisibledot.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\">";
  my $greybutton = "/plain_grey_button.gif\" height=\"4\" width=\"4\" border=\"0\" alt=\"doclink\">";
 
@@ -1236,13 +1240,19 @@ sub do_redarrow
     $link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%$ownerlogin%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
     &print_output($printmode, "$link$imgtag$greybutton</a>");
  }
- elsif($cSectid =~ /Headlines/) {
+ elsif($thisSectsub =~ /Headlines|NewsDigest_headlines/) {
+	$redarrow = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\">";
 	$link = "<a class=\"tooltip2\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
 #        $bodytemp = substr($fullbody,0,500);    
-	    &print_output($printmode, "$link$imgtag$redarrow");
+	    &print_output($printmode, "$link$imgtag$redarrow</a>");
 	}
+ elsif($thisSectsub =~ /NewsWeekly_WeeklyItem/) {
+	$redarrow = "http://$cgiSite/img/buttons/redArrow.gif\">";
+	$link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
+	&print_output($printmode, "$link$imgtag$redarrow</a>");    
+ }
  else {
-    $link = "<a class=\"tinyimg\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
+    $link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
 
 	if($nodata eq 'Y' or $cVisable =~ /[STB]/) {  ## non-article pieces
 	   	 &print_output($printmode, "$link$imgtag$invisibledot</a>");
@@ -1317,8 +1327,9 @@ sub do_title
 
 sub do_5lines
 {
-  @lines = split(/\n/,$fullbody);
-  local($linecnt) = 0;
+  $bodyfullbody = $_[0];
+  @lines = split(/\n/,$bodyfullbody);
+  my $linecnt = 0;
   foreach $line (@lines) {
     chomp;
     if($line =~ /[A-Za-z0-9]/) {

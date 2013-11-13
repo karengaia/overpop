@@ -3,7 +3,6 @@ require './../php/bootstrap.php';
 $qstring = $_SERVER['QUERY_STRING'];
 list($pagename,$sectionname) = explode('%',$qstring);
 
-echo "query string $qstring";
 if(!$sectionname) {
     echo "<b>WOA!! says: You did not enter a sectioname $sectionname; query string =  $qstring </b><br>";
     exit();
@@ -36,6 +35,5 @@ else {
 	exit();
 }
 
-echo "<b>WOA!! - $targetfilename generated - END</b>";
 echo $webpage;
 ?>
