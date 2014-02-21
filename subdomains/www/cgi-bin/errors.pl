@@ -96,9 +96,8 @@ sub printBadContinue
 sub printSkipContinue
 {
  my $errormsg = $_[0];
- my $errmsg = $errormsg if(!$errormsg);
- print "<div class=\"error\">*WOA data: $errmsg</div>\n";
- &errLogit("Data $errmsg");
+ print "<div class=\"error\">*WOA data: $errormsg</div>\n";
+ &errLogit("Data $errormsg");
 }
 
 sub printDataErr_Continue

@@ -345,4 +345,12 @@ sub extract_docid
  undef $front;
 }
 
+sub clear_setvar
+{
+ $SETVAR{'separator'}   = "";
+ $SETVAR{'dTemplate'}   = "";
+ $SETVAR{'dBoxStyle'}   = "";
+ $SETVAR{'rSectsubidb'} = "";
+}
+
 1;

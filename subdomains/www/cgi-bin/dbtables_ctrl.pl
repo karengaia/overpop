@@ -115,15 +115,15 @@ sub DB_get_switches_counts
 	$doc_insert_sth = "";
     $idx_insert_sth = "";
 
-	unless($dbh) {
-		$dbh = &db_connect() or die("could not connect");  #in database.pl
+	unless($DBH) {
+		$DBH = &db_connect() or die("could not connect");  #in database.pl
 	}
 
- 	if(!$dbh or -f "$pophome/dbconnect.off") {
+ 	if(!$DBH or -f "$pophome/dbconnect.off") {
 	    print "<span style=\"color:#aaf;\">*</span>	<span style=\"color:#fff;\">DB connection failed - using flatfiles</span><br>\n";
 	    return();
     }
-	my $switch_sth = $dbh->prepare("SELECT name, switch_count FROM switches_counts") or die "DB Error preparing switch_count query";
+	my $switch_sth = $DBH->prepare("SELECT name, switch_count FROM switches_counts") or die "DB Error preparing switch_count query";
 	if($switch_sth) {
 	    $switch_sth->execute() or die "Couldn't execute switch_count table select statement: ".$switch_sth->errstr;
 	    if ($switch_sth->rows == 0) {
@@ -134,7 +134,7 @@ sub DB_get_switches_counts
 				$DB_regions  = $switch_count if($name =~ /DB_regions/);
 				$DB_sources  = $switch_count if($name =~ /DB_sources/);
 				$DB_sectsubs = $switch_count if($name =~ /DB_sectsubs/);
-				$DB_users = $switch_count if($name =~ /DB_users/);
+				$DB_users    = $switch_count if($name =~ /DB_users/);
 				$DB_others   = $switch_count if($name =~ /DB_others/);  # all other tables
 				$gTrace      = $switch_count if($name =~ /Trace/);
 		   }
@@ -167,11 +167,11 @@ ENDACRO
 sub get_title {
  my $acronym = $_[0];
  my $acr_sql = "SELECT title FROM acronyms WHERE acronym = ?;";
- if(!$dbh) {
+ if(!$DBH) {
     print "No connection ctr33<br>\n";
     return("");
  }
- my $acr_sth = $dbh->prepare($acr_sql) or msgDie("Couldn't prepare statement: ".$acr_sth->errstr);	
+ my $acr_sth = $DBH->prepare($acr_sql) or msgDie("Couldn't prepare statement: ".$acr_sth->errstr);	
 
  if($acr_sth) {
     $acr_sth->execute($acronym) or msgDie("Couldn't execute acronyms table select statement: ".$acr_sth->errstr);
@@ -213,7 +213,7 @@ sub add_acronym
   my $title   = $FORM{"title$pgitemcnt"}   if($FORM{"title$pgitemcnt"});
   if($acronym and $title) {
     my $acr_add_sql = "INSERT INTO acronyms (acronym,title) VALUES ( ?, ?)";
-    my $acr_add_sth = $dbh->prepare($acr_add_sql); 
+    my $acr_add_sth = $DBH->prepare($acr_add_sql); 
     $acr_add_sth->execute($acronym,$title);
   }
 }
@@ -221,7 +221,7 @@ sub add_acronym
 sub prt_acronym_list
 {
  my $ac_sql = "SELECT acronym,title FROM acronyms ORDER BY acronym;";
- my $ac_sth = $dbh->prepare($ac_sql) or die("Couldn't prepare statement: ".$ac_sth->errstr);	
+ my $ac_sth = $DBH->prepare($ac_sql) or die("Couldn't prepare statement: ".$ac_sth->errstr);	
 
  if($ac_sth) {
     $ac_sth->execute() or die "Couldn't execute acronym table select statement: ".$ac_sth->errstr;
@@ -244,7 +244,7 @@ sub prt_acronym_list
 
 sub create_switches_counts
 {
-	$dbh = &db_connect();
+	$DBH = &db_connect();
 	
 	dbh->do("DROP TABLE IF EXISTS switches_counts");
 
@@ -256,7 +256,7 @@ $sql = <<ENDSWITCHES;
 		)
 ENDSWITCHES
 
-	$sth2 = $dbh->prepare($sql);
+	$sth2 = $DBH->prepare($sql);
 	$sth2->execute();
 	$sth2->finish();
 }
@@ -287,7 +287,7 @@ sub get_count
   close(COUNT);
  
   open(NEWCOUNT, ">$countfile");
-  local($num) = $count+1;
+  my $num = $count+1;
   print(NEWCOUNT"$num\n");
   close(NEWCOUNT);
 
@@ -355,7 +355,7 @@ sub writeCount
  close(NEWCOUNT);
 }
 
-sub clearPopCount ## clears the popnews count
+sub clearPopCount_not_used ## clears the popnews count 
 {
   open(POPCOUNT, ">$popnews_countfile");
   print(POPCOUNT "0000\n");
@@ -368,54 +368,12 @@ sub add_pad_one
  $pgItemcnt = &pad_count("$pgItemnbr"); 
 }
     
-sub pad_count
-{
- my $count = $_[0];
- $count =~  s/^0+//;     ## strip leading 0s
- if($count < 10)
-  {$count = "000$count"; }
- elsif($count < 100)
-  {$count = "00$count";  }
- elsif($count < 1000)
-  {$count = "0$count";   }
- return $count;
-}
-
-sub padCount4  ## replaces pad_count later
-{
-  my $count = $_[0];
-  $count =~  s/^0+//;     ## strip leading 0s
-  return "000$count" if($count < 10);
-  return "00$count" if($count < 100);
-  return "0$count" if($count < 1000);
-}
-
-sub padCount6
-{
-  my $count = $_[0];
-  $count =~  s/^0+//;      ## strip leading 0s
-  return "00000$count" if($count < 10);
-  return "0000$count" if($count < 100);
-  return "000$count" if($count < 1000);
-  return "00$count" if($count < 10000);
-  return "0$count" if($count < 100000);
-}
-
-
-sub strip0s_fromCount
-{
-  my $count = $_[0];
-  $count =~  s/^0+//;
-  return $count;
-}
 
 ### END COUNTS #####
 
-
-
 sub create_codes
 {   ## Easier to do this on Telavant interface
-	$dbh = &db_connect();
+	$DBH = &db_connect();
 	
 	dbh->do("DROP TABLE IF EXISTS indexes");
 
@@ -423,7 +381,7 @@ $sql = <<CODES;
 CREATE TABLE codes ( codetype varchar(6) not null,  code varchar(2)  not null, description varchar(100) default "", codename varchar(12) default "")
 CODES
 
-$sth2 = $dbh->do($sql);
+$sth2 = $DBH->do($sql);
 }
 
 
@@ -532,15 +490,15 @@ sub grant_privileges {
 #     The syntax is correct here - but don't have grant privileges
 	my $auser = "overpop@telavant.com";
     my $query = "GRANT ALL ON overpop TO ?"; 
-    $dbh->do($query,undef,$auser) || die ("Could not 'do $query - Error: $DBI::errstr");
+    $DBH->do($query,undef,$auser) || die ("Could not 'do $query - Error: $DBI::errstr");
 }
 
 
 sub otherways_to_do_it {
 	
-	my $seen_sth   = $dbh->prepare( "Select 1 from indexes where sectsubid = ? and docid = ?");
+	my $seen_sth   = $DBH->prepare( "Select 1 from indexes where sectsubid = ? and docid = ?");
 
-	    my $insert_sth = $dbh->prepare("INSERT INTO indexes values(?,?,?,?,?,?)");
+	    my $insert_sth = $DBH->prepare("INSERT INTO indexes values(?,?,?,?,?,?)");
 	    $seen_sth->execute($sectsubid, $docid) or die "SQL Error: $DBI::errstr\n";
 	    my @seen = $seen_sth->fetchrow_array;
 	    next if $seen[0];
@@ -560,12 +518,12 @@ $sql = "INSERT INTO authors (id,name,email) VALUES(1,'Vivek','xuz@abc.com')";
 open (IN, "<$file");
 @array = <IN>;
 # Other stuff with @array ...
-$sth = $dbh->prepare('insert into tablename values (?)');
+$sth = $DBH->prepare('insert into tablename values (?)');
 $sth->execute(join '' => @array);
 
 
 
- my $sth = $dbh->prepare( 'INSERT INTO table VALUES ( ?, ?, ?, ? )' );
+ my $sth = $DBH->prepare( 'INSERT INTO table VALUES ( ?, ?, ?, ? )' );
 
  $sth->execute( @sqlInsert[ $n .. $m ] );
 

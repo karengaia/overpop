@@ -1,13 +1,50 @@
 #!/usr/bin/perl --
 
-# February 2012
+# January 2014 = added to/from switch
+## TODO: move everything into two-dimensional hash $SS
+
 #        sectsubs.pl  : maintains sections.html control file and sectsubs table
+
+sub clear_sectsubs_variables {
+	$default_stratus = 'M';
+    $default_newssec = "Headlines_sustainability";
+	$cSectsubid = "";
+	$fromsectsubid = "";
+	$cIdxSectsubid = "";
+	$cSubdir = "";
+	$cPage = "";
+	$cCategory = "";
+	$cVisable = "";
+	$cPreview = "";
+	$cOrder = "";
+	$cPg2order = "";
+	$cTemplate = "";
+	$cTitleTemplate = "";
+	$cTitle = "";
+	$cAllOr1 = "";
+	$cMobidesk = "";
+	$cDocLink = "";
+	$cHeader = "";
+	$cFooter = "";
+	$cFTPinfo = "";
+	$cPg1Items = "";
+	$cPg2Items = "";
+	$cPg2Header = "";
+	$cMore = "";
+	$cSubtitle = "";
+	$cSubtitletemplate = "";
+	$cMenuTitle = "";
+	$cKeywordsmatch = "";
+}
 
 sub read_sectCtrl_to_array
 {
  my $qOrder = $_[0];    #query string qOrder - overrides sectsubs table cOrder
- @SSARRAY = ();
- $SSARRAY{'qOrder'} = $qOrder;
+
+ $DBH = $dbh if(!$DBH and $dbh);  ### temporary fix
+
+ %SS   = (); $SS = "";
+ %SSid = (); $SSid = "";
 
  &clear_section_ctrl;    # set Globals
 
@@ -58,7 +95,7 @@ sub read_sections_control_2array
   %CSINDEX = {};
   @CSARRAY = ();
   $newsSections = "";
-
+	
   if($DB_sectsubs eq 1) {
 	 &DB_getrows_2array;
   }
@@ -68,7 +105,38 @@ sub read_sections_control_2array
   $pointsSections = "NewsDigest_pointsSolutions|NewsDigest_pointsImpacts";
   require 'owner.pl';
   &owner_set_sectsubs($ownerSections,$ownerSubs);  # in owner.pl - set globals for $ownerSections,$ownerSubs derived in sub saveNewsSections
-}
+
+  $SSid{$cSectsubid}{'id'} = $id;
+
+  $SS{$id}{'seq'}            = $seq;
+  $SS{$id}{'cSectsubid'}     = $cSectsubid;
+  $SS{$id}{'fromsectsubid'}  = $fromsectsubid;
+  $SS{$id}{'cIdxSectsubid'}  = $cIdxSectsubid;
+  $SS{$id}{'cSubdir'}        = $cSubdir;
+  $SS{$id}{'cPage'}          = $cPage;
+  $SS{$id}{'cCategory'}      = $cCategory;
+  $SS{$id}{'cVisable'}       = $cVisable;
+  $SS{$id}{'cPreview'}       = $cPreview;
+  $SS{$id}{'cOrder'}         = $cOrder;
+  $SS{$id}{'cPg2order'}      = $cPg2order;
+  $SS{$id}{'cTemplate'}      = $cTemplate;
+  $SS{$id}{'cTitleTemplate'} = $cTitleTemplate;
+  $SS{$id}{'cTitle'}         = $cTitle;
+  $SS{$id}{'cAllOr1'}        = $cAllOr1;
+  $SS{$id}{'cMobidesk'}      = $cMobidesk;
+  $SS{$id}{'cDocLink'}       = $cDocLink;
+  $SS{$id}{'cHeader'}        = $cHeader;
+  $SS{$id}{'cFooter'}        = $cFooter;
+  $SS{$id}{'cFTPinfo'}       = $cFTPinfo;
+  $SS{$id}{'cPg1Items'}      = $cPg1Items;
+  $SS{$id}{'cPg2Items'}      = $cPg2Items;
+  $SS{$id}{'cPg2Header'}     = $cPg2Header;
+  $SS{$id}{'cMore'}          = $cMore;
+  $SS{$id}{'cSubtitle'}      = $cSubtitle;
+  $SS{$id}{'cSubtitletemplate'} = $cSubtitletemplate;
+  $SS{$id}{'cMenuTitle'}     = $cMenuTitle;
+  $SS{$id}{'cKeywordsmatch'} = $cKeywordsmatch;
+	}
 
 sub flatfile_getrows_2array
 {
@@ -96,11 +164,12 @@ sub flatfile_getrows_2array
     undef $savepage;
 }
 ###			print "ss113 ..ssline $ssline<br>\n";
+
 sub DB_getrows_2array
 {
  my $ssline = "";
  my $ss_sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch FROM sectsubs ORDER BY ABS(seq) ASC;";
- my $ss_sth = $dbh->prepare($ss_sql) or die("Couldn't prepare statement: ".$ss_sth->errstr);	
+ my $ss_sth = $DBH->prepare($ss_sql) or die("Couldn't prepare statement: ".$ss_sth->errstr);	
  if($ss_sth) {
     $ss_sth->execute() or die "Couldn't execute sectsubs table select statement: ".$ss_sth->errstr;
     if ($ss_sth->rows == 0) {
@@ -121,14 +190,42 @@ sub DB_getrows_2array
 	      &saveNewsSections;
 	      $CSidx = $CSidx + 1;
 	      $ssline = "";	
-	   }
-	}
+	    }
+	}  # end inner else / if
 	$ss_sth->finish() or die "DB sectsubs failed finish";
+ }  # end outer if
+ else {
+    print "Couldn't prepare sectsubs table query<br>\n";
+ }
+}
+
+sub DB_print_sectsubs
+{
+ print "<h2>Sectsubs</h2>\n";
+ print "<table>\n";
+ print "<tr><td>sectsubid</td><td>seq</td><td>sectsub</td><td>fromsectsubid</td><td>fromsectsub</td>\n";
+
+ my $sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub FROM sectsubs ORDER BY ABS(seq) ASC;";
+ my $sth = $DBH->prepare($sql) or die("Couldn't prepare statement: ".$sth->errstr);	
+ if($sth) {
+    $sth->execute();
+    if ($sth->rows == 0) {
+    }
+    else {
+	    while( ($sectsubid,$seq,$sectsub,$fromsectsubid,$fromsectsub) 
+	          = $sth->fetchrow_array() ) 
+	    {
+		 print "<tr><td>$sectsubid</td><td>$seq</td><td>$sectsub</td><td>$fromsectsubid</td><td>$fromsectsub</td>\n";
+	    }
+	}
+	$sth->finish() or die "DB sectsubs failed finish";
+    print "<\table>\n";	
  }
  else {
     print "Couldn't prepare sectsubs table query<br>\n";
  }
 }
+
 
 sub clear_section_ctrl
 {                                    #Set Globals
@@ -177,6 +274,7 @@ sub clear_section_ctrl
  $cFly           = "";
 }
 
+
 sub get_section_ctrl {
 	my $thisSectsub = $_[0];
 	&split_section_ctrlB($thisSectsub);
@@ -197,7 +295,9 @@ sub split_sectionCtrl
 	      = split(/\^/,$sectsubinfo);
 	($cSectid,$cSubid) = split(/_/,$cSectsubid,2);
 	  $cSSid = $id;
-		
+
+      $SS{$id}{'qOrder'} = $qOrder if($thisSectsub =~ /$cSectsubid/);
+
 #print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..fromsectsubid $fromsectsubid ..fromsectsub $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";	
 	$cPg2Items = $cPg1Items if($cPg2Items == 0);
 	
@@ -216,51 +316,6 @@ sub split_sectionCtrl
 #          $cOrder = $default_order ;
     }
     $cCategory = &trim($cCategory);  #found in common.pl
- 
-	$SSARRAY{'id'}            = $id;
-	$SSARRAY{'seq'}           = $seq;
-	$SSARRAY{'cSectsubid'}    = $cSectsubid;
-	$SSARRAY{'fromsectsubid'} = $fromsectsubid;
-	$SSARRAY{'cIdxSectsubid'} = $cIdxSectsubid;
-	$SSARRAY{'cSubdir'}       = $cSubdir;
-	$SSARRAY{'cPage'}         = $cPage;
-	$SSARRAY{'cCategory'}     = $cCategory;
-	$SSARRAY{'cVisable'}      = $cVisable;
-	$SSARRAY{'cPreview'}      = $cPreview;
-	$SSARRAY{'cOrder'}        = $cOrder;
-	$SSARRAY{'cPg2order'}     = $cPg2order;
-	$SSARRAY{'cTemplate'}      = $cTemplate;
-	$SSARRAY{'cTitleTemplate'} = $cTitleTemplate;
-	$SSARRAY{'cTitle'}         = $cTitle;
-	$SSARRAY{'cAllOr1'}        = $cAllOr1;
-	$SSARRAY{'cMobidesk'}      = $cMobidesk;
-	$SSARRAY{'cDocLink'}       = $cDocLink;
-	$SSARRAY{'cHeader'}        = $cHeader;
-	$SSARRAY{'cFooter'}        = $cFooter;
-	$SSARRAY{'cFTPinfo'}       = $cFTPinfo;
-	$SSARRAY{'cPg1Items'}      = $cPg1Items;
-	$SSARRAY{'cPg2Items'}      = $cPg2Items;
-	$SSARRAY{'cPg2Header'}     = $cPg2Header;
-	$SSARRAY{'cMore'}          = $cMore;
-	$SSARRAY{'cSubtitle'}      = $cSubtitle;
-	$SSARRAY{'cSubtitletemplate'} = $cSubtitletemplate;
-	$SSARRAY{'cMenuTitle'}     = $cMenuTitle;
-	$SSARRAY{'cKeywordsmatch'} = $cKeywordsmatch;
-}
-
-sub ck_headlines_priority_not_used {   #from article.pl
-  my ($sectsubs,$priority) = @_;
-  if($sectsubs =~ /Headlines_priority/) {
-     $sectsubs = $headlinesSS;
-     $priority = "6" unless($priority =~ /[1-7]/);
-     $docloc_news = "A" if($priority =~ /7/);    # priority 7 is the same as docloc (stratus) = "A"
-     $docloc_news = "B" if($priority =~ /6/);
-# headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
-	 return("T");
-  }
-  else {
-	 return("");
-  }	
 }
 
 sub get_sectsubid
@@ -282,7 +337,7 @@ sub get_sectsubid
 sub DB_get_sectsubid
 {
  my $sectsubname = $_[0];
- my $sth = $dbh->prepare( 'SELECT sectsubid FROM sectsubs where sectsub = ?' );
+ my $sth = $DBH->prepare( 'SELECT sectsubid FROM sectsubs where sectsub = ?' );
  $sth->execute($sectsubname);
  my $SSid = $sth->fetchrow_array();
  $sth->finish();
@@ -294,7 +349,7 @@ sub DB_get_sectsubinfo
 {
  my($sth,$sectsub) = @_;
  if($sth =~ /prepare/) {
-	my $sth = $dbh->prepare( 'SELECT * FROM sectsubs where sectsub = ?' );
+	my $sth = $DBH->prepare( 'SELECT * FROM sectsubs where sectsub = ?' );
 	return($sth)
  }
  else {
@@ -364,18 +419,71 @@ sub saveNewsSections
   }
 }
 
+sub get_new_sectsubs
+{
+ my $sectsubs = $_[0];
+ my @sectsubs = split(/;/,$sectsubs);
+ $sectsubs = "";
+ foreach my $sectsub (@sectsubs) {
+   my($sectsubname,$stratus) = split(/`/, $sectsub,2);
+   $sectsubname = &get_new_sectsub($sectsubname);
+   $sectsubs = "$sectsubs;$sectsubname`$stratus";
+ }
+ $sectsubs =~ s/^;//; #Get rid of leading semicolon
+ return($sectsubs);
+}
+
+
+sub get_new_sectsub
+{   # Done during get_docitem to reassign sectsubs that are 'T' in $category to the 'to' sectsub (kept in $fromsectsub)
+  my $sectsubname = $_[0];
+  my $id = $SSid{$sectsubname}{'id'};
+  if($SS{$id}{'category'} eq 'T' and $SS{$id}{'cIdxSectsubid'}) {
+      return($SS{$id}{'cIdxSectsubid'});	
+  }
+  else {
+	  return("");
+  }
+}
+
+sub get_tosectsubid
+{
+  my $sectsubname = $_[0];
+  if($CSINDEX{$sectsubname}) {
+     $sectsubinfo = $CSINDEX{$sectsubname};
+     &split_sectionCtrl($sectsubinfo);
+  }
+  elsif($DB_sectsubs > 0) {
+	 $id = &DB_get_sectsubid
+  }
+  else {
+     $id = 0;
+  }
+  return($id);
+}
+
+sub DB_get_sectsubid
+{
+ my $sectsubname = $_[0];
+ my $sth = $DBH->prepare( 'SELECT sectsubid FROM sectsubs where sectsub = ?' );
+ $sth->execute($sectsubname);
+ my $SSid = $sth->fetchrow_array();
+ $sth->finish();
+ $SSid = 0 unless($SSid);
+ return($SSid);
+}
+
 ###### ADD, SUBTRACT SECTSUBS ON A DOCITEM  #####
 
 sub do_sectsubs
-{			
-
+{
+ my $docid = $_[0];
 # 1st, add missing sectsub (from doclist this docitem was on)
- if($docaction ne 'N' and $sectsubs !~ /$listSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
-      $sectsubs = "$sectsubs;$listSectsub`M";
-  }
-
- # If New
+# If New
  $docaction = 'N' unless($docid);
+ if($docaction ne 'N' and $sectsubs !~ /$listSectsub/ and !$newsprocsectsub and !$pointssectsub and !$ownersectsub) {
+      $sectsubs = "$sectsubs;$listSectsub";
+  }
 
  if($owner) {
      &do_ownersectsub;     # outside user stuff
@@ -399,8 +507,8 @@ sub do_sectsubs
 
  # 3rd, do expired - DOES NOT WORK
 
-  $expdate = "0000-00-00" if($expdate !~ /[0-9]/);
-  if($expdate > "0000-00-00" and $expdate lt $nowdate and $sectsubs !~ /$expiredSS/) {
+  $expdate = $epoch_date if($expdate !~ /[0-9]/);
+  if($expdate > $epoch_date and $expdate < $nowdate and $sectsubs !~ /$expiredSS/) {
      if($docaction eq 'N') {
       $errmsg = "This date has expired - $expdate. Please correct if you wish it to be published.";
        &printBadContinue;
@@ -412,7 +520,7 @@ sub do_sectsubs
 
  # 4th, delete duplicates and NA's ---
 
-  if($sectsubs =~ /[A-Za-z0-9]/) {   # get rid of duplicates
+  if($sectsubs) {   # get rid of duplicates
    	 $oldsectubs = "";
 	 @sectsubs = split(/;/, $sectsubs);
 	 foreach $sectsub (@sectsubs) {
@@ -455,7 +563,11 @@ sub do_sectsubs
 
 # 9th - add subinfo - like stratus
 
-  &add_subinfo;
+  ($sectsubs,$chglocs,$dStratus) = &add_subinfo($sectsubs,$dSectsubname,$first_addsectsub,$stratus_news,$stratus_add,$ssStratus);
+
+  $sectsubs =~ s/;M`M//g;
+  $sectsubs =~ s/M`M;//g;
+  return;
 }
 
 # New types (categories) are mutually exclusive: news type sections:
@@ -467,11 +579,11 @@ sub do_newsprocsectsub { # NewsDigest, Headlines, Suggested, Summarized, Archive
 	@sectsubs = split(/;/, $oldsectsubs);
     $sectsubs = "";   #we will rebuild sectsubs
 	foreach $sectsub (@sectsubs) {
-		($dSectsubname,$docloc,$lifonum) = split(/`/, $sectsub,3);   # get rid of stratus A...M...Z
+		my($dSectsubname,$stratus) = split(/`/, $sectsub,3);   # get rid of stratus A...M...Z
 		if($newsSections =~ /$dSectsubname/) { # Find the sectsub that is a News type
 			if($dSectsubname =~ /$newsprocsectsub/) { #If no change,
 				$newschg = 'N';
-				$sectsubs .= ";$dSectsubname`$docloc`$lifonum" if($sectsubs !~ /$dSectsubname/); # add back in to list of sectsubs
+				$sectsubs .= ";$dSectsubname`$stratus" if($sectsubs !~ /$dSectsubname/); # add back in to list of sectsubs
 			}
 			else { # Delete the old News type SS - we can only have one
 				$delsectsubs .= ";$dSectsubname" if($delsectsubs !~ /$dSectsubname/);
@@ -480,7 +592,7 @@ sub do_newsprocsectsub { # NewsDigest, Headlines, Suggested, Summarized, Archive
 		} #end middle if
 
 		else {  # This sectsub is not a News Type or CWSP or Maidu; it is not deleted, so add back in to rebuild $sectsubs
-			$sectsubs .= ";$dSectsubname`$docloc`$lifonum" if($sectsubs !~ /$dSectsubname/);
+			$sectsubs .= ";$dSectsubname`$stratus" if($sectsubs !~ /$dSectsubname/);
 		} #end middle else
 	} #end foreach
   } # end outer if
@@ -515,11 +627,11 @@ sub do_pointssectsub { # Talking Points: Impacts and Solutions
 	@sectsubs = split(/;/, $savesectsubs);
     $sectsubs = "";   #we will rebuild sectsubs
 	foreach $sectsub (@sectsubs) {
-		($dSectsubname,$docloc,$lifonum) = split(/`/, $sectsub,2);   # get rid of stratus A...M...Z
+		my($dSectsubname,$stratus) = split(/`/, $sectsub,2);   # get rid of stratus A...M...Z
 		if($pointsSections =~ /$dSectsubname/) { # Find the sectsub that is a Points type
 			if($dSectsubname =~ /$pointssectsub/) { #If no change,
 				$pointschg = 'N';
-				$sectsubs .= ";$dSectsubname`$docloc`$lifonum" if($sectsubs !~ /$dSectsubname/); # add back in to list of sectsubs
+				$sectsubs .= ";$dSectsubname`$stratus" if($sectsubs !~ /$dSectsubname/); # add back in to list of sectsubs
 			}
 			else { # Delete the old Points type SS - we can only have one
 				$delsectsubs .= ";$dSectsubname" if($delsectsubs !~ /$dSectsubname/);
@@ -527,7 +639,7 @@ sub do_pointssectsub { # Talking Points: Impacts and Solutions
 			$pointsfound = 'Y';
 		} #end middle if
 		else {  # This sectsub is not a Points Type; it is not deleted, so add back in to rebuild $sectsubs
-			$sectsubs .= ";$dSectsubname`$docloc`$lifonum" if($sectsubs !~ /$dSectsubname/);
+			$sectsubs .= ";$dSectsubname`$stratus" if($sectsubs !~ /$dSectsubname/);
 		} #end middle else
 	} #end foreach
   } # end outer if
@@ -597,9 +709,9 @@ sub add_del_selected_sectsubs
     	&printBadContinue;
     }
     else {
-      $docloc = 'M' if($itemstratus eq 'normal');
-##      $docloc = 'A' if($addsectsubs =~ /$headlinesSectid|$suggestedSS|$summarizedSS/ and $priority =~ /7/);
-      $sectsubs = "$sectsubs;$first_addsectsub`$docloc";
+      my $stratus = 'M' if($itemstratus eq 'normal');
+##      $stratus = 'A' if($addsectsubs =~ /$headlinesSectid|$suggestedSS|$summarizedSS/ and $priority =~ /7/);
+      $sectsubs = "$sectsubs;$first_addsectsub`$stratus";
       $sectsubs =~  s/^;+//;
 
        $redosectsubs = "";
@@ -625,8 +737,8 @@ sub add_del_selected_sectsubs
 }
 
 
-# 00660     Add to, subtract from existing sectsubs
-##          For one-at-a-time item processing
+#   Add to, subtract from existing sectsubs
+
 sub add_del_sectsubs
 {
  $modsectsubs  = "";
@@ -649,41 +761,6 @@ sub add_del_sectsubs
  }
 }
 
-sub add_extra_sections
-{
- if(($ipform eq 'suggest' or $docaction eq 'N') and
-         $addsectsubs !~ /[A-Za-z0-9]/ and $sectsubs !~ /[A-Za-z0-9]/) {
-            $addsectsubs = "$headlinesSectid" if($sectsubs !~ $addsectsubs);
- }
- elsif($body =~ /[A-Za-z0-9]/) {
-      if($advance eq 'Y' and $secstubs !~ /$newsdigestSS/) {
-          $addsectsubs .= ";$newsdigestSS";
-      }
-      elsif($ipform eq 'summarize' and $secstubs !~ /$newsdigestSS/) {
-          $addsectsubs .= ";$summarizedSS";
-      }
-
-      $addsectsubs =~  s/^;+//;
- }
-
- if($listSectsub and ($listSectsub !~ /$suggestedSS/ and $ipform =~ /selectUpdt_Top/)) {   ## sectsubs have already been set for Suggested)
-    @ckaddsectsubs = split(/;/,$addsectsubs);
-    $addsectsubs = "";
-    foreach $ckSectsub (@ckaddsectsubs) {
-       if($sectsubs =~ /$ckSectsub/ and $ckSectsub =~ /[A-Za-z0-9]/) {
-       	 $errmsg = "Cannot add an item twice to the same section_subsection";
-       	 &printBadContinue;
-       }
-       else {
-       	 $addsectsubs = "$addsectsubs;$ckSectsub";
-       	 $addsectsubs =~  s/^;+//;  #get rid of leading semi-colons
-       }
-    }
- }
-}
-
-##00675
-
 sub delete_sectsubs
 {
 ##          current sectsubs
@@ -697,22 +774,58 @@ sub delete_sectsubs
 
    my($sectsubname,$subinfo) = split(/`/, $sectsub);
    &split_section_ctrlB($sectsubname);    # get $cCategory
-   if(($cmd eq "storeform" and $updsectsubs !~ /$sectsubname/ 
+   if(($cmd eq "storeform" and $updsectsubs and $updsectsubs !~ /$sectsubname/ 
 #           and $newsSections !~ /$sectsubname/ and $cswpSections !~ /$sectsubname/ and $maiduSections !~ /$sectsubname/)
            and $newsSections !~ /$sectsubname/ and $ownerSections !~ /$sectsubname/)
      or ($cCategory eq 'N' and $newschg eq 'Y' and $newsprocsectsub !~ /$sectsubname/)
      or ($cCategory eq $oSScategory and $ownerchg eq 'Y' and $ownerprocsectsub !~ /$sectsubname/) ## NO $ownerchg or $ownerprocsectsub FOUND
      or ( $pointschg eq 'Y' and $pointssectsub !~ /$sectsubname/)) {
    }
+   elsif ($newsSections =~ /$sectsubname/ and $addsectsubs =~ /summarized/ and $sectsubname !~ $addsectsubs) {
+	     $delsectsubs .= ";$sectsubame";	
+   }
    else {
         $redosectsubs .= ";$sectsub" if($redosectsubs !~ /$sectsubname/);  # if not deleted, redo it
         $modsectsubs  .= ";$sectsubname" if($docaction eq 'C' and $modsectsubs !~ /$sectsubname/);
    }
  } # end foreach
-
  $delsectsubs  =~  s/^;+//;  #get rid of leading semi-colons
  $redosectsubs =~  s/^;+//;
  $modsectsubs  =~  s/^;+//;
+}
+
+sub add_extra_sections
+{
+# my($ipform, $docaction,$sectsubs,$addsectsubs,$body,$advance,$listSectsub) = @_;
+ if(($ipform eq 'suggest' or $docaction eq 'N') and
+         $addsectsubs !~ /[A-Za-z0-9]/ and $sectsubs !~ /[A-Za-z0-9]/) {
+            $addsectsubs = "$headlinesSectid" if($sectsubs !~ $addsectsubs);
+ }
+ elsif($body =~ /[A-Za-z0-9]/) {
+      if($advance eq 'Y' and $secstubs !~ /$newsdigestSS/) {
+          $addsectsubs .= ";$newsdigestSS";
+      }
+      elsif($ipform eq 'summarize' and $secstubs !~ /$newsdigestSS/) {
+          $addsectsubs .= ";$summarizedSS";
+      }
+      $addsectsubs =~  s/^;+//;
+ }
+
+ if($listSectsub and ($listSectsub !~ /$suggestedSS/ and $ipform =~ /selectUpdt_Top/)) {   ## sectsubs have already been set for Suggested)
+    my @ckaddsectsubs = split(/;/,$addsectsubs);
+    $addsectsubs = "";
+    foreach my $ckSectsub (@ckaddsectsubs) {
+       if($sectsubs =~ /$ckSectsub/ and $ckSectsub =~ /[A-Za-z0-9]/) {
+       	 $errmsg = "Cannot add an item twice to the same section_subsection";
+       	 &printBadContinue;
+       }
+       else {
+       	 $addsectsubs = "$addsectsubs;$ckSectsub";
+       	 $addsectsubs =~  s/^;+//;  #get rid of leading semi-colons
+       }
+    }
+#    return($addsectsubs);
+ }
 }
 
 sub add_addl_0123sections_subinfo
@@ -722,15 +835,13 @@ sub add_addl_0123sections_subinfo
 ## print"sect677 ct $ct .. addsectsubs0123 $addsectsubs0123 .. first_addsectsub $first_addsectsub<br>\n";
  my(@asectsubs) = split(/;/,$addsectsubs0123);
  foreach $dSectsub (@asectsubs) {
-    my($dSectsubname,$xSectid,$xSubid,$dDocloc,$dLifonum) = &split_sectsub($dSectsub);
-#   &split_dSectsub;    # No lifonum will be found here, but will be below
+   my($dSectsubname,$dStratus,$rest) = &split_sectsub(/`/,$dSectsub,3);
    if($FORM{"docloc_add$ct"} and $first_addsectsub =~ /$dSectsubname/) {
-        $dDocloc = $FORM{"docloc_add$ct"};
+        $dStratus = $FORM{"docloc_add$ct"};
    }
-   $dDocloc = 'M' unless($dDocloc);
-   $dLifonum = "";
+   $dStratus = 'M' unless($dStratus);
 
-   $addsectsubs .= ";$dSectsubname`$dDocloc`$dLifonum";
+   $addsectsubs .= ";$dSectsubname`$dStratus";
    $addsectsubs =~  s/`+$//;   #get rid of trailing ticks
    $addsectsubs =~  s/^;+//;  #get rid of leading semi-colons
  }
@@ -745,55 +856,60 @@ sub add_temporary_sectsubs {
 }
 
 
-sub add_subinfo
+sub add_subinfo  ## TODO - This doesn't seem to be doing what we want.
 {
+# my ($sectsubs,$dSectsubname,$first_addsectsub,$stratus_news,$stratus_add,$ssStratus) = @_;	
  $redosectsubs = "";
  $chglocs      = "";
+# my $redosectsubs = "";
+# my $chglocs      = "";
+ my $dSectsub,$fStratus;
 
  my @sectsubs = split(/;/,$sectsubs);
 
- my $fDocloc = "";           # d = document on flatfile (old); f = form (new); ss = old on sectsubs
+ my $fStratus = "";           # d = document on flatfile (old); f = form (new); ss = old on sectsubs
  foreach $dSectsub (@sectsubs) {
-	my($dSectsubname,$xsectid,$xsubid,$dDocloc,$xlifonum) = &split_sectsub($dSectsub);
-#   &split_dSectsub;
-    my $ssDocloc = $FORM{"docloc_$dSectsubname$pgitemcnt"};
+	my($dSectsubname,$dStratus,$rest) = &split_sectsub(/`/,$dSectsub,$3);
+    $ssStratus = $FORM{"docloc_$dSectsubname$pgitemcnt"};
 
     if($dSectsubname =~ /$newsprocsectsub/) {
-	   $fDocloc = $docloc_news;
+	   $fStratus = $stratus_news;
     }
-    elsif($ssDocloc) {
-        $dDocloc = $ssDocloc;
+    elsif($ssStratus) {
+        $dStratus = $ssStratus;
     }
-    elsif($docloc_add and $first_addsectsub =~ /$dSectsubname/) {
-        $fDocloc = $docloc_add;
+    elsif($stratus_add and $first_addsectsub =~ /$dSectsubname/) {
+        $fStratus = $stratus_add;
     }
 
-    if($fDocloc and $dDocloc ne $fDocloc) {
-        $dDocloc = $fDocloc;
-##         if change in docloc, del and add back in with new docloc
+    if($fStratus and $dStratus ne $fStratus) {
+        $dStratus = $fStratus;
+##         if change in stratus del and add back in with new stratus
         $chglocs .= ";$dSectsubname";
     }
-    $dDocloc = 'M' if($dDocloc !~ /[A-Z]/ and $cAllOr1 =~ /all/);
-    $dDocloc = 'd' if($dDocloc !~ /[A-Z]/  and $cAllOr1 =~ /1only/); ## 'd' = please display
-
-    $fLifonum = $FORM{"lifonum_$dSectsubname$pgitemcnt"};
-	if($fLifonum and $fLifonum ne $dLifonum ) {
-		$dLifonum = $fLifonum;
-		$chglocs .= ";$dSectsubname" if($chglocs !~ /$dSectsubname/);
-	}
-	
-    $redosectsubs .= ";$dSectsubname`$dDocloc`$dLifonum";
+    $dStratus = 'M' if($dStratus !~ /[A-Z]/ and $cAllOr1 =~ /all/);
+    $dStratus = 'd' if($dStratus !~ /[A-Z]/  and $cAllOr1 =~ /1only/); ## 'd' = please display
+    $dStratus = 'M' if($dStratus !~ /[A-Z]/);
+		
+    $redosectsubs .= ";$dSectsubname`$dStratus";
     $redosectsubs =~  s/^;+//;  #get rid of leading semi-colons
 
     $chglocs =~  s/^;+//;   #get rid of leading semi-colons
  }
 
  $sectsubs = $redosectsubs;
+# return($sectsubs,$chglocs,$dStratus);
 }
 
 
+## docitem sub do_updt_selected: &change_sectsubs_for_updt_selected($D{priority},$ipform,$selitem,$pgitemcnt,$listSectsub,$cmd,$fSectsubs,$D{sectsubs},$dStratus); # in sectsubs.pl 
+## THIS IS LIKE DO_SECTSUBS IN STOREFORM
+
 sub change_sectsubs_for_updt_selected
 {
+ my ($priority,$ipform,$selitem,$pgitemcnt,$listSectsub,$cmd,$fSectsubs,$sectsubs,$dStratus) = @_;
+ my($addsectsubs,$delsectsubs);
+
    if($priority  =~ /D/
    or ($ipform =~ /chaseLink/ and $selitem =~ /Y/ and $pgitemcnt !~ /9998/) ) {
      $delsectsubs = $listSectsub;
@@ -803,17 +919,15 @@ sub change_sectsubs_for_updt_selected
   elsif($cmd =~ /updateCvrtItems/ or $ipform =~ /chaseLink/) {
      $delsectsubs = $convertSS;
      $addsectsubs = $fSectsubs;
-     $sectsubs    = "$fSectsubs`$dDocloc";
+     $sectsubs    = "$fSectsubs`$dStratus";
   }
   else {
      $addsectsubs = "";
      $delsectsubs = "";
-
      @fSectsubs = split(/;/,$fSectsubs);
-     foreach $fSectsub (@fSectsubs) {
+     foreach my $fSectsub (@fSectsubs) {
         $addsectsubs = "$addsectsubs;$fSectsub" if($sectsubs !~ /$fSectsub/);
      }
-
      @sectsubs = split(/;/,$sectsubs);
      foreach $sectsub (@sectsubs) {
      	$delsectsubs = "$delsectsubs;$sectsub" if($fSectsubs !~ /$sectsub/);
@@ -821,9 +935,14 @@ sub change_sectsubs_for_updt_selected
      $addsectsubs =~  s/^;+//;
      $delsectsubs =~  s/^;+//;
      $sectsubs = $fSectsubs;
+
      &add_extra_sections;	
      &add_subinfo;
+#     $addsectsubs = &add_extra_sections($ipform, $docaction,$sectsubs,$addsectsubs,$body,$advance,$listSectsub);	
+#     ($sectsubs,$chglocs,$dStratus) 
+#       = &add_subinfo($sectsubs,$dSectsubname,$first_addsectsub,$stratus_news,$stratus_add,$ssssStratus);
   }
+  return($sectsubs,$addsectsubs,$delsectsubs);
 }
 
 
@@ -874,14 +993,14 @@ sub add_updt_sectsub_values
 		printBadContinue("This sectsub $sectsub sequence $ss_seq already exists. Seq must be unique. Can't add it.");
 		return;
 	 }
-     my $ssadd_sth = $dbh->prepare("REPLACE INTO sectsubs (seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch) 
+     my $ssadd_sth = $DBH->prepare("REPLACE INTO sectsubs (seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 
      $ssadd_sth->execute($ss_seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page, 
 			$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate, 
 			$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,
 			$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch);
-	 $sectsubid = $dbh->do("SELECT MAX(sectsubid) FROM sectsubs");
+	 $sectsubid = $DBH->do("SELECT MAX(sectsubid) FROM sectsubs");
   }
   elsif($addchgsectsub =~ /U/) {   #update
 	 if(!$CSINDEX{$sectsub}) {
@@ -897,7 +1016,7 @@ sub add_updt_sectsub_values
 	"more = ?, subtitle = ?, subtitletemplate = ?, menutitle = ?, keywordsmatch = ? " .
 	"WHERE sectsubid = ?;";
 		
-    my $ss_updt_sth = $dbh->prepare($ss_update_sql);
+    my $ss_updt_sth = $DBH->prepare($ss_update_sql);
 	$ss_updt_sth->execute($ss_seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page, 
 			$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate, 
 			$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,
@@ -910,7 +1029,7 @@ sub add_updt_sectsub_values
 		return;
 	 }
      my $ss_delete_sql = "DELETE FROM sectsubs WHERE sectsubid = ?";
-     my $ss_delete_sth = $dbh->prepare($ss_delete_sql);
+     my $ss_delete_sth = $DBH->prepare($ss_delete_sql);
 	 $ss_delete_sth->execute($sectsubid)
 		or die "DB delete sectsub $sectsub ..sectsubid $sectsubid failed<br>\n";
   }
@@ -939,7 +1058,7 @@ sub get_news_only_sections
   my (@xsects) = split(/\|/,$newsSections);  #newsSections created in sub read_sectCtrl_to_array
   my $checked = "";
   my $current_newsSS = "";
-  my $docloc = ""; 
+  my $stratus = ""; 
   foreach $xsect (@xsects) {
 	$checked = "";
 	
@@ -960,16 +1079,10 @@ sub get_news_only_sections
 STRATUSEND2
   &print_output('M',$op);
   &print_output('M',"<td><select name=\"docloc_news\">\n"); # goes with whatever newsprocsectsub chosen
-  $docloc_news = 'M' unless($docloc_news);
-  $ck_docloc = $docloc_news;
+  $stratus_news = 'M' unless($stratus_news);
+  $ck_stratus = $stratus_news;
   &print_doc_order;
   &print_output('M',"<\/td><\/tr><\/table>\n");
-  if($current_newsSS =~ /[A-Za-z0-9]/ and $action ne 'new' and $lifonum and $lifonum > 0) {
-	  $SSid = &get_SSid($current_newsSS);
-	  my($docloc,$lifonum) = &DB_get_lifo_stratus($SSid,$docid); #For now we won't use stratus; later move this up to do docloc
-      &print_output('M', "<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$current_newsSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n");
-      &print_output('M', "<cite>Cannot change Lifonum if changing News Section above</cite><br>\n");
-  }
 }
 
 
@@ -979,7 +1092,7 @@ sub get_points_sections
   my (@xsects) = split(/\|/,$pointsSections);  #pointsSections created in sub read_sectCtrl_to_array
   my $checked = "";
   my $current_pointsSS = "";
-  my $docloc = ""; 
+  my $stratus = ""; 
   foreach $xsect (@xsects) {
  	 $checked = "";
      if($dSectsubs =~ /$xsect/) {	
@@ -1000,7 +1113,7 @@ sub get_owner_sections
   my $expSections = "$ownerSections;$deleteSS";
   my (@xsects) = split(/\;/,$expSections);  #newsSections created in sub read_sectCtrl_to_array
   my $currentSS = "";
-  my $docloc = "";
+  my $stratus = "";
 
 #  $ownerDefaultSS = "CWSP_Calendar";
 
@@ -1017,13 +1130,6 @@ sub get_owner_sections
 	$option = 'Deleted' if($xsect =~ /delete/);
 	&print_output('M',"<option value=\"$xsect\" $selected >$option</option>\n");
   } # end outer foreach
-
-  if($currentSS and $action ne 'new' and $lifonum and $lifonum > 0) {
-	  $SSid = &get_SSid($currentSS);
-	  my($docloc,$lifonum) = &DB_get_lifo_stratus($SSid,$docid); #For now we won't use stratus; later move this up to do docloc
-      &print_output('M',"<cite class=\"verdana\">Change <b>LIFOnum</b>&nbsp; <\/cite><input type=\"text\" name=\"lifonum_$currentSS\" value=\"$lifonum\" size=\"6\" maxlength=\"10\"><br>\n");
-      &print_output('M',"<cite>Cannot change Lifonum if changing CSWP Section above</cite><br>\n");
-  }
 }
 
 
@@ -1034,14 +1140,9 @@ sub get_current_sections
  $first_time = 0;
  my @lSectsubs = split(/;/,$dSectsubs);  #d = current data; l=local
  foreach $lSectsub (@lSectsubs) {
-	  my($lSectsubname,$xSectid,$xSubid,$ldocloc,$xlifonum) = &split_sectsub($lSectsub);
+	  my($lSectsubname,$lstratus,$rest) = &split_sectsub(/`/,$lSectsub,3);
 	  $dSectsubname = $lSectsubname;
-	  $docloc = $lDocloc;
-
-      my $SSid = &get_SSid($dSectsubname);
-	  my ($iDocloc,$iLifonum) = &DB_get_lifo_stratus($SSid,$docid) if($DB_indexes > 0); # replaces docloc and lifonum above (lifonum is empty above)
-      $docloc = $iDocloc if($iDocloc);
-      $lifonum = $iLifonum if($iLifonum);
+	  $stratus = $lstratus;
 
       &split_section_ctrlB($dSectsubname);  #get section control variables
       $first_time = $first_time + 1;
@@ -1084,11 +1185,11 @@ sub print_end_sections
   &print_output('M',"<table><tr><td><font size=\"1\" face=\"verdana\">\n");
   if($dSectsubs) {
      &print_output('M',"<select name=\"docloc_$dSectsubname\">\n");
-     $ck_docloc = $docloc;
+     $ck_stratus = $stratus;
   }
   else {
      &print_output('M',"<select name=\"docloc_add\">\n");
-     $ck_docloc = 'M';
+     $ck_stratus = 'M';
   }
 
   &print_doc_order;
@@ -1101,19 +1202,13 @@ STRATUSEND
 
   &print_output('M',$op);
 
-  if($dSectsubid =~ /[A-Za-z0-9]/ and $lifonum and $lifonum > 0) {
-    &print_output('M',"<input type=\"text\" name=\"lifonum_$dSectsubid\" value=\"$lifonum\" size=\"8\"><br>\n");
-    &print_output('M',"<cite class=\"verdana\">Change LIFO num<\/cite>\n");
-  }
-
   &print_output('M',"<\/td><\/tr><\/table>\n");
 }
 
 sub print_cant_change_section
 {
   &print_output('M',"<input type=\"hidden\" name=\"updsectsubs\" value=\"$dSectsubid\">\n");
-  &print_output('M',"<input type=\"hidden\" name=\"docloc_$dSectsubid\" value=\"$docloc\">\n");
-  &print_output('M',"<input type=\"hidden\" name=\"lifonum_$dSectsubid\" value=\"$lifonum\">\n");
+  &print_output('M',"<input type=\"hidden\" name=\"docloc_$dSectsubid\" value=\"$stratus\">\n");
 }
 
 
@@ -1224,7 +1319,7 @@ ENDHERE
   &print_output('M',"<td><select name=\"docloc_add$catnum\">\n");
 
 
-  $ck_docloc = $default_docloc;
+  $ck_stratus = $default_stratus;
   &print_doc_order;
   &print_output('M',"<\/tr><\/td><\/table>\n");
 }
@@ -1236,7 +1331,7 @@ sub print_stratus_current {     # NOT USED ???
 ENDHERE
   &print_output('M',$op);
   &print_output('M',"<td><font size=\"1\" face=\"verdana\"><select name=\"docloc_$rSectsub\">\n");
-  $ck_docloc = $default_docloc;
+  $ck_stratus = $default_stratus;
   &print_doc_order;
   &print_output('M',"<\/td><\/tr><\/table>\n");
 }
@@ -1247,13 +1342,14 @@ sub print_doc_order   ## stratus
  ("A", "B", "C", "D", "E", "F",
   "M",
   "U", "V", "W", "X", "Y", "Z");
-  $ck_docloc = 'M' unless($ck_docloc =~ /[A-Z]/);
-  foreach $tdocloc(@doc_order_codes) {
-     if($tdocloc =~ /$ck_docloc/) {
-          &print_output('M',"<option value=\"$tdocloc\" selected>$tdocloc</option>\n");
+  $selected = "selected=\"selected\"";
+  $ck_stratus = 'M' unless($ck_stratus =~ /[A-Z]/);
+  foreach $tStratus(@doc_order_codes) {
+     if($tStratus =~ /$ck_stratus/) {
+          &print_output('M',"<option value=\"$tStratus\" $selected>$tStratus</option>\n");
      }
      else {
-          &print_output('M',"<option value=\"$tdocloc\">$tdocloc</option>\n");
+          &print_output('M',"<option value=\"$tStratus\">$tStratus</option>\n");
      }
   }
   &print_output('M',"</select>\n");
@@ -1428,35 +1524,6 @@ print "Goes to $sections_import, then to sectsubs.rb (import)<br><br>\n";
   close(SSIMPORT);
 }
 
-sub clear_sectsubs_variables {
-	$cSectsubid = "";
-	$fromsectsubid = "";
-	$cIdxSectsubid = "";
-	$cSubdir = "";
-	$cPage = "";
-	$cCategory = "";
-	$cVisable = "";
-	$cPreview = "";
-	$cOrder = "";
-	$cPg2order = "";
-	$cTemplate = "";
-	$cTitleTemplate = "";
-	$cTitle = "";
-	$cAllOr1 = "";
-	$cMobidesk = "";
-	$cDocLink = "";
-	$cHeader = "";
-	$cFooter = "";
-	$cFTPinfo = "";
-	$cPg1Items = "";
-	$cPg2Items = "";
-	$cPg2Header = "";
-	$cMore = "";
-	$cSubtitle = "";
-	$cSubtitletemplate = "";
-	$cMenuTitle = "";
-	$cKeywordsmatch = "";
-}
 
 sub old_clear_sectsubs_variables {
 	$id = 0;
@@ -1523,7 +1590,7 @@ sub do_2nd_pass_not_used {
 
 sub create_sectsubs
 {
-	$dbh = &db_connect();
+	$DBH = &db_connect();
 	
 	dbh->do("DROP TABLE IF EXISTS sectsubs");
 
@@ -1561,18 +1628,18 @@ $sql = <<ENDSECTSUBS;
 )
 ENDSECTSUBS
 
-$sth2 = $dbh->prepare($sql);
+$sth2 = $DBH->prepare($sql);
 $sth2->execute();
 $sth2->finish();
 }
 
 sub export_sectsubs
 {
-  $dbh = &db_connect() if(!$dbh);
+  $DBH = &db_connect() if(!$DBH);
 
 print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<br>\n";
 
-  $sth_exportSS = $dbh->prepare("SELECT * FROM sectsubs ORDER BY seq");
+  $sth_exportSS = $DBH->prepare("SELECT * FROM sectsubs ORDER BY seq");
   if(!$sth_exportSS) {
 	 print "Failed in prepare sectsubs export at prepare command, sec89 " . $sth_exportSS->errstr . "<br>\n";
 	 exit;	
@@ -1621,12 +1688,12 @@ print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<b
 
 sub import_sectsubs
 { 
-  $dbh = &db_connect() if(!$dbh);
+  $DBH = &db_connect() if(!$DBH);
   print "<b>Import sectsubs</b> sectionctrl $sectionctrl<br>\n";
   print "<b>DON'T FORGET TO CHANGE SECTSUBID TO PRIMARY AND AUTOINCREMENT AFTER IMPORTING 1ST TIME ONLY!- ALTER table sectsubs add primary key (sectsubid)</b><br>\n";
 
   my $sectionsctrl = "$controlpath/sections.html";
-  my $sth = $dbh->prepare( "INSERT INTO sectsubs (sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
+  my $sth = $DBH->prepare( "INSERT INTO sectsubs (sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
 VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
 
   open(SECTIONS, "$sectionctrl") or die("Can't open sections control");

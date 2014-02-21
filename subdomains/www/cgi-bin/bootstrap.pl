@@ -1,3 +1,4 @@
+#!/usr/bin/perl --
 # All Perl scripts should require this file as the first thing they do
 
 use Cwd;
@@ -10,7 +11,9 @@ if (__FILE__ =~ /^\.\/(.*)$/) {
 } else {
   $file = __FILE__;
 }
-my $cgi_dir = dirname(getcwd . '/' . $file);
+
+my $cgi_dir = getcwd( "/ . $file");
+# my $cgi_dir = dirname(getcwd . '/' . $file);
 my $public_dir = dirname($cgi_dir);
 
 for($i=1;$i<4;$i++) {  # handles cgi-bin/cgiwrap/popaware structure in production

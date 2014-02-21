@@ -42,17 +42,17 @@ sub parse_popnews
   if($sectsubs =~ /Headlines_priority/) {
 	   $sectsubs = $headlinesSS;
 	   $priority = "6" unless($priority =~ /[1-7]/);
-	   $docloc_news = "A" if($priority =~ /7/);    # priority 7 is the same as docloc (stratus) = "A"
-	   $docloc_news = "B" if($priority =~ /6/);
+	   $stratus_news = "A" if($priority =~ /7/);    # priority 7 is the same as docloc (stratus) = "A"
+	   $stratus_news = "B" if($priority =~ /6/);
 	       # headlines will sort by sysdate; headlines Priority will sort by stratus/sysdate
   }
   elsif($sectsubs =~ /Headlines_sustainability/) {
 	   $priority = "5"  unless($priority =~ /[1-7]/);
-	   $docloc_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
+	   $stratus_news = "M";    # priority 6 is the same as docloc (stratus) = "A"
   }
   elsif($sectsubs =~ /Suggested_suggestedItem/) {
 	   $priority = "5"  unless($priority =~ /[1-7]/);
-	   $docloc_news = "M";
+	   $stratus_news = "M";
   }
 }
 
@@ -62,7 +62,7 @@ sub parse_msg_4variables {
   $gEPtype = $ep_type;       #set to global
 
   &clear_msgline_variables;  # in email2docitem.pl
-  &clear_helper_variables;   # in email2docitem.pl
+  &clear_helper_variables;   # in intake.pl
 
   if($emessage =~ /\b(http.*)\b/ and !$link) {
 	 $link = $1;
@@ -122,7 +122,7 @@ sub parse_msg_4variables {
   &refine_link;
 #             ## &refine_date is in date.pl
   $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc) 
-     if($pubdate =~ /1000-00-00/ or !$pubdate or $pubdate =~ /0000-00-00/ or $pubdate =~ /-00-00/);
+     if($pubdate =~ /1000-00-00/ or !$pubdate or $pubdate =~ /0000-00-00/ or $pubdate =~ /-00-00/ or $pubdate < $DT{earliest_date});
 
   $fullbody = $save_emessage unless($gEPtype =~ /[RP]/);  # Need to do before &refine_source
   
@@ -157,12 +157,10 @@ sub assign_msglines
  if($msgline =~ /\b(http.*)\b/) {
 	 $linkck = $1;
  }
-
  if($linkck and $link and ($link eq $linkck)) {  # skip because we already have the link
 #	print "sm164 link<br>\n";
  }
  elsif(!$link and $link = &chk_link($msgline) ) {
-#		print "sm167 link<br>\n";
  }
  elsif($misc = &chk_miscinfo($msgline) ) {
 #		print "sm164 MI<br>\n";
@@ -249,15 +247,13 @@ sub assign_msglines
 
 
 sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should use this for all entries
-                          ## like pass2_separate_email and links_separate (already did)
-{
+{                         ## like pass2_separate_email and links_separate (already did)
  my($msgline,$bit) = @_;
  if($misc = &chk_miscinfo($msgline) ) {
 #		print "sm164 MI<br>\n";
 	$miscinfo = "$miscinfo\n$misc";
  }
  elsif(!$subheadline and $subheadline = &chk_subheadline($msgline) ) {
-#		print "sm174 headline<br>\n";
  }
  elsif($ehandle =~ /push/ and $msgline =~ /Author: /) {
 	($headline,$author) = split(/Author: /,$msgline);
@@ -279,7 +275,7 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
  elsif(!$author and $author = &chk_author($msgline,$bit) ) { # By: Author:
  }
  elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:
-#			print "sm197 source 2<br>\n";	
+#			print "sm197 source $source<br>\n";	
  }
  elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline,$bit)) { # DD Date:
  }
@@ -293,8 +289,6 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
 	$headline = $msgline if(!$headline);
  }
  else {
-#    print "sm212 fullbody msgline $msgline<br>\n";
-#	$fullbody_on = 'Y';
 	if($fullbody) {
 		$fullbody = "$fullbody\r\n$msgline";
 	}
@@ -303,6 +297,15 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
     }
  }
  $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
+
+ if($headline =~ /^\*\* /) {
+    $priority = "7"; 
+    $headline =~ s/^\*\*//;
+ }
+ elsif($headline =~ /^\* /) {
+    $priority = "6";
+    $headline =~ s/^\*//;
+ }
 }
 
 
@@ -336,14 +339,14 @@ sub removed_from_above_dont_need {
 		elsif($msgline_anydate =~ /HH /) {
 			($msgline_anydate, $headline) = split(/HH /,$msgline_anydate,2);
 		}
-		if($msgline_date =~ /([By: |Author: ]) /) {
+		if($msgline_date =~ /([By: |By |Author: ]) /i) {
 			($msgline_date, $author) = split(/$1/,$msgline_date,2);
 		}
-		elsif($msgline_anydate =~  /([By: |Author: ]) /) {
+		elsif($msgline_anydate =~  /([By: |By |Author: ]i) /) {
 			($msgline_anydate, $author) = split(/$1/,$msgline_anydate,2);
 		}
 	}
-	if(!$author and $msgline =~ /([By: |Author: ])/) {
+	if(!$author and $msgline =~ /([By: |By |Author: ])/) {
 		($rest,$author) = split(/$1/,$msgline,2);
 	}
 	
@@ -651,8 +654,9 @@ sub chk_miscinfo {
 
 sub chk_subheadline {
  my $line = $_[0];
- if($line =~ /^SH /) {
+ if($line =~ /^ {0,2}SH /i) {
     $line =~ s/SH //g;
+    $line =~ s/^ *//g; #get rid of leading spaces
     return($line);
  }
  return("");
@@ -681,7 +685,7 @@ sub chk_date {
 sub chk_source {
  my $line = $_[0];
  my $source = "";
-  if($line =~ /^(SS )/ or $line =~ /^(Source: )/) {
+  if($line =~ /^( ?SS )/i or $line =~ /^( ?Source: )/i) {
     $line =~ s/$1//;
     $source = $line;
     ($source,$src_region) = &refine_source($source,$link) if(!$region);
@@ -695,7 +699,7 @@ sub chk_source {
 sub chk_RR_region {
  my $line = $_[0];
  my $region = "";
- if($line =~ /^RR /) {
+ if($line =~ /^RR /i) {
     $line =~ s/$1//;
    if($line =~ /Global/) {
 	   $region = "";
@@ -826,21 +830,13 @@ sub refine_headline
 sub refine_source
 { 
  my($msgline_source,$link) = @_;
- ($source,$sregionname) = &get_source_linkmatch($link) if($link);  # in source.pl
- $source = $msgline_source unless($source);
-
- #if(!$source and $ehandle =~ /push/) {	 
- #	 if($msgline3 =~ /Source: /) {
- #		 $source = $msgline3;
- #	     $source =~ s/Source: //;
- #	     $source =~ s/^ //;   # get rid of leading space
- #	 }
- #	 elsif($msgline2 =~ /Source: /) {
- #		 $source = $msgline2;
- #	     $source =~ s/Source: //;
- #	     $source =~ s/^ //;   # get rid of leading space	
- #	 }
- #} #end push
+ ($linksource,$sregionname) = &get_source_linkmatch($link) if($link);  # in source.pl
+ if($msgline_source) {
+	$source = $msgline_source;
+ }
+ else {
+	$source = $linksource if($linksource);
+ }
 
  if($source and $pubyear) {
     ($rest,$source) = split(/$pubyear/,$source,2) if($source =~ /$pubyear/);
@@ -922,8 +918,6 @@ sub refine_fullbody
 #  $fullbody = "";
   my $line = "";
   my $linecnt += 1;   #start with 1
-
-
 
 #  foreach $line (@fullbodylines) {
 #     chomp $line;

@@ -429,15 +429,15 @@ sub DB_get_contributor {
   my($return_row,$ckuserid,$ckhandle,$ckemail) = @_;
   my $sth;
   if($ckemail =~ /[A-Za-z0-9]/ and $ckemail =~ /\@/ and $ckemail =~ /\./) {
-     $sth = $dbh->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and INSTR( ?, uemail )");
+     $sth = $DBH->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and INSTR( ?, uemail )");
       $sth->execute($ckemail);
   }
   elsif($ckhandle =~ /[A-Za-z0-9]/) {
-      $sth = $dbh->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and u.uhandle LIKE ?");
+      $sth = $DBH->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and u.uhandle LIKE ?");
       $sth->execute($ckhandle);
   }
   elsif($ckuserid =~ /[A-Za-z0-9]/) {
-      $sth = $dbh->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and u.userid LIKE ?");
+      $sth = $DBH->prepare("SELECT c.c_uid,u.userid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid and u.userid LIKE ?");
       $sth->execute($ckuserid);
   }
   else {
@@ -457,7 +457,7 @@ sub DB_print_contributors
 {
   my $contrib_idx = 0;
 
-  my $sth = $dbh->prepare("SELECT c.c_uid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid");
+  my $sth = $DBH->prepare("SELECT c.c_uid,u.uemail,u.uhandle,c.ublanks,c.useparator,c.ulocsep,c.uskipon,c.uskipoff,c.uskip,c.uempty,c.udateloc,c.udateformat,c.uheadlineloc,c.usourceloc,c.usinglelinefeeds,c.uend,c.c_created_on FROM contributors as c, users as u WHERE c.c_uid = u.uid");
   $sth->execute();
 
   $sth->execute();
@@ -639,7 +639,7 @@ sub DB_contributor_exists
 {
   my($c_uid,$c_created_on) = @_;
 
-  my $sth = $dbh->prepare('SELECT COUNT(*) FROM contributors WHERE c_uid = ? and c_created_on = ?') 
+  my $sth = $DBH->prepare('SELECT COUNT(*) FROM contributors WHERE c_uid = ? and c_created_on = ?') 
 	        or die("Couldn't prepare contributor statement: " . $sth->errstr);	
   $sth->execute($c_uid,$c_created_on);
   my @row = $sth->fetchrow_array();
@@ -651,7 +651,7 @@ sub DB_contributor_exists
 sub DB_get_contrib_info_w_uid
 {
  my($c_uid) = $_[0];
- my $sth = $dbh->prepare( 'SELECT * FROM users where c_uid = ?' );
+ my $sth = $DBH->prepare( 'SELECT * FROM users where c_uid = ?' );
  $sth->execute($c_uid);
  ($c_uid,$uBlanks,$uSeparator,$uLocSep,$uSkipon,$uSkipoff,$uSkip,$uEmpty,$uDateloc,$uDateformat,$uHeadlineloc,$uSourceloc,$uSingleLineFeeds,$uEnd,$c_created_on) = $sth->fetchrow_array();
  $sth->finish();
@@ -660,25 +660,25 @@ sub DB_get_contrib_info_w_uid
 
 sub DB_prepare_get_contributor
 {
-  my $sth = $dbh->prepare( "SELECT c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on FROM contributors where c_uid  = ? and c_created_on = ?" );
+  my $sth = $DBH->prepare( "SELECT c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on FROM contributors where c_uid  = ? and c_created_on = ?" );
   return($sth);	
 }
 
 sub DB_prepare_select_contributors_list
 {
-  my $sth = $dbh->prepare("SELECT * FROM contributors ORDER BY 'cast(c_uid as unsigned)'");
+  my $sth = $DBH->prepare("SELECT * FROM contributors ORDER BY 'cast(c_uid as unsigned)'");
 	 return($sth);
-#  my $sth = $dbh->prepare( "SELECT c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on FROM contributors where c_uid  = ? and c_created_on = ?" );
+#  my $sth = $DBH->prepare( "SELECT c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on FROM contributors where c_uid  = ? and c_created_on = ?" );
   return($sth);	
 }
 
 
 sub DB_prepare_contributor_insert  
 {                          #  15 variables
-   my $sth = $dbh->prepare( "INSERT INTO contributors (c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on) 
+   my $sth = $DBH->prepare( "INSERT INTO contributors (c_uid,ublanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on) 
 						  VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 						
-#	$sth = $dbh->prepare("INSERT IGNORE INTO contributor (c_uid,uBlanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on) 
+#	$sth = $DBH->prepare("INSERT IGNORE INTO contributor (c_uid,uBlanks,useparator,ulocsep,uskipon,uskipoff,uskip,uempty,udateloc,udateformat,uheadlineloc,usourceloc,usinglelinefeeds,uend,c_created_on) 
 #						           VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE()");
 						
   return($sth);
@@ -686,14 +686,14 @@ sub DB_prepare_contributor_insert
 
 sub DB_prepare_contributor_update 
 {   
-  my $sth = $dbh->prepare( "UPDATE contributors SET ublanks=?,useparator=?,ulocsep=?,uskipon=?,uskipoff=?,uskip=?,uempty=?,
+  my $sth = $DBH->prepare( "UPDATE contributors SET ublanks=?,useparator=?,ulocsep=?,uskipon=?,uskipoff=?,uskip=?,uempty=?,
 	udateloc=?,udateformat=?,uheadlineloc=?,usourceloc=?,usinglelinefeeds=?,uend=?,c_created_on=? WHERE c_uid = ?" );
   return($sth);
 }
 
 sub import_contributors   ## called from users.pl after users imported
 { 
-  $dbh = &db_connect() unless($dbh);
+  $DBH = &db_connect() unless($DBH);
 
   &create_contributor_table;   # Drops table
 
@@ -722,7 +722,7 @@ sub import_contributors   ## called from users.pl after users imported
 
 sub export_contributors
 {
-  $dbh = &db_connect() unless($dbh);
+  $DBH = &db_connect() unless($DBH);
 
   my $sth = &DB_prepare_select_contributors_list;
 
@@ -749,7 +749,7 @@ sub export_contributors
 
 sub create_contributor_table
 {
- $dbh->do("DROP TABLE contributors");
+ $DBH->do("DROP TABLE contributors");
 
 print "CONTRIBUTOR table dropped<br>\n";
  
@@ -772,7 +772,7 @@ CREATE TABLE contributors (
   c_created_on     date        DEFAULT '19970101');
 ENDCONTRIB1
 
-$dbh->do($CONTRIBUTOR_SQL);
+$DBH->do($CONTRIBUTOR_SQL);
 
 print "CONTRIBUTOR table created<br>\n";
 }

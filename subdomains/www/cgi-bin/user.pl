@@ -15,6 +15,7 @@
 
 sub init_users   ## call this in article.pl <--------------- TODO ###############
 {        #from article.pl
+  $U = (); # where user/editor/contributor variables are stored
   $print_users = 'N';
   $header_template = "plain_top";
   $footer_template = "plainEnd";
@@ -106,12 +107,11 @@ sub set_array_values
 {
 	my($userid,$userid,$uemail,$uid,$uhandle,$line) = @_;	
     $USERINDEX{$userid}    = $uid;
-    $USERemINDEX{$uemail}  = $uid;
+    $USERemINDEX{$userid}  = $uemail;
     $USERidINDEX{$uid}     = $line;
     $USERhandleINDEX{$uhandle} = $uid;
     $USERARRAY[$userid]   = $line;	
 }
-
 
 sub get_user_row {
 	my $uid = $_[0];
@@ -140,6 +140,14 @@ sub get_user_email_handle($uid) {
 	my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) 
 	   = split(/^/,$uline,7);
 	return($uemail,$uhandle);
+}
+
+sub get_user_handle($uid) {
+	my $uid = $_[0];
+    my $uline = $USERidINDEX{$uid};
+	my ($uid,$userid,$upin,$uemail,$uapproved,$uhandle,$ulastdate) 
+	   = split(/^/,$uline,7);
+	return($uhandle);
 }
 
 sub get_user_userid($uid) {
@@ -432,13 +440,14 @@ sub DB_write_new_user_not_used
  $sth_usr->finish();
 }
 
+
 sub DB_write_docid_to_user_log
 {
  my($userid,$docid,$thisSectsub) = @_;
  my $uid = $USERINDEX{$userid};
  my $sectsubid = &get_sectsubid($thisSectsub);  #in sectsubs.pl
  my $now = &get_nowdatetime;  #in date.pl
- my $sth = $dbh->prepare( "INSERT IGNORE INTO volunteer_log (uid,docid,sectsubid,datetime) VALUES ( ?, ?, ?, ?)" );
+ my $sth = $dbh->prepare( "INSERT IGNORE INTO volunteer_docs (uid,docid,sectsubid,datetime) VALUES ( ?, ?, ?, ?)" );
  $sth->execute($uid,$docid,$sectsubid,$now);
  $sth->finish();
 }
@@ -722,14 +731,14 @@ print "uid $uid userid $userid email $email uaccess $uaccess ..userid $userid ..
   close(CONTRIBUTORS);
 }
 
-sub create_volunteer_log_table                        
+sub create_volunteer_docs_table                        
 {
  $dbh = &db_connect() unless($dbh);
  $dbh->do("DROP TABLE volunteer_log");
 print "volunteer_log table dropped<br>\n";
           
  $VL_SQL = <<ENDVL;
-CREATE TABLE volunteer_log (
+CREATE TABLE volunteer_docs (
   uid       smallint     NOT NULL,
   docid     smallint     NOT NULL,
   sectsubid smallint     NOT NULL,
@@ -739,7 +748,7 @@ ENDVL
 
   $dbh->do($VL_SQL);
 
-print "volunteer_log table created<br>\n";
+print "volunteer_docs table created<br>\n";
 }
 
 1;

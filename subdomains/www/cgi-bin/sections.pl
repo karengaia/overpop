@@ -1,6 +1,6 @@
 #!/usr/bin/perl --
 
-# January 23, 2012
+# January 23, 2012    # replaced by sectsubs.pl
 
 #        sections.pl
 

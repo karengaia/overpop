@@ -346,8 +346,8 @@ sub links_separate {          ## Not only for multiple articles in one submittal
 
  my $save_sectsubs = $sectsubs;
 
- &clear_doc_data;      # in docitem.pl
- &clear_doc_variables;
+ &clear_doc_data; # Fills hash %D with initialize values
+ &clear_doc_helper_variables;
 # $addsectsubs = $save_sectsubs;
 
  $head = "";
@@ -356,18 +356,18 @@ sub links_separate {          ## Not only for multiple articles in one submittal
  my $regions = "";
  my $answer = "";
  my $linkck = "";
+ my $prelink = "";
  my $first = 'Y';
- my $bline = "";
+
  my @bodylines = split(/\n/,$fbody);
 
- foreach $bline (@bodylines) {
+ foreach my $bline (@bodylines) {
    chomp $bline;
    if($bline =~ /\b(http.*)\b/) {
+	   $prelink = $1;
 	   &links_separate_finish($save_sectsubs) unless($first);
 	   $first = "";
-	   $link = $1;
-	   $link = &chk_link($link);
-	   $link = "htt$link" if($link and $link !~ /http/);
+	   $link = $prelink;
     }
     elsif($bline =~ /\/\//) {
 		($headline,$rest) = split(/\/\//,$bline,2);
@@ -380,26 +380,72 @@ sub links_separate {          ## Not only for multiple articles in one submittal
 	    &extract_variables($bline,"");
     }
  }
- &links_separate_finish($save_sectsubs);   # End of bodylines
+&links_separate_finish($save_sectsubs);   # End of bodylines
 }
 
 sub links_separate_finish
 {
- $sectsubs = $_[0];
- $fullbody =~ s/^\n//;
- $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc,$sentdate,$todaydate) 
-     if($pubdate !~ /[0-9]/ or $pubdate =~ /0000-00-00/);
- ($source,$src_region) = &refine_source($msgline_source,$link) if(!$source);
- ($source,$region) = &get_source_linkmatch($link);
-# $region = &refine_region($region,$src_region) if(!$region or $region eq 'Global');   # found in regions.pl
- $priority = "5";
- $docaction = 'N';
+ $D{sectsubs} = $_[0];
+ my $docid = "";  # not assigned until &main_storeform in docitem.pl
+ $link = "htt$link" if($link and $link !~ /http/);
+ $D{link} = $link;
 
- &main_storeform;      # in docitem.pl - store the link and other data
- &clear_doc_data;      # in docitem.pl
- &clear_doc_variables; # in docitem.pl
+ $D{headline}    = $headline;
+ $D{subheadline} = $subheadline;
+ $miscinfo       = "$msgline_date$misc_info";
+ $D{miscinfo}    = $miscinfo;
+ $D{priority}    = $priority;
+ $D{author}      = $author;
+ $fullbody       = &finish_fullbody($fullbody);
+ $D{fullbody}    = $fullbody;
+#                  refine_date found in date.pl
+ $pubdate        = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$D{link},$msgline_source,$paragr_source,$uDateloc,$sentdate,$todaydate) 
+     if($pubdate !~ /[0-9]/ or $pubdate < $DT{earliest_date});
+ $D{pubdate}     = $pubdate;
+ ($ource,$src_region) = &refine_source($msgline_source,$D{link}) if(!$source);
+ ($source,$region) = &get_source_linkmatch($D{link})  if(!$source);
+ $D{source} = $source;
+ $D{region} = $region;
+# $region = &refine_region($region,$src_region) if(!$region or $region eq 'Global');   # found in regions.pl
+
+ $D{sysdate} = &calc_date('sys',0,'+');
+
+ &main_storeform($docid);      # in docitem.pl - store the link and other data
+ &clear_doc_data; # Fills hash %D with initialize values
+ &clear_doc_vars;
+ &clear_doc_helper_variables;
 }
 
+sub clear_doc_vars
+{
+ $link        = "";	
+ $sectsubs    = "";
+ $headline    = "";
+ $subheadline = "";
+ $miscinfo    = "";
+ $priority    = "";
+ $author      = "";
+ $region      = "";
+ $fullbody    = "";
+ $pubdate     = "";
+ $source      = "";
+ $region      = "";
+}
+
+sub finish_fullbody
+{
+ my $fullbody = $_[0];
+ $fullbody =~ s/MI $miscinfo//g;
+ $qw_headline = qw($headline);
+ $fullbody =~ s/$qw_headline//g;
+ $fullbody =~ s/SH $subheadline//g;
+ $fullbody =~ s/$author//g;
+ $fullbody =~ s/SS $source//g;
+ $fullbody =~ s/RR $region//g;
+ $fullbody =~ s/\/\///g;
+ $fullbody =~ s/^\n//;
+ return($fullbody);
+}
 
 sub pass2_separate_email {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
  ($ep_type,$handle,$pdfline,$sectsubs,$emailbody,$receiptdate) = @_;
@@ -701,7 +747,7 @@ sub get_fromemail {
 }
 
 
-##400 WRITE INCOMING EMAIL TO suggested_emailed as a selection list on the web
+#  WRITE INCOMING EMAIL TO suggested_emailed as a selection list on the web
 
 sub close_it
 {
@@ -714,7 +760,6 @@ sub close_it
   }
   elsif($empty_msg) {
 	  $fullbody = "$top_lines\n\n$message";
-#	  $fullbody = "$top_lines\n\n$MSGBODY";
 	  $headline = $subject if($subject);
 	  $pubdate = $sentdate if($sentdate);
 	  print "*** WRITE_EMAIL -> $op_filename -$separator_cnt NO MSGBODY -Writing top lines + message<br>\n";
@@ -724,14 +769,6 @@ sub close_it
   elsif(!$email_written) {
       &write_email;
   }
-#  else {
-#	  $fullbody = "$top_lines\n\n$message";
-#	  $headline = $subject if($subject);
-#	  $pubdate = $sentdate if($subject);
-#	  print "*** WRITE NO_WRITE EMAIL -> $op_filename -$separator_cnt -Writing top lines + message<br>\n";
-#	  &write_doc_item($op_filename,$idx_insert_sth);   # in docitem.pl
-#      $empty_msg = "";
-#  }
   $email_written = '';
 }
 
@@ -742,7 +779,7 @@ sub write_email    #writes what is accumulated in $MSGBODY, a global variable
 	    &parse_popnews($pdfline,$MSGBODY,$sectsubs);  #in smartdata.pl - modifies $MSGBODY, a global
 	
 	    $addsectsubs = $sectsubs;
-        &main_storeform;   #in docitem.pl
+        &main_storeform($docid);   #in docitem.pl
 	    goto write_clear;  # if more than one article on form, we are not done
   }	
   my $op_filename = "$sentdatetm-$ehandle";	

@@ -18,7 +18,7 @@ sub init_editors
 
   &clear_editors;
 
-  $dbh = &db_connect() unless($dbh);
+  $DBH = &db_connect() unless($DBH);
 
   &read_editors_to_array;
 }
@@ -568,8 +568,8 @@ sub DB_write_editor
  my($sth,$status,$e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on) = @_;
 
   unless($sth) {
-    $sth = &DB_prepare_editor_insert($dbh) if($status eq 'new');
-    $sth = &DB_prepare_editor_update($dbh) if($status eq 'old');
+    $sth = &DB_prepare_editor_insert($DBH) if($status eq 'new');
+    $sth = &DB_prepare_editor_update($DBH) if($status eq 'old');
   }
   $sth->execute($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on)
      if($status eq 'new');
@@ -583,7 +583,7 @@ sub DB_print_editors
 {
   my $uCount = 0;
 
-  my $sth = $dbh->prepare("SELECT e.e_uid,e.lastname,e.ufirstname,e.umiddle,u.uhandle,u.uemail,e.uaddr,e.ucity,e.ustate,e.uzip,e.uphone,e.urole,e.upay,e.upermissions,'substr(e.ucomment,1,20)',e.e_created_on FROM editors as e, users as u WHERE e.c_uid = u.uid ORDER BY 'cast(u.uid as unsigned)'");
+  my $sth = $DBH->prepare("SELECT e.e_uid,e.lastname,e.ufirstname,e.umiddle,u.uhandle,u.uemail,e.uaddr,e.ucity,e.ustate,e.uzip,e.uphone,e.urole,e.upay,e.upermissions,'substr(e.ucomment,1,20)',e.e_created_on FROM editors as e, users as u WHERE e.c_uid = u.uid ORDER BY 'cast(u.uid as unsigned)'");
   $sth->execute();
 
   while (my ($e_uid,$uaccess,$ulastname,$ufirstname,$umiddle,$uhandle,$uemail,$uaddr,$ucity,$ustate,$uzip,$uphone,$urole,$upay,$upermissions,$ucomment,$e_created_on) 
@@ -647,29 +647,29 @@ sub print_editor
 
 sub DB_prepare_editor_insert
 {
-  my $dbh = $_[0];
+  my $DBH = $_[0];
   $sql = "INSERT INTO editors (e_uid,uaccess,ulastname,ufirstname,umiddle,uaddr,ucity,ustate,uzip,uphone,urole,upay,upermissions,ucomment,e_created_on) VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";
-  $sth = $dbh->prepare($sql) or die "Couldn't prepare insert statement: " . $sth->errstr;
+  $sth = $DBH->prepare($sql) or die "Couldn't prepare insert statement: " . $sth->errstr;
   return($sth);
 }
 
 sub DB_prepare_get_editor_row
 {
-  my $dbh = $_[0];
-  my $sth = $dbh->prepare( 'SELECT uaccess,ulastname,ufirstname,umiddle,uaddr,ucity,uzip,uphone,urole,upay,upermissions,ucomment,e_created_on FROM users where e_uid = ?' );
+  my $DBH = $_[0];
+  my $sth = $DBH->prepare( 'SELECT uaccess,ulastname,ufirstname,umiddle,uaddr,ucity,uzip,uphone,urole,upay,upermissions,ucomment,e_created_on FROM users where e_uid = ?' );
   return($sth);
 }
 
 sub DB_prepare_editor_update
 {
-  my $dbh = $_[0];
-  my $sth = $dbh->prepare( "UPDATE editors SET uaccess = ?,ulastname = ?,ufirstname = ?,umiddle = ?,uaddr = ?,ucity = ?,ustate = ?,uzip = ?,uphone = ?,urole = ?,upay = ?,upermissions = ?,ucomment = ?,e_created_on = ? WHERE e_uid = ?");
+  my $DBH = $_[0];
+  my $sth = $DBH->prepare( "UPDATE editors SET uaccess = ?,ulastname = ?,ufirstname = ?,umiddle = ?,uaddr = ?,ucity = ?,ustate = ?,uzip = ?,uphone = ?,urole = ?,upay = ?,upermissions = ?,ucomment = ?,e_created_on = ? WHERE e_uid = ?");
   return($sth);
 }
 
 sub DB_prepare_select_editors_list
 {
- my $sth = $dbh->prepare("SELECT * FROM editors ORDER BY 'cast(e_uid as unsigned)'");
+ my $sth = $DBH->prepare("SELECT * FROM editors ORDER BY 'cast(e_uid as unsigned)'");
  return($sth);
 }
 
@@ -683,10 +683,10 @@ sub DB_update_editor
 
 sub DB_set_editor_lastactivity      #TODO --- > need to set this in docitem.pl when logging a volunteer
 {
-  my ($dbh,$userid) = @_;
+  my ($DBH,$userid) = @_;
   my $uid = &get_user_uid($userid);
   $sql = "UPDATE user SET ulastdate = CURDATE()) WHERE uid = '" . $uid . "'";
-  $dbh->do($sql);
+  $DBH->do($sql);
 }
 
 
@@ -702,11 +702,11 @@ sub DB_get_editor_row     ## Get one row only
 
 sub import_editors   # every time after the first successful import   ---- FIRST TIME IS IN USERS - ALL 3 TABLES DONE AT THE SAME TIME
 { 
-  $dbh = &db_connect() unless($dbh);
+  $DBH = &db_connect() unless($DBH);
 
-  &create_editor_table($dbh);   # Drops table
+  &create_editor_table($DBH);   # Drops table
 
-  my $sth = &DB_prepare_editor_insert($dbh);
+  my $sth = &DB_prepare_editor_insert($DBH);
 
   my $editorspath = "$controlpath/editors.html";
   print "<b>Import editors from editors flatfile</b> ..editorspath $editorspath<br>\n";
@@ -730,13 +730,13 @@ sub import_editors   # every time after the first successful import   ---- FIRST
 
 sub export_editors
 {
-  my $dbh = &db_connect();
+  my $DBH = &db_connect();
 
   print "<b>Export editors to editors flatfile</b> ..editorsspath $editorspath<br>\n";
 
   &backup_setup_flatfile($editorspath,$editorsbkppath,$editors_orig);  # in common.pl
 
-  my $sth = &DB_prepare_select_editors_list($dbh);
+  my $sth = &DB_prepare_select_editors_list($DBH);
 
   $sth->execute();
 
@@ -753,9 +753,9 @@ sub export_editors
 
 sub create_editor_table
 {
-  my $dbh = &db_connect();
+  my $DBH = &db_connect();
 
-  $dbh->do("DROP TABLE editors");
+  $DBH->do("DROP TABLE editors");
 
   print "EDITOR table dropped<br>\n";
 
@@ -778,7 +778,7 @@ CREATE TABLE editors (
   e_created_on   date         DEFAULT '19970101');
 ENDEDITOR1
 
-$dbh->do($EDITOR_SQL);
+$DBH->do($EDITOR_SQL);
 
 print "EDITOR table created<br>\n";
 }

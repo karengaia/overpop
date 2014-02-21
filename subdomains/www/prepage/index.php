@@ -76,7 +76,7 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 		<div class="sidebar sidebar_lft_list taupe">
 			<?php readfile("./popads.html"); ?>
 			<br>
-			<a target="_blank" href="/pdfs_documents/WiseGivingGuide.pdf/">Wise Giving Guide</a>
+			<a target="_blank" href="/pdfs_documents/WiseGivingGuide.pdf">Wise Giving Guide</a>
 		</div>
 
      </td>

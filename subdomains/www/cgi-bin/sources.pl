@@ -1,118 +1,46 @@
 #!/usr/bin/perl --
 
-# January 23, 2012
+# December 9, 2013
 
 #      sources.pl
 
 # Contains code to manage and parse the SOURCES control file (flatfile and table)
 # Called by article.pl and maybe docitem.pl
 
-# 2012 Jan 23 
-
-sub create_sources_table
-{  
- $create_sources_sql = <<ENDSRC
-CREATE TABLE sources (
-sourceid smallint auto_increment PRIMARY KEY,
-sourcename varchar(75) not null,
-sstarts_with_the char(1) default "",
-shortname varchar(75),
-shortname_use char(1) default "",
-sourcematch varchar(200),
-linkmatch varchar(100),
-snotmatch varchar(100),
-sregionname varchar(75),
-sregionid smallint,
-region_use char(1) default "",
-subregion varchar(75),
-subregionid smallint,
-subregion_use char(1) default "",
-locale varchar(75),
-locale_use char(1) default "",
-headline_regex varchar(75),
-linkdate_regex varchar(75),
-date_format varchar(75)
-);
-ENDSRC
-
-}
-
-sub import_sources
-{ 
-  $dbh = &db_connect() if(!$dbh);
-
-  my $sourcesctrl = "$controlpath/sources.html";
- print "<b>Import sources</b> sourcesctrl $sourcesctrl<br>\n";
-  my $shortname = "";
-  my $region_use = "";
-  my $subregion_use = "";
-  my $locale_use = "";
-  my $headline_regex = "";
-  my $linkdate_regex = "";
-  my $sstarts_with_the = "";
-
- my $src_sth = $dbh->prepare("INSERT INTO sources (sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format)
- VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
-
-#  my $src_sth = $dbh->prepare( "INSERT INTO sources (name,starts_with_the,shortname,sourcematch,linkmatch,notmatch,regionname,regionid,include_region,prefix_region,subregion,subregionid,include_subregion,headline_regex,linkdate_regex)
-# VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
-
-  open(SOURCES, "$sourcesctrl") or die("Can't open sources control");
-  while(<SOURCES>)
-  {
-    chomp;
-    my $srcline = $_;
-    my $r_match = "";
-print "srcline $srcline<br>\n";
-	my ($sourcename,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$linkdate_regex,$subregion,$subregionid,$subregion_use,$headline_regex,$linkdate_regex,$date_format) 
-	    = split(/\^/,$srcline,15);
-	$sregionid = 0 if(!$sregionid);
-	$subregionid = 0 if(!$subregionid);
-	
-	($sourcename,$sourcematch) = split(/\|/,$name,2) if($sourcename =~ /\|/);
-		
-	if($sourcename =~ /, The/) {
-	   $sstarts_with_the = 'T';
-	   ($sourcename,$rest) = split(/,/,$sourcename,2);
-	}
-	else {
-	   $sstarts_with_the = '';
-	}
-
-	$sregionname =~ s/\s+$//mg; #Get rid of trailing spaces	
-	print "sregionname $sregionname<br>\n";
-	($sregionname,$subregion,$locale) = split(/\=/,$sregionname,3);
-		
-	$sregionid = &get_regionid($sregionname) if($sregionname);
-
-	$subregionid = &get_regionid($subregion) if($subregion);
-	
-	$src_sth->execute($sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format);
-print "<br>$line <br>\n";
-  }
-  $src_sth->finish;
-  close(SOURCES);
-}
-
-
 sub read_sources_to_array
 {
+  $DBH = $dbh;
   my $srcidx = 0;
   my $srcline = "";
+  my $prev_sourcename = "";
+  my $prev_sourceid = 0;
+  my $prev_linkmatch = "";
+
   if($DB_sources eq 1) {
+	 my $sth_updt = &DB_prepare_update_source_linkmatch;
+	 my $sth_del  = &DB_prepare_delete_source; 
+	
 	 my $src_sql = "SELECT sourceid,sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format FROM sources ORDER BY sourcename;";
-	 my $src_sth = $dbh->prepare($src_sql) or die("Couldn't prepare statement: ".$src_sth->errstr);	
+	 my $src_sth = $DBH->prepare($src_sql) or die("Couldn't prepare statement: ".$src_sth->errstr);	
 
 	 if($src_sth) {
 	    $src_sth->execute() or die "Couldn't execute sources table select statement: ".$src_sth->errstr;
 	    if ($src_sth->rows == 0) {
 	    }
 	    else {
-		   while ( ($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format) 
+		   while ( my ($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format) 
 		         = $src_sth->fetchrow_array() )  {
-			  $srcline = "$sourceid^$sourcename^$sstarts_with_the^$shortname^$shortname_use^$sourcematch^$linkmatch^$snotmatch^$sregionname^$sregionid^$region_use^$subregion^$subregionid^$subregion_use^$locale^$locale_use^$headline_regex^$linkdate_regex^$date_format";
-		      $SRCARRAY[$srcidx] = $srcline;
-		      $srcidx = $srcidx + 1;
+			  if($sourcename eq $prev_sourcename) {
+				  &DB_delete_updt_dup_source($sth_updt,$sth_del,$sourceid,$linkmatch,$prev_sourceid,$prev_linkmatch);
+			  }
+			  else{
+				  $srcline = "$sourceid^$sourcename^$sstarts_with_the^$shortname^$shortname_use^$sourcematch^$linkmatch^$snotmatch^$sregionname^$sregionid^$region_use^$subregion^$subregionid^$subregion_use^$locale^$locale_use^$headline_regex^$linkdate_regex^$date_format";
+			      $SRCARRAY[$srcidx] = $srcline;
+			      $srcidx = $srcidx + 1;
+	          }
+		      $prev_sourcename = $sourcename;
+		      $prev_linkmatch  = $linkmatch;
+		      $prev_sourceid   = $sourceid;
 		   }
 		}
 		$src_sth->finish() or die "DB sectsubs failed finish";
@@ -134,6 +62,28 @@ else {
   } 
   close(SOURCES);
  }
+}
+
+sub DB_delete_updt_dup_source {  # Comes here when $sourcename = $prev_sourcename
+  my ($sth_updt,$sth_del,$sourceid,$linkmatch,$prev_sourceid,$prev_linkmatch) = @_;
+
+  if($linkmatch and !$prev_linkmatch) {  # update linkmatch on previous row if no previous linkmatch
+	  $sth_updt->execute($linkmatch,$prev_sourceid) or die "Couldn't execute sources table update statement on $sourceid: ".$src_sth->errstr;
+  }  
+  #        delete duplicate sourcename row
+  $sth_del->execute($sourceid) or die "Couldn't execute sources table delete statement on $sourceid: ".$src_sth->errstr;
+}
+
+sub DB_prepare_update_source_linkmatch
+{
+ my $sth = $DBH->prepare("UPDATE sources SET linkmatch = ? where sourceid = ?") or die("Couldn't prepare update sources statement : ".$sth->errstr);	
+ return($sth);
+}
+
+sub DB_prepare_delete_source
+{
+ my $sth = $DBH->prepare("DELETE from sources WHERE sourceid = ?") or die("Couldn't prepare delete sources statement : ".$sth->errstr);	
+ return($sth);
 }
 
 
@@ -189,7 +139,7 @@ sub get_sourceid  ##used in sources table import- may want to move to controlfil
 {
  my($source) = $_[0];
  my $sourceid = 0;
- my $sth_source = $dbh->prepare( 'SELECT sourceid FROM sources where sourcename = ?' );
+ my $sth_source = $DBH->prepare( 'SELECT sourceid FROM sources where sourcename = ?' );
  $sth_source->execute($source);
  $sourceid = $sth_source->fetchrow_array();
  $sth_source->finish();
@@ -206,7 +156,7 @@ sub get_source_linkmatch
 
  if($DB_sources eq 1) {
      my $srcl_sql = "SELECT sourcename,linkmatch,sregionname FROM sources WHERE ? REGEXP linkmatch;";
-	 my $srcl_sth = $dbh->prepare($srcl_sql) or die("Couldn't prepare statement: ".$srcl_sth->errstr);	
+	 my $srcl_sth = $DBH->prepare($srcl_sql) or die("Couldn't prepare statement: ".$srcl_sth->errstr);	
 
 	 if($srcl_sth) {
 	    $srcl_sth->execute($url) or die "Couldn't execute sources table select find linkmatch statement: ".$srcl_sth->errstr;
@@ -302,14 +252,14 @@ sub add_updt_source_values
 
   if($addchgsource =~ /A/) {
 ## TODO: add check for duplicates before inserting look for dup on linkmatch; also get rid of blank linkmatches: change to NULL and then make linkmatch unique
-     my $srcadd_sth = $dbh->prepare("INSERT INTO sources (sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format) 
+     my $srcadd_sth = $DBH->prepare("INSERT INTO sources (sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format) 
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 
      $sregionid = &get_regionid($sregionname) if($sregionname and (!$sregionid or $sregionid == 0));
      $subregionid = &get_regionid($subregion) if($subregion and (!$subregionid or $subregionid == 0));
 
      $srcadd_sth->execute($sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format);
-	 $sourceid = $dbh->do("SELECT MAX(sourceid) FROM sources");
+	 $sourceid = $DBH->do("SELECT MAX(sourceid) FROM sources");
   }
   else {   #update
 
@@ -321,10 +271,95 @@ sub add_updt_source_values
 	"shortname_use = ?, sourcematch = ?, linkmatch = ?,snotmatch = ?,sregionname = ?, " .
 	"sregionid = ?, region_use = ?, subregion = ?, subregionid = ?, subregion_use = ?, " .
 	"locale = ?, locale_use = ?, headline_regex = ?, linkdate_regex = ?, date_format = ?  WHERE sourceid = ?;";
-    my $reg_updt_sth = $dbh->prepare($src_update_sql);
+    my $reg_updt_sth = $DBH->prepare($src_update_sql);
 	$reg_updt_sth->execute($sstarts_with_the,$sourcename,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format,$sourceid) or die "DB Update source $source failed<br>\n";
   }
   return($sourecid);
+}
+
+sub create_sources_table
+{  
+ $create_sources_sql = <<ENDSRC
+CREATE TABLE sources (
+sourceid smallint auto_increment PRIMARY KEY,
+sourcename varchar(75) not null,
+sstarts_with_the char(1) default "",
+shortname varchar(75),
+shortname_use char(1) default "",
+sourcematch varchar(200),
+linkmatch varchar(100),
+snotmatch varchar(100),
+sregionname varchar(75),
+sregionid smallint,
+region_use char(1) default "",
+subregion varchar(75),
+subregionid smallint,
+subregion_use char(1) default "",
+locale varchar(75),
+locale_use char(1) default "",
+headline_regex varchar(75),
+linkdate_regex varchar(75),
+date_format varchar(75)
+);
+ENDSRC
+
+}
+
+sub import_sources
+{ 
+  $DBH = &db_connect() if(!$DBH);
+
+  my $sourcesctrl = "$controlpath/sources.html";
+ print "<b>Import sources</b> sourcesctrl $sourcesctrl<br>\n";
+  my $shortname = "";
+  my $region_use = "";
+  my $subregion_use = "";
+  my $locale_use = "";
+  my $headline_regex = "";
+  my $linkdate_regex = "";
+  my $sstarts_with_the = "";
+
+ my $src_sth = $DBH->prepare("INSERT INTO sources (sourcename,sstarts_with_the,shortname,shortname_use,sourcematch,linkmatch,snotmatch,sregionname,sregionid,region_use,subregion,subregionid,subregion_use,locale,locale_use,headline_regex,linkdate_regex,date_format)
+ VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
+
+#  my $src_sth = $DBH->prepare( "INSERT INTO sources (name,starts_with_the,shortname,sourcematch,linkmatch,notmatch,regionname,regionid,include_region,prefix_region,subregion,subregionid,include_subregion,headline_regex,linkdate_regex)
+# VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
+
+  open(SOURCES, "$sourcesctrl") or die("Can't open sources control");
+  while(<SOURCES>)
+  {
+    chomp;
+    my $srcline = $_;
+    my $r_match = "";
+print "srcline $srcline<br>\n";
+	my ($sourcename,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$linkdate_regex,$subregion,$subregionid,$subregion_use,$headline_regex,$linkdate_regex,$date_format) 
+	    = split(/\^/,$srcline,15);
+	$sregionid = 0 if(!$sregionid);
+	$subregionid = 0 if(!$subregionid);
+	
+	($sourcename,$sourcematch) = split(/\|/,$name,2) if($sourcename =~ /\|/);
+		
+	if($sourcename =~ /, The/) {
+	   $sstarts_with_the = 'T';
+	   ($sourcename,$rest) = split(/,/,$sourcename,2);
+	}
+	else {
+	   $sstarts_with_the = '';
+	}
+
+	$sregionname =~ s/\s+$//mg; #Get rid of trailing spaces	
+	print "sregionname $sregionname<br>\n";
+	($sregionname,$subregion,$locale) = split(/\=/,$sregionname,3);
+		
+	$sregionid = &get_regionid($sregionname) if($sregionname);
+
+	$subregionid = &get_regionid($subregion) if($subregion);
+	
+	$src_sth->execute($sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$sregionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format);
+print "<br>$line <br>\n";
+  }
+  $src_sth->finish;
+  close(SOURCES);
 }
 
 1;

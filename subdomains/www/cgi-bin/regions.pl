@@ -21,7 +21,7 @@ sub get_regionid  ##used in sources table import- may want to move to controlfil
 {
  my($region) = $_[0];
  my $regionid = 0;
- my $sth_region = $dbh->prepare( 'SELECT regionid FROM regions where regionname = ?' );
+ my $sth_region = $DBH->prepare( 'SELECT regionid FROM regions where regionname = ?' );
  $sth_region->execute($region);
  $regionid = $sth_region->fetchrow_array();
  $sth_region->finish();
@@ -34,7 +34,7 @@ sub read_regions_to_array
   my $regidx = 0;
   if($DB_regions eq 1) {
 	 my $reg_sql = "SELECT regionid, seq, r_type, regionname, rstarts_with_the, regionmatch, rnotmatch, members_ids, continent_grp, location, extended_name, f1st2nd3rd_world, fertility_rate, population, pop_growth_rate, sustainability_index, humanity_index FROM regions ORDER BY seq;";
-	 my $reg_sth = $dbh->prepare($reg_sql) or die("Couldn't prepare statement: ".$reg_sth->errstr);	
+	 my $reg_sth = $DBH->prepare($reg_sql) or die("Couldn't prepare statement: ".$reg_sth->errstr);	
 
 	 if($reg_sth) {
 	    $reg_sth->execute() or die "Couldn't execute regions table select statement: ".$reg_sth->errstr;
@@ -236,9 +236,9 @@ sub add_updt_region_values
   if($addchgregion =~ /A/) {
 	  $reg_add_sql = "INSERT REPLACE INTO regions (seq,r_type,regionname,rstarts_with_the,regionmatch,rnotmatch,members_ids,continent_grp,location,extended_name,f1st2nd3rd_world,fertility_rate,population,pop_growth_rate,sustainability_index,humanity_index) 
 	VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-	  my $reg_add_sth = $dbh->prepare($reg_add_sql); 
+	  my $reg_add_sth = $DBH->prepare($reg_add_sql); 
       $reg_add_sth->execute($seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$members_ids,$continent_grp,$location,$extended_name,$f1st2nd3rd_world,$fertility_rate,$population,$pop_growth_rate,$sustainability_index,$humanity_index);
-	  $regionid = $dbh->do("SELECT MAX(regionid) FROM regions");	
+	  $regionid = $DBH->do("SELECT MAX(regionid) FROM regions");	
   }
   else {
       my $reg_update_sql = 
@@ -249,7 +249,7 @@ sub add_updt_region_values
 "extended_name = \'$extended_name\', sustainability_index = \'$sustainability_index\', humanity_index = \'$humanity_index\' " .
 "WHERE regionid = \'$regionid\'";	 
 
-   $dbh->do($reg_update_sql) or die "DB Update region $region failed<br>\n";
+   $DBH->do($reg_update_sql) or die "DB Update region $region failed<br>\n";
    }
    return($regionid);
 }
@@ -283,11 +283,11 @@ ENDREGIONS
 
 sub import_regions
 { 
-  $dbh = &db_connect() if(!$dbh);
+  $DBH = &db_connect() if(!$DBH);
   my $seq = 0;
   my $regionsctrl = "$controlpath/regions.html";
  print "<b>Import regions</b> regionsctrl $regionsctrl<br>\n";
-  my $reg_sth = $dbh->prepare( "INSERT INTO regions (seq,r_type,regionname,rstarts_with_the,regionmatch,rnotmatch,continent_grp,location,extended_name)
+  my $reg_sth = $DBH->prepare( "INSERT INTO regions (seq,r_type,regionname,rstarts_with_the,regionmatch,rnotmatch,continent_grp,location,extended_name)
 VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 
   open(REGIONS, "$regionsctrl") or die("Can't open regions control");

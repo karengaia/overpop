@@ -668,7 +668,7 @@ sub write_email    #writes what is accumulated in $MSGBODY, a global variable
 	    &parse_popnews($pdfline,$MSGBODY,$sectsubs);  #in smartdata.pl - modifies $MSGBODY, a global
 	
 	    $addsectsubs = $sectsubs;
-        &main_storeform;   #in docitem.pl
+        &main_storeform($docid);   #in docitem.pl
 	    return();
   }	
   my $op_filename = "$sentdatetm-$ehandle";	
@@ -1031,52 +1031,6 @@ sub clear_message_variables {
   $blank_topmsg = 'Y';
   $top_of_msg   = 'Y';
   $message = "";
-}
-
-sub clear_helper_variables {	
-  $msgtop = "";
-  $linecnt = 0;
-  $head = "";
-  $msgline1 = "";
-  $msgline2 = "";
-  $msgline3 = "";
-  $msgline4 = "";
-  $msgline_parens = "";
-  $paragr_linecnt = 0;
-  $paragr_cnt = 0;
-  $paragraph  = "";
-  $paragraph1 = "";
-  $paragraph2 = "";
-  $paragraph3 = "";
-  $paragraph4 = "";
-  $paragraph_parens = "";
-  $blanklines = 0;
-  $prev_line = "";
-  $prevprev_line = ""; 
-  $save_line = "";
-  $save_prev_line = "";
-  $save_prevprev_line = ""; 
-  $prev_para       = "";
-#  $itemline_cnt   = 0;
-  $msgline_link    = "";
-  $nextline_link   = "";
-  $msgline_anydate = "";
-  $msgline_date    = "";
-  $msgline_source  = "";
-  $msgline_anysrc  = "";
-  $paragr_source   = "";
-  $prev_headline   = "";
-  $twolines        = "";
-}
-
-sub clear_msgline_variables {
-  $holdmonth  = "";
-  $chkline    = "";
-  $pyear      = "";
-  $line = "";
-  $msglineN = "";
-  $msglineN1 = "";
-  $max_linecnt = 0;
 }
 
 1;

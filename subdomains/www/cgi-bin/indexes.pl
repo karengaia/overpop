@@ -1,179 +1,11 @@
 #!/usr/bin/perl --
 
-# January 2013
+# January 2014
 #        indexes.pl  : maintains flatfile indexes  and indexes table
 #    To confuse matters, a list of document ids (docid) is called both an index or a section.
 #    Only one index per section in the 'section' control file (sections.html or sectsubs table)
 
-####   ADDING AND DELETING TO INDEX
-
-##  SORT INDEX #####
-
-sub pushdata_to_sortArray
-{
- $sortorder = $cOrder;
- if($kDocid ne $docid) {
-      $saveDocid = $docid;
-      $docid = $kDocid;
-      &get_doc_data($docid,'N');
-      $docid = $saveDocid;
-  }
-
-  $priority = '5' if($priority !~ /[1-7]/ or -f "$priority5path/$docid.pri5");
-  $kDocloc  = 'M' if($kDocloc !~ /[A-Za-z0-9]/ and $cAllOr1 =~ /all/);
-  $kDocloc  = 'd' if($kDocloc !~ /[A-Za-z0-9]/ and $cAllOr1 =~ /1only/);
-# my $x = &lessthan_3monthsago($sysdate);  #in date.pl
-  my $sysdatenum = $sysdate;
-  $sysdatenum =~ s/-//g;
-#  if($sysdatenum < $t3monthsago) {
-#  my $t3monthsago = &get_3monthsago;
-#  my $t6weeksago  = &get_6weeksago;
-  my $tdaysago  = &get_somedaysago(42);  # 6 weeks
-  if($sysdatenum < $tdaysago) {
-     $priority = '0';
-#print "ind21 priority $priority ..sysdatenum $sysdatenum lt t3monthsago $t3monthsago<br>\n";
-   }
-   else {
-#print "ind22 priority $priority..sysdatenum $sysdatenum gt t3monthsago $t3monthsago<br>\n";
-}
-  if($sortorder eq 'R') {
-     &get_sort_pubdate;
-     $keyfield = "$kDocloc-$region-$kPubdate";
-  }
-  elsif($sortorder eq 'T') {
-     $keyfield = "$kDocloc-$region-$topic";
-  }
-  elsif($sortorder eq 't') {
-     my $kPriority = (7 - $priority);
-     $keyfield = "$kDocloc-$priority-$region-$topic";
-  }
-  elsif($sortorder =~ /[Pp]/) {
-     &get_sort_pubdate;
-     $keyfield = "$kDocloc-$kPubdate";
-  }
-  elsif($sortorder =~ /d/) {     # headlines priority
-	 my $kPriority = 5;
-     $kPriority = (7 - $priority) if($priority =~ /[0-9]/);
-     &get_sort_sysdate;
-     &get_sort_pubdate;
-     $keyfield = "$kPriority-$kSysdate-$kPubdate";
- }
-  elsif($sortorder =~ /D/) {  # headlines_sustainability
-     &get_sort_sysdate;
-     &get_sort_pubdate;
-     $keyfield = "$kSysdate-$kPubdate";
-  }
-  elsif($sortorder =~ /[A]/) {
-     my $kPriority = 7;
-     $kPriority = (7 - $priority) if($priority >=0);
-     &get_sort_sysdate;
-     $keyfield = "$kDocloc-$kPriority-$kSysdate";
-  }
-  elsif($sortorder eq 'H') {
-     $keyfield = "$headline";
-  }
-  elsif($sortorder eq 'S') {
-     $keyfield = "$kDocloc-$source";
-  }
-
-  elsif($sortorder eq 'r') {    #reverse physical order
-     $kSeq = 9999 - $kSeq;
-     $keyfield = "$kDocloc-$kSeq";
-  }
-
-##   F=first L=last - whichever it was stored in
-  else {
-     $keyfield = "$kDocloc-$kSeq";
-  }
-
-## print "<font face=arial size=1 color=silver>sec470 $kDocid $keyfield</font><br>\n";
-  $pushdata = "$keyfield^$kDocid^$kDocloc";
-  $pushdata =~ s/^\^+//;   ## trim leading carets
-  $pushdata =~ s/\^$//;    ## trim trailing carets
-  if(@unsorted) {
-     push @unsorted, $pushdata;
-  }
-  else {
-     @unsorted = ($pushdata);
-  }
- unlink $keyfield;
- unlink $pushdata;
- unlink $kPubdate;
- unlink $kSysdate;
-}
-
-## 475
-
-sub get_sort_pubdate
-{
-  $kPubdate = 0;
-  $kPubdate = &conform_date($pubdate,'n',$sysdate);
-#  $xPubdate = $kPubdate;
-  if($sortorder =~ /[PDdRA]/) {
-       $kPubdate = (30000000 - $kPubdate);
-       $kPubdate = "0$kPubdate" if($kPubdate =~ /^9/);
-  }
-}
-
-sub get_sort_sysdate
-{
-	$kSysdate = &conform_date($sysdate,'n');
-    if($sortorder =~ /[PdDRA]/) {
-        $kSysdate = (30000000 - $kSysdate);
-        $kSysdate = "0$kSysdate" if($kSysdate =~ /^9/);
-    }
-}
-
-sub get_sort_woadateitme   ## still need to add woadatetime to index for summarized, suggested, news
-{                          ## this is just for conversion of flat to DB (do we need?)
-	$kSysdate = &conform_date($woadatetime,'n',$pubdate); # if no woadatetime, use $pubdate + hhmmss = 000000
-    if($sortorder eq 'W') {
-        $kSysdate = (30000000000000 - $kSysdate);
-        $kSysdate = "0$kSysdate" if($kSysdate =~ /^9/);
-    }
-}
-
-sub conform_date    # format yyyy-mm-dd
-{
-  my ($date,$format,$date2) = @_;
-
-  ($yyyy,$mm,$dd) = split(/-/,$date,3);  ## need to add split on space and : if datetime
-
-  if(($yyyy !~ /^[0-9]{4}$/ or $yyyy =~ /0000/) and $sysdate) {
-	 $date = $date2;
-     ($yyyy,$mm,$dd) = split(/-/,$date,3);
-  }
-
-  if($yyyy !~ /^[0-9]{4}$/ or $yyyy =~ /0000/) {
-      return ("0000-00-00") if($format =~ /f/);
-      return ("00000000") if($format !~ /f/);   # use this format on indexes
-  }
-
-  if( $mm =~ /00([0-9])/) {
-	     $mm = "0$1" ;
-  }
-  $mm = "00" if($mm !~ /[0-1][0-9]/ and length($mm) != 2);
-
-  if($dd =~ /[0-3]{1}[0-9]{1}/) {
-  }
-  elsif($dd =~  / [1-9]/) {
-     $dd =~ s/ ([1-9])/0$1/;  # replace days leading blank with leading zero
-  }
-  elsif($dd =~ /[1-9]{1}/) {
-     $dd   =~ s/([1-9]{1})/0$1/;  # pad with 0 any day with just one character
-  }
-  else {
-     $dd = "00";
-  }
-
-  if($format =~ /f/) {
-	return("$yyyy-$mm-$dd");
-  }
-  else {
-    return("$yyyy$mm$dd");  # use this format on indexes
-  }
-}
-
+#### 
 
 sub write_index_flatfile {
  my($rSectsubid,$docid,$docloc,$cOrder,$addchk,$delSS,$listsingle) = @_;
@@ -279,229 +111,7 @@ sub write_index_straight
   close(EMAILIDX);
 }
 
-
-######## PAGING  ##########
-
-
-##  DO PAGE ITEM COUNTS: start count and stop count
-
-## query string:     1^100:10 i.e. pg_num^max:pg1max
-## in sections.html : maxitems: 100:10   N:M = stop after 10 on the 1st page
-##                   DO NOT PAD!!
-
-##    pg 1: start_count = 0; stop_count = N
-##    pg 2on start_count = N + (pg - 2)*M   2-11, 3-111, 4-211
-##           stop_count = start_count + M
-
-## Also need to calculate total number of pages
-
-sub init_paging_variables
-{
- $ckItemcnt = 0;    ## ck for max
- $pgitemcnt = "";   ##page
- $ssItemcnt = "";   ##subsection
- $totalItems = 0;
- $pg_num = 1;
- $start_count = '000001';
- $ckItemnbr = 1;
- $ckItemcnt = &padCount6($ckItemnbr);  # in db_ctrl_tables.pl
- $default_itemMax = 7;
- $default_order = 'p';	
-}
-
-sub set_start_stop_count_maxes
-{
- if($qItemMax =~ /[0-9]/) {
-   $pg2max = $qItemMax;
- }
- elsif($cMaxItems =~ /[0-9]/) {
-   $pg2max = $cMaxItems;
- }
- else {
-   $pg2max = $default_itemMax;
- }
-
- if($qPg1max =~ /[0-9]/) {
-   $pg1max = $qPg1max;
- }
- elsif($cPg1Items =~ /[0-9]/) {
-   $pg1max = $cPg1Items;
- }
- else {
-   $pg1max = $pg2max;
- }
-}
-
-
-sub get_start_stop_count
-{
- my $pg_num = $_[0];
-
- $start_count = 0;
- $stop_count = 0;
-
- &set_start_stop_count_maxes;
-
- if($pg_num eq 1) {
-    $start_count = 0;
-    $stop_count = $pg1max;
- }
- else {
-    $start_count = $pg1max + (($pg_num - 2) * $pg2max);  #  pg2-11, pg3-111, pg4-211
-    $stop_count = $start_count + $pg2max;
- }
-
-## print "sec500b start_count $start_count ..stop_count $stop_count .. pg2Max $pg2max ..pg1max $pg1max<br>\n";
-
- $start_count = &padCount6($start_count);
- $stop_count  = &padCount6($stop_count);
-
-## print "sec500 pg_num $pg_num .. pg2Max $pg2max .. start_count $start_count .. stop_count $stop_count<br>\n";
- return("$start_count:$stop_count")
-}
-
-sub total_pages
-{
- my($doclistname,$pg2max,$tot_items,$pg1max) = @_;;
- if($pg2max !~ /[0-9]/ or $pg2max == 0) {
-	$pg2max = $default_itemMax;
-}
-
- if($tot_items > 0 and tot_items =~ /0-9/) {
- }
- else {
-    $tot_items = &total_items($doclistname) + 1;
- }
-
- if($tot_items !~ /[0-9]/ or $tot_items < 2 or $tot_items <= $pg1max ) {
-    $totalPages = 1;
- }
- else {  # more than one page
-	
-   $remaining_items = $tot_items - $pg1max;
-
-   $totalPages = ($remaining_items / $pg2max) + 2; # add page 1 and fraction back in
-
-   $totalPages = int($totalPages);
-
-#   ($totalPages,$rest) = (/\./,$totalPages,2);
- }
- return $totalPages;
-}
-
-
-sub total_items
-{
- my $doclistname = $_[0];
- my $tot_items = 0;
- my $cntfilename = "";
- my $cntfilepath = "";
- $doclistname =~ s/\.cnt//g if($doclistname =~ /\.cnt/);
- $doclistname =~ s/\.idx//g if($doclistname =~ /\.idx/);
-
- if(-f "debugit.yes") {
-     $cntfilename = "testitem.txt"
-  }
-  else {
-     $cntfilename = "$doclistname.cnt" if($doclistname !~ /\.cnt$/);
-  }
-  if($cntfilename !~ /$sectionpath/) {
-      $cntfilepath = "$sectionpath/$cntfilename";
-  }
-  else {
-      $cntfilepath = "$cntfilename";
-  }
-
-  if(-f  $cntfilepath) {
-	 my $found = "";
-     open(CNTFILE,"$cntfilepath");
-     while(<CNTFILE>) {
-       chomp;
-       $tot_items = $_;
-       $found = 'Y';
-     }
-     close(CNTFILE);
-     if($found) {
-        $tot_items = &strip0s_fromCount($tot_items);
-     }
-     else {
-	    $tot_items = 0;
-     }
-  }
-  else {
-	 &set_item_count(1,$doclistname);
-  }
-  $tot_items = 0 unless($tot_items);
-  $tot_items = 0 if($tot_items < 0);
-  return $tot_items;
-}
-
-
-sub set_item_count  #comes here from display; count is calculated on display during sort
-{
- my ($ckItemnbr,$doclistname) = @_;
-
- $doclistname =~ s/$sectionpath\///;
- $doclistname =~ s/\.idx//g;
-
- if(-f "debugit.yes") {
-    $doclistname = "testitem.txt";
- }
-
- my $cntfilepath = "$sectionpath/$doclistname.cnt";
-
- system "touch $cntfilepath" unless (-f $cntfilepath);
-
-# my $ckItemcnt = &padCount6($ckItemnbr);
-
- open(CNTFILE,">$cntfilepath");
- print(CNTFILE "$ckItemnbr\n");
- close(CNTFILE);
-}
-
-
-### set default top of page and bottom - but use both sectsub and subsect titles
-### called from article.pl
-
-sub print_pages_index
-{
- my($pg_num,$sectsubid,$pg2max,$totalItems,$pg1max,$end_section) = @_;
- my $pg;
- $doclistname = "$sectionpath/$sectsubid.idx";
- &set_start_stop_count_maxes;  ## we have to this twice - also before start-stop count
-
- $totalPages = &total_pages($doclistname,$pg2max,$totalItems,$pg1max);
-
- if(($cMobidesk =~ /mobi/ or $qMobidesk =~ /mobi/) and $end_section eq 'Y') {
-	$pg = $pg_num + 1;
-##article.pl?0-cmd%1-atemplate%2-docid%3-listSectsub%4-doclist/sectsubid%5-userid/pgnum%6-pgcnt%7-header%8-footer%9-order%10-mobidesk	
-    print MIDTEMPL "<a target=_blank href=\"http://$scriptpath/article.pl?display_subsection%%NewsDigest_newsmobile%NewsDigest_newsmobile%%$pg%5%%%%mobi\">Next<\/a>\n";	
- }
- elsif($totalPages > 1) {
-	if($end_section eq 'Y') {
-      print MIDTEMPL " End of this page in <b>";
-      &do_title;  # in article.pl
-      print MIDTEMPL "</b> section, ";
-	}
-    print MIDTEMPL "pg $pg_num ... Go to page ";
-#    print MIDTEMPL "pg $pg_num ... Go to page <a target=\"_blank\" href=\"http://$publicUrl/prepage/viewsection.php?$sectsubid%%$pg_num\">1<\/a>.. \n";
-
-
-   for($pg=1;$pg<($totalPages+1);$pg++) {
-      if($pg > ($pg_num - 10) and $pg < ($pg_num + 11) and $pg != $pg_num) {
-         print MIDTEMPL "<a target=\"_blank\" href=\"http://$publicUrl/prepage/viewsubsection.php?$sectsubid%%$pg\">$pg<\/a> ";
-      }
-   }
-   if($totalPages > $pg) {
-      $totalPages = $totalPages -1;
-      print MIDTEMPL ".. <a target=\"_blank\" href=\"http://$publicUrl/prepage/viewsection.php?$sectsubid%%$totalPages\">$totalPages<\/a>\n";
-   }
-}
-}
-
-######  END PAGING ##########
-
-## 420
+#### MOVEDP AGING TO DISPLAY.PL
 
 sub mass_add2index
 {
@@ -565,7 +175,7 @@ sub delete_from_index
       while(<INSUB>) {
          chomp;
          local($sDocid,$sDocloc) = split(/\^/,$_,2);
-	     if($docid =~ /$sDocid/) {
+         if($docid =~ /$sDocid/) {
          }
          else {
              print OUTSUB "$sDocid^$sDocloc\n";
@@ -628,12 +238,10 @@ sub delete_from_index_by_list
 sub hook_into_system
 {
  my($docid,$sectsubs,$addsectsubs,$delsectsubs,$chglocs,$listsingle) = @_;  #fields needed for sorting
-# $pubdate = &conform_date($pubdate,'n',$sysdate);
-# $sysdate = &conform_date($sysdate,'n');
 
- if($docid =~ /-/) {
+ if($docid =~ /-/) {  # email docid - probably no longer used
     &write_index_straight($emailedSS,$docid);     # in indexes.pl
-    &DB_update_sectsub_idx($idx_insert_sth,$sectsubfk,$docid,$stratus,$delsectsubs) unless($DB_docitem < 1);    # in sections.pl
+    &DB_update_sectsub_idx($idx_insert_sth,$sectsubfk,$docid,$stratus,$delsectsubs) if($DB_docitem > 0);    # in sections.pl
     return("");
  }
 
@@ -648,13 +256,14 @@ sub hook_into_system
 
  ##      update subsection indexes by docid;
 
- my @adddelsectsubs = split(/;/,"$addsectsubs;$delsectsubs;$chglocs");
- my $saveCsectsub = $cSectsubid;
+ my $adddelsectsubs = "$addsectsubs;$delsectsubs;$chglocs";
+ my @adddelsectsubs = split(/;/,$adddelsectsubs);
 
  foreach $rSectsub (@adddelsectsubs)  {
+	 my $saveCsectsub = $cSectsubid;	
    if($rSectsub) {
      my($sectsubname,$rSectid,$rSubid,$stratus) = &split_sectsub($rSectsub);
-     &updt_subsection_index($idx_insert_sth,$sectsubname,$cSSid,$docid,$stratus,$addsectsubs,$delsectsubs,$listsingle); #not exporting
+     &updt_subsection_index($idx_insert_sth,$sectsubname,$docid,$stratus,$addsectsubs,$delsectsubs,$listsingle); #not exporting
    }
  }
 
@@ -668,7 +277,7 @@ sub hook_into_system
 
 sub updt_subsection_index
 {
- my($idx_insert_sth,$sectsubname,$SSid,$docid,$stratus,$addsectsubs,$delsectsubs,$listsingle) = @_;	
+ my($idx_insert_sth,$sectsubname,$docid,$stratus,$addsectsubs,$delsectsubs,$listsingle) = @_;	
 	
  ($sectsubname,$rest) = split(/`/,$sectsubname,2) if ($sectsubname =~ /`/); #fix a bug from somewhere
 
@@ -683,56 +292,22 @@ sub updt_subsection_index
  $addchk = "$addsectsubs;$chglocs";
  $delchk = "$delsectsubs;$chglocs";
 
-## &split_section_ctrlB($sectsubname);  # to get $cOrder - in sectsub.pl  ### DON'T NEED ######
  $stratus = $default_docloc if($stratus !~ /[A-Z]/);
-
  &write_index_flatfile($sectsubname,$docid,$stratus,$cOrder,$addchk,$delsectsubs,$listsingle);
 
-##                     Delete the docid we wrote before
-##                     - just in case it didn't delete above
+##     Delete the docid we wrote before
+##         - just in case it didn't delete above
 # &deleteFromIndex_2nd($docid,$sectsubname,'Y') if($delsectsubs =~ /$sectsubname/);
 
+my @sectsubs = split(/;/,$D{sectsubs});
+foreach $sectsub (@sectsubs) {
+     my ($sectsubname,$docloc,$rest) = split(/`/, $sectsub,3);   # get rid of stratus A...M...Z
+         # will either add to or delete from index
+}
  my $n_docid = int($docid);
- &DB_update_sectsub_idx($idx_insert_sth,$sectsubname,$n_docid,$delsectsubs,$listsingle) if($DB_docitems eq 1);
- undef %iDocid;
- undef %iDocloc;
- undef %idx_written;
- undef %newIdx_written;
-}
-
-sub toDeleteList_open
-{
-   my($sectsubname, $from_updt_subsec_idx)  = @_;
-
-print "idx708 open ..sectsubname $sectsubname WE SHOULD NOT BE COMING HERE!<br>\n";
-  if($from_updt_subsec_idx =~ /[Yy]/) {
-   }     ## Don't lock if in the middle of &updt_subsection_index - already locked
-   else {
-     $lock_file = "$statuspath/$sectsubname.del.busy";
-     &waitIfBusy($lock_file, 'lock');
-   }
-
-   my $delsectionfile = "$sectionpath/$sectsubname.del";
-
-   if(-f $delsectionfile) {
-   }
-   else {
-      system "touch $delsectionfile";
-   }
-   open(DELLIST, ">>$delsectionfile");
-}
-
-sub toDeleteList_write
-{
- my $docid  = $_[0];
- print DELLIST "$docid\n";
-}
-
-
-sub toDeleteList_close
-{
- close(DELLIST);
- unlink $lock_file  if(-f $lock_file);
+#                                             IS THIS RIGHT?    
+ &DB_update_sectsub_idx($idx_insert_sth,$sectsubname,$n_docid,$stratus,$delsectsubs,$listsingle) if($DB_docitems > 0);
+undef %newIdx_written;
 }
 
 ## not sure this ever worked - lDocid is a local - where does docid to be deleted come in????
@@ -803,15 +378,16 @@ sub deleteFromIndex_2nd    ## Doesn't work for emailed list - Just delete file f
    }
 }
 
+# I DON'T BELIEVE THIS WORKS - CHECK WHERE THIS IS COMING FROM
 sub deleteFromIndex_deletelist
 {
  my($sectsubname, $from_updt_subsec_idx)  = @_;
 
  unless($DELETELIST) {
     if (-f $delsectionfile) {
-		 my($delsectionfile) = "$sectionpath/$sectsubname.del";
+	my($delsectionfile) = "$sectionpath/$sectsubname.del";
 	
-	     if($from_updt_subsec_idx =~ /[Yy]/) {
+	 if($from_updt_subsec_idx =~ /[Yy]/) {
 	     }     ## Don't lock if in the middle of &updt_subsection_index - already locked
 	     else {
 	        $lock_file = "$statuspath/$sectsubname.busy";
@@ -864,14 +440,13 @@ sub deleteFromIndex_deletelist
     unlink $newsectionfile;
 
     unlink $lock_file  if(-f $lock_file);
-
     unlink $delsectionfile;
    }
    else {
       &printDataErr_Continue("Sec430 Can't find index for $rSectsubid: $sectionfile. Non-fatal error; continuing with processing. Notify admin. Thanks");
    }
 
-   &DB_update_idx_list($idx_insert_sth,$sectsubname,$delsectsubs,$DELETELIST) if($DB_docitems eq 1);
+   &DB_update_idx_list($idx_insert_sth,$sectsubname,$delsectsubs,$DELETELIST) if($DB_docitems > 0);
 }
 
 #### INFO ON AN INDEX ROW processing
@@ -887,7 +462,6 @@ sub splitout_sectsub_info
     if($sectsub =~ /$sectsubname/) {
 	    my($xsectsubname,$xsectname,$xsubname,$stratus) = &split_sectsub($sectsub);
 	    $stratus = 'M' if($stratus !~ /[A-Z]/);
-#       $dTemplate = 'straight' if($straight_html eq 'Y');   ## DO WE NEED?
         return($stratus);
     }
   }
@@ -905,27 +479,25 @@ sub split_rSectsub {
 }
 
 ## need to feed this a parameter and return an array field;
-## also remove $saveDtemplate logic
 
 sub split_dSectsub   ## SEE SPLIT_SECTSUB - REUSE
 {
-## temporary fix - all subsects the same template  DO WE EVEN NEED TEMPLATE?????
-# local($saveDtemplate) = $dTemplate;
- ($dSectsubid,$dDocloc,$dLifonum)
+ ($dSectsubid,$dDocloc)
        = split(/`/, $dSectsub,3);
  ($dSectid,$dSubid) = split(/_/, $dSectsubid);
 
-# $dTemplate = $saveDtemplate;
  $dDocloc = $default_docloc if($dDocloc !~ /[A-Z]/);
 }
 
 sub split_sectsub {
-	my $sectsub = $_[0];
+     my $sectsub = $_[0];
      my ($sectsubname,$docloc) = split(/`/,$sectsub,3);
      ($sectid,$subid) = split(/_/, $sectsubname);
-#print MIDTEMPL "sectsub $sectsub sectsubname $sectsubname docloc $docloc<br>\n";
+
      return ($sectsubname,$sectid,$subid,$docloc);
 }
+
+#### TODO: this does not seem to be used
 
 sub docarray_sect_order
 {
@@ -951,7 +523,80 @@ sub docarray_sect_order
  }
 }
 
-#######
+sub total_items
+{
+ my $doclistname = $_[0];
+ my $tot_items = 0;
+ if($DB_docitems > 0) {
+	my $sectsubid = &get_sectsubid($doclistname);
+	my $result = $dbh->do("SELECT COUNT from indexes as i where i.sectsubid = $sectsubid");
+ }
+ return($result);
+
+ my $cntfilename = "";
+ my $cntfilepath = "";
+ $doclistname =~ s/\.cnt//g if($doclistname =~ /\.cnt/);
+ $doclistname =~ s/\.idx//g if($doclistname =~ /\.idx/);
+
+ if(-f "debugit.yes") {
+     $cntfilename = "testitem.txt"
+  }
+  else {
+     $cntfilename = "$doclistname.cnt" if($doclistname !~ /\.cnt$/);
+  }
+  if($cntfilename !~ /$sectionpath/) {
+      $cntfilepath = "$sectionpath/$cntfilename";
+  }
+  else {
+      $cntfilepath = "$cntfilename";
+  }
+
+  if(-f  $cntfilepath) {
+	 my $found = "";
+     open(CNTFILE,"$cntfilepath");
+     while(<CNTFILE>) {
+       chomp;
+       $tot_items = $_;
+       $found = 'Y';
+     }
+     close(CNTFILE);
+     if($found) {
+        $tot_items = &strip0s_fromCount($tot_items);
+     }
+     else {
+	    $tot_items = 0;
+     }
+  }
+  else {
+	 &set_item_count(1,$doclistname);
+  }
+  $tot_items = 0 unless($tot_items);
+  $tot_items = 0 if($tot_items < 0);
+  return $tot_items;
+}
+
+
+sub set_item_count  #comes here from display; count is calculated on display during sort
+{
+ my ($ckItemnbr,$doclistname) = @_;
+
+ $doclistname =~ s/$sectionpath\///;
+ $doclistname =~ s/\.idx//g;
+
+ if(-f "debugit.yes") {
+    $doclistname = "testitem.txt";
+ }
+
+ my $cntfilepath = "$sectionpath/$doclistname.cnt";
+
+ system "touch $cntfilepath" unless (-f $cntfilepath);
+
+# my $ckItemcnt = &padCount6($ckItemnbr);
+
+ open(CNTFILE,">$cntfilepath");
+ print(CNTFILE "$ckItemnbr\n");
+ close(CNTFILE);
+}
 
 
 ###  UTILTIES
@@ -1050,7 +695,7 @@ sub DB_update_sectsub_idx
 
 ## DATABASE SQL ALTERNATIVE TO FLAT FILE INDEX
 
-sub do_doclist_sql {    # for display
+sub DB_do_doclist_sql {    # for display
   my $dSectsub = $_[0];
   my $counts = &get_start_stop_count($pg_num);  #in sections.pl
   ($start_count,$stop_count) = split(/:/,$counts,2);
@@ -1062,8 +707,8 @@ sub do_doclist_sql {    # for display
   $ckItemnbr = 1;
   $ckItemcnt = &padCount6($ckItemnbr);
 
-  unless($dbh) {
-    $dbh = &db_connect() or die "DB failed connect";
+  unless($DBH) {
+    $DBH = &db_connect() or die "DB failed connect";
   }
 
   $start_cnt = int($start_count);
@@ -1074,7 +719,7 @@ sub do_doclist_sql {    # for display
 ## Page 2 and so on:  WHERE d.woapubdatetm < last one on page 1 - ORDER by d.pubdate desc  LOOK AT GET_ORDERBY
 
   my $sql = "SELECT i.docid, d.woapubdatetm, i.stratus, d.pubdate FROM indexes as i, docitems as d, sectsubs as s WHERE i.sectsubid = s.sectsubid AND d.docid=i.docid AND s.sectsub = ? ORDER BY $orderby LIMIT ?, ?";		
-  my $doclist_sth = $dbh->prepare($sql) or die "DB doclist failed prepare";
+  my $doclist_sth = $DBH->prepare($sql) or die "DB doclist failed prepare";
   $doclist_sth->execute($dSectsub,$lastpg2woadatetm,$start_cnt,$num_articles) or die "DB doclist failed execute";
 
   if ($doclist_sth->rows == 0) {
@@ -1154,26 +799,8 @@ sub get_orderby {
 }
 
 
-sub DB_getlastpg2_woadatetm {
-    my($sectsub) = $_[0];
-    my $pg1pg2Limit = 0;
-    $pg1pg2Limit = ($cPg1Items + $cPg2Items -1);
-	my $lastpg2woadatetm = 0;
-	my $woadatetm_sth = $dbh->prepare("SELECT d.woadatetm FROM docitems AS d, indexes AS i, sectsubs AS s WHERE i.sectsubid = s.sectsubid AND d.docitem = s.doctiem AND s.sectsub = ? ORDER BY d.woadatetm DESC LIMIT ? , 1");
-
-	if($woadatetm_sth) {
-	    $woadatetm_sth->execute($sectsub,$pg1pg2Limit) or die "Couldn't execute statement: ".$woadatetm_sth->errstr;
-	    $lastpg2woadatetm = $woadatetm_sth->fetchrow_array();
-		$woadatetm_sth->finish();
-	}
-	else {
-	   print" Couldn't prepare DB_getlastpg2_woadatetm query<br>\n";
-	}
-	return ($lastpg2woadatetm);
-}
-
 sub DB_prepare_idx_count {
-  my $sth = $dbh->prepare("SELECT COUNT(*) FROM indexes  WHERE docid = ? and sectsubname = ?") or die("Couldn't prepare statement: " . $sth->errstr);		
+  my $sth = $DBH->prepare("SELECT COUNT(*) FROM indexes  WHERE docid = ? and sectsubname = ?") or die("Couldn't prepare statement: " . $sth->errstr);		
   return $sth;
 }
 
@@ -1190,10 +817,10 @@ sub DB_prepare_idx_insert {
  my $mode = $_[0];
  my $sth;
  if($mode = 'import') {
-     $sth = $dbh->prepare( 'INSERT IGNORE INTO indexes VALUES ( ?, ?, ?)' ) ; 
+     $sth = $DBH->prepare( 'INSERT IGNORE INTO indexes VALUES ( ?, ?, ?)' ) ; 
  }
  else {
-	 $sth = $dbh->prepare( 'INSERT INTO indexes VALUES ( ?, ?, ?) ON DUPLICATE KEY UPDATE stratus = ?' ) ; 
+	 $sth = $DBH->prepare( 'INSERT INTO indexes VALUES ( ?, ?, ?) ON DUPLICATE KEY UPDATE stratus = ?' ) ; 
  }
  return($sth);
 }
@@ -1215,7 +842,7 @@ sub DB_delete_from_indexes
 {
     my($sectsubid,$docid) = @_;	
     my $query = "DELETE FROM indexes WHERE sectsubid = $sectsubid AND docid = $docid";
-    $dbh->do($query) or die "DB Delete $docid from $sectsubid failed<br>\n";
+    $DBH->do($query) or die "DB Delete $docid from $sectsubid failed<br>\n";
 }
 
 
@@ -1223,7 +850,7 @@ sub DB_delete_from_indexes_by_list  # NEEDS TO HAVE SQL FIXED
 {
     my($sectsubid,$deletelist) = @_;	
     my $query = "DELETE FROM indexes WHERE sectsubid = $sectsubid AND docid IN $deletelist";
-    $dbh->do($query) or die "DB Delete $deletlist from $sectsubid failed<br>\n";
+    $DBH->do($query) or die "DB Delete $deletlist from $sectsubid failed<br>\n";
 }
 
 sub create_indexes_table {
@@ -1240,7 +867,7 @@ ENDINDEXES
 
 sub export_indexes_XXX   ####### do this with each docitem!!!!!
 {  #run this after all docitems are exported
- my $sth_idxrows = $dbh->prepare( 'SELECT i.docid,i.sectsubid,i.stratus FROM indexes as i  WHERE i.sectsubid = ?' ) 
+ my $sth_idxrows = $DBH->prepare( 'SELECT i.docid,i.sectsubid,i.stratus FROM indexes as i  WHERE i.sectsubid = ?' ) 
     or die("Couldn't prepare statement: " . $sth_idxrows_sth->errstr);
 
  foreach $cSectsub (@CSARRAY) {

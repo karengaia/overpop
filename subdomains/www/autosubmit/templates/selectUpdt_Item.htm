@@ -16,22 +16,22 @@
 <!-- *REDARROW* -->
   <textarea name="headline[pgitemcnt]" wrap="soft" rows=2 cols="80">[headline]</textarea>
 
-<input type="hidden" name="docid[pgitemcnt]" value="[docid]">
+<input type="hidden" name="docid[pgitemcnt]" value="[docid]"><br>
 <label for="subheadline">Subhead:</label>
-<input type="text" name="subheadline[pgitemcnt]" size="100" maxlength="400"
+<input type="text" name="subheadline[pgitemcnt]" size="80" maxlength="400"
 value="
 [subheadline]
 ">
 <br>
 
-<label>By:</label>&nbsp;&nbsp;
-<input type="text" name="author" size="53" maxlength="150"
+<label>By:</label>
+<input type="text" name="author[pgitemcnt]" size="53" maxlength="150"
 value="
 [author]
-">&nbsp;<input type="checkbox" name="skipauthor" 
+">&nbsp;<input type="checkbox" name="skipauthor[pgitemcnt]" 
 [SKIPAUTHOR]
-    value="Y"><cite>Skip author</cite>
-<input type="checkbox" name="lfx2[pgitemcnt]" value="Y"><cite>LFx2</cite>
+    value="Y"><cite>Skip auth</cite>
+<input type="checkbox" name="lfx2[pgitemcnt]" value="Y">&nbsp;<cite>LFx2</cite>
 <br>
 
 <cite>
@@ -47,36 +47,35 @@ value="
 value="
 [unique]
 ">
-  <input name="clearmisc[pgitemcnt]" type=radio value="N" onclick="setvar('miscinfo[pgitemcnt]','');">Clear misc&nbsp;
-<br> &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Misc
+<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=75 maxsize=300 value="[note]">
+<table><tr><td>
+<br><label>Misc&nbsp;</label><input name="clearmisc[pgitemcnt]" type=radio value="N" onclick="setvar('miscinfo[pgitemcnt]','');">Clear misc
+</td><td>
 <textarea id="miscinfo[pgitemcnt]" 
-name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
+name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="45">
 [miscinfo]</textarea>
-<br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=80 maxsize=300 value="[note]">
+</td></tr></table>
 
  
 </TD><TD width=50% valign=top>
 [ALINK]
 <label><b>Link</b></label></a> &nbsp;
    <cite>
-    <input name="selflink[pgitemcnt]" type=checkbox value="Y"> self &nbsp;&nbsp;
+    <input name="selflink[pgitemcnt]" type=checkbox value="Y"> self &nbsp;</cite>
 
-  <a target="_blank" href="[link]">Open url</a></cite>
 
   &nbsp;<font face=verdana size=2 color="#666666">
-<b>PubDate: </b></font>
-&nbsp;
+<b>PubDate:</b></font>
 <font face=arial size=1>
 <select name="pubmonth[pgitemcnt]">
 [PUBMONTHS]
 </select>
 
-<input type="text" name="pubday[pgitemcnt]" size="3" maxlength="2" value="
-[PUBDAY]
-">
+<input type="text" name="pubday[pgitemcnt]" size="2" maxlength="2" 
+value="[PUBDAY]">
 <select name="pubyear[pgitemcnt]">
 [PUBYEARS]
-</select></font>
+</select> &nbsp;[miscinfo]</font>
 
   <br>
  <textarea name="link[pgitemcnt]" wrap="soft" rows=2 cols="67">[link]</textarea>
@@ -85,7 +84,7 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 <table><td valign="top">
 	
 <label><b>Priority</b></label><br><br><br>
-  <label><b>Source</b></label>
+
 </td><td valign="top">
   <select size = "4" name="priority[pgitemcnt]" 
   onClick="setvar('sectsubs[pgitemcnt]', 'Headlines_sustainability');setvar('selitem[pgitemcnt]', 'Y')">
@@ -100,10 +99,11 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
   <label><b>Region</b></label><br>
         
     &nbsp;<cite>
-  <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">Clear&nbsp;
-  <input name="regionlink[pgitemcnt]" type=radio value="P" onclick="loadRegion('region[pgitemcnt]');">Pull &nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="P"
+  onclick="loadRegion('region[pgitemcnt]');">Pull &nbsp;
   <input name="regionlink[pgitemcnt]" type=radio value="U" checked onclick="setvar('region[pgitemcnt]','U.S.');">US&nbsp;
-  <input name="regionlink[pgitemcnt]" type=radio value="G" checked onclick="setvar('region[pgitemcnt]','Global');">Glob&nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="G" checked onclick="setvar('region[pgitemcnt]','Global');">Global&nbsp;
+  <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">Clear&nbsp;
   </cite>
    </td><td>
 [LIKELYREGIONS]	
@@ -112,12 +112,11 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 [REGION]
 "> 
 </td></table>
- 
+ <label><b>Source:</b></label>&nbsp;&nbsp;<small><input name="sourcelink[pgitemcnt]" type=radio value="Y">From link
+ <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');">Clear<br></small>
  <cite>
-  <input name="sourcelink[pgitemcnt]" type=radio value="Y">From link&nbsp;
-  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');">Clear&nbsp;
-  <input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">Pull &nbsp;
-  <input type="checkbox" name="addchgsource[pgitemcnt]" value="A"> Add &nbsp; Linkmatch:
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">Pull 
+  &nbsp;&nbsp;<input type="checkbox" name="addchgsource[pgitemcnt]" value="A"> Add &nbsp;&nbsp;Linkmatch:
    <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="14" maxlength="150" value="">
    <input type="checkbox" name="sstarts_with_the[pgitemcnt]" value="T">The &nbsp;
     <br>   </cite>
@@ -130,7 +129,6 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 <small><cite><input name="sspull[pgitemcnt]" type=radio value="N" onClick="setvar('sectsubs[pgitemcnt]', 'NewsDigest_NewsItem')">News &nbsp
 	     <input name="sspull[pgitemcnt]" type=radio value="S" onClick="setvar('sectsubs[pgitemcnt]', 'Suggested_summarizedItem')"> Sum &nbsp
         <input name="sspull[pgitemcnt]" type=radio value="A" onclick="loadSectsub('N','sectsubs[pgitemcnt]');">Reg &nbsp;
-        <input name="sspull[pgitemcnt]" type=radio value="B" onclick="loadSectsub('C','sectsubs[pgitemcnt]');">Country &nbsp;
         <input name="sspull[pgitemcnt]" type=radio value="C" onclick="loadSectsub('A','sectsubs[pgitemcnt]');">Admin &nbsp;
 	    <input name="sspull[pgitemcnt]" type=radio value="c" onClick="setvar('sectsubs[pgitemcnt]', '')"> Clear &nbsp
 </cite></small>
@@ -139,13 +137,13 @@ name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="70">
 
 
 <br>
-  <label>Summarize here:</label> 
+  <label>Summarize here:</label><small>
 	<input type="radio" name="getfullbody" value="A" 
 	   onclick="var2var( 'body[pgitemcnt]',
-	'fullbody[pgitemcnt]');"><cite>Get full article</cite>
-  <br>  
-  <input type="radio" name="needsum" value="1">needSum<input type="radio" name="needsum" value="2">more<input type="radio" name="needsum" value="3">both<input type="radio" name="needsum" value="4">key<input type="radio" name="needsum" value="5">keymor<input type="radio" name="needsum" value="6">extrct<input type="radio" name="needsum" value="7">exmor<input type="radio" name="needsum" value="8" checked="checked">sum<input type="radio" name="needsum" value="9">summor<input type="radio" name="needsum" value="0">clr&nbsp;
-  <br>
+	'fullbody[pgitemcnt]');"><cite>Get full article</cite>&nbsp;&nbsp;
+  <input type="radio" name="needsum" value="1">needSum<input type="radio" name="needsum" value="2">more<br><input type="radio" name="needsum" value="3">both <input type="radio" name="needsum" value="4">key<input type="radio" name="needsum" value="5">keymor<input type="radio" name="needsum" value="6">extrct<input type="radio" name="needsum" value="7">exmor<input type="radio" name="needsum" value="8" checked="checked">sum<input type="radio" name="needsum" value="9">summor<input type="radio" name="needsum" value="0">clr&nbsp;
+
+  </small><br>
   <textarea id="body[pgitemcnt]" name="body[pgitemcnt]" wrap="soft" rows="7" cols=70">[body]</textarea>
 
 

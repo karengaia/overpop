@@ -1,7 +1,5 @@
 #!/usr/bin/perl --
 
-##Note: the 1 is required at the bottom of this file
-
 # common.pl   May 2010    
 
 ## sets up paths and server-dependent variables
@@ -220,9 +218,6 @@ sub get_site_info
   $punctuation   = "!\@#$%^&*()+_\-={}|:;<>?/,.[]~\"\'\`";
   $alphanumeric  = "A-Za-z0-9";
   $space         = ' ';
-  
-  $default_docloc = 'M';
-  $default_newssec = "Headlines_sustainability";
    
   $adminMsgFont = "<font size=2 face=\"comic sans ms\" color=#CC6666>";
 # meta characters
@@ -244,17 +239,6 @@ sub get_site_info
   
   $gContent_type_html = "Content-type:"."text/"."html\n\n";
   return();
-}
- 
-
-sub calc_idxSeqNbr
-{
- my $itemnbr = $_[0];
- my $count = 999999;
- $count = $itemnbr          if $cOrder eq 'F';
- $count = 999999 - $itemnbr if $cOrder eq 'L';
- $count = &padCount6("$count");
- return $count;  
 }
 
 
@@ -360,10 +344,50 @@ sub trim
  return $string;
 } 
 
+sub pad_count
+{
+ my $count = $_[0];
+ $count =~  s/^0+//;     ## strip leading 0s
+ if($count < 10)
+  {$count = "000$count"; }
+ elsif($count < 100)
+  {$count = "00$count";  }
+ elsif($count < 1000)
+  {$count = "0$count";   }
+ return $count;
+}
+
+sub padCount4  ## replaces pad_count later
+{
+  my $count = $_[0];
+  $count =~  s/^0+//;     ## strip leading 0s
+  return "000$count" if($count < 10);
+  return "00$count" if($count < 100);
+  return "0$count" if($count < 1000);
+}
+
+sub padCount6
+{
+  my $count = $_[0];
+  $count =~  s/^0+//;      ## strip leading 0s
+  return "00000$count" if($count < 10);
+  return "0000$count" if($count < 100);
+  return "000$count" if($count < 1000);
+  return "00$count" if($count < 10000);
+  return "0$count" if($count < 100000);
+}
+
+
+sub strip0s_fromCount
+{
+  my $count = $_[0];
+  $count =~  s/^0+//;
+  return $count;
+}
 
 sub prep_for_regexp
 {
- local($datafield) = $_[0];
+ my $datafield = $_[0];
  $datafield =~ s/\(/&&LP;/g;
  $datafield =~ s/\)/&&RP;/g;
  $datafield =~ s/\//&&BS;/g;
@@ -562,7 +586,9 @@ $bibauthors =~ s/and\s+$//;	 # strip last 'and'
  
  sub parse_form
 {
-  read(STDIN, $buffer, $ENV{'CONTENT_LENGTH'});
+#  read(STDIN, $buffer, $ENV{'CONTENT_LENGTH'});
+  my $buffer = $_;
+  read(STDIN, $buffer, $ENV{'CONTENT_LENGTH'}) if(!$buffer);
   @pairs = split(/&/, $buffer);
   foreach $pair (@pairs)
   {

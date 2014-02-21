@@ -1,6 +1,6 @@
 #!/usr/bin/perl --
 
-# 2013 Feb 19
+# 2014 Jan 3
 
 #   selecteditems_crud.pl
 
@@ -8,10 +8,9 @@
 
 sub updt_select_list_items    # for emailed articles,  we do select_email instead
 {              # called by article.pl on cmd = selectItems
- my($listSectsub,$ipform) = @_;
+ my($listSectsub,$ipform,$userid) = @_;
  $DELETELIST = "";
  $selected_found = 'N';
- $index_insert_sth = &DB_prepare_idx_insert(""); #in indexes table; prepare only once
  my $startTime = time;
 
  if($ipform !~ /chaseLink/) {
@@ -20,11 +19,14 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
  $docid9998 = $FORM{docid9998};   # $ipform =~ /chaseLink/
  $pgItemnbr = 1;
  $pgitemcnt = &padCount4($pgItemnbr);
+ my $selected_cnt = 0;
 
  &get_select_form_values;  # in docitem.pl
 # $selitem = 'Y' if($listSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-7]/);
 
  until($selitem =~ /Z/ or $pgItemnbr > 100) {
+	
+# print "SIC28 selitem $selitem ..docid $docid ..pgItemnbr $pgItemnbr ..priority $priority ..ipform $ipform ..listSectsub $listSectsub<br>\n";
    if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and !$priority) #there may not be any item 0001
        {}
     elsif($ipform =~ /chaseLink/ and   ## skip if volunteer filled out the form and it has same docid
@@ -32,9 +34,9 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
        ($FORM{headline9998} or $FORM{fullbody9998} or $FORM{body9998}) )
        {}
     elsif($selitem =~ /Y/) {
-        $form_priority = $priority;   ## save for when we get doc and override	
         $selected_found = 'Y';
-        &do_updt_selected($listSectsub);  #in docitem.pl
+        &do_updt_selected($docid,$listSectsub);  #in docitem.pl
+        $selected_cnt += 1;
     }
 
     if($pgItemnbr ne "" and $pgItemnbr > 0) {
@@ -44,7 +46,10 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
 #       $selitem = 'Y' if($listSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-7]/);
     }
 
-    exit if(&tooMuchLooping($startTime,120,'art430')); #stop if > 1 minute
+    if(&tooMuchLooping($startTime,120,'art430')) {
+	   print "Taking too long<br>\n";
+       exit ; #stop if > 1 minute
+    }
 
  } #until
 
@@ -55,10 +60,17 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
     goto &storeform;  ## in docitem.pl -- the last item has no item ct and is as if it were alone and not in the list
  }
 
+ &log_volunteer($userid,$selected_cnt,$listSectsub);  # in docitem.pl
+
+ &email_admin("$selected_cnt articles on Suggested list have been processed by volunteer $A{userid}\n") 
+ if($listSectsub =~ /$suggestedSS/);
+
  &deleteFromIndex_deletelist($listSectsub, $from_updt_subsec_idx); #in indexes.pl - uses $DELETED LIST
 
 print "</font><p><br><br><font face=verdana size=3><b><a href=\"http://$scriptpath/article.pl?display_subsection%%%$listSectsub%%%10\">Back to $listSectsub List</a><br></b></font>\n";
 
+undef %FORM;
+%FORM=();
  undef $FORM{thisSectsub};
  undef $FORM{addsectsubs};
 }
@@ -82,7 +94,7 @@ sub do_selected_items
     if($selitem =~ /Y/
        or ($startselect =~ /Y/ and $selected_found =~ /Y/) ) {
       $selected_found = 'Y';
-      &do_selected;
+      &do_selected($docid);
     }
     if($pgItemnbr ne "" and $pgItemnbr > 0) {
        $pgItemnbr = $pgItemnbr + 1;
@@ -114,13 +126,13 @@ endselitem:
    if($deleteto eq 'Y') {
        $rSectsubid = $listSectsub = $FORM{'addsectsubs'};
        &delete_from_index_by_list($rSectsubid,$DELETELIST);  #in indexes.pl
-       &DB_delete_from_indexes_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
+       &DB_delete_from_index_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
    }
 
    if($delselected eq 'Y') {
        $rSectsubid = $listSectsub = $FORM{'thisSectsub'};
        &delete_from_index_by_list($rSectsubid,$DELETELIST);   # in indexes.pl
-       &DB_delete_from_indexes_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
+       &DB_delete_from_index_by_list ($rSectsubid,$DELETELIST) unless($DB_indexes < 1);
    }
  }
 
@@ -227,6 +239,7 @@ sub prelim_select_items
 
 sub do_selected
 {
+  my($docid) = $_[0];
   &get_doc_data($docid,N);  #in docitem.pl
 
   &get_more_select_form_values if($ipform =~ /[Uu]pdate|[Uu]pdt/);  ## overrides prior doc values
@@ -261,11 +274,13 @@ sub do_selected
   &write_doc_item($docid);
 
  if($moveselected eq 'Y' and $add_error eq 'N') {
-        $kDocloc = &splitout_sectsub_info($rSectsubid)  if($itemstratus eq 'maintain');
+        $kStratus = &splitout_sectsub_info($rSectsubid)  if($itemstratus eq 'maintain');
     #     first push 'moved' items
         $kDocid  = $docid;
 
         &mass_add2index;
+        $sectsubfk = &get_sectsubid($rSectsubid);
+        &DB_add_to_indexes($idx_insert_sth,$sectsubfk,$docid,$stratus) if($DB_docitems > 0);
 
         undef $FORM{"selitem$pgitemcnt"};
         undef $FORM{"sdocid$pgitemcnt"};

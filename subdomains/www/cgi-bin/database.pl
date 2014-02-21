@@ -4,12 +4,12 @@
 
 sub get_print_query_results  #Replace sub below with this
 {
- my ($print_it,$dbh,$sql_query,@colheaders) = @_;   # get arguments: sql and array of column names
+ my ($print_it,$DBH,$sql_query,@colheaders) = @_;   # get arguments: sql and array of column names
  
- $dbh = &db_connect if(!$dbh);
+ $DBH = &db_connect if(!$DBH);
   
- my $sth = $dbh->prepare_cached($sql_query)
-     or die "Error in preparing the query; must quit now: $dbh->errstr db12\n";
+ my $sth = $DBH->prepare_cached($sql_query)
+     or die "Error in preparing the query; must quit now: $DBH->errstr db12\n";
 
  $sth->execute( )
      or die "Error executing query; must quit now: $sth->errstr  db15\n";
@@ -52,12 +52,12 @@ sub get_print_query_results  #Replace sub below with this
 
 sub print_query_results
 {
- local($dbh,$sql_query,@colheaders) = @_;   # get arguments: sql and array of column names
+ local($DBH,$sql_query,@colheaders) = @_;   # get arguments: sql and array of column names
  
- $dbh = &db_connect if(!$dbh);
+ $DBH = &db_connect if(!$DBH);
   
- my $sth = $dbh->prepare_cached($sql_query)
-     or die "Error in preparing the query; must quit now: $dbh->errstr\n";
+ my $sth = $DBH->prepare_cached($sql_query)
+     or die "Error in preparing the query; must quit now: $DBH->errstr\n";
 
  $sth->execute( )
      or die "Error executing query; must quit now: $sth->errstr\n";
@@ -96,22 +96,22 @@ sub print_query_results
 sub db_connect {
   use DBI;
   use DBD::mysql;
-  my $dbh = DBI->connect ("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}",
+  my $DBH = DBI->connect ("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}",
          $CONFIG{db_user},
          $CONFIG{db_password})
       or die "Connection Error: $DBI::errstr\n";
- return($dbh);
+ return($DBH);
 }
 
 sub OpenDB {
   use DBI;
-  $dbh = DBI->connect("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}", $CONFIG{db_user}, $CONFIG{db_password});
+  $DBH = DBI->connect("DBI:mysql:$CONFIG{db_name}:$CONFIG{db_host}", $CONFIG{db_user}, $CONFIG{db_password});
   $mysqlopen = 1;
   return;
 }
 
 sub CloseDB {
-$dbh->disconnect();
+$DBH->disconnect();
 $mysqlclosed = 1;
 return; }
 
@@ -124,29 +124,23 @@ sub DB_get_row
  return($row)
 }
 
-sub DB_insert
+sub DB_insertUpdate
 {
- my($sth,@rowarray) = @_;
+ my(@rowarray,$sth,$sql) = @_;
+ my $sth = $DBH->prepare($sql) unless($sth);
  $sth->execute(@rowarray);
-}
-
-sub DB_update
-{
- my($sth,@rowarray,$sql) = @_;
- $sth = $dbh->prepare($sql) unless($sth);
- $sth->execute($rowarray);
  return($sth);
 }
 
 
 sub DoSQL {
 if (!$mysqlopen) { &OpenDB; }
-$dbh->do("$_[0]");
+$DBH->do("$_[0]");
 return; }
 
 sub PrepareSQL {
 if (!$mysqlopen) { &OpenDB; }
-$result = $dbh->prepare("$_[0]");
+$result = $DBH->prepare("$_[0]");
 $result->execute();
 return; }
 

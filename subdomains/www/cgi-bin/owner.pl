@@ -13,7 +13,7 @@ sub init_owner
 {
  $OWNER = ();
  $OWNER_DEFAULT = ();
- my $sth_odefault = $dbh->prepare("SELECT otoptemplate,ologintemplate,oupdatetemplate,oreviewtemplate
+ my $sth_odefault = $DBH->prepare("SELECT otoptemplate,ologintemplate,oupdatetemplate,oreviewtemplate
  FROM owners WHERE owner = 'default';");
 
  $sth_odefault->execute();
@@ -31,7 +31,7 @@ sub get_owner
 {
  my $l_owner = $_[0];
  &init_owner;
- my $sth_owner = $dbh->prepare('SELECT ownerlongname, owebsitepath, oSScategory,odefaultSS,ocsspath,ocssformpath,otoptemplate,ologintemplate,oupdatetemplate,oreviewtemplate,ologopath,oftpinfo
+ my $sth_owner = $DBH->prepare('SELECT ownerlongname, owebsitepath, oSScategory,odefaultSS,ocsspath,ocssformpath,otoptemplate,ologintemplate,oupdatetemplate,oreviewtemplate,ologopath,oftpinfo
  FROM owners WHERE owner = ?;');
 
  $sth_owner->execute($owner);
@@ -84,7 +84,7 @@ sub owner_set_update_return    # called from article.pl
 
 sub create_owners
 {   ## Easier to do this on Telavant interface
-	$dbh = &db_connect();
+	$DBH = &db_connect();
 	
 	dbh->do("DROP TABLE IF EXISTS owners");
 
@@ -103,7 +103,7 @@ CREATE TABLE owners (owner varchar(8) not null,
   oftpinfo varchar(15) default "");
 OWNERS
 
-$sth2 = $dbh->do($sql);
+$sth2 = $DBH->do($sql);
 }
 
 
