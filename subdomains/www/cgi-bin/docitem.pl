@@ -1,6 +1,6 @@
 #!/usr/bin/perl --
 
-# 2014 Jan 16
+# 2014 Sep 16 .................... SEE 2202 !!!!!!!!!!!!!!!!!!!!!
 #      docitem.pl
 
 # docitem.pl processes doc info to find headlines, source date, publisher, region, and other variables.
@@ -15,58 +15,61 @@
 sub init_docitem     # was init_docitem_variables
 {
     undef %D;
-    %D=();  # hash holding doc column (variable) values
+    %{$D} = ();
+    %D = ();  # hash holding doc column (variable) values
+    for (keys %D)
+    {
+        delete $D{$_};
+    }
+    for (keys %$D)
+    {
+        delete $href->{$_};
+    }
+    %DH = (); # hash holding docitem helper variable values
 #    &init_doc_variable_lists; # Fills %DOCMETA with sql and other statements involving docitem data cols.
     &clear_doc_data; # Fills hash %D with initialize values
     &clear_doc_helper_variables;
+#    &init_doc_variable_lists;
     $INSIDE = "";
     $INSIDE_FOUND = "";
     %INSIDEMERGE  = ();
-    &clear_msgline_variables;   #in intake.pl  
-    undef %DOCARRAY; 
+    &clear_msgline_variables;   #in intake.pl
+    undef %DOCARRAY;
     %DOCARRAY = ();  # hash holding all variables (doc and related) for merging print template
 }
 
 sub build_sql {
  my $sql_type = $_[0];
  my @Dnames = &get_Dnames;
- my $result;
+ my $result = "";
  my $num_cols = 0;
 
  foreach my $docname (@Dnames) {
-	$num_cols += 1;
-    if($sql_type == "select")  
-        { $result = $result . "d\.$docname,"; }          # d.userid,
-    elsif($sql_type == "string")  
+	$num_cols = $num_cols + 1;
+    if($sql_type =~ /^select/)
+        { $result = $result . "d\.$docname, "; }          # d.userid,
+    elsif($sql_type =~ /^string/)
         { $result = $result . "\$" . "$docname^"; }       # ^userid,
-    elsif($sql_type == "vars")    
-        { $result = $result . "\$" . "$docname^"; }       # userid,
-    elsif($sql_type == "keys")    
-        { $result = $result . "$docname,"; }              # d.userid,
-    elsif($sql_type == "hash")    
-        { $result = $result . "\$" . "D{$docname},"; }    # $D{userid},
-    elsif($sql_type == "update")  
-        { $result = $result . "\$" . "$docname=?,"; }     # userid=?, 
-    elsif($sql_type == "updateD") 
-        { $result = $result . "\$" . "$docname=$D{$docname},"; } # userid=$D{$docname},
+	elsif($sql_type =~ /^cols/) {
+		  $result = $result . "$docname, "; }       # userid
+    elsif($sql_type =~ /^vars/)
+        { $result = $result . "$docname, "; }       # userid
+    elsif($sql_type =~ /^keys/)
+        { $result = $result . "$docname, "; }              # d.userid,
+    elsif($sql_type =~ /^hash/)
+        { $result = $result . "\$" . "D{$docname}, "; }    # $D{userid},
+    elsif($sql_type =~ /^update/)
+        { $result = $result . "\$" . "$docname=?, "; }     # userid=?,
+    elsif($sql_type =~ /^updateD/)
+        { $result = $result . "\$" . "$docname=$D{$docname}, "; } # userid=$D{$docname},
     else { print "sql_type $sql_type invalid -- doclist $doclist\n<br>"; }
  }
 
- if($sql_type == 'string')   
-     { $result =~ s/^\^//g; }
- else 
-     { $result =~ s/,$//g; }
- return($result,$num_cols);
-}
+ $result =~ s/^\^//g;
+ $result =~ s/ $//g;
+ $result =~ s/,$//g;
 
-sub get_Dnames {
- return ('docid','deleted','reservetimeup','outdated','nextdocid','priority','headline',
-             'regionhead','skipheadline','subheadline','special','topic','link','skiplink','selflink',
-             'sysdate','pubdate','pubyear','skippubdate','woapubdatetm','expdate','reappeardate',
-             'region','regionfk','skipregion','source','sourcefk','skipsource','author','skipauthor',
-             'needsum','body','fullbody','freeview','points','comment','bodyprenote','bodypostnote',
-             'note','miscinfo','sectsubs','skiphandle','dtemplate','imagefile','imageloc','imagedescr',
-             'worth','summarizerfk','suggesterfk','changebyfk','updated_on');
+return($result,$num_cols);
 }
 
 
@@ -112,6 +115,7 @@ sub init_doc_variable_lists_not_used {
 	bodypostnote  => "0370",
 	note          => "0380",
 	miscinfo      => "0390",
+	precat        => "0395",
 	sectsubs      => "0400",
 	skiphandle    => "0410",
 	dtemplate     => "0420",
@@ -123,7 +127,7 @@ sub init_doc_variable_lists_not_used {
 	suggesterfk   => "0480",
 	changebyfk    => "0490",
 	updated_on    => "0500", );
-	
+
 	my $select = "SELECT ";
 	my $str = "";
 	my $vars = "";
@@ -131,10 +135,10 @@ sub init_doc_variable_lists_not_used {
 	my $update = "UPDATE docitems SET ";
 	my $updateD = "UPDATE docitems SET ";
 	my $keys  = "";
-	
+
     foreach my $docname (sort { ($doccol_order{$a} cmp $doccol_order{$b}) } keys  %doccol_order) {
 		$select = $select . "d\.$docname,";               # d.userid,   for example
-		$str    = "$str^\$" . $docname;                   # ^$userid    
+		$str    = "$str^\$" . $docname;                   # ^$userid
 		$vars   = "$vars,\$" . $docname;                  # $userid,
 		$keys   = "$keys, " . $docname;                  #  userid,
 		$hash   = "$hash," . "\$D{'" . $docname . "'}";   # $D{'userid'},
@@ -156,32 +160,32 @@ sub init_doc_variable_lists_not_used {
 #	print "doc114 hash $hash<br>\n\n";
 #	print "doc115 update $update<br>\n\n";
 #	print "doc116 updateD $updateD<br>\n\n";
-	
+
 #    my $sth_idx_count  = &DB_prepare_idx_count($DBH);   # not used?
     my $sth_doc_insert = &DB_prepare_docitem_insert($DBH);
  #  my $doc_update_sth = &DB_prepare_docitem_update($DBH);
     my $sth_idx_insert = &DB_prepare_idx_insert($DBH);   # in indexes.pl
 	my $sth_docrow     = $DBH->prepare("$select FROM docitem as d WHERE d.docid = ?");
 	my $sth_docupdt    = $DBH->prepare("$update WHERE docid = ?");
-	
-	$DOCMETA{select}         = $select;
-	$DOCMETA{str}            = $str;
-	$DOCMETA{vars}           = $vars;
-	$DOCMETA{hash}           = $hash;
-	$DOCMETA{update}         = $update;
-	$DOCMETA{updateD}        = $updateD;
-	$DOCMETA{sth_docrow}     = $sth_docrow;
-	$DOCMETA{sth_docupdt}    = $sth_docupdt;
-	$DOCMETA{sth_docinsert}  = $sth_doc_insert;	
-	$DOCMETA{sth_idxinsert}  = $sth_idx_insert;	
-	$DOCMETA{sth_idxcount}   = $sth_idx_count;			
+
+	$DOCMETA{'select'}         = $select;
+	$DOCMETA{'str'}            = $str;
+	$DOCMETA{'vars'}           = $vars;
+	$DOCMETA{'hash'}           = $hash;
+	$DOCMETA{'update'}         = $update;
+	$DOCMETA{'updateD'}        = $updateD;
+	$DOCMETA{'sth_docrow'}     = $sth_docrow;
+	$DOCMETA{'sth_docupdt'}    = $sth_docupdt;
+	$DOCMETA{'sth_docinsert'}  = $sth_doc_insert;
+	$DOCMETA{'sth_idxinsert'}  = $sth_idx_insert;
+	$DOCMETA{'sth_idxcount'}   = $sth_idx_count;
 	return("");
 }
 
 
 sub clear_doc_data {
  %D = (
-    docid         => "",
+	docid         => "",
     deleted       => '',
     reservetimeup => $epoch_time,
     outdated      => 'N',
@@ -221,6 +225,7 @@ sub clear_doc_data {
 	bodypostnote  => "",
 	note          => "",
 	miscinfo      => "",
+	precat        => "",
 	sectsubs      => "",
 	skiphandle    => "N",
 	dtemplate     => "",
@@ -232,7 +237,7 @@ sub clear_doc_data {
 	suggesterfk   => 0,
 	changebyfk    => 0,
 	updated_on    => $epoch_date, );
-	
+
 	$docid         = "";
 	$deleted       = '';
 	$reservetimeup = $epoch_time;
@@ -241,7 +246,7 @@ sub clear_doc_data {
 	$priority      = '5';
 	$headline      = "";
 	$regionhead    = "N";
-	$skipheadline  = "N";
+	$skipheadline    = "N";
 	$subheadline   = "";
 	$special       = "";
 	$topic         = "";
@@ -273,6 +278,7 @@ sub clear_doc_data {
 	$bodypostnote  = "";
 	$note          = "";
 	$miscinfo      = "";
+	$precat        = "";
 	$sectsubs      = "";
 	$skiphandle    = "N";
 	$dtemplate     = "";
@@ -286,11 +292,106 @@ sub clear_doc_data {
 	$updated_on    = $epoch_date;
 }
 
-sub clear_doc_helper_variables    
+sub clear_doc_variables
 {                                       ## These are all globals
-#    $parent_docid       = "";
-#    $parent_sectsubs    = "";
-#    $parent_needsum     = "";
+	$nulldate           = '0000-00-00';
+	$nulldatetime       = '0000-00-00 00:00:00';
+	$docaction          = "";
+	$docid              = "";
+    $advance            = "";
+    $ipform             = "";
+
+    $deleted            = 0;
+    $outdated           = 0;
+    $nextdocid          = 0;
+
+    $sumAcctnum         = "";
+    $suggestAcctnum     = "";
+    $priority           = "";
+    $pubdate            = $nulldate;
+    $pubday             = '00';
+    $pubmonth           = '00';
+    $pubyear            = '00';
+
+    $skippubdate        = 0;
+    $woapubdatetm       = $nulldatetime;
+    $woaday             = '00';
+    $woamonth           = '00';
+    $woayear            = '00';
+
+    $expdate            = "";
+    $expday             = '00';
+    $expmonth           = '00';
+    $expyear            = '00';
+
+    $reappeardate       = $nulldate;
+    $reappearday        = '00';
+    $reappearmonth      = '00';
+    $reappearyear       = '00';
+
+    $sysdate            = "$sysyear-$sysmm-$sysdd";
+    $srcdate            = $nulldate;
+    $source             = "";
+
+    $sourcefk           = 0;
+    $skipsource         = 0;
+    $author             = "";
+    $skipauthor         = 1;
+
+    $needsum            = "";
+    $dTemplate          = "";
+    $dtemplate          = "";
+
+    $format             = "";
+    $straightHTML       = "N";
+    $link               = "";
+    $link2nd            = "";
+    $skiplink           = 0;
+    $selflink           = "";
+    $titlize            = "N";
+    $headline           = "";
+    $skipheadline       = 0;
+    $subheadline        = "";
+    $region             = "";
+    $regionhead         = "N";
+
+    $regionfks           = 0;
+    $skipregion         = 0;
+    $topic              = "";
+    $body               = "";
+    $points             = "";
+    $fullbody           = "";
+    $freeview           = "N";
+    $bodypostnote       = "";
+    $bodyprenote        = "";
+    $comment            = "";
+    $note               = "";
+    $miscinfo           = "";
+    $precat             = "";
+    $emailnote          = "";
+    $keywords           = "";
+    $special             = "";
+    $sectsubs           = "";
+    $dSectsubs          = "";
+    $fSectsubs          = "";
+    $newsprocsectsub    = "";
+    $pointssectsub      = "";
+    $skiphandle         = "N";
+    $imagefile          = "";
+    $imageloc           = "";
+    $imagedescr         = "";
+    $recsize            = 0;
+    $worth              = 0;
+    $summarizerfk       = 0;
+    $suggesterfk        = 0;
+    $changebyfk         = 0;
+    $updated_on         = $nulldate;
+    $linkmatch          = "";
+}
+
+
+sub clear_doc_helper_variables
+{                                       ## These are all globals
     $extract            = "";
     $docaction          = "";
     $advance            = "";
@@ -324,11 +425,20 @@ sub clear_doc_helper_variables
 }
 
 
+sub prepare_doc_insert_not_used {  ### NOT USED
+my ($col_sql,$num_cols) = &build_sql('cols');
+my $question_marks = ",?" x ($num_cols -3);
+my $sql = "INSERT IGNORE INTO docitems($col_sql) VALUES (?$question_marks,CURDATE() )";
+my $sth_doc_insert = $dbh->prepare($sql);
+return($sth_doc_insert);
+}
+
+
 sub display_one   ## Comes here from article.pl
 {
  my ($docid,$action,$aTemplate,$print_it,$email_it,$html_it) = @_;
  my $found = "";
- 
+
  if($action eq 'new') {
    $pubday   = $nowdd;
    $pubmonth = $nowmm;
@@ -341,14 +451,13 @@ sub display_one   ## Comes here from article.pl
  }
  elsif($docid =~ /[0-9]/) {
    $found = &get_doc_data($docid,$print_it);  # puts values in hash %D
-
    if($D{sectsubs} =~ /$suggestedSS|$emailedSS/ and $access !~ /[ABCD]/
        and $cmd eq "processlogin") {
-      $errmsg = "Sorry, you cannot access this article until it has been pre-processed. Please check the various Headlines lists";
-      &printInvalidExit;
+      &printInvalidExit("Sorry, you cannot access this article until it has been pre-processed.
+        <br>Please check the Headlines list. (This article is now on the $D{sectsubs} list) <small><small>(doc348)</small></small>");
     }
     elsif(!$found) {
-	  &printSkipContinue("Item # $docid not found or deleted or inside is empty; normal");  ## in errors.pl
+	  &printSkipContinue("Item # $docid not found or deleted or inside is empty; normal. <small><small>(doc348)</small></small>");  ## in errors.pl
 	  return("");
     }
  }
@@ -376,6 +485,9 @@ sub do_each_doc {
   $parent_docid = "";
   $parent_needsum = "";
   $parent_sectsubs = "";
+  $DH{'parent_docid'} = "";
+  $DH{'parent_needsum'} = "";
+  $DH{'parent_sectsubs'} = "";
 
   &prt_one_doc($docid,"");  ## skip dups
   $docid = $save_docid;
@@ -385,32 +497,32 @@ sub do_each_doc {
 
 sub prt_one_doc
  {
-  my($docid,$intemplate) = @_; 
+  my($docid,$intemplate) = @_;
   my $found = "";
-  $aTemplate  = $intemplate if($intemplate);
-  
+  $aTemplate = $intemplate if($intemplate);
+
   if($DB_docitems < 1) { # If $DB_docitems > 0, then data is already read and in $D hash
 	  $docid =~ s/^\s//g;   ## trim non-alphanumerics
 	  $docid =~ s/\s$//g;   ## trim non-alphanumerics
       if(-f "$deletepath/$docid.del" and $doclistname !~ /$deleteSS/
 	      and -f "$printdeletedOFF") {
           return("");
-	  }	
-	  ($found) = &get_doc_data($docid,"");  # 2nd arg = $print_it ; data goes into hash $D
+	  }
+	  $found = &get_doc_data($docid,"");  # 2nd arg = $print_it ; data goes into hash $D
 	  return("") if(!$found);
   }
   else {
 	 # if doc is retrieved from the database, it will come here.
-     return("") if($D{deleted} eq 'Y' and $doclistname !~ /$deleteSS/);
+     return("") if($D{'deleted'} eq 'Y' and $doclistname !~ /$deleteSS/);
   }
-  $expdate = "0000-00-00" if($expdate !~ /[0-9]/);    
+  $expdate = "0000-00-00" if($expdate !~ /[0-9]/);
 
   if($cmd eq 'init_section') {
-       $D{sectsubs} = $thisSectsub;
+       $D{'sectsubs'} = $thisSectsub;
  ##    &write_doc_item($docid);   DISABLED UNTIL NEEDED
   }
   elsif($INSIDE) {   # This is an article inside a parent article
-	   return("") if($D{sectsubs} =~ /$newsdigestSS/);  #skip if article moved to newsDigest
+	   return("") if($D{'sectsubs'} =~ /$newsdigestSS/);  #skip if article moved to newsDigest
 	   $INSIDE_FOUND = 'Y';
 	   &put_data_to_array;
 	   &process_inside_template($aTemplate,$docid);   #in template_ctrl
@@ -422,7 +534,7 @@ sub prt_one_doc
      return("") if($skip_item =~ /Y/ or $select_item !~ /Y/);
 
 	 &print_one_doc ($docid,$aTemplate,$print_it,$email_it,$htmlfile_it,$ckItemnbr);
-	 return("Y");                  
+	 return("Y");
  } #end else
 
  if($fix_sectsub =~ /Y/) {
@@ -430,20 +542,20 @@ sub prt_one_doc
  ##       $pubdate = "0000-00-00";
  ##       $source  = "";
  ##       $sectsubs = "Impacts_pollution`M";
- 
+
  ##      $pubdate = "0000-00-00" if($pubdate =~ /2003-06-27/ or  $pubdate !~ /[0-9]/);
  ##      $chkline = $fullbody;
  ##      &basic_date_parse;
-   
+
  ##    &refine_source;
 
- ##   &fix_fullbody;       
+ ##   &fix_fullbody;
  ##   &write_doc_item($docid);
   }
   return("Y");    # found, not skipped
 }
 
-sub print_one_doc 
+sub print_one_doc
 {
   ($docid,$aTemplate,$print_it,$email_it,$htmlfile_it,$ckItemnbr) = @_;
   &put_data_to_array;
@@ -454,12 +566,12 @@ sub print_one_doc
 sub do_we_select_item
 {
  my($docid) = $_[0];
- my $select_item = "Y";	
+ my $select_item = "Y";
 
-# print "doc117 docid $docid listSectsub $listSectsub sectsubs $sectsubs ..cIdxSectsubid $cIdxSectsubid<br>\n";
+# print "doc117 docid $docid listSectsub $listSectsub sectsubs $sectsubs ..fromtoSSname $SS{fromtoSSname}<br>\n";
  my $listSS = "";
- if($cIdxSectsubid) {
-	$listSS = $cIdxSectsubid;
+ if($SS{fromtoSSname} and $SS{tofrom} ne 'T') {
+	$listSS = $SS{fromtoSSname};
  }
  else {
 	$listSS = $listSectsub;
@@ -475,7 +587,7 @@ sub do_we_select_item
  }
  else {
 	$select_item = 'Y';
- }                     
+ }
                  # Don't print if sectsubs do not contain the list Sectsub (should have been deleted - bug fix)
                 # Don't print if in headlines, etc; NewsDigest OK; no newsSections OK
  if($select_item eq 'Y') {
@@ -501,6 +613,13 @@ sub do_we_select_item
 sub do_body_comment   # from template_ctrl.pl
 {
  ($body_sw,$bodycom) = @_;
+
+ if ($bodycom =~ /\n\n/ and $DOCARRAY{template} =~ /straight/) {
+   $bodycom =~ s/\n\n/<\/p><p>\n/g;
+   $bodycom = "<p>$bodycom<\/p>";
+   return($bodycom);
+ }
+
  if($now_email eq 'Y') {
      $bodycom     =~ s/\r/" "/g;
      $bodycom     =~ s/\n/" "/g;
@@ -513,7 +632,7 @@ sub do_body_comment   # from template_ctrl.pl
      }
      else {
 	      $bodycom = substr($D{fullbody},0,450) . "...";
-     }  
+     }
   }
   else {
 	 $bodycom =~ s/ {1-9}\n/\n/g;  # get rid of trailing spaces
@@ -527,9 +646,9 @@ sub do_body_comment   # from template_ctrl.pl
 		if($bodycomline =~ /^@@([0-9]{6})/) {
 		    my $indocid = $1;
 #		print "doc200 ..indocid $indocid ... <br><br>*** $INSIDEMERGE{$indocid}*** <br><br>\n";
-		    $bodycomline = $INSIDEMERGE{$indocid} if($INSIDEMERGE{$indocid});  
+		    $bodycomline = $INSIDEMERGE{$indocid} if($INSIDEMERGE{$indocid});
 #		    $INSIDEMERGE{$indocid} = "";
-		}		
+		}
 	    elsif($bodycomline =~ /#http/ or $bodycomline =~ /#[A-Z]/ or $bodycomline =~ /#mp3#http/) { #link or acronym
 		   my @words = split(/ /,$bodycomline);
 		   $bodycomline = "";
@@ -548,15 +667,15 @@ $word .= <<ENDWORD;
 <param name="autoplay" value="false">
 <param name="controller" value="true">
 <param name="bgcolor" value="#FFFFFF">
-<embed 
+<embed
 ENDWORD
-                         $word .= "src=\"$url\" autostart=\"false\" loop=\"false\" width=\"300\" height=\"42\" controller=\"true\" bgcolor=\"#FFFFFF\"><\/embed><\/object>";	
+                         $word .= "src=\"$url\" autostart=\"false\" loop=\"false\" width=\"300\" height=\"42\" controller=\"true\" bgcolor=\"#FFFFFF\"><\/embed><\/object>";
 				   }
-                   else {	
+                   else {
 				        $word = "<a target=\"blank\" href=\"$url\">Click here<\/a>";
-                   }	      
+                   }
 		       }
-		       elsif($word =~ /^#([A-Za-z0-9\-]{2,30})/) {  
+		       elsif($word =~ /^#([A-Za-z0-9\-]{2,30})/) {
 			      $acronym = $1;
 			      $title = &get_title($acronym);  # in dbtables_ctrl.pl
                   if($title) {
@@ -576,14 +695,14 @@ ENDWORD
 	 $bodycom =~ s/^\n+//;  #trim leading line returns
 	 $bodycom =~ s/\n$//;  #trim trailing line returns
 	 $bodycom =~ s/\n$//;  #trim trailing line returns
-	 $bodycom =~ s/\n$//;  #trim trailing line returns	
+	 $bodycom =~ s/\n$//;  #trim trailing line returns
 	 $bodycom =~ s/\r$//;  #trim trailing line returns
 	 $bodycom =~ s/\r$//;  #trim trailing line returns
 	 $bodycom =~ s/\r$//;  #trim trailing line returns
-	
+
      if( $DOCARRAY{template} =~ /straight|link/
 	     or $bodycom =~ /<font|<center|<blockquote|<div|<table|<li|<dl|<dt|<dd/) {
-	   $bodycom = &xhtmlify($docid,$DOCARRAY{template},$bodycom); 
+	   $bodycom = &xhtmlify($docid,$DOCARRAY{template},$bodycom);
 	 }
 	 elsif ($bodycom =~ /\n\n/ and  $DOCARRAY{template} !~ /newsalertItem/) {
 	      $bodycom =~ s/\n\n/<\/p><p>\n/g;
@@ -594,9 +713,9 @@ ENDWORD
   }
 
   if($D{link} and !$owner and $D{sectsubs} =~ /$newsdigestSS/ and (!$D{body} or $D{needsum} =~ /[234579]/) ) {
-	 $bodycom = "$bodycom <br><small>. . . more at <a target=\"_blank\" href=\"$D{link}\">$D{source}</a><\/small>";
+	 $bodycom = "$bodycom <br><small>. . . <a target=\"_blank\" href=\"$D{link}\">more</a><\/small>";
   }
-	
+
   $bodycom =~ s/\r/<br>/g;
   $bodycom =~ s/<\/p><p>$//g;   ## delete last paragraph
   $bodycom =~ s/<\/p><p>\n/<\/p>\n\n<p>/g;
@@ -615,57 +734,99 @@ ENDWORD
 ### ########  STOREFORM   ###########
 
 sub storeform
-{ 
+{
  my($docid) = $_[0];
 # &get_contributor_form_values if($ipform !~ /chaseLink/);
  unless ($FORM{ipform} eq 'summarize') {
     &get_doc_form_values("");    #pgitemcnt = "" if template=$docUpdate
     &update_control_files;  # if add or update needed
- } 
+ }
  else {
-    $userid    = $FORM{userid};	
-}
+    $userid    = $FORM{userid};
+ }
  &main_storeform($docid);
 }
 
+sub storeMaiduform
+{
+  my($docid) = $_[0];
+  if($FORM{body} and $FORM{body} !~ /\*Not found/i ) {
+     $docaction = 'C';   # change only
+     $DH{docaction} = $docaction;
+     $D{body} = &strip_lines_leadingSP_BR($FORM{body}) if($FORM{body});
+     $docid = &write_doc_item($docid,$docaction);  # only body will be written
+     print "<br><br><big>Maidu webpage updated</big><br>\n";
+     print"<meta http-equiv=\"refresh\" content=\"10;url=http://http://motherlode.sierraclub.org/maidu/index.html\">";
+
+  }
+  else {
+     print "<br><br><big>Maidu webpage invalid update request <small>#$docid @doc752</big><br>\n";
+     print"<meta http-equiv=\"refresh\" content=\"10;url=http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?display%MaiduUpdate\">";
+  }
+}
+
+
 sub main_storeform {  #from above and also from write_email
  my($docid) = $_[0];
+ my $docation;
+
  unless($docid) {
    $docaction = 'N';
    $docid = &get_docid($docaction);
+   $D{sysdate} = &calc_date('sys',0,'+');
  }
- 
+
+ if($D{sysdate} !~ /[0-9]/ or $D{sysdate} <= $DT{epoch_date}) {
+   $D{sysdate} = &calc_date('sys',0,'+');
+ }
+
  if($FORM{ipform} eq 'summarize') {
      my $found = &get_doc_data($docid,'N');  # data goes into global hash %D
 	 $access      = "access";
 	 $docaction = 'C';  # change
-	 $D{body}     = $FORM{body} if($FORM{body});
-	 $sectsubs    = $FORM{sectsubs};
-	 $D{sectsubs} = $sectsubs;
-	 $addsectsubs = $FORM{addsectsubs};
+	
+     $D{body} = $FORM{body};
+     if($D{body}) {
+	     $D{body} = &strip_leadingSPlineBR($D{body});
+         $D{body} = &byebye_singleLF('N','N',$D{body});
+     }
+
+     $D{note} = $FORM{note};
+     if($D{note}) {
+	     $D{note} = &strip_leadingSPlineBR($D{note});
+         $D{note} = &byebye_singleLF('N','N',$D{note});
+     }
+
+	 $sectsubs    = $summarizedSS;
+	 $addsectsubs = $summarizedSS;
 #	print "doc645 form $FORM{ipform} ..sectsubs $sectsubs ..addsectsubs $addsectsubs<br>\n";
  }
  else {
-     $sectsubs = $D{sectsubs};	
+     $sectsubs = $D{sectsubs};
  }
-#          for sysdate if new
- &do_sectsubs;     # in sectsubs.pl		
+ $DH{docaction} = $docaction;
+
+ &do_sectsubs;     # in sectsubs.pl
+
  $D{sectsubs} = $sectsubs;
 # &do_keywords if($selkeywords =~ /[A-Za-z0-9]/ and $docaction ne 'D');
+
+	
  $docid = &write_doc_item($docid,$docaction);
  $D{docid} = $docid;
 
  my @save_sort = ($D{sectsubs},$addsectsubs,$delsectsubs,$chglocs,$D{pubdate},$D{woapubdatetm},$D{sysdate},$D{headline},$D{region},$D{topic});
 
- &ck_popnews_weekly 
-    if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl
-
  ($D{sectsubs},$addsectsubs,$delsectsubs,$chglocs,$D{pubdate},$D{woapubdatetm},$D{sysdate},$D{headline},$D{region},$D{topic}) = @save_sort;
 
  &hook_into_system($docid,$D{sectsubs},$addsectsubs,$delsectsubs,$chglocs,'single'); ## add to index files in indexes.pl
 
- &email_admin("Item $docid has been summarized by volunteer $userid : $USERemINDEX{$userid}\n
-       Click here to process: http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display%login%$docid") if($D{sectsubs} =~ /$summarizedSS/);
+ &ck_popnews_weekly
+    if($addsectsubs =~ /$newsdigestSectid/ or $delsectsubs =~ /$newsdigestSectid/); ## in article.pl
+
+ &email_admin("Item $docid has been summarized by volunteer $userid A- $A{userid}\n
+       Click here to process: http://www.overpopulation.org/cgi-bin/cgiwrap/popaware/article.pl?display%login%$docid")
+       if($D{sectsubs} =~ /$summarizedSS/ and $userid and $userid !~ /A3491/);
 
  &log_volunteer($userid,$docid,$thisSectsub) if($D{sectsubs} =~ /$summarizedSS/ or $ipform =~ /chaseLink/);
 
@@ -698,7 +859,7 @@ sub main_storeform {  #from above and also from write_email
  }
  &do_html_page($docid,$listSectsub,$aTemplate,1,$chgsectsubs); ## create HTML file - this is in display_list.pl
 
-} 
+}
 
 
 sub update_control_files {
@@ -738,25 +899,25 @@ sub update_control_files {
 ## STOREFORM subroutines
 
 sub get_docid
-{ 
+{
   my($docid,$docaction) = @_;
   my $oldDocid = $docid;
 
- if( ($action eq 'clone') 
-     or ($docaction eq 'N') 
+ if( ($action eq 'clone')
+     or ($docaction eq 'N')
      or ($oldDocid !~ /[0-9]{6}/ and $action ne 'clone')
      or ($action eq 'new') ) {
     $docaction = 'N';
     $docid = &get_docCount;
   }
-  elsif ( ($action eq 'update') 
-          or ($action eq 'summarize') ) { 
+  elsif ( ($action eq 'update')
+          or ($action eq 'summarize') ) {
     $docid = $oldDocid;
     $docaction = 'C';
 #                  save old - we will write a new one
     system "mv $itempath/$docid.itm $statuspath/$docid.saveold";
   }
-  elsif ($action eq 'deleteitem') { 
+  elsif ($action eq 'deleteitem') {
     $docid = $oldDocid;
     $docaction = 'D';
   }
@@ -784,7 +945,7 @@ sub do_updt_selected   # from selecteditems_crud.pl
   $D{priority} = "4"  if($ipform =~ /chaseLink/ and $D{priority} !~ /D/); ## drop priority since apparently volunteer didn't fill in form
 
   if($D{headline} =~ /^\*\* / and ($fSectsubs =~ /$headlinesSS/ or $fSectsubs =~ /$suggestedSS/)) {
-     $D{priority} = "7"; 
+     $D{priority} = "7";
      $D{headline} =~ s/^\*\*//;
   }
   elsif($D{headline} =~ /^\* / and ($fSectsubs =~ /$headlinesSS/ or $fSectsubs =~ /$suggestedSS/)) {
@@ -796,14 +957,13 @@ sub do_updt_selected   # from selecteditems_crud.pl
      $D{headline} =~ s/>a//;
   }
 
-  ($D{sectsubs},$addsectsubs,$delsectsubs) = 
+  ($D{sectsubs},$addsectsubs,$delsectsubs) =
     &change_sectsubs_for_updt_selected($D{priority},$ipform,$selitem,$pgitemcnt,$listSectsub,$cmd,$fSectsubs,$D{sectsubs},$dDocloc); # in sectsubs.pl  THIS IS LIKE DO_SECTSUBS IN STOREFORM.
 
  print "&nbsp;<font face=verdana><font size=1>$docid </font><font size=2>$D{headline} </font><font size=1>.. sectsubs $D{sectsubs}</font><br>\n";
 
- $D{docid} = $docid;
-
- $docid = &write_doc_item($docid,$docaction);
+  $D{docid} = $docid;
+  $docid = &write_doc_item($docid,$docaction);
 
   &hook_into_system($docid,$D{sectsubs},$addsectsubs,$delsectsubs,$chglocs,'list'); ## -- in indexes.pl
 
@@ -832,7 +992,7 @@ sub log_volunteer
  my ($userid,$docid,$sectsub) = @_;
  &DB_write_docid_to_user_log($userid,$docid,$thisSectsub);  # docid can be count if a list
 
- if($userid =~ /[A-Za-z0-9]/) {	
+ if($userid =~ /[A-Za-z0-9]/) {
 	     $addsectsubs = "$addsectsubs;Volunteer_log$userid";
  }
  elsif($userid =~ /[A-Za-z0-9]/) {
@@ -845,10 +1005,10 @@ sub process_popnews_email       # from selecteditems_crud.pl when item selected 
 {
  ($edocid,$elink,$epriority,$index_insert_sth) = @_;
  my $found = "";
-	
+
  $found = &get_doc_data($edocid,'N');
-	
- if($found) {	
+
+ if($found) {
 	 &get_more_select_form_values; #Overrides current docitem with values from form
 
 	$docid = &get_docCount;        # replace emailed docid with new docid from the system
@@ -870,7 +1030,7 @@ sub process_popnews_email       # from selecteditems_crud.pl when item selected 
 	print "$edocid ...docid $docid ..headline $headline ... selected<br>\n";
  }
  else {
-    print "$edocid ...docid $docid ............. not found ..doc402<br>\n";	
+    print "$edocid ...docid $docid ............. not found ..doc402<br>\n";
  }
 }
 
@@ -900,10 +1060,10 @@ sub check_for_skip_not_used
   my $headline  = $D{headline};
   my $link      = $D{link};
 
-  if($handle =~ /kaiser|jhuccp|ippf/ 
+  if($handle =~ /kaiser|jhuccp|ippf/
      and (   $headline =~ /anthrax/i
-          or $headline =~ /artificial insemination/i 
-          or $headline =~ /bioethics/i 
+          or $headline =~ /artificial insemination/i
+          or $headline =~ /bioethics/i
           or $headline =~ /birth defect/i
           or $headline =~ /caesarean|cesarean|chlamydia/i
           or $headline =~ /circumcision|cloning|Cloning|cytotec|cystic fibrosis/i
@@ -913,8 +1073,8 @@ sub check_for_skip_not_used
           or $headline =~ /female circumcision/i
           or $headline =~ /fetal tissue|fetal homicide|fetal medicine|FGM/i
           or $headline =~ /gamete|gang-rape|gang rape|genital|gonorrhea/i
-##          or ($headline =~ /HIV|AIDS/i and $headline !~ /condoms|abstinence/i) 
-          or $headline =~ /hypertension|hysterectomy|hysterectomies|herpes/i 
+##          or ($headline =~ /HIV|AIDS/i and $headline !~ /condoms|abstinence/i)
+          or $headline =~ /hypertension|hysterectomy|hysterectomies|herpes/i
           or $headline =~ /infertile|intensive-care|in vitro|IVF/i
           or $headline =~ /kaposi/i
           or $headline =~ /malpractice/i
@@ -923,31 +1083,31 @@ sub check_for_skip_not_used
           or $headline =~ /nevirapine/i
           or $headline =~ /Ob\/Gyn|OB-GYN|ovarian|Ovarian/i
           or $headline =~ /pap smear|pap test/i
-          or $headline =~ /parental notification|Partial-Birth|partial-birth/i 
-          or $headline =~ /paternity/i 
-          or $headline =~ /preeclampsia/i 
-          or $headline =~ /premature Birth/i   
-          or $headline =~ /retroviral/i 
+          or $headline =~ /parental notification|Partial-Birth|partial-birth/i
+          or $headline =~ /paternity/i
+          or $headline =~ /preeclampsia/i
+          or $headline =~ /premature Birth/i
+          or $headline =~ /retroviral/i
           or $headline =~ /sect members/i
           or $headline =~ /smoking/i
           or $headline =~ /stem cell/i
           or $headline =~ /symptoms|Syndromes|syndromes|syphilis/i
           or $headline =~ /test tube/i
           or $headline =~ /uterine/i
-          or $headline =~ /vaccine/i 
-          or $headline =~ /virus/i 
+          or $headline =~ /vaccine/i
+          or $headline =~ /virus/i
           or $headline =~ /Will Not Publish|will not publish/
 
           or $link =~ /foreignpolicy\.com/
           or $link =~ /smj\.org|dx\.doi|sciencedirect|bmjjournals|\.ncbi|springerlink|ingentaconnect/
           or $link =~ /oneoldvet|blogspot/
-          
+
           or $msgline1 =~ /subscription needed/
           or $msgline2 =~ /subscription needed/
     ) ){
      $skip_item = 'Y';
   }
-  
+
   if($headline =~ /google/ and $headline =~ /subscription/) {
      $skip_item = 'Y';
   }
@@ -965,7 +1125,7 @@ sub get_select_form_values
   $form_priority = $priority;
   $D{priority} = $priority;
   $selitem     = $FORM{"selitem$pgitemcnt"};
-  
+
 }
 
 sub get_more_select_form_values  # comes here from selecteditems_crud.pl
@@ -974,6 +1134,14 @@ sub get_more_select_form_values  # comes here from selecteditems_crud.pl
  foreach $keyname (keys %D) {
     $D{$keyname} = $FORM{"$keyname$pgitemcnt"} if($FORM{"$keyname$pgitemcnt"} and $keyname !~ /(priority|docid|sectsubs)/);
  }
+ unless($FORM{"source$pgitemcnt"}) {
+   $D{source}  = $FORM{"selectsource$pgitemcnt"} if($FORM{"selectsource$pgitemcnt"} !~ /"select one"/);
+ }
+ my $rest = "";
+ ($D{sourcefk},$D{source},$rest) = split(/\^/,$D{source},3) if($D{source} =~ /\^/);
+
+ ($D{regionfk},my $seq,my $r_type,$D{regionname},$rest) = split(/\^/,$D{region},3) if($D{region} =~ /\^/);
+
  $D{changebyfk}  = &get_user_uid($userid);
  $pubday         = $FORM{"pubday$pgitemcnt"};
  $pubmonth       = $FORM{"pubmonth$pgitemcnt"};
@@ -1010,28 +1178,32 @@ sub get_doc_form_values
 {
  my $pgitemcnt = $_[0];
  foreach $keyname (keys %D) {
-	 $D{$keyname} = $FORM{"$keyname$pgitemcnt"} if($FORM{"$keyname$pgitemcnt"} and $keyname !~ /(priority|docid|pubdate)/)
+	my $value = $FORM{"$keyname$pgitemcnt"};
+    $D{"$keyname"} = $FORM{"$keyname$pgitemcnt"} if($FORM{"$keyname$pgitemcnt"} and $keyname !~ /(priority|docid|pubdate)/)
  }
 
  unless($FORM{"source$pgitemcnt"}) {
     $D{source}  = $FORM{"selectsource$pgitemcnt"} if($FORM{"selectsource$pgitemcnt"} !~ /"select one"/);
  }
+ ($D{sourcefk},$D{source},my $rest) = split(/\^/,$D{source},3) if($D{source} =~ /\^/);
+
  $D{source} =~ &strip_leadingSPlineBR($D{source});
  $D{source} =~ s/\s+$//;
- 
+
  $advance        = $FORM{"advance$pgitemcnt"};
 # do we need?  $ipform         = $FORM{"ipform$pgitemcnt"};
  $userid         = $FORM{"userid$pgitemcnt"} if($ipform =~ /'newArticle'/);
+ $DH{userid} = $userid;
  $formSectsub    = $FORM{"cSectsubid$pgitemcnt"};
 
  $priority       = $FORM{"priority"} unless($priority);
  $priority       = $FORM{"priority$pgitemcnt"} unless($priority);
- $D{priority} = $priority;
+ $D{priority}  = $priority;
 
  $pubday         = $FORM{"pubday$pgitemcnt"};
  $pubmonth       = $FORM{"pubmonth$pgitemcnt"};
  $pubyear        = $FORM{"pubyear$pgitemcnt"};
- $D{pubyear}     = $pubyear;    
+ $D{pubyear}     = $pubyear;
  $D{pubdate} = &assemble_pubdate($pubdate,$pubday,$pubmonth,$pubyear); # in date.pl
 
  $expday         = $FORM{"expday$pgitemcnt"};
@@ -1054,18 +1226,19 @@ sub get_doc_form_values
   $D{comment}      =~ s/\r/\n/g;
   $D{bodyprenote}  =~ s/\r/\n/g;
   $D{bodypostnote} =~ s/\r/\n/g;
-  
+
   $docfullbody    = "";
   $docfullbody    = $FORM{"docfullbody$pgitemcnt"};
   $docfullbody    =~ s/\r/\n/g;
   $docfullbody    =~ s/&quote\;/\"/g;
-  $D{fullbody}    = "$docfullbody\n\nFULLARTICLE:\n$fullbody" 
+  $D{fullbody}    = "$docfullbody\n\nFULLARTICLE:\n$fullbody"
         if($ipform =~ /chaseLink/ and $docfullbody =~ /[A-Za-z0-9]/);
   $D{fullbody}     =~ s/\r/\n/g;
   $fixfullbody     = $FORM{"fix$pgitemcnt"};   ## temporary variable
 
   $owner          = $FORM{"owner$pgitemcnt"};   ## temporary variable
   &get_owner($owner) if($owner);
+  $DH{owner} = $owner;
 
   $linknote        = $FORM{"linknote$pgitemcnt"};
   $D{note}         = $FORM{"note$pgitemcnt"};
@@ -1073,8 +1246,11 @@ sub get_doc_form_values
 #  $selkeywords     = $FORM{"selkeywords$pgitemcnt"};
 #  $newkeyword      = $FORM{"newkeyword$pgitemcnt"};
   $docaction        = $FORM{"docaction$pgitemcnt"};
+  $DH{docaction}    = $docation;
+
   $thisSectsub      = $FORM{"thisSectsub$pgitemcnt"} if($FORM{"thisSectsub$pgitemcnt"});
   $listSectsub      = $thisSectsub;
+  $DH{listsectsub}  = $listSectsub;
   $D{sourcefk}      = $FORM{"sourcefk$pgitemcnt"};
 
   $D{dtemplate}     = $FORM{"dTemplate$pgitemcnt"};
@@ -1088,6 +1264,7 @@ sub get_doc_form_values
   $D{regionfk}     = $FORM{"regionfk$pgitemcnt"};
   $updsectsubs     = $FORM{"updsectsubs$pgitemcnt"};
   $addsectsubs     = $FORM{"addsectsubs$pgitemcnt"};
+  $DH{addsectsubs} = $addsectsubs;
   $newsprocsectsub = $FORM{"newsprocsectsub$pgitemcnt"} unless $newsprocsectsub;
   $pointssectsub   = $FORM{"pointssectsub$pgitemcnt"};
   $ownersectsub    = $FORM{"ownersectsub$pgitemcnt"};
@@ -1098,21 +1275,21 @@ sub get_doc_form_values
   else {
     $first_addsectsub = $addsectsubs;
   }
-  
+
   if($D{sectsubs} =~ /;/) {
     ($first_sectsub,$rest) = split(/;/,$D{sectsubs},2);
   }
   else {
     $first_sectsub = $D{sectsubs};
   }
-  
+
   if($first_addsectsub) {
     $first_sectsub = $first_addsectsub;
   }
 
   $addsectsubs0    = $FORM{"addsectsubs0$pgitemcnt"};
-  $addsectsubs1    = $FORM{"addsectsubs1$pgitemcnt"};   
-  $addsectsubs2    = $FORM{"addsectsubs2$pgitemcnt"};     
+  $addsectsubs1    = $FORM{"addsectsubs1$pgitemcnt"};
+  $addsectsubs2    = $FORM{"addsectsubs2$pgitemcnt"};
   $addsectsubs3    = $FORM{"addsectsubs3$pgitemcnt"};
 
   $addsectsubs  =~ s/NA;//;   ## remove NA (deselect option)
@@ -1126,7 +1303,7 @@ sub get_doc_form_values
 
   $stratus_add  = $FORM{"docloc_add"};
   $stratus_news = $FORM{"docloc_news"} unless($stratus_news);
-  
+
   $D{regionhead} = 'N' if($D{regionhead} !~ /Y/);
 
   $D{headline} = &strip_leadingSPlineBR($D{headline});
@@ -1135,10 +1312,12 @@ sub get_doc_form_values
   if($D{sectsubs} =~ /(Suggested_suggestedItem|$emailedSS)/ or $D{titlize} =~ /Y/) {
      ($D{headline},$rest) = split(/Date:/,$D{headline},2) if($D{headline} =~ /Date:/);
   }
-  
+
+  my ($rregionfk,$rseq,$r_type,$rregion,$rrest) = split(/\^/,$D{region},5);
+  $D{region} = $rregion;
   $D{region} =~ s/^;//;
   $D{region} =~ s/;$//;
-  
+
   @lines = split(/\n/,$D{body});
   $D{body} = "";
   foreach $line (@lines) {
@@ -1152,7 +1331,7 @@ sub get_doc_form_values
      $line = &strip_leadingSPlineBR($line);
      $D{points} = "$D{points}$line\n";
   }
-  
+
   @lines = split(/\n/,$D{fullbody});
   $D{fullbody} = "";
   foreach $line (@lines) {
@@ -1166,7 +1345,7 @@ sub get_doc_form_values
 sub get_doc_data
 {
   my($indocid,$print_it)  = @_;
-  return("") unless($indocid);
+ return("") unless($indocid);
   my $found_it = "";
   my $printout = "";
   &clear_doc_data;
@@ -1180,16 +1359,15 @@ sub get_doc_data
 	  $found_it = "Y" unless(!@row or $D{deleted} =~ /Y/);
   }
   else { # flatfile processing
-	  if($docid =~ /-/) {      
+	  if($docid =~ /-/) {
 		  $filepath = "$mailpath/$docid.itm";  # emailed
 	  }
 	  else {
 		   $docid =~ s/\s+$//mg;
            $filepath = "$itempath/$docid.itm";
       }
-
+      %D = ();
 	  if(-f "$filepath") {
-#		print "doc1044 FOUND ..filepath $filepath<br>\n";
 		$found_it = "Y";
 	    open(DATA, "$filepath");
 	#                  one line per field
@@ -1198,41 +1376,67 @@ sub get_doc_data
 	       chomp;
 	       $line = $_;
 	       if($line !~ /\^/) {
+
+
+
+			 if($straightHTML eq 'Y') {
+			      $D{dtemplate} = 'straight';
+			      print "$docid STRAIGHT -- $headline <br>\n";
+			      &write_index_flatfile ('import_Straight_html',$docid,'','P','import_Straight_html','');  #log - in index.pl
+			 }
+			 $dtemplate = $dTemplate;
+
+
+
+
 		     $D{$name} = "$D{$name}\n$line";   #fill global hash
 	       }
 	       else {
 	         ($name, $value) = split(/\^/,$line);
-		     $D{$name} = $value;
-	       }
-	        $printout .= "$line<br>\n" if($print_it =~ /Y/); # printit not the same as $print_it passed in as arg
+#	print "doc1235 name *$name* value $value<br>\n";
+#			 $name = "sysdate"    if ($name =~ /sysdate/);
+#			 $name = "skipheadline" if ($name =~ /skipheadline/);
+#			 $name = "priority"   if ($name =~ /priority/);
+#			 $name = "worth"     if ($name =~ /worth/);
+             $D{$name} = $value;
+	      }
+	      $printout .= "$line<br>\n" if($print_it =~ /Y/); # printit not the same as $print_it passed in as arg
 	    }
 	    close(DATA);
-	    return $printout if($print_it =~ /Y/);
+
+#        @D{ keys %D } = @DT{ keys %DT };
+
+	     return $printout if($print_it =~ /Y/);
 	 }
 	 else {
 #				print "doc1067 NOT FOUND ..filepath $filepath<br>\n";
-	   $D{headline} = "File not found at doc1159 - docid *$docid*";
-	   return("");
+	     $D{headline} = "File not found at doc1159 - docid *$docid*";
+	     return("");
 	}
   }
-  
+
   unless($found_it) {
 	 $D{headline} = "File not found at doc1047 - docid *$docid*";
-	 return(""); 
+	 return("");
   }
-
+  $found_it = 'Y';
   $D{docid} = $docid;
 
-  &massage_docitem_variables;	#massages data from hash %D
+  return ($found_it) if($cmd =~ /import/);
 
+  &massage_docitem_variables;	#massages data from hash %D
   if($D{body} =~ /@@[0-9]{6}/ and !$INSIDE and $D{sectsubs} =~ /$newsdigestSS/) {
-	  $INSIDE = "Y";         ## needed to prevent looping in this recursive routine
-	  $save_template = $aTemIplate;
+	 $INSIDE = "Y";         ## needed to prevent looping in this recursive routine
+	 $save_template = $aTemplate;
      my %D_save = %D;
 
-     $parent_docid    = $docid;
-     $parent_sectsubs = $D{sectsubs};  #global
-     $parent_needsum  = $D{needsum};   #global - examined in template_ctrl.pl
+     $parent_docid        = $docid;
+     $DH{parent_docid}    = $docid;
+     $DH{parent_template} = $aTemplate;
+     $parent_sectsubs     = $D{sectsubs};  #global
+     $parent_needsum      = $D{needsum};   #global - examined in template_ctrl.pl
+     $DH{parent_sectsubs} = $D{sectsubs};  #global
+     $DH{parent_needsum}  = $D{needsum};   #global - examined in template_ctrl.pl
 # print "Parent $docid .. body $body ..parent_needsum $parent_needsum<br><br>\n";
      my $newbody = &get_inside_articles($D{body});  # builds html file (data married with template) of each docid of inside articles
      $aTemplate = $save_template;
@@ -1241,18 +1445,16 @@ sub get_doc_data
 	 for (keys %D)
 	    { delete $D{$_}; }
      %D = %D_save;
-
-	 $D{body} = $newbody;
+#	 $D{body} = $newbody;    # body is changed only on printout in do_body_comment
 
 	 if($INSIDE_FOUND) {
 		 $INSIDE_FOUND = "";
 		 $INSIDE = "";
 	 }
-     else { return (""); }
  }
- return ($found_it); 
-}
 
+ return ($found_it);
+}
 
 sub get_inside_articles {
  my $body = $_[0];
@@ -1264,20 +1466,19 @@ sub get_inside_articles {
  my $newbody = "";     #rebuild body
  my @bodylines = split(/\n/,$body);
  foreach my $bodyline (@bodylines) {
-#	print "doc1221 ..parent_sectsubs $parent_sectsubs<br>\n";	
-	 if($bodyline =~ /^@@[0-9]{6}/ and $parent_sectsubs =~ /$newsdigestSS/) {
+	 if($bodyline =~ /^@@[0-9]{6}/ and $DH{parent_sectsubs} =~ /$newsdigestSS/ and $DH{parent_template} =~ /newsitem/) {
 		 my $indocid = substr($bodyline,2,7);
-#		print "doc1223 indocid $indocid<br>\n";
-         my($rest,$insidetemplate) = split(/-/,$bodyline,2) if($bodyline =~ /@@[0-9]{6}-/);
-		 $insidetemplate = "news_insideItem" unless($insidetemplate);
-		 $insidetemplate = "email_insideItem" if($insidetemplate =~ /news_insideItem/ and $now_email =~ /Y/);
-	     $found = &prt_one_doc($indocid,$insidetemplate);   #used recursively
-	     $newbody = "$newbody\n$bodyline" if($found and $newbody);
-	     $newbody = "$bodyline" if($found and !$newbody);
+        my($rest,$insidetemplate) = split(/-/,$bodyline,2) if($bodyline =~ /@@[0-9]{6}-/);
+		$insidetemplate = "news_insideItem" unless($insidetemplate);
+		$insidetemplate = "email_insideItem" if($insidetemplate =~ /news_insideItem/ and $now_email =~ /Y/);
+	    $found = &prt_one_doc($indocid,$insidetemplate);   #used recursively
+
+#        $newbody = "$newbody\n$INSIDEMERGE{$indocid}" if($found and $newbody);
+#	    $newbody = "$INSIDEMERGE{$indocid}" if($found and !$newbody);
      }
      else {
-	    $newbody = "$newbody\n$bodyline" if($newbody);
-		$newbody = "$bodyline\n" if(!$newbody);
+#	    $newbody = "$newbody\n$bodyline" if($newbody);
+#		$newbody = "$bodyline\n" if(!$newbody);
 	}
  }
  return($newbody);
@@ -1287,11 +1488,11 @@ sub massage_docitem_variables
 {
     $D{priority} = '5' if($D{priority} !~ /[1-7]/ or -f "$priority5path/$docid.pri5");
     ($expyear,$expmonth,$expday) = split(/-/,$D{expdate},3);
-    $D{source}   = "" if($D{source} eq "(select one)");
     if($straightHTML eq 'Y') {
     	$D{dtemplate} = 'straight';
     }
-    $D{link}   =~ s/^\s+//; 
+    $D{link}   =~ s/^\s+//;
+
     $D{body}   =~ s/\n+$//g;    ## trim trailing line feeds
     $D{body}   =~ s/\r+$//g;    ## trim trailing returns
     $D{body}   =~ s/\n\r+$//g;  ## trim trailing returns
@@ -1308,6 +1509,7 @@ sub massage_docitem_variables
 
 	$D{author}   =~ s/^\s+//g;    ## trim trailing white space
 	$D{author}   =~ s/\s+$//g;    ## trim trailing white space
+	$D{author}   &titlize($D{author});  #in smartdata.pl
     $D{fullbody} =  &reverse_regexp_prep($D{fullbody});   ##  common.pl
     if($rSectsubid =~ /(Suggested_suggestedItem|$emailedSS)/ or $D{titlize} =~ /Y/) {
        ($D{headline},$rest) = split(/Date:/,$D{headline},2) if($D{headline} =~ /Date:/);
@@ -1315,14 +1517,16 @@ sub massage_docitem_variables
     }
 
     if( ($D{sectsubs} =~ /$suggestedSS/ or $D{sectsubs} =~ /$headlinesSS/ ) and $D{region} !~ /[A-Za-z0-9]/) {
-	   $D{region} = &get_regions('N',"",$D{headline},$D{fullbody},$D{link}) if($D{region} !~ /[A-Za-z0-9]/);  # print_regions=N, region="", # controlfiles.pl                
+	   $D{region} = &get_regions('N',"",$D{headline},$D{fullbody},$D{link}) if($D{region} !~ /[A-Za-z0-9]/);  # print_regions=N, region="", # controlfiles.pl
        $D{region} = "Global" unless($D{region});
     }
     if($aTemplate =~ /docUpdate/) {
        ($regionid,$seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$members_ids,$continent_grp,$location,$extended_name,$regionid,$seq,$r_type,$regionname,$rstarts_with_the,$regionmatch,$rnotmatch,$continent_grp,$location,$extended_name,$f1st2nd3rd_world,$fertility_rate,$population,$pop_growth_rate,$sustainability_index,$humanity_index)
           = &get_regions($printit,$D{region});   #in regions.pl
-    	($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$regionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format) 
-          = &get_sources($printit,$D{source});   #in sources.pl
+        if($D{source} and $D{source} !~ /(select one)/) {
+    	    ($sourceid,$sourcename,$sstarts_with_the,$shortname,$shortname_use,$sourcematch,$linkmatch,$snotmatch,$sregionname,$regionid,$region_use,$subregion,$subregionid,$subregion_use,$locale,$locale_use,$headline_regex,$linkdate_regex,$date_format)
+              = &get_sources($printit,$D{source});   #in sources.pl
+        }
     }
     return();
 }
@@ -1336,7 +1540,7 @@ sub clear_work_variables
   $ownersectsub   = "";
   $delsectsubs   = "";
 }
-   
+
 sub put_data_to_array {   #used in template_ctrl to marry templates with data
   foreach $keyname (keys %D) {
 	$DOCARRAY{$keyname} = $D{$keyname};
@@ -1348,8 +1552,8 @@ sub put_data_to_array {   #used in template_ctrl to marry templates with data
  $DOCARRAY{'action'}         = $action;
  $DOCARRAY{'filedir'}        = $filedir;
  $pgitemcnt = &padCount4($pgItemnbr);
- $DOCARRAY{'pgitemcnt'}      = $pgitemcnt; 
- $DOCARRAY{'ssitemcnt'}      = $ssItemcnt; 
+ $DOCARRAY{'pgitemcnt'}      = $pgitemcnt;
+ $DOCARRAY{'ssitemcnt'}      = $ssItemcnt;
  $DOCARRAY{'selecttype'}     = $selecttype;
  $DOCARRAY{'svrdestCgisite'} = $SVRdest{'cgiSite'};
  $DOCARRAY{'svrinfoMaster'}  = $SVRinfo{'master'};
@@ -1360,61 +1564,62 @@ sub put_data_to_array {   #used in template_ctrl to marry templates with data
  $DOCARRAY{'hitCount'}       = $hitCount;
  $DOCARRAY{'userCount'}      = $userCount;
  $DOCARRAY{'summarizedcnt'}  = $summarizedCnt;
- $DOCARRAY{'suggestedcnt'}   = $suggestedCnt; 
+ $DOCARRAY{'suggestedcnt'}   = $suggestedCnt;
  $DOCARRAY{'acctnum'}        = $acctnum;
- $DOCARRAY{'access'}         = $access; 
- $DOCARRAY{'userid'}         = $userid; 
- $DOCARRAY{'useremail'}      = $useremail; 
- $DOCARRAY{'firstname'}      = $firstname; 
+ $DOCARRAY{'access'}         = $access;
+ $DOCARRAY{'userid'}         = $userid;
+ $DOCARRAY{'useremail'}      = $useremail;
+ $DOCARRAY{'firstname'}      = $firstname;
  $DOCARRAY{'lastname'}       = $lastname;
- $DOCARRAY{'pin'}            = $pin; 
- $DOCARRAY{'city'}           = $city; 
- $DOCARRAY{'zip'}            = $zip; 
- $DOCARRAY{'handle'}         = &get_user_handle($D{summarizerfk});  #in user.pl 
- $DOCARRAY{'usercomment'}    = $usercomment; 
+ $DOCARRAY{'pin'}            = $pin;
+ $DOCARRAY{'city'}           = $city;
+ $DOCARRAY{'zip'}            = $zip;
+ $DOCARRAY{'handle'}         = &get_user_handle($D{summarizerfk});  #in user.pl
+ $DOCARRAY{'usercomment'}    = $usercomment;
  $DOCARRAY{'pay'}            = $pay;
  $DOCARRAY{'thisSectsub'}    = $listSectsub;
- $DOCARRAY{'rSectsubid'}     = $rSectsubid; 
- $DOCARRAY{'updsectsub'}     = $updsectsub; 
+ $DOCARRAY{'rSectsubid'}     = $rSectsubid;
+ $DOCARRAY{'updsectsub'}     = $updsectsub;
  $DOCARRAY{'addsectsub'}     = $addsectsub;
  $DOCARRAY{template}         = $D{dtemplate}; #This is the final version of the template that docitem is printed with
  $DOCARRAY{predate}          = $msgline_date;
 }
-  
 
-##                WRITE_ITEM to file      
+
+##                WRITE_ITEM to file
 sub write_doc_item
-{ 
+{
  my($docid,$docaction) = @_;   # if not in items directory, it is in popnews_mail
  $docid =~ s/\s+$//mg;
- 
+
  return unless($D{headline} or $D{link} or $D{body} or $D{fullbody});
- 
+
  if($addsectsubs =~ /$deleteSS|$expiredSS/) {
      &IO_delete($docid) if($docid ne "");
  }
 
  my $docpath = "";
- if($docid =~ /-/) {       ##  from emailed 
+ if($docid =~ /-/) {       ##  from emailed
 	 $docpath = "$mailpath/$docid\.itm";
  }
  else {
 	 $docpath = "$itempath/$docid\.itm";
-
-	 if($SVRinfo{'environment'} == 'development') {   ## GITHUB_PATHS
-		 if(-f "$docpath") {
-			  unlink $docpath or printDataErr_Continue("Could not delete $docpath : $! @ doc2800<br>\n");
-		 }
-	 }
-	 elsif(-f "$docpath") {
-		  $lock_file = "$statuspath/$docid.busy";
-	      &waitIfBusy($lock_file, 'lock');  
-	      system "cp $docpath $itempathsave/$docid.itm" if(-f "$itempath/$docid.itm");
-	 }
  }
 
 #          see if valid data
- if(($D{sysdate} =~ /[0-9]/ and $docid =~ /[0-9]/) or $D{sectsubs} =~ /$emailedSS/ ) { 
+ if(($D{sysdate} =~ /[0-9]/ and $docid =~ /[0-9]/) or $D{sectsubs} =~ /$emailedSS/ ) {
+
+	if($SVRinfo{'environment'} == 'development') {   ## GITHUB_PATHS
+	   if(-f "$docpath") {
+				  unlink $docpath or printDataErr_Continue("Could not delete $docpath : $! @ doc2800<br>\n");
+			 }
+		 }
+	 elsif(-f "$docpath") {
+			  $lock_file = "$statuspath/$docid.busy";
+		      &waitIfBusy($lock_file, 'lock');
+		      system "cp $docpath $itempathsave/$docid.itm" if(-f "$itempath/$docid.itm");
+	 }
+
 	 open(DATAOUT, ">$docpath") or die("Could not open DATAOUT $...docpath $docpath");
 
      &write_doc_data_out;
@@ -1422,7 +1627,7 @@ sub write_doc_item
      chmod 0777, $emailfile if($SVRinfo{'environment'} == 'development');  ## GIT_HUB PATHS
 
 	 if($DB_docitems > 0) {
-		  if($docaction eq 'N') { 
+		  if($docaction eq 'N') {
 			 &DB_docitem_insert($docid);   #inserts from $D hash
 		  }
 		  else {
@@ -1433,7 +1638,7 @@ sub write_doc_item
      unlink $lock_file if($lock_file);
   }
   else {
-     print "Invalid sysdate=$D{sysdate} or docid-$docid; Could not write out docitem at doc1185 Error message: $! <br>\n";
+     print "Invalid sysdate=$D{sysdate} or docid-$docid; Could not write out docitem at # Error message: $! <br>\n";
   }
 
   return($docid);
@@ -1441,13 +1646,14 @@ sub write_doc_item
 
 
 sub write_doc_data_out
-{	
+{
+ my($uid) = &get_user_uid($userid);
  if($ipform eq "summarize") {
-	   $D{summarizerfk} = &get_user_uid($userid) if($userid and !$D{summarizerfk});
+	   $D{summarizerfk} = $uid if($userid and !$D{summarizerfk});
        print DATAOUT "summarizerfk\^$D{summarizerfk}\n";
   }
   if($docaction eq 'N') {
-	   $D{suggesterfk} = $uid if(!$D{suggesterfk});
+	   $D{suggesterfk} = $uid if($userid and !$D{suggesterfk});
        print DATAOUT "suggesterfk\^$D{suggesterfk}\n";
   }
   $D{changebyfk} = $uid;
@@ -1456,7 +1662,7 @@ sub write_doc_data_out
   $D{updated_on} = &get_nowdate if(!$D{updated_on} or $D{updated_on} < $DT{earliest_date});
   print DATAOUT "updated_on\^$D{updated_on}\n";
 
-  print DATAOUT "priority\^$D{priority}\n"; 
+  print DATAOUT "priority\^$D{priority}\n";
 
   print DATAOUT "deleted\^$D{deleted}\n";
   print DATAOUT "reserveuntil\^$D{reserveuntil}\n";
@@ -1466,12 +1672,17 @@ sub write_doc_data_out
   if($docaction =~ /N/
   or $addsectsubs =~ /($newsdigestSS|Headlines|$suggestedSS|$summarizedSS)/
   or $D{woapubdatetm} < $DT{earliest_datetime} or !$D{woapubdatetm}) {
-	   $D{woapubdatetm} = &get_woadatetm;	
+	   $D{woapubdatetm} = &get_woadatetm;
   }
   $woapubdatetm = $D{woapubdatetm};
   print DATAOUT "woapubdatetm\^$D{woapubdatetm}\n";
 
-  print DATAOUT "sysdate\^$D{sysdate}\n";   
+  if($DBdocitems < 1) {
+     print DATAOUT "sysdate\^$D{sysdate}\n";
+  }
+  else {
+     print DATAOUT "sysdate\^$D{sysdate}\n";
+  }
   print DATAOUT "pubdate\^$D{pubdate}\n";
   print DATAOUT "skippubdate\^$D{skippubdate}\n";
 
@@ -1489,8 +1700,8 @@ sub write_doc_data_out
    	 print DATAOUT "dTemplate\^$D{dtemplate}\n";
   }
 
-  if($docaction =~ /N/ and $D{region} !~ /[A-Za-z0-9]/) {
-	  $D{region} = &get_regions('N',"",$headline,$fullbody,$link);  # print_regions=N, region="", # controlfiles.pl                
+  if($docaction =~ /N/ and !$D{region}) {
+	  $D{region} = &get_regions('N',"",$headline,$fullbody,$link);  # print_regions=N, region="", # controlfiles.pl
   }
   $D{region} =~ s/^;//;
   print DATAOUT "region\^$D{region}\n";
@@ -1509,10 +1720,10 @@ sub write_doc_data_out
   print DATAOUT "sourcefk\^$D{sourcefk}\n";
   print DATAOUT "skipsource\^$D{skipsource}\n";
 
-  $D{author} =~ s/$\s+//;  # strip leading blanks
+  $D{author} =~ s/^\s+//;  # strip leading blanks
   $D{author} = &titlize($D{author}) if($docaction =~ /N/);
   print DATAOUT "author\^$D{author}\n";
-  $D{skipauthor} = "" if($D{skipauthor} !~ /Y/ or !$author);
+  $D{skipauthor} = "" if($D{skipauthor} !~ /Y/ or !$D{skipauthor});
   print DATAOUT "skipauthor\^$D{skipauthor}\n";
 
   print DATAOUT "needsum\^$D{needsum}\n";
@@ -1529,23 +1740,24 @@ sub write_doc_data_out
   $D{headline} =~ s/\s+$//;
   $D{headline} =~ s/’/\'/g;  #E2 80 99 apostrophe
   $D{headline} =~ s/&#40;/\(/g;    ## left parens
-  $D{headline} =~ s/&#41;/\)/g;    ## right parens  
+  $D{headline} =~ s/&#41;/\)/g;    ## right parens
   $D{headline} =~ s/&#91;/\[/g;    ## left bracket
   $D{headline} =~ s/&#93;/\]/g;    ## right bracket
   $D{headline} = &titlize($D{headline}) if( ($docaction =~ /N/ and !$owner)  or $D{titlize} =~ /Y/); #in smartdata.pl
   print DATAOUT "headline\^$D{headline}\n";
   print DATAOUT "skipheadline\^$D{skipheadline}\n";
 
-  print DATAOUT "subheadline\^$D{subheadline}\n";   
+  print DATAOUT "subheadline\^$D{subheadline}\n";
 
   print DATAOUT "bodyprenote\^$D{bodyprenote}\n";
 
   print DATAOUT "skiphandle\^$D{skiphandle}\n";
 
+  $D{body} =~  s/^\n+//;  #get rid of leading line feeds
   $D{body} =~  s/\n+$//;  #get rid of trailing line feeds
-  $D{body}   = &apple_convert($D{body});
-  print DATAOUT "body\^$D{body}\n";
 
+  $D{body} = &apple_convert($D{body});
+  print DATAOUT "body\^$D{body}\n";
   print DATAOUT "bodypostnote\^$D{bodypostnote}\n";
 
   $D{comment} =~  s/\n+$//;  #get rid of trailing line feeds
@@ -1572,6 +1784,8 @@ sub write_doc_data_out
   $D{note} =~  s/\n+$//;  #get rid of trailing line feeds
   print DATAOUT "note\^$D{note}\n";
 
+  print DATAOUT "precat\^$D{precat}\n";
+
   print DATAOUT "miscinfo\^$D{miscinfo}\n";
 
   print DATAOUT "topic\^$D{topic}\n";
@@ -1582,7 +1796,7 @@ sub write_doc_data_out
   print DATAOUT "imagefile\^$D{imagefile}\n";
   print DATAOUT "imagedescr\^$D{imagedescr}\n";
 
-  print DATAOUT "worth\^$D{worth}\n";	
+  print DATAOUT "worth\^$D{worth}\n";
 
   $D{sectsubs} =~ s/NA`M;//;
   $D{sectsubs} =~ s/NA;//;
@@ -1640,14 +1854,14 @@ sub get_docCount
 sub IO_delete {
   my $docid = $_[0];
   system "touch $deletepath/$docid.del" unless (-f "$$deletepath/$docid.del");
-  
+
   &DB_docitem_delete($docid) if($DB_docitems > 0);
 }
 
 sub IO_priority5 {  # set priority to 5 if promoted to newsDigest
 	my $docid = $_[0];
 	system "touch $priority5path/$docid.pri5" unless (-f "$priority5path/$docid.pri5");
-	
+
 	&DB_docitem_set_priority($docid,'5') if($DB_docitems > 0);
 }
 
@@ -1687,13 +1901,13 @@ sub DB_get_docitem
      }
      return(@row);
    }
-   return("");	
+   return("");
 }
 
 sub DB_prepare_get_docitem
 {
   my $sth = $DBH->prepare( "SELECT * FROM docitems where docid = ?" );
-  return($sth);	
+  return($sth);
 }
 
 sub DB_docitem_delete
@@ -1721,23 +1935,22 @@ sub DB_docitem_insert
 {
 	my $docid = $_[0];
 	my $sth = &DB_prepare_docitem_insert($DBH);
-    $D{docid} =  int($docid);
+    $D{'docid'} =  int($docid);
     $sth->execute_array(D{},\@keys, \@values); # OR CHANGE TO $DBH->DO LIKE UPDATE
-	
+
 #### TODO:  see change notes for other hash methods
 
  #   $sth->execute($n_docid,$deleted,$reservetimeup,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
 #	$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
-#	$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$worth,$summarizerfk,$suggesterfk,$changebyfk);	
+#	$miscinfo,$precat,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$worth,$summarizerfk,$suggesterfk,$changebyfk);
 }
 
 sub DB_prepare_docitem_insert
 {
-  my ($col_sql,$num_cols) = &build_sql('vars');
-  my $question_marks = ",?" x ($num_cols -2);
-  my $sql = "INSERT IGNORE INTO docitems $col_sql VALUES (?,$question_marks,CURDATE() )";
-#       VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,CURDATE() )";
-
+  my ($col_sql,$num_cols) = &build_sql('cols');
+  my $question_marks = "?," x ($num_cols -2);
+  my $sql = "INSERT IGNORE INTO docitems \($col_sql\) VALUES \(?,$question_marks CURDATE(\) \)";
+print "doc1915 $num_cols $sql<br>\n";
   my $sth = $DBH->prepare($sql) or die("Couldn't prepare DB doc insert @doc1818 : " . $sth->errstr);
   return($sth);
 }
@@ -1750,7 +1963,7 @@ sub DB_docitem_update
 
 #	$doc_update_sth->execute($deleted,$reservetimeup,$outdated,$nextdocid,$priority,$headline,$regionhead,$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,
 #	$skippubdate,$woapubdatetm,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,
-#	$miscinfo,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$worth,$summarizerfk,$suggesterfk,$changebyfk,$n_docid);	
+#	$miscinfo,$precat,$sectsubs,$skiphandle,$dtemplate,$imagefile,$imagloc,$imagedescr,$worth,$summarizerfk,$suggesterfk,$changebyfk,$n_docid);
 }
 
 sub DB_prepare_docitem_update_not_needed
@@ -1758,7 +1971,7 @@ sub DB_prepare_docitem_update_not_needed
  my $doc_update_sql = "UPDATE docitem SET deleted=?,reservetimeup=?,outdated=?,nextdocid=?,priority=?,headline=?,regionhead=?,skipheadline=?,
 	subheadline=?,special=?,topic=?,link=?,skiplink=?,selflink=?,sysdate=?,pubdate=?,pubyear=?,skippubdate=?,woapubdatetm=?,
 	expdate=?,reappeardate=?,region=?,regionfk=?,skipregion=?,source=?,sourcefk=?,skipsource=?,author=?,skipauthor=?,needsum=?,
-	body=?,fullbody=?,freeview=?,points=?,comment=7,bodyprenote=?,bodypostnote=?,note=?,miscinfo=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
+	body=?,fullbody=?,freeview=?,points=?,comment=7,bodyprenote=?,bodypostnote=?,note=?,miscinfo=?,precat=?,sectsubs=?,skiphandle=?,dtemplate=?,imagefile=?,imageloc=?,
 	imagedescr=?,worth=?,summarizerfk=?,suggesterfk=?,changebyfk=?,updated_on=CURDATE() WHERE docid = ?";
 #
  my $doc_update_sth = $DBH->prepare($doc_update_sql);
@@ -1778,22 +1991,23 @@ sub export_docitems  # From DB to flatfiles, including indexes; executed from db
 {
  my($mindocid,$maxdocid) = @_;  # Do a chunk at a time
  my $filename = "";
+ %{$D} = ();
  $export_docitem_cnt = 0;
 
  &read_sectCtrl_to_array;  #in sectsubs.pl - needed to get sectsubids
 
  $DBH = &db_connect() if(!$DBH);
- my $sth = $DBH->prepare( 'SELECT * FROM docitems WHERE docid BETWEEN ? AND ?') 
-    or die("Couldn't prepare statement: " . $sth->errstr);	
+ my $sth = $DBH->prepare( 'SELECT * FROM docitems WHERE docid BETWEEN ? AND ?')
+    or die("Couldn't prepare statement: " . $sth->errstr);
  $sth->execute($mindocid,$maxdocid);
 
- %D = $query->fetchhash;
+# %D = $sth->fetchhash;
  my %row;
  $sth->bind_columns( \( @row{ @{$sth->{NAME_lc} } } ));
  while ($sth->fetch) {
     %D = %$row;   # %D is a global hash where docitem column data is stored
 
-# while (my @row = $sth->fetchrow_array()) { # print data retrieve	
+# while (my @row = $sth->fetchrow_array()) { # print data retrieve
    &write_exp_docitem;
    if($D{deleted} eq 'Y') { ### TODO: touch deleted file }
 ## TODO write to index files depending on $D{sectsubs}
@@ -1806,11 +2020,48 @@ sub export_docitems  # From DB to flatfiles, including indexes; executed from db
 
   print "Export item count $export_docitem_cnt .. mindocid $mindocid .. maxdocid $maxdocid </br>\n";
 }
-		
+
+sub get_doc_data_for_DB
+{
+  my($docid) = $_[0];
+  $filepath = "$itempath/$docid\.itm";
+  if(-f "$filepath") {
+    open(DATA, "$filepath");
+    while(<DATA>)
+    {
+       chomp;
+       $line = $_;
+       if($line !~ /\^/) {
+         $DATA{$name} = "$DATA{$name}\n$line";
+       }
+       else {
+         ($name, $value) = split(/\^/,$line);
+         $DATA{$name} = $value;
+       }
+    }
+    close(DATA);
+
+    my $priority       = $DATA{priority};
+    my $pubdate        = $DATA{pubdate};
+    my $sysdate        = $DATA{sysdate}; ## It is $sysdate for flatfiles and $sysdate for DB, byt $sysdate for internal variables
+    my $topic          = $DATA{topic};
+    my $region         = $DATA{region};
+    my $headline       = $DATA{headline};
+    my $sectsubs       = $DATA{sectsubs};
+#    require('sections.pl');
+#    $stratus = &splitout_sectsub_info($sectsubname,$sectsubs,);
+    return($priority,$pubdate,$sysdate,$pubyear,$topic,$region,$headline);
+ }
+ else {
+    print "Docitem file not found $docid (line 336)<br>\n";
+    return('', '','','','','','');
+ }
+}
+
 sub write_exp_docitem
 {
- my ($docid) = &padCount6($D{docid});
-	
+ my ($docid) = &padCount6($D{'docid'});
+
  my $docpath = "$expitempath/$docid\.itm";
 
  if(-f "$docpath") {
@@ -1818,12 +2069,12 @@ sub write_exp_docitem
      &write_index_flatfile ('export_AlreadyExists',$docid,'','P','export_AlreadyExists','');
      return;
  }
-	
+
  open(DOCITEM, ">$docpath") or die("Couldn't open $docpath<br>\n");
 
  foreach my $docname (sort { ($doccol_order{$a} cmp $doccol_order{$b}) } keys  %doccol_order) {
-     print DOCITEM "$docname\^$D{docname}\n" unless($docname eq 'docid');
- } 
+     print DOCITEM "$docname\^$D{$docname}\n" unless($docname eq 'docid');
+ }
  close(DOCITEM);
  chmod 0777, $docpath if($SVRinfo{'environment'} == 'development');
 }
@@ -1832,7 +2083,7 @@ sub write_exp_docitem
 ########### TODO - flag articles that are on wrong index (i.e. sectsubs =~ /headlines/ on newsdigest index)
 ########### TODO (later do this by year ???? - keep flatfile index by year)
 
-sub import_docitems    
+sub import_docitems
 {
  my ($newsSSname,$mindocid_n,$maxdocid_n) = @_;  # one of the news, headlines or news archives SS -or- docid max and min
 
@@ -1841,40 +2092,43 @@ sub import_docitems
  my $filename = "";
  my $prevdocid = 0;
  my $returnURL = "";
+ my $sth_doc_insert = &DB_prepare_docitem_insert($DBH);
+ my $sth_idx_insert = &DB_prepare_idx_insert($DBH);   # in indexes.pl
 
- my $mindocid = padCount6($mindocid_n);   # in common.pl
- my $maxdocid = padCount6($maxdocid_n);
+ my $mindocid = padCount6($mindocid_n) if($mindocid_n);   # in common.pl
+ my $maxdocid = padCount6($maxdocid_n) if($maxdocid_n);
 
  &read_sectCtrl_to_array;  #in sectsubs.pl - needed to get sectsubids
 
  unless($newsSSname eq 'nomoreSS') {   # Do for each version of News types
 
-	 if($newsSSname =~ /NewsDigest_NewsItem/) {     # DO this list first - it is the latest 
+	 if($newsSSname =~ /NewsDigest_NewsItem/) {     # DO this list first - it is the latest
 	    $DBH->do("TRUNCATE TABLE docitems");
 	    $DBH->do("TRUNCATE TABLE indexes");
-	
+
 	    $returnURL = "http://$scriptpath//article.pl?import%docitems%Headlines_sustainability%Suggested_suggestedItem%Suggested_summarizedItem%NewsScan_1_thru2010;NewsScan2_NewsItem;Archives2007Aug-2006Sep;ArchivesJan-Apr2003_item;ArchivesSep-Dec2002_item;ArchivesMay-Aug2002_item;ArchivesJan-Apr2002_item;ArchivesSep-Dec2001_item;ArchivesSep-Dec2000_item;ArchivesMay-Aug2000_item;noMoreSS%%";
      }
      else {  # Do each list successively until noMoreSS is reached, then work from items directory to pick up what is left
-	     $timesecs = &DBretrieve_timesecs;
+#	     $timesecs = &DBretrieve_timesecs;
 	     ($newsSSname,$otherNewsSS) = split(/;/,$newsSSname,2);
 	     $returnURL = "http://$scriptpath//article.pl?import%docitems%$othernewsSS%%";
      }
-	
+
 	 $lock_file = "$newsSSname.busy";
      &waitIfBusy($lock_file, 'lock');
      my $doclistpath = "$sectionpath/$newsSSname.idx";
-
      open(INFILE, "$doclistpath");
      while(<INFILE>) {
 	     chomp;
 	     $line = $_;
 	     ($docid,$stratus) = split(/\^/,$line,3);
 	     $itemcnt = $itemcnt + 1;
-	
+
 		 last if($newsSSname eq 'Headlines_sustainability' and $itemcnt > 800);
-		
-		 $timesecs = &import_one_docitem($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert,$timesecs) 
+
+#		 $timesecs = &import_one_docitem($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert,$timesecs)
+
+		 &import_one_docitem($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert)
 		     unless($docid eq $prev_docid);;
 		 $prev_docid = $docid;
      } #end file
@@ -1895,7 +2149,8 @@ sub import_docitems
 			     last;
 		    }
 			$itemcnt = $itemcnt + 1;
-		    $timesecs = &import_one_docitem($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert,$timesecs);
+			&import_one_docitem($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert);
+#		    $timesecs = &import_one_docitem($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert,$timesecs);
 	    }
     }
  }
@@ -1910,45 +2165,46 @@ sub import_docitems
 
 sub import_one_docitem
 {
- my ($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert,$timesecs) = @_;
-
+ my ($docid,$newsSSname,$itemcnt,$sth_doc_insert,$sth_idx_insert) = @_;
  my $found= &get_doc_data($docid,'N');
 
  if($headline =~ /File not found/ or !$found) {
 	 print "$docid NOTFOUND -- $headline <br>\n";
      &write_index_flatfile('import_NotFound',$docid,'','P','import_NotFound','');  #log - in index.pl
-     return($timesecs);
+     return;
  }
 
  $n_docid = int($docid);
-#                                                   # See if deleted	
+#                                                   # See if deleted
  $delfilepath = "$deletepath/$docid\.del";
  $D{deleted}  = 'N';
  $D{deleted} = 'Y' if(-f "$deletepath");
+ my $pubdate = $D{pubdate};
+ $pubdate = $DT{epoch_date} if($pubdate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);   # $epoch_time ?
+ my $sysdate = $D{sysdate};
+ $sysdate = $DT{epoch_date} if($sysdate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
 
- $pubdate = "" if($pubdate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);   # $epoch_time ?
- $sysdate = "" if($sysdate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
-
- if($pubdate and $pubdate !~ /0000-00-00/) {
+ if($pubdate and $pubdate >= $DT{epoch_date}) {
      $pubyear  = substr($pubdate,0,4);
  }
  elsif($sysdate) {
-     $pubyear  = substr($sysdate,0,4);	    
+     $pubyear  = substr($sysdate,0,4);
  }
  else {
-	 $pubyear = '0000';  
+	 $pubyear = '0000';
  }
 
  $D{pubdate} = $pubdate;
- $D{sysdate} = $sysdate;
+ $D{sysdate} = $sysdate;  ##sysdate in a hash does not work, especially in DB processing
 
+ my $woapubdatetm = $D{woapubdatetm};
  if($woapubdatetm < $DT{earliest_datetime} or !$woapubdatetm) {
 	 if($newsSSname !~ "nomoreSS" and $item_count < 100) { # If still news type and for only most recent 100 of each
          $woapubdatetm = &get_woadatetm;	# in date.pl
 	 }
 	 else {
 		if($pubdate > "1000-01-01") {
-		    $woapubdatetm = "$pubdate 00:00:00"; 
+		    $woapubdatetm = "$pubdate 00:00:00";
 		}
 		else {
 			$woapubdatetm = "$sysdate 00:00:00";
@@ -1957,18 +2213,15 @@ sub import_one_docitem
  }
  $D{woapubdatetm} = $woapubdatetm;
 
- $expdate      = $epoch_date if(!$expdate or $expdate      !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
- $reappeardate = $epoch_date if(!$reappeardate or $reappeardate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
+ my $expdate      = $D{expdate};
+ $expdate         = $DT{epoch_date} if(!$expdate or $expdate      !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
+ my $reappeardate = $D{reappeardate};
+ $reappeardate    = $DT{epoch_date} if(!$reappeardate or $reappeardate !~ /[0-9]{4}-[0-9]{2}-[0-9]{2}/);
 
- $D{expdate} = $D{expdate};
- $D{reappeardate} = $D{reappeardate};
+ $D{expdate} = $expdate;
+ $D{reappeardate} = $reappeardate;
 
- if($straightHTML eq 'Y') {
-      $D{dtemplate} = 'straight';
-      print "$docid STRAIGHT -- $headline <br>\n";
-      &write_index_flatfile ('import_Straight_html',$docid,'','P','import_Straight_html','');  #log - in index.pl
- }
- $dtemplate = $dTemplate;
+ my $region = $D{region};
 
  my @regions = split(/;/,$region);
  $region   = "";       # rebuild region - get rid of dups
@@ -1991,13 +2244,18 @@ sub import_one_docitem
  $regionfk =~ s/^;//;  # get rid of leading semi-colons
 
  $D{region} = $region;
- $D{regionfk} = $regionfk;
 
+ my $regionfk = $D{regionfk};
+
+ my $source =  $D{source};
  $source   = &get_source_linkmatch($link) unless($source);
- $sourcefk = &get_sourceid($source) if($source and !$sousrcefk);   
  $D{source}   = $source;
+
+ my $sourcefk = $D{sourcefk};
+ $sourcefk = &get_sourceid($source) if($source and !$sousrcefk);
  $D{sourcefk} = $sourcefk;
 
+ my $fullbody = $D{fullbody};
  $fullbody =~ s/\n+$//g;    ## trim trailing line feeds
  $fullbody =~ s/\r+$//g;    ## trim trailing returns
  $fullbody =~ s/\n\r+$//g;  ## trim trailing returns
@@ -2008,12 +2266,14 @@ sub import_one_docitem
  $fullbody =~ s/^\r\n+//g;  ## trim leading returns
  $D{fullbody} = $fullbody;
 
+ my $body = $D{body};
  $body =~ s/\n+$//g;    ## trim trailing line feeds
  $body =~ s/\r+$//g;    ## trim trailing returns
  $body =~ s/\n\r+$//g;  ## trim trailing returns
  $body =~ s/\r\n+$//g;  ## trim trailing returns
  $D{body} = $body;
 
+ my $points = $D{points};
  $points =~ s/\s+$//g;  ## trim white space
  $points =~ s/\n+$//g;  ## trim trailing line feeds
  $points =~ s/\r+$//g;  ## trim trailing returns
@@ -2022,89 +2282,105 @@ sub import_one_docitem
  $points =~ s/\s+$//g;   ## trim white space
  $D{points} = $points;
 
+ my $author = $D{author};
  $author =~ s/\s+$//g;   ## trim white space
  $author =~ s/^\s+//g;   ## trim leading white space
  $D{author} = $author;
 
+ my $sectsubs = $D{sectsubs};
  $sectsubs =~ s/NA`M;//;
  $sectsubs =~ s/NA;//;
-
 #                            swap out old for new sectsubnames
  $sectsubs = &get_new_sectsubs($sectsubs);  #in sectsubs.pl
  $D{sectsubs} = $sectsubs;
 
 ## TODO: Use the same method for insert as the insert above
- 
- $sth_doc_insert->execute_array(D{},\@keys, \@values) 
-	 or die("Couldn't execute DB doc insert @doc2108 : " . $sth_doc_insert->errstr);
 
-##  OR $DBH->do("INSERT INTO $DOCMETA{keys} VALUES($DOCMETA{vars}, CURDATE())");
-## OR use EVAL?? 
+# $sth_doc_insert->execute_array(%D,\@keys, \@vars)
+#	 or die("Couldn't execute DB doc insert @doc2108 : " . $sth_doc_insert->errstr);
 
-# $sth_doc_insert->execute($n_docid,$deleted,$reservetimeup,$outdated,$nextdocid,$priority,$headline,$regionhead,
-#	$skipheadline,$subheadline,$special,$topic,$link,$skiplink,$selflink,$sysdate,$pubdate,$pubyear,$skippubdate,
-#	$woapubdatetm,$expdate,$reappeardate,$region,$regionfk,$skipregion,$source,$sourcefk,$skipsource,$author,
-#	$skipauthor,$needsum,$body,$fullbody,$freeview,$points,$comment,$bodyprenote,$bodypostnote,$note,$miscinfo,
-#	$sectsubs,$skiphandle,$dtemplate,$imagefile,$imageloc,$imagedescr,$worth,$summarizerfk,$suggesterfk,$changebyfk)
-#      or die("Couldn't execute DB doc insert @doc2108 : " . $sth_doc_insert->errstr);
+ my @keys = &get_Dnames;
+ my @values = ();
+ my $ct = 0;
+ foreach my $key (@keys) {
+ 	$ct = $ct +1;
+ 	print "$ct .. $key .. $D{$key}<br>\n";
+	push (@values, $D{$key}) unless $ct > 50;
+ }
+
+ $sth_doc_insert->execute(@values);
 
  $sth_doc_insert->finish;
+
  my @sectsubs = split(/;/,$sectsubs);
  foreach my $sectsub (@sectsubs) {
    ($sectsubname,$stratus) = split(/`/, $sectsub,2);
    &DB_insert_sectsub_idx($sth_idx_insert,$sectsubname,$n_docid,$stratus,""); # in indexes.pl - will add to index
  }
- return($timesecs);
+ return;
+}
+
+
+sub get_Dnames {  ## 51 variables
+ return ('docid','deleted','reservetimeup','outdated','nextdocid','priority','headline',
+             'regionhead','skipheadline','subheadline','special','topic','link','skiplink','selflink',
+             'sysdate','pubdate','pubyear','skippubdate','woapubdatetm','expdate','reappeardate',
+             'region','regionfk','skipregion','source','sourcefk','skipsource','author','skipauthor',
+             'needsum','body','fullbody','freeview','points','comment','bodyprenote','bodypostnote',
+             'note','miscinfo','precat','sectsubs','skiphandle','dtemplate','imagefile','imageloc','imagedescr',
+             'worth','summarizerfk','suggesterfk','changebyfk','updated_on');
 }
 
 sub create_docitem_table {
+# 51 variables
 #                        DO THIS MANUALLY ON THE DB SERVER
 #                    	docid smallint auto_increment PRIMARY KEY,    # do this later, after conversion
 	                              ## 51 variables
 $DOCITEM_SQL  = <<ENDDOCITEM
 CREATE TABLE docitems (
    docid          smallint     unsigned not null,
-   deleted        char(1)      default 'N',
+   deleted        char(1)      default '',
    reservetimeup  datetime     default null,
-   outdated       char(1)      default 'N',
+   outdated       char(1)      default '',
    nextdocid      smallint     unsigned default 0,
    priority       char(1)      default '4',
    headline       varchar(200) default '',
-   regionhead     char(1)      default 'N',
-   skipheadline   char(1)      default 'N',
+   regionhead     char(1)      default '',
+   skipheadline   char(1)      default '',
    subheadline    varchar(200) default '',
    special        varchar(50)  default '',
    topic          varchar(50)  default '',
-   link             varchar(200) default '',
-   skiplink       char(1)      default 'N',
-   selflink       char(1)      default 'N',
+   link           varchar(200) default '',
+   skiplink       char(1)      default '',
+   selflink       char(1)      default '',
    sysdate        date         not null,
    pubdate        date         default null,
    pubyear        char(4)      default '',
-   skippubdate    char(1)      default 'N',
+   skippubdate    char(1)      default '',
    woapubdatetm   datetime     default null,
    expdate        date         default null,
    reappeardate   date         default null,
    region         varchar(100) default '',
-   regionfk      varchar(50)  default '',
-   skipregion     char(1)      default 'N',
+   regionfk       varchar(50)  default '',
+   skipregion     char(1)      default '',
    source         varchar(100) default '',
    sourcefk       smallint     unsigned default 0,
-   skipsource     char(1)      default 'N',
+   skipsource     char(1)      default '',
    author         varchar(100) default '',
-   skipauthor     char(1)      default 'N',
-   needsum        char(1)      default 'N',
+   skipauthor     char(1)      default '',
+   needsum        char(1)      default '',
    body           text,
    fullbody       text,
-   freeview       char(1)       default 'N',
+   freeview       char(1)       default '',
    points         text,
    comment        varchar(1000) default '',
    bodyprenote    varchar(500)  default '',
    bodypostnote   varchar(500)  default '',
    note           varchar(300)  default '',
    miscinfo       varchar(300)  default '',
+   precat         char(2)       default '',
    sectsubs       varchar(200)  default '',
-   skiphandle     char(1)       default 'N',
+   skiphandle     char(1)       default '',
    dtemplate      varchar(20)   default '',
    imagefile      varchar(150)  default '',
    imageloc       varchar(150)  default '',
@@ -2122,206 +2398,5 @@ ENDDOCITEM
 ### TODO: Change this to population $D hash, not $EMAIL hash
 ###      See smartdata.pl assign_std_variables
 
-sub fill_email_variables
-{
-    $sumAcctnum     = $EITEM{sumAcctnum}     if($EITEM{sumAcctnum}) ;
-    $suggestAcctnum = $EITEM{suggestAcctnum} if($EITEM{suggestAcctnum});
-    $priority       = $EITEM{priority}       if($EITEM{priority});
-    $pubdate        = $EITEM{pubdate}        if(!$pubdate and $EITEM{pubdate});
-    $expdate        = $EITEM{expdate}        if($EITEM{expdate});
-    $expired        = $EITEM{expired}        if($EITEM{expired});
-    $srcdate        = $EITEM{srcdate}        if($EITEM{srcdate});
-    $source         = $EITEM{source}         if(!$source and $EITEM{source});
-    $source         = "" if($source eq "(select one)");
-    $straightHTML   = $EITEM{straightHTML};
-    $dTemplate      = $EITEM{dTemplate}      if($EITEM{dTemplate});
-    $dTemplate      = 'straight' if($straightHTML eq 'Y');
- ## we already checked for link because it was easier that way
-    $link           = $EITEM{link}           if(!$link and $EITEM{link});
-    $selflink       = $EITEM{"selflink"};
-    $headline       = $EITEM{headline}       if(!$headline and $EITEM{headline});
-    $topic          = $EITEM{topic}          if($EITEM{topic});
-    $region         = $EITEM{region}         if(!$region and $EITEM{region});
-    $regionhead     = $EITEM{regionhead};
-    $body           = $EITEM{body}           if(!$body and $EITEM{body});
-    $points         = $EITEM{points}         if(!$points and $EITEM{points});
-    $comment        = $EITEM{comment}        if(!$comment and $EITEM{comment});
-    $fullbody       = $EITEM{fullbody}       if($EITEM{fullbody});
-    $miscinfo       = $EITEM{miscinfo}       if($EITEM{miscinfo});
-    $freeview       = $EITEM{freeview};
-    $note           = $EITEM{note}           if(!$note and $EITEM{note});
-    $keywords       = $EITEM{keywords}       if($EITEM{keywords});
-    $sectsubs       = $EITEM{sectsubs}       if(!$sectsubs and $EITEM{sectsubs});
-    $unique         = $EITEM{unique}         if($EITEM{unique});
-    $skiphandle     = $EITEM{skiphandle};
-    $imagefile      = $EITEM{imagefile}      if(!$imagefile and $EITEM{imagefile});
-    $imageloc       = $EITEM{imageloc}       if(!$imageloc and $EITEM{imageloc});
-	$imagealt       = $EITEM{imagealt}       if(!$imagealt and $EITEM{imagealt});
-	
-	$deleted        = $EITEM{deleted};    ## Start new variables section
-	$outdated       = $EITEM{outdated}; 
-	$nextdocid      = $EITEM{nextdocid};
-
-	$skippubdate  = $EITEM{skippubdate};
-	$woadatetime  = $EITEM{woadatetime};
-	$reappeardate = $EITEM{reappeardate};
-
-	$sourcefk     = $EITEM{sourcefk};
-	$skipsource   = $EITEM{skipsource};
-	$author       = $EITEM{author}           if(!$author and $EITEM{author});
-	$skipauthor   = $EITEM{skipauthor};
-	$skiplink     = $EITEM{skiplink};
-	$skipheadline = $EITEM{skipheadline};
-	$subheadline  = $EITEM{subheadline}      if(!$subheadline and $EITEM{subheadline});
-
-	$regionfk     = $EITEM{regionfk};
-	$skipregion   = $EITEM{skipregion};
-	$summarizerfk = $EITEM{summarizerfk};
-	$suggesterfk  = $EITEM{suggesterfk};
-	$changebyfk   = $EITEM{changebyfk};
-	$updated_on   = $EITEM{updated_on};  ###       End of new variables
-}
-
-sub clear_email_variables
-{
- undef $EITEM{sumAcctnum};
- undef $EITEM{suggestAcctnum};
- undef $EITEM{priority}; 
- undef $EITEM{pubdate};
- undef $EITEM{expdate};
- undef $EITEM{srcdate}; 
- undef $EITEM{source};
- undef $EITEM{straightHTML};
- undef $EITEM{dTemplate};
- undef $EITEM{dBoxStyle};
- undef $EITEM{link};
- undef $EITEM{titlize};
- undef $EITEM{selflink};
- undef $EITEM{headline};
- undef $EITEM{region};
- undef $EITEM{regionhead};
- undef $EITEM{topic};
- undef $EITEM{body};;
- undef $EITEM{comment};
- undef $EITEM{fullbody};
- undef $EITEM{freeview};
- undef $EITEM{note};
- undef $EITEM{miscinfo};
- undef $EITEM{keywords};
- undef $EITEM{sectsubs};
- undef $EITEM{unique};
- undef $EITEM{skiphandle};
- undef $EITEM{imagefile};
- undef $EITEM{imageloc};
-
-undef  $EITEM{deleted};   ## New variables
-undef  $EITEM{outdated};
-undef  $EITEM{nextdocid};
-
-undef  $EITEM{skippubdate};
-undef  $EITEM{woadatetime};
-undef  $EITEM{reappeardate};
-
-undef  $EITEM{sourcefk};
-undef  $EITEM{skipsource};
-undef  $EITEM{author};
-undef  $EITEM{skipauthor};
-
-undef  $EITEM{dtemplate};
-
-undef  $EITEM{skiplink};
-
-undef  $EITEM{skipheadline};
-undef  $EITEM{subheadline};
-
-undef  $EITEM{regionfk};
-undef  $EITEM{skipregion};
-
-undef  $EITEM{imagealt};
-undef  $EITEM{skipregion};
-undef  $EITEM{summarizerfk};
-undef  $EITEM{suggesterfk};
-undef  $EITEM{changebyfk};
-undef  $EITEM{updated_on};   ## End NEW VARIABLES
-
-
- @EITEM = ();
-  undef $paragraph;
-  undef $paragr_cnt;
-  undef $paragr_linecnt;
-  undef $paragraph1;
-  undef $paragraph2;
-  undef $paragraph3;
-  undef $paragr_parens;
-  undef $paragr_source;
-  undef $paragr_headline;
-  undef $paragr_date;
-  undef $paragr_link;
-  undef $paragr_anydate;
-  undef $paragr_anysrc;
-  undef $prev_line;
-  undef $prevprev_line;
-  undef $pdate;
-  undef $msgline1;
-  undef $msgline2;
-  undef $msgline3;
-  undef @msglines;
-  undef $msgline_parens;
-  undef $msgline_source;
-  undef $msgline_headline;
-  undef $msgline_date;
-  undef $msgline_link;
-  undef $nextline_link;
-  undef $msgline_anydate;
-  undef $msgline_anysrc;
-  undef $hdline;
-  undef $srcsep;
-  undef @stdVariables;
-  undef $msgline;
-  undef $dweek;
-  undef $sentdd;
-  undef $sentmon;
-  undef $sentyyyy;
-  undef $fromEmail;
-  undef $emailuser;
-  undef $msgtop;
-  undef $msgbody;
-  undef $locline;
-  undef $locname;
-  undef $variable;
-  undef $holdmonth;
-  undef $chkline;
-  undef $pyear;
-
-undef $deleted;     ## NEW VARIABLES
-undef $outdated;
-undef $nextdocid;
-
-undef $skippubdate;
-undef $woadatetime;
-undef $reappeardate;
-
-undef $sourcefk;
-undef $skipsource;
-undef $author;
-undef $skipauthor;
-
-undef $dtemplate;
-
-undef $skiplink;
-
-undef $skipheadline;
-undef $subheadline;
-
-undef $regionfk;
-undef $skipregion;
-
-undef $imagealt;
-undef $skipregion;
-undef $summarizerfk;
-undef $suggesterfk;
-undef $changebyfk;
-undef $updated_on;    ## END NEW VARIABLES
-}
 
 1;

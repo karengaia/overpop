@@ -8,7 +8,7 @@
 <!--
 
 function setvar(varname,fromvar)
-{	
+{
 eval("document.getElementById('" + varname + "').value = fromvar;");
 }
 
@@ -104,11 +104,38 @@ eval("document.getElementById('" + sectsub + "').value = document.getElementById
 	div#hiddensource {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
 	div#hiddenacronym {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
 	div#sectsub {border: 2px solid #ccc; margin-left:8px; padding:5px;visibility:hidden;}
+	a.tooltip2 {
+		    position:relative; /*this is the key*/
+		    z-index:8;
+		    color:#000;
+		    text-decoration:none;
+	}
+	big.tooltip2 a:link, a:visited, a:active, a:hover {border:0;}
+	big.tooltip2 {text-decoration:none; font-size:120%; font-weight:bold; color:#0033CC;
+		      line-height:60%;}
+	big.tooltip2:hover {color:#00F;text-decoration: none;}
+
+	a.tooltip2:hover {z-index:10; background-color:#e3e3e3; color:#cccccc;text-decoration: none;}
+	a.tooltip2 span {display: none}
+	a.tooltip2:hover span { /*the span will display just on :hover state*/
+	        display:block;
+	        position:absolute;
+	        top:1em; left:-.5em; width:23em;
+		    border:1px solid #999;
+		    background-color:#FFF; color:#000;
+		    margin: 0px;
+		    font-size: 85%;
+		    text-align: left;
+		    text-decoration: none; padding:8px;
+			cursor: help;
+		/* example: <a href="http://www.meyerweb.com/eric/css/">Links<span>A collection
+		of things which interest me, and might interest you</span></a> */
+	}
 </style>
-	
+
 </head>
 <body>
-	
+
 <form method="post" id="itemsSelect" name="itemsSelect" action=
 "http://[SCRIPTPATH]/article.pl">
 <input type="hidden" name="cmd" value="selectItems">
@@ -116,23 +143,17 @@ eval("document.getElementById('" + sectsub + "').value = document.getElementById
 <input type="hidden" name="ipform" value="itemsSelect">
 <small>ID</small><input type="input" name="userid" size="5" maxlength="10" value="[userid]">&nbsp;
 <small>pwd</small><input type="password" name="pin" size="5" maxlength="10" value="">
-&nbsp;&nbsp;<small>
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Suggested_summarizedItem%">
-Summarized</a>
 &nbsp;&nbsp;
-<a target="_blank" href="http://[SCRIPTPATH]/article.pl?display_section%%%Headlines_sustainability%">
-Headlines</a>
-&nbsp;&nbsp;</small>
 
 <small>
-<b>Region:</b> 
+<b>Region:</b>
 <select id="selectregion" name="selectregion">
 [REGIONS]
 </select>
 
 <b>Sources:</b>
 <select id="selectsource" name="selectsourcen">
-[SOURCES] 
+[SOURCES]
  <option value=""></option>
 </select><br>
 <b>Sectsub: Other:</b><select id="selectsectsubA" name="selectsectsubA">
@@ -142,10 +163,10 @@ Headlines</a>
 [ADD_COUNTRIES]
 </select>&nbsp;
 
-<div style="float:right;width:100px;height:500px;">
-<b>Sectsub: Regular:</b><select id="selectsectsubN" size="250" name="selectsectsubN">
+<!-- <div style="float:right;width:100px;height:500px;"> -->
+<b>Sectsub: Regular:</b><select id="selectsectsubN" name="selectsectsubN">
 	[ADD_NON_COUNTRIES]
 </select>
-</div>
+<!-- </div> -->
 
 	<br><h3>[cTitle]</h3>

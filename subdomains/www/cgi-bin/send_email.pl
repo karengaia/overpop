@@ -27,8 +27,20 @@ sub email_admin
   &do_email($email_msg);    # in send_email.pl
 }
 
+sub email_woa_prod
+{
+  my ($subject,$message) = @_;
+  $recipient = "$adminEmail";
+#  $recipient = "woa-pop-news-production@googlegroups.com";
+  my $month = @months[$nowmm-1];
+  my $news_date = "$month $nowdd, $nowyyyy";
+  $subject  = "WOA $subject $news_date";
+  &do_email($message);    # in send_email.pl
+}
+
 sub do_popnews_wkly_email
 {
+ $email_msg = $_[0];
  if(-f "debugit.yes") {
    print "$email_msg\n";
  }

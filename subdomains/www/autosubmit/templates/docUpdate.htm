@@ -535,24 +535,30 @@ password</a></b></font><br>
 <td><label for="imagefile">imagefile:</label>&nbsp;<input type="text" name="imagefile" size="55" maxlength="150"
 value="[imagefile]"><br>
 	<cite>
-	<input type="radio" value="R" name="imageloc">right &nbsp
-	<input type="radio" value="L" name="imageloc">left &nbsp
-	<input type="radio" value="T" name="imageloc">top &nbsp
-	<input type="radio" value="B" name="imageloc">btm &nbsp </cite><br>
+	<input type="radio" value="R" name="imageloc">right &nbsp;
+	<input type="radio" value="L" name="imageloc">left &nbsp;
+	<input type="radio" value="T" name="imageloc">top &nbsp;
+	<input type="radio" value="B" name="imageloc">btm &nbsp; </cite><br>
 	<label for="imagealt">alt:</label>&nbsp;<input type="text" name="imagealt" size="63" maxlength="300" value="[imagealt]">
 </td>
 </tr></table>
 
-<input type="checkbox" name="skipsections" value="Y"> <cite>Skip Section processing</cite><br>
-
 <!-- SECTIONS ->
 
 <!-  2010 Apr12 added News, Headlines, Suggested radio buttons, simplified table structure -->
+<br>
+  <b>Sections and Subsections Where This Article Will Appear:</b> <input type="checkbox" name="skipsections" value="Y"> <cite>Skip Section processing</cite><br>
 
-  <b>Sections and Subsections Where This Article Will Appear:</b> 
-
+	<label for="precat">Pre-Category: &nbsp;</label> 	
+  <cite>
+	<input type="radio" value="I" [PRECAT=I] name="precat">Impacts &nbsp;
+	<input type="radio" value="W" [PRECAT=W] name="precat">What Works &nbsp;
+	<input type="radio" value="A" [PRECAT=A] name="precat">Advocacy &nbsp;
+	<input type="radio" value=""  [PRECAT=]  name="precat">None &nbsp; </cite><br><br>
+	
 <TABLE cellpadding="5" cellspacing="0" border="1">
- <TR><TD valign="top"> 
+ <TR><TD valign="top">
+
  <b>News Processing Sections</b><br>
  <cite>Only one can be selected</cite><br>
 [NEWS_ONLY_SECTIONS]
@@ -565,12 +571,8 @@ value="[imagefile]"><br>
     <b>Major Sections</b><br>
     <cite>To add a Section, select one or more.</cite><br>
 [ADD_NON_COUNTRIES]
-  </TD>
-    <TD valign="top">
-    <b>Countries</b><br>
-    <cite>To add a Section, select one or more.</cite><br>
-[ADD_COUNTRIES]
-    <br><br><b>Other/Admin</b><br>
+  </TD><TD>
+    <b>Other, Admin</b><br>
 [OTHER_SECTIONS]
 </TD>
 </TR></TABLE>

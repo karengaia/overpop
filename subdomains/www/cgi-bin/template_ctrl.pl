@@ -22,7 +22,7 @@ sub process_template
  $DOCARRAY{'cTitle'}      = $cTitle;
  $DOCARRAY{'cTitle2nd'}   = $cTitle2nd;
  $DOCARRAY{'cSubtitle'}   = $cSubtitle;
- $DOCARRAY{'cSubid'}      = $cSubid; 
+ $DOCARRAY{'cSubid'}      = $cSubid;
  $DOCARRAY{'rSectsubid'}  = $rSectsubid;
  $DOCARRAY{'thisSectsub'} = $listSectsub;
  $DOCARRAY{'cSectsubid'}  = $cSectsubid;
@@ -30,7 +30,7 @@ sub process_template
  if($print_it eq 'Y') {
      $nowPEH = 'P';
      $now_print = 'Y';
-     &template_merge_print($template,$ctr); 
+     &template_merge_print($template,$ctr);
      $now_print = 'N';
   }
   if($email_it eq 'Y') {
@@ -66,7 +66,7 @@ sub process_inside_template
  $INLINE = "";  # global
 
  $templatefilepath = "$templatepath$slash$template.htm";
- open(TPLINSIDE, $templatefilepath) or die "tmp55 cannot open template $templatefilepath<br>\n";	
+ open(TPLINSIDE, $templatefilepath) or die "tmp55 cannot open template $templatefilepath<br>\n";
 
  while(<TPLINSIDE>)  {
      chomp;
@@ -94,7 +94,7 @@ sub process_inside_template
 #   print "tmp94 docid $docid inline $INLINE<br>\n";
    $INSIDEMERGE{$docid} = $INLINE;
 }
-  
+
 
 ##  00050 ### MERGE THE TEMPLATE WITH THE DATA
 
@@ -125,11 +125,11 @@ sub template_merge_print
  $midfile = "$templateMidpath$slash$templfile-$ctr.mid";
  $MIDTEMPL = "MIDTEMPL$ctr";
  open($MIDTEMPL, ">$midfile") or die "tem80 cannot open midfile $midfile<br>\n";
-   foreach $template (@templates) {	
+   foreach $template (@templates) {
       &do_template($template,$ctr);
 }
 close($MIDTEMPL);
- 
+
  $OUTFILE = "FILEOUT-$ctr";
  open($OUTFILE, ">>$outfile") if($outfile);
  $javascript = 'N';
@@ -165,7 +165,7 @@ close($MIDTEMPL);
      }
      $line =~ s/\[(\S+)\]/$DOCARRAY{$1}/g  if($javascript =~ /N/);
 
-#	print "tem119 after regexp  $DOCARRAY{'docid'} line $line<br>\n";     
+#	print "tem119 after regexp  $DOCARRAY{'docid'} line $line<br>\n";
      if($cMobidesk =~ /mobi/ or $qMobidesk =~ /mobi/) { # if mobile version
          $line =~ s/<!--.*-->// ;                        # get rid of comments
          if($line =~ /<img/) {
@@ -173,7 +173,7 @@ close($MIDTEMPL);
             $img_ctr = $img_ctr + 1;
          }
          else {
-	        $line =~ s/src=".*"/src=""/;  #get rid of iframe URL 
+	        $line =~ s/src=".*"/src=""/;  #get rid of iframe URL
          }
      }
  ##                     in case we want to email it.
@@ -187,7 +187,7 @@ close($MIDTEMPL);
  close($MIDTEMP2);
 #return;
  close($OUTFILE) if ($outfile);
-	
+
  unlink "$template_path2";
  @templates = "";
 }
@@ -256,7 +256,7 @@ unless(-f "$templatefile") {
      }
      elsif($line =~ /OWNER_REVIEW_TEMPLATE/) {	 #later we will get sectsubs
              $intemplate = "ownerEventItem";     # and get the template from that sectsubs
-             &do_intemplate; 
+             &do_intemplate;
      }
      else {
           &process_embedded_commands;
@@ -336,14 +336,14 @@ sub print_output {
 
 #		$inside_buffer = "$inside_buffer tmp610 $docid ..printmode $printmode <br>\n";
 #		$inside_buffer = "$inside_buffer$output\n";
-#		print $INSIDE "$output";	
+#		print $INSIDE "$output";
 	}
 	elsif($printmode =~ /O/) {
 		print $OUTFILE "$output";
-#        print"$output" if($now_print =~ /Y/);	
+#        print"$output" if($now_print =~ /Y/);
 	}
 	elsif($printmode =~ /P/) {
-		print "$output";		
+		print "$output";
 	}
 }
 
@@ -351,8 +351,24 @@ sub print_output {
 sub do_embedded_commands
 {
    my ($linecmd,$printmode) = @_;   #  M=midtemplate  P=Print
+#   my $save_linecmd = $linecmd;
+   if($linecmd =~ /\[BODY=/ ) {
+      my ($rest, $docid) = split(/=/,$linecmd,2);
+      ($docid,$rest)  = split(/\]/,$docid);
+      if($docid) {
+         my $found = &get_doc_data($docid,$print_it);  # puts values in hash %D
+         if(!$found) {
+           &print_output($printmode,"*Not found $docid*<br>\n");
+         }
+         else {
+           my $body = $D{body};
+           &print_output($printmode,$body);
+         }
+      }
+   }
 
-   if($linecmd =~ /\[ADVANCE\]/ and ($access =~ /[ABCD]/ or $op_userid =~ /P0004|P0083|P0008/) ) {
+
+   elsif($linecmd =~ /\[ADVANCE\]/ and ($access =~ /[ABCD]/ or $op_userid =~ /P0004|P0083|P0008/) ) {
           &print_output($printmode,"<br><br><input type=\"checkbox\" name=\"advance\" ");
           &print_output($printmode," value=\"Y\"><b>Advance this item</b> to\n");
           if($action eq 'new') {
@@ -382,7 +398,12 @@ sub do_embedded_commands
    }
 
    elsif($linecmd =~ /\[SCRIPTPATH\]/) {
-       &print_output($printmode, "$scriptpath");
+	   if($A{development}) {
+       	  &print_output($printmode, "$test_scriptpath");
+       }
+       else {
+	   	  &print_output($printmode, "$scriptpath");
+       } 
    }
 
    elsif($linecmd =~ /\[PUBLICURL\]/) {
@@ -405,7 +426,7 @@ sub do_embedded_commands
 		&print_output($printmode, "<div $dBoxStyle</div>") if($dBoxStyle);
    }
 
-   elsif($linecmd =~ /\[END_DIV_CLASS\]/) { 
+   elsif($linecmd =~ /\[END_DIV_CLASS\]/) {
 		&print_output($printmode,  "</div>") if($dBoxStyle);
    }
 
@@ -439,7 +460,7 @@ sub do_embedded_commands
        $line = "";
        $now_print = 'Y';
       $filepath = "$templateMidpath$slash$filename.mid";  # $filename = $docid
-       open(INSIDEARTICLE, ">$filepath") or die "tem55 cannot open midfile $midfile<br>\n";	
+       open(INSIDEARTICLE, ">$filepath") or die "tem55 cannot open midfile $midfile<br>\n";
 	   while(<INSIDEARTICLE>) {
 	        chomp;
 	        my $inline = $_;
@@ -500,6 +521,12 @@ sub do_embedded_commands
       &print_output($printmode, " checked ") if($upayrole) =~ /$value/;
    }
 
+   elsif($linecmd =~ /\[PRECAT=*.\]/) {
+      my ($rest, $value) = split(/=/,$linecmd);
+     ($value,$rest)  = split(/\]/,$value);
+      &print_output($printmode, " checked ") if($D{precat} =~ /$value/);
+   }
+
    elsif($linecmd =~ /\[APPLY_CHANGE\]/) {
        &print_output($printmode, "CHANGE") if($uid > 0);
        &print_output($printmode, "APPLY")  unless($uid > 0);
@@ -521,7 +548,7 @@ sub do_embedded_commands
 
    elsif($linecmd =~ /\[TODAY\]/ or $linecmd eq 'TODAY') {
        $month = @months[$nowmm-1];
-       &print_output('P', "$month $nowdd, $nowyyyy") if($printmode eq 'P');       
+       &print_output('P', "$month $nowdd, $nowyyyy") if($printmode eq 'P');
        &print_output($printmode, "$month $nowdd, $nowyyyy") if($printmode =~ /[TM]/);
    }
 
@@ -553,7 +580,7 @@ sub do_embedded_commands
    }
 
    elsif($linecmd =~ /\[PUBYEARS\]/) {
-	   my($pubyear,$pubmonth,$pubday) = split(/-/,$D{pubdate},3); # needed for this and Day, year subroutines 
+	   my($pubyear,$pubmonth,$pubday) = split(/-/,$D{pubdate},3); # needed for this and Day, year subroutines
          &get_pubyears($pubyear);
    }
 
@@ -635,7 +662,7 @@ sub do_embedded_commands
    }
 
    elsif($linecmd =~ /\[REGIONS\]/) {
-	    &get_regions('F',$D{region});  # print_region= F=form, in regions.pl 
+	    &get_regions('F',$D{region});  # print_region= F=form, in regions.pl
    }
 
    elsif($linecmd =~ /\[LIKELYREGIONS\]/ and $D{region} =~ /;/) {
@@ -735,14 +762,23 @@ sub do_embedded_commands
        &print_output($printmode, "<h5>$D{subheadline}</h5>");
    }
 
+
    elsif($linecmd =~ /\[BODY\]/) {
 	     my $body = &do_body_comment('body',$D{body});    #in docitem.pl
-	     &print_output($printmode, "$body");
+       &print_output($printmode, "$body");
    }
+
+   elsif($linecmd =~ /\[STRBODY\]/) {
+       my $body = $D{body};
+       $body =~ s/\n\n/<\/p><p>\n/g;
+       $body = "<p>$body<\/p>";
+       &print_output($printmode, "$body");
+   }
+
 
    elsif($linecmd =~ /\[COMMENT\]/ and $D{comment} =~ /[A-Za-z0-9]/) {
          my $comment = &do_body_comment('com',$D{comment});
-         &print_output($printmode, "<div class=\"comment\">$comment</div>\n");
+         &print_output($printmode, "<div class=\"comment\"><p>$comment</p></div>\n");
    }
 
    elsif($linecmd =~ /\[COMMENT\]/) {
@@ -765,7 +801,7 @@ sub do_embedded_commands
             &do_5lines($D{body});
          }
          else {
-            &do_5lines($D{fullbody});	
+            &do_5lines($D{fullbody});
          }
    }
 
@@ -816,7 +852,7 @@ sub do_embedded_commands
    elsif($linecmd =~ /\[EXTRACT\]/) {
                   my $needsum = $D{needsum};
 	    if($D{body} !~ /[A-Za-z0-9]/ and $needsum eq 1) {
-		    &print_output($printmode, "&nbsp;<i>(Needs Summarization)</i>");		
+		    &print_output($printmode, "&nbsp;<i>(Needs Summarization)</i>");
 	    }
 	    if($needsum =~ /[67]/) {
 		    &print_output($printmode, "&nbsp;<i>(Extract)</i>");
@@ -871,13 +907,13 @@ sub do_embedded_commands
 
    elsif($linecmd =~ /\[PRIORITY_STAR\]/) {
 	   my $tdaysago  = &get_somedaysago(42);  # 6 weeks
-	   unless($D{sysdate} < $tdaysago) {
+#	   unless($D{sysdate} < $tdaysago) {
           my $priority = $D{priority};
           &print_output($printmode, "<img src=\"\/star.jpg\" alt=\"high priority\" border=0 height=11 width=11 valign=bottom>")
             if($priority =~ /6/);
           &print_output($printmode, "<img src=\"\/stars_two.jpg\" alt=\"highest priority\" border=0 height=11 width=22 valign=bottom>")
             if($priority =~ /7/);
-       }
+#       }
    }
 
    elsif($linecmd =~ /\[OOPS\]/) {
@@ -918,7 +954,7 @@ sub do_embedded_commands
          &get_news_only_sections;     # in sectsubs.pl
    }
    elsif($linecmd =~ /\[OWNER_SECTIONS\]/) {  # CSWP and Maidu
-         &get_owner_sections($ownerSections);   # in sectsubs.pl	
+         &get_owner_sections($ownerSections);   # in sectsubs.pl
    }
 
    elsif($linecmd =~ /\[POINTS_SECTIONS\]/) {
@@ -981,7 +1017,7 @@ sub do_embedded_commands
       &print_output($printmode, "<input type=\"hidden\" name=\"sdocid$pgitemcnt\" value=\"$docid\">\n");
    }
 
-   elsif($linecmd =~ /\[END_SELECT\]/and $cmd eq 'print_select') {
+   elsif($linecmd =~ /\[END_SELECT\]/ and $cmd eq 'print_select') {
 ##   print "art120 END_SELECT pgItemnbr $pgItemnbr<br>\n";
          if($pgItemnbr ne "" and $pgItemnbr > 0) {
             $pgItemnbr = $pgItemnbr + 1;
@@ -1003,13 +1039,8 @@ sub do_embedded_commands
       }
    }
    elsif($linecmd =~ /\[THISSECTSUB\]/) {
-	  &get_section_ctrl($thisSectsub);   #in sectsubs.pl
-      if($thisSectsub and !$cIdxSectsubid) {
-          &print_output($printmode, "$thisSectsub");
-      }
-      elsif($cIdxSectsubid) {
-          &print_output($printmode, "$cIdxSectsubid");
-      }
+	  my $SSorFromToSS = &get_SSorFromToSS($thisSectsub);   #in sectsubs.pl
+     &print_output($printmode, "$SSorFromToSS");
    }
 
    elsif($linecmd =~ /\[JUSTSECTSUBIDS\]/) {
@@ -1025,7 +1056,7 @@ sub do_embedded_commands
            }
         } #end unless
      } # end foreach
-   } 
+   }
 
    elsif($linecmd =~ /\[GETURLQUERY=(.*)\]/) {
         my $urlquery = $1;
@@ -1045,11 +1076,11 @@ sub do_embedded_commands
    }
 
    elsif($linecmd =~ /\[MAKEPUBLIC]\]/) {
-	   &print_output($printmode, "<br>$qPrtmove 4-$info[4] 6-$info[6]  7-$info[7] 8-$info[8]<a href=\"http://$scriptpath/moveutil.pl?move%$cPage\"><b>Move $cPage to public page</b></a><br>\n"); 
+	   &print_output($printmode, "<br>$qPrtmove 4-$info[4] 6-$info[6]  7-$info[7] 8-$info[8]<a href=\"http://$scriptpath/moveutil.pl?move%$cPage\"><b>Move $cPage to public page</b></a><br>\n");
    }
 
    elsif($linecmd =~ /\[GOOGLESEARCH\]/) {
-#		     print $MIDTEMPL "src=\"https://www.google.com/search?q=Victory+in+Womens+rights\""; 
+#		     print $MIDTEMPL "src=\"https://www.google.com/search?q=Victory+in+Womens+rights\"";
        my $search = "";
        my $hdsrc = $D{headline} . ' ' . $D{source};
        ($hdsrc,$rest) = split(/\(/,$hdsrc); #remove parens at end of source
@@ -1059,7 +1090,7 @@ sub do_embedded_commands
 		  $search = "$search+$hdsrcword";
 	    }
 		$search =~  s/^\+//;
-	    &print_output($printmode, "https://www.google.com/search?q=$search"); 
+	    &print_output($printmode, "https://www.google.com/search?q=$search");
    }
 
    elsif($linecmd =~ /\[FLINK\]/) {
@@ -1079,9 +1110,9 @@ sub do_embedded_commands
        foreach $sectsub (@sectsubs) {
                      my($sectsubid,$rest) = split(/`/,$sectsub,2);
 	      $preframe = "<br><b>$sectsubid</b><br><iframe src =\"";
-	
+
 	      $pagename = &getpagename($sectsubid);   ## in sections.pl
-	      if($sectsubid =~ /$mobileSS/) { # mobile does not go through php 
+	      if($sectsubid =~ /$mobileSS/) { # mobile does not go through php
 		      my $op = $preframe ."http://$scriptpath/moveutil.pl?move%$pagename" . $postframe;
               		    &print_output($printmode, $op);
           	     }
@@ -1091,29 +1122,29 @@ sub do_embedded_commands
 		          &print_output($printmode, $op);
                   sleep 15;
                   $op = "<br><b>NewsHeadlines</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsheadlines%$newsHeadlinesSS" . $postframe;
-                  &print_output($printmode, $op);	
+                  &print_output($printmode, $op);
 		          sleep 10;
 		      }
 		      my $op = $preframe . "http://$cgiSite/prepage/savePagePart.php?$pagename%$sectsubid" . $postframe;
 	          &print_output($printmode, $op);
           }
           elsif($sectsubid =~ /HowToHelp_alerts/) {
-	             my $op = "<br><b>NewsAlerts</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsalerts%$newsAlertsSS" . $postframe;	
-                 &print_output($printmode, $op);			     
+	             my $op = "<br><b>NewsAlerts</b><br><iframe src =\"http://$cgiSite/prepage/savePagePart.php?newsalerts%$newsAlertsSS" . $postframe;
+                 &print_output($printmode, $op);
                  sleep 10;
                  $op = "$preframe . http://$cgiSite/php/savesection.php?$pagename%$sectsubid" . $postframe;
-			     &print_output($printmode, $op); 	
+			     &print_output($printmode, $op);
           }
-          else {            # all sections (page 2) 
+          else {            # all sections (page 2)
 	          my $op = $preframe . "http://$cgiSite/php/savesection.php?$pagename%$sectsubid" . $postframe;
-              &print_output($printmode, $op); 	
+              &print_output($printmode, $op);
           }
           sleep 15;
           $sectsub_ctr = $sectsub_ctr + 1;
        } # end foreach
        if($sectsubs =~ /$newsdigestSS/) {
 	          &print_output($printmode, "<br><br><a target=\"_blank\" href =\"http://$cgiSite/php/saveindex.php?\">Save NewsDigest to index.html</a><br><br>\n");
-	   } 
+	   }
    }
 
    elsif($linecmd =~ /\[ONSUBMIT\]/ and -f $futzingON) {
@@ -1239,8 +1270,10 @@ sub do_link
 sub do_redarrow
 {
  my $head = $_[0];
- my $link = "";
+ my $link     = "";
+ my $docid    = $D{docid};
  my $sectsubs = $D{sectsubs};
+ my $userid   = $A{userid};
  $sectsubs =~ s/`+$//;  #get rid of trailing tic marks
 
  my $imgtag = "<img src=\"";
@@ -1260,13 +1293,13 @@ sub do_redarrow
  elsif($thisSectsub =~ /Headlines|NewsDigest_headlines/) {
 	$redarrow = "/redArrow.gif\" height=\"7\" width=\"7\" border=\"0\" alt=\"doclink\">";
 	$link = "<a class=\"tooltip2\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid%%%%%%$owner%$ownersubs\">";
-#        $bodytemp = substr($fullbody,0,500);    
+#        $bodytemp = substr($fullbody,0,500);
 	    &print_output($printmode, "$link$imgtag$redarrow</a>");
 	}
  elsif($thisSectsub =~ /NewsWeekly_WeeklyItem/) {
 	$redarrow = "http://$cgiSite/img/buttons/redArrow.gif\">";
 	$link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
-	&print_output($printmode, "$link$imgtag$redarrow</a>");    
+	&print_output($printmode, "$link$imgtag$redarrow</a>");
  }
  else {
     $link = "<a class=\"tinyimg\" target=\"_blank\" href=\"http://$scriptpath/article.pl?display%login%$docid%$sectsubs%%$userid\">";
@@ -1275,7 +1308,7 @@ sub do_redarrow
 	   	 &print_output($printmode, "$link$imgtag$invisibledot</a>");
 	}
 
-	elsif($head =~ /head/ and ($D{needsum} =~ /[1345]/ or $parent_needsum =~ /[1345]/) and $D{docid} !~ /$parent_docid/) {
+	elsif($head =~ /head/ and ($D{needsum} =~ /[1345]/ or $DH{parent_needsum} =~ /[1345]/) and $D{docid} !~ /$DH{parent_docid}/) {
 #		print "tmp1252 ..needsum $needsum ..parent_needsum $parent_needsum body $body<br>\n";
 	     &print_output($printmode, "$link$imgtag$redarrow</a>");
 	}
@@ -1308,14 +1341,14 @@ sub print_needsum_radio_buttons
 ENDNEEDSUM
 
   &print_output($printmode, $op);
-	
+
   my @nsradios = split(/\|/,$needsum_radios);
   my $checked = "";
   my $checkFound = "N";
   my($nscode,$nsdescr,$nschecked);
   foreach my $nsradio (@nsradios) {
       ($nscode,$nsdescr,$nschecked) = split(/\;/,$nsradio,3);
-      if($D{needsum} and $nscode == $D{needsum}) {	
+      if($D{needsum} and $nscode == $D{needsum}) {
 	     $checked = "checked";
 	  }
 	  elsif(!$D{needsum}) {

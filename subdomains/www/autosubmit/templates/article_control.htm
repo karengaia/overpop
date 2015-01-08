@@ -65,48 +65,51 @@ if(!ss.options[ss.options.selectedIndex].value) {
 	return(0);
 }
 var ssstr = ss.options[ss.options.selectedIndex].value;
-var s = ssstr.split("^",29);
+var s = ssstr.split("^",31);
 document.getElementById('addchgsectsub').value = 'U';
 document.getElementById('sectsubid').value = s[0];
 document.getElementById('ss_seq').value = s[1];
 document.getElementById('sectsub').value = s[2];
-document.getElementById('fromsectsubid').value = s[3];
-document.getElementById('fromsectsub').value = s[4];
-document.getElementById('subdir').value = s[5];
-document.getElementById('page').value = s[6];
-document.getElementById('category').value = s[7];
-document.getElementById('visable').value = s[8];
-document.getElementById('preview').value = s[9];
-document.getElementById('order1').value = s[10];
-document.getElementById('pg2order').value = s[11];
-document.getElementById('template').value = s[12];
-document.getElementById('titletemplate').value = s[13];
-document.getElementById('title').value = s[14];
-document.getElementById('allor1').value = s[15];
-document.getElementById('mobidesk').value = s[16];
-document.getElementById('doclink').value = s[17];
-document.getElementById('header').value = s[18];
-document.getElementById('footer').value = s[19];
-document.getElementById('ftpinfo').value = s[20];
-document.getElementById('pg1items').value = s[21];
-document.getElementById('pg2items').value = s[22];
-document.getElementById('pg2header').value = s[23];
-document.getElementById('more').value = s[24];
-document.getElementById('subtitle').value = s[25];
-document.getElementById('subtitletemplate').value = s[26];
-document.getElementById('menutitle').value = s[27];
-document.getElementById('keywordsmatch').value = s[28];
+document.getElementById('tofrom').value = s[3];
+document.getElementById('fromsectsubid').value = s[4];
+document.getElementById('fromsectsub').value = s[5];
+document.getElementById('subdir').value = s[6];
+document.getElementById('page').value = s[7];
+document.getElementById('category').value = s[8];
+document.getElementById('visable').value = s[9];
+document.getElementById('preview').value = s[10];
+document.getElementById('order1').value = s[11];
+document.getElementById('pg2order').value = s[12];
+document.getElementById('filtername').value = s[13];
+document.getElementById('template').value = s[14];
+document.getElementById('titletemplate').value = s[15];
+document.getElementById('title').value = s[16];
+document.getElementById('allor1').value = s[17];
+document.getElementById('mobidesk').value = s[18];
+document.getElementById('doclink').value = s[19];
+document.getElementById('header').value = s[20];
+document.getElementById('footer').value = s[21];
+document.getElementById('ftpinfo').value = s[22];
+document.getElementById('pg1items').value = s[23];
+document.getElementById('pg2items').value = s[24];
+document.getElementById('pg2header').value = s[25];
+document.getElementById('more').value = s[26];
+document.getElementById('subtitle').value = s[27];
+document.getElementById('subtitletemplate').value = s[28];
+document.getElementById('menutitle').value = s[29];
+document.getElementById('keywordsmatch').value = s[30];
 //var uu = document.getElementById('addchgsectsub').value;
 //	alert('loadSectsub addchgsectsub ' + uu)
 }
 
-function clearssUpdateAdd() {
+function clearssUpdateAdd() {	
 document.getElementById('addchgsectsub').value = '';
 document.getElementById('cmd').value = 'process_select_login';
 document.getElementById('action').value = '';
 document.getElementById('sectsubid').value = '';
 document.getElementById('ss_seq').value = '';
 document.getElementById('sectsub').value ='';
+document.getElementById('tofrom').value ='';
 document.getElementById('fromsectsubid').value = '';
 document.getElementById('fromsectsub').value = '';
 document.getElementById('subdir').value = '';
@@ -118,8 +121,8 @@ document.getElementById('order1').value = '';
 document.getElementById('pg2order').value = '';
 document.getElementById('template').value = '';
 document.getElementById('titletemplate').value = '';
-document.getElementById('subtitletemplate').value = '';
 document.getElementById('title').value = '';
+document.getElementById('subtitletemplate').value = '';
 document.getElementById('subtitle').value = '';
 document.getElementById('allor1').value = '';
 document.getElementById('mobidesk').value = '';
@@ -286,7 +289,8 @@ Volunteer Inside Pg(fly)</a><br>
 <option value="convert_old_subsection">F. Convert old subsection to new autosubmit</option>
 <option value="fix_sectsub">G. Fix this subsection</option>
 </select>
-
+<br><span style="font-family:arial;font-size:80%">
+H. Delete these docitems (separate w/;) <input type="text" name="deletedocitems" size="25" maxlength = "60"value=""></span>
 <br>
 <b>Template:</b>&nbsp;
 <select size="1" name="aTemplate">
@@ -372,7 +376,9 @@ id <input id="sectsubid" type="text" size="3" maxlength="6" name="sectsubid" val
 seq <input id="ss_seq" type="text" size="3" maxlength="6" name="ss_seq" value="[ss_seq]">
 ss <input id="sectsub" type="text" size="18" maxlength="50" name="sectsub" value="[sectsub]"><br>
 fromSS <input id="fromsectsub" type="text" size="18" maxlength="35" name="fromsectsub" value="[fromsectsub]">	
-fromSSID <input id="fromsectsubid" type="text" size="3" maxlength="5" name="fromsectsubid" value="[fromsectsubid]"><br>
+fromSSID <input id="fromsectsubid" type="text" size="3" maxlength="5" name="fromsectsubid" value="[fromsectsubid]">
+tofrom <input id="tofrom" type="text" size="2" maxlength="2" name="tofrom" value="[tofrom]">
+<br>
 subdir <input id="subdir" type="text" size="15" maxlength="50" name="subdir" value="[subdir]">
 page <input id="page" type="text" size="12" maxlength="50" name="page" value="[page]"><br>
 cat <input id="category" type="text" size="2" maxlength="2" name="category" value="[category]">
@@ -380,10 +386,11 @@ vis <input id="visable" type="text" size="2" maxlength="2" name="visable" value=
 prvw <input id="preview" type="text" size="2" maxlength="2" name="preview" value="[preview]">
 ord1 <input id="order1" type="text" size="2" maxlength="2" name="order1" value="[order1]">
 ord2<input id="pg2order" type="text" size="2" maxlength="2" name="pg2order" value="[pg2order]"><br>
-template <input id="template" type="text" size="15" maxlength="25" name="template" value="[template]"><br>
+template <input id="template" type="text" size="15" maxlength="25" name="template" value="[template]">
+filtername <input id="filtername" type="text" size="15" maxlength="25" name="filtername" value="[filtername]"><br>
 title <input id="title" type="text" size="15" maxlength="150" name="title" value="[title]">
 titletmpl <input id="titletemplate" type="text" size="12" maxlength="25" name="titletemplate" value="[titletemplate]"><br>
-subtitle <input id="subtitle" type="text" size="15" maxlength="100" name="subtitle" value="[subtitle]"><br>
+subtitle <input id="subtitle" type="text" size="15" maxlength="100" name="subtitle" value="[subtitle]">
 subtempl <input id="subtitletemplate" type="text" size="12" maxlength="25" name="subtitletemplate" value="[subtitletemplate]"><br>
 allor1 <input id="allor1" type="text" size="5" maxlength="4" name="allor1" value="[allor1]">
 mobidesk <input id="mobidesk" type="text" size="5" maxlength="4" name="mobidesk" value="[mobidesk]">
@@ -392,7 +399,7 @@ hdr <input id="header" type="text" size="15" maxlength="25" name="header" value=
 ftr <input id="footer" type="text" size="15" maxlength="25" name="footer" value="[footer]"><br>
 ftp <input id="ftpinfo" type="text" size="15" maxlength="25" name="ftpinfo" value="[ftpinfo]">
 pg1ct <input id="pg1items" type="text" size="5" maxlength="10" name="pg1items" value="[pg1items]">
-pg2ct <input id="pg2items" type="text" size="5" maxlength="10" name="pg2items" value="[pg2items]">
+pg2ct <input id="pg2items" type="text" size="5" maxlength="10" name="pg2items" value="[pg2items]"><br>
 more <input id="more" type="text" size="5" maxlength="10" name="more" value="[more]">
 pg2hdr <input id="pg2header" type="text" size="15" maxlength="25" name="pg2header" value="[pg2header]"><br>
 menutitle <input id="menutitle" type="text" size="15" maxlength="50" name="menutitle" value="[menutitle]"><br>
@@ -547,7 +554,7 @@ Volunteer/User/Editor/Contributor app/admin</a><br>
 	<tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%import%sources"><b>run</b></a>
 	<td>sources</td><td>import</td><td>flatfile sources.html</td><td> to DB sources table</td><td>(TRUNCATE 1st!!)</td></tr>
 <!-- Import docitems and indexes -->
-	<tr><td><a target=\blank\ href="http://[SCRIPTPATH]/article.pl?DBctrl%import%docitems"><b>run</b></a>
+	<tr><td><a target=\blank\ href="http://[SCRIPTPATH]/article.pl?DBctrl%import%docitems%NewsDigest_Newsitem"><b>run</b></a>
 	<td>docitems</td><td>import</td><td>flatfiles /autosubmit/items/docid.itm <br>and /autosubmit/sections/sectsubname.idx</td><td> to DB docitems and indexes tables</td><td>(TRUNCATE 1st!!)</td></tr>
 <!-- Export docitems only -->
     <tr><td><a target="blank" href="http://[SCRIPTPATH]/article.pl?DBctrl%export%docitems"><b>run</b></a>

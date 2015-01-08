@@ -116,6 +116,7 @@ sub get_site_info
   $cgiPath    = "$cgiSite/$cgiPath";  
   $publicUrl  = "$subdomain$cgiSite";
   $scriptpath = "$subdomain$cgiPath";
+  $test_scriptpath = "$DEVELOPMENTsvr{cgiSite}/$DEVELOPMENTsvr{cgiPath}";
 
   $publicdir  = $SVRinfo{'public_dir'};
   

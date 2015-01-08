@@ -173,12 +173,6 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 		<!--	<h4>Action Alerts</h4> -->
 			<?php readfile("./newsalerts.html"); ?>
          </div>
-
-		<!--
-					<h4>Action Alerts <small>(on Twitter)</small></h4>
-					<a class="twitter-timeline" height="300" href="https://twitter.com/WoaPopAlerts"  data-widget-id="376127859330265089" data-chrome="nofooter noheader"></a>
-					<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
-		-->
 		
 
 <!-- HELP WOA -->
@@ -194,12 +188,14 @@ $url = "http://{$CONFIG['servername']}/{$CONFIG['cgi_path']}/article.pl?display_
 			<?php readfile("./newsheadlines.html"); ?>
         </div>
 
-<!-- TWITTER HEADLINES -->				
+<!-- TWITTER HEADLINES -->	
+<!--			
 		<div class="sidebar sidebar_rt_list duskyturq2">
 			<h4>Headlines <small>(on Twitter)</small></h4>				
 			<a class="twitter-timeline" height="300" href="https://twitter.com/WoaPop"  data-widget-id="374252530772881409" data-chrome="nofooter noheader"></a>
 			<script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0],p=/^http:/.test(d.location)?'http':'https';if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src=p+"://platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
 		</div>
+		-->
 
 <!-- CALENDAR -->
 								

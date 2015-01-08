@@ -1,47 +1,52 @@
 <p>
 <TABLE><TD width=40% valign=top  cellpadding=0 cellspacing=0>
 
-<font size=1 face=arial><b>#[pgitemcnt]</b> ... 
+<font size=1 face=arial><b>#[pgitemcnt]</b> ...
 [DOCLINK]
 
-<input type="hidden" id="selitem[pgitemcnt]" name="selitem[pgitemcnt]" value="">	
-<input type="hidden" name="pgitemcnt[pgitemcnt]" value="[pgitemcnt]">
-  <label>&nbsp;&nbsp;&nbsp;<b>Headline</b></label> &nbsp;
+<input type="hidden" id="selitem[pgitemcnt]" name="selitem[pgitemcnt]" value="">
+<input type="hidden" name="pgitemcnt[pgitemcnt]" value="[pgitemcnt]"></font>
+  <label>&nbsp;&nbsp;&nbsp;<b>Headline</b></label>
+  <a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Headline: If missing, get from Link.<br><br> Fix case to Title Case.<br><br>Acronyms should be capitalized.<br><br>
+	If region (not Global) is missing from headline, check 'Region in Headline'</span></a>
   <input name="titlize[pgitemcnt]" type=checkbox value="Y">
   <cite> Titlize </cite>&nbsp;&nbsp;&nbsp;
 
-  <cite><input type="checkbox" name="regionhead[pgitemcnt]" 
+  <cite><input type="checkbox" name="regionhead[pgitemcnt]"
 [REGIONHEAD]
    value="Y"> <cite>Region in headline</cite>
 <!-- *REDARROW* -->
   <textarea name="headline[pgitemcnt]" wrap="soft" rows=2 cols="80">[headline]</textarea>
-
 <input type="hidden" name="docid[pgitemcnt]" value="[docid]"><br>
-<label for="subheadline">Subhead:</label>
+<label for="subheadline">Subhead:</label></font></cite>
+<a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Subheadline: If missing, get from article at Link.<br><br> Fix to sentence case, no period</span></a>
 <input type="text" name="subheadline[pgitemcnt]" size="80" maxlength="400"
 value="
 [subheadline]
 ">
 <br>
 
-<label>By:</label>
-<input type="text" name="author[pgitemcnt]" size="53" maxlength="150"
+<label>By:</label><a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>By (Author): If missing, get from Link.<br><br>Should not be all caps</span></a>
+
+<input type="text" name="author[pgitemcnt]" size="50" maxlength="150"
 value="
 [author]
-">&nbsp;<input type="checkbox" name="skipauthor[pgitemcnt]" 
+"><input type="checkbox" name="skipauthor[pgitemcnt]"
 [SKIPAUTHOR]
     value="Y"><cite>Skip auth</cite>
-<input type="checkbox" name="lfx2[pgitemcnt]" value="Y">&nbsp;<cite>LFx2</cite>
+<a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span><big><b>Body:</b></big>(below) is not labeled. Copy body of article from the link.<br><br> If something is already in Body below, paste below the material that is already there, unless it is duplicated.<br><br>If the body has the words YouTube or Video, or the link is to YouTube, replace those words with the embed code for the video (in YouTube click the Share tab, and choose Embed. Click on Custom and set width to 450. The embed code will automatically change and you can then copy this)<br><br> Delete extraneous information (ads, share buttons, links to related articles)<br><br>Make sure paragraphs are separated by a blank line, at least for the first 20 paragraphs.<br><br>Sometimes line breaks happen in the middle of a paragraph (can even break up a word). Fix the first 3 paragraphs.</span></a>
+<input type="checkbox" name="lfx2[pgitemcnt]" value="Y"><cite>LFx2</cite>
 <br>
 
 <cite>
 <textarea id="fullbody[pgitemcnt]" name="fullbody[pgitemcnt]" wrap="soft" rows=15 maxrows=300 cols=80>
 [fullbody]
 </textarea>
-</cite> 
+</cite>
 
 <br>
   <font face=verdana size=1 color="666666"><input type=submit value="GO" name="submit[pgitemcnt]"></font>
+<a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>You can hit the 'GO' button in any item in the list. It will submit whatever you have selected by clicking on the Priority list and the rest (unselected) will wait for another time.</span></a>
 &nbsp;&nbsp;&nbsp;&nbsp;<label for="unique">Unique:</label>&nbsp;
 <input type="text" name="unique[pgitemcnt]" size="45" maxlength="50"
 value="
@@ -49,29 +54,30 @@ value="
 ">
 <br><label>Note</label>&nbsp; <input type="text" name="note[pgitemcnt]" size=75 maxsize=300 value="[note]">
 <table><tr><td>
-<br><label>Misc&nbsp;</label><input name="clearmisc[pgitemcnt]" type=radio value="N" onclick="setvar('miscinfo[pgitemcnt]','');">Clear misc
+<label>Misc</label><a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Misc: Some missing information may be found here, like Date, Subheadline, Author.<br><br> Clear this box when you have all the info you need from it.</span></a><br>
+	<input name="clearmisc[pgitemcnt]" type=radio value="N" onclick="setvar('miscinfo[pgitemcnt]','');">Clear misc
 </td><td>
-<textarea id="miscinfo[pgitemcnt]" 
+<textarea id="miscinfo[pgitemcnt]"
 name="miscinfo[pgitemcnt]" rows="2" maxrows="5" cols="45">
 [miscinfo]</textarea>
 </td></tr></table>
 
- 
+
 </TD><TD width=50% valign=top>
 [ALINK]
-<label><b>Link</b></label></a> &nbsp;
+<label><b>Link</b></label></a><a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Click on Link to go to the orignial article.<br><br>Get any missing info: Date, Headline, Subheadline, Author, Region, Source and (most important) the Body of the article.<br><br>If missing, Google on Headline to find article</span></a>
    <cite>
-    <input name="selflink[pgitemcnt]" type=checkbox value="Y"> self &nbsp;</cite>
+    <input name="selflink[pgitemcnt]" type=checkbox value="Y">self &nbsp;</cite>
 
 
-  &nbsp;<font face=verdana size=2 color="#666666">
-<b>PubDate:</b></font>
+  <font face=verdana size=2 color="#666666">
+<b>PubDate:</b></font><a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Published Date: Check against date in Link.<br><br> If none found, use text date to the right of date (if any). The text date at the right - if there is one - is more accurate<br><br>If all else fails, use today's month and year, leaving day blank.</span></a>
 <font face=arial size=1>
 <select name="pubmonth[pgitemcnt]">
 [PUBMONTHS]
 </select>
 
-<input type="text" name="pubday[pgitemcnt]" size="2" maxlength="2" 
+<input type="text" name="pubday[pgitemcnt]" size="2" maxlength="2"
 value="[PUBDAY]">
 <select name="pubyear[pgitemcnt]">
 [PUBYEARS]
@@ -82,11 +88,13 @@ value="[PUBDAY]">
 <!--         <input type="text" name="link[pgitemcnt]" size="75" maxlength="200" value="[link]"> -->
 
 <table><td valign="top">
-	
-<label><b>Priority</b></label><br><br><br>
+
+<label><b>Priority</b></label><br>&nbsp;&nbsp;&nbsp;&nbsp;
+<a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Priority: Click on the number already selected. <b>If you don't, the article won't be selected for processing.</b></span></a>
+<br><br>
 
 </td><td valign="top">
-  <select size = "4" name="priority[pgitemcnt]" 
+  <select size = "4" name="priority[pgitemcnt]"
   onClick="setvar('sectsubs[pgitemcnt]', 'Headlines_sustainability');setvar('selitem[pgitemcnt]', 'Y')">
 	[PRIORITY]
 	(7=highest)
@@ -96,8 +104,10 @@ value="[PUBDAY]">
 </td><td valign=top>
 
   <table><tr><td valign="top">
-  <label><b>Region</b></label><br>
-        
+  <label><b>Region</b></label>
+ <a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Region: If region is incorrect or missing, select the correct region in the dropdown at the top of this page. Then click the 'Pull' button to bring it down. <br><br>The U.S. and Global regions have shortcuts to be used instead of the dropdown list.</span></a>
+<br>
+
     &nbsp;<cite>
   <input name="regionlink[pgitemcnt]" type=radio value="P"
   onclick="loadRegion('region[pgitemcnt]');">Pull &nbsp;
@@ -106,26 +116,38 @@ value="[PUBDAY]">
   <input name="regionlink[pgitemcnt]" type=radio value="C" checked onclick="setvar('region[pgitemcnt]','');">Clear&nbsp;
   </cite>
    </td><td>
-[LIKELYREGIONS]	
+[LIKELYREGIONS]
    </td></tr></table>
    <input type="text" id="region[pgitemcnt]" name="region[pgitemcnt]" size="53" maxlength="150" value="
 [REGION]
-"> 
+">
 </td></table>
- <label><b>Source:</b></label>&nbsp;&nbsp;<small><input name="sourcelink[pgitemcnt]" type=radio value="Y">From link
+ <label><b>Source:</b></label>
+<a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Source: If source is missing or incorrect, select the source in the dropdown at the top of this page. Then click the 'Pull' button below to bring it down<br><br><b>If source is not found,</b> put the name of the source in the box below, check the Add box, and put part of the link in the Linkmatch box.<br><br> The Linkmatch should include the .com, .net , .org (etc) part of the link and the part just before it.<br><br>For example, for -- http://www.nytimes.com/2014/02/11/science/freezing-out-the-bigger-picture.html -- type nytimes.com in the Linkmatch box<br><br>
+	However, you may have to go back another dot to the left: from http://provoice.tumblr.com/post/78554069484  you would take a Linkmatch of provoice.tumblr.com<br><br>
+	New source names should always start with a capital letter - unless it is a number. If words are run together in the source name, the letter of each word can be capitalized if they are on the web page of original article. But avoid all caps.<br><br> It the new source name starts with a 'The', leave off the 'The' in the Source box and click the 'The' checkbox</span></a>
+&nbsp;<small><input name="sourcelink[pgitemcnt]" type=radio value="Y">From link
  <input name="sourcelink[pgitemcnt]" type=radio value="N" checked onclick="setvar('source[pgitemcnt]','');">Clear<br></small>
  <cite>
-  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">Pull 
+  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<input name="sourcelink[pgitemcnt]" type=radio value="P" onclick="loadSource('source[pgitemcnt]');">Pull
   &nbsp;&nbsp;<input type="checkbox" name="addchgsource[pgitemcnt]" value="A"> Add &nbsp;&nbsp;Linkmatch:
    <input type="text" id="linkmatch[pgitemcnt]" name="linkmatch[pgitemcnt]" size="14" maxlength="150" value="">
    <input type="checkbox" name="sstarts_with_the[pgitemcnt]" value="T">The &nbsp;
     <br>   </cite>
-  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="73" maxlength="100" value="[source]"> 
+  <input type="text" id="source[pgitemcnt]" name="source[pgitemcnt]" size="73" maxlength="100" value="[source]">
 
 
 <br>
-
-  <label>Sectsubs</label> &nbsp;
+	<label>Pre-Category</label> 	
+<small><cite>
+	<input type="radio" value="I" [PRECAT=I] name="precat">Impacts &nbsp;
+	<input type="radio" value="W" [PRECAT=W] name="precat">What Works &nbsp;
+	<input type="radio" value="A" [PRECAT=A] name="precat">Advocacy &nbsp;
+	<input type="radio" value=""  [PRECAT=] name="precat">None &nbsp; </cite></small><br>
+	
+  <label>Sectsubs</label>
+<a class="tooltip2" href=#><img src="/img/mauve/info_icon.jpg" width="13" height="13"><span>Clicking on the Priority list will change this to what it needs to be.<br><br>Otherwise no changes are needed to this or any item that does not have an information icon beside it.</span></a>
+ &nbsp;
 <small><cite><input name="sspull[pgitemcnt]" type=radio value="N" onClick="setvar('sectsubs[pgitemcnt]', 'NewsDigest_NewsItem')">News &nbsp
 	     <input name="sspull[pgitemcnt]" type=radio value="S" onClick="setvar('sectsubs[pgitemcnt]', 'Suggested_summarizedItem')"> Sum &nbsp
         <input name="sspull[pgitemcnt]" type=radio value="A" onclick="loadSectsub('N','sectsubs[pgitemcnt]');">Reg &nbsp;
@@ -138,7 +160,7 @@ value="[PUBDAY]">
 
 <br>
   <label>Summarize here:</label><small>
-	<input type="radio" name="getfullbody" value="A" 
+	<input type="radio" name="getfullbody" value="A"
 	   onclick="var2var( 'body[pgitemcnt]',
 	'fullbody[pgitemcnt]');"><cite>Get full article</cite>&nbsp;&nbsp;
   <input type="radio" name="needsum" value="1">needSum<input type="radio" name="needsum" value="2">more<br><input type="radio" name="needsum" value="3">both <input type="radio" name="needsum" value="4">key<input type="radio" name="needsum" value="5">keymor<input type="radio" name="needsum" value="6">extrct<input type="radio" name="needsum" value="7">exmor<input type="radio" name="needsum" value="8" checked="checked">sum<input type="radio" name="needsum" value="9">summor<input type="radio" name="needsum" value="0">clr&nbsp;
@@ -149,9 +171,8 @@ value="[PUBDAY]">
 
 
    <br><label><small>Comment</small></label><br>
-    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="soft" rows="2" cols=70">[comment]</textarea> 
- 
+    <textarea id="comment[pgitemcnt]" name="commet[pgitemcnt]" wrap="soft" rows="2" cols=70">[comment]</textarea>
+
 </TD></TABLE>
 
 <hr>
-

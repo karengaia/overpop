@@ -1,16 +1,22 @@
 #!/usr/bin/perl --
 
 # January 2014 = added to/from switch
-## TODO: move everything into two-dimensional hash $SS
 
 #        sectsubs.pl  : maintains sections.html control file and sectsubs table
 
 sub clear_sectsubs_variables {
+	%SS = ();
 	$default_stratus = 'M';
     $default_newssec = "Headlines_sustainability";
+    &clear_SS_variables;
+}
+
+sub clear_SS_variables {
+	$tofrom = "";
 	$cSectsubid = "";
-	$fromsectsubid = "";
+	$fromtoSSid = "";
 	$cIdxSectsubid = "";
+	$fromtoSSname = "";  # same as $cIdxSectsubid
 	$cSubdir = "";
 	$cPage = "";
 	$cCategory = "";
@@ -18,6 +24,7 @@ sub clear_sectsubs_variables {
 	$cPreview = "";
 	$cOrder = "";
 	$cPg2order = "";
+	$cFiltername = "";
 	$cTemplate = "";
 	$cTitleTemplate = "";
 	$cTitle = "";
@@ -39,16 +46,14 @@ sub clear_sectsubs_variables {
 
 sub read_sectCtrl_to_array
 {
- my $qOrder = $_[0];    #query string qOrder - overrides sectsubs table cOrder
-
  $DBH = $dbh if(!$DBH and $dbh);  ### temporary fix
 
- %SS   = (); $SS = "";
- %SSid = (); $SSid = "";
+ %SS   = ();
+ %SSid = ();
 
  &clear_section_ctrl;    # set Globals
 
- &read_sections_control_2array; 
+ &read_sections_control_2array;
 
 ##   special sections that we work with
 
@@ -65,7 +70,7 @@ sub read_sectCtrl_to_array
  $headlinesSS      = "Headlines_sustainability";
  $headlinesPriSS   = "Headlines_priority";
  $newsHeadlinesSS  = "NewsDigest_headlines";
- $newsAlertsSS      = "NewsDigest_alerts";
+ $newsAlertsSS     = "NewsDigest_alerts";
  $reviewSS         = "review_review";
  $recentSS         = "recent_recentItem";  ##obsolete
  $suggestedSS      = "Suggested_suggestedItem";
@@ -94,8 +99,10 @@ sub read_sections_control_2array
   $CSidx = 0;
   %CSINDEX = {};
   @CSARRAY = ();
+  %SSid    = ();
+  %SS      = ();
   $newsSections = "";
-	
+
   if($DB_sectsubs eq 1) {
 	 &DB_getrows_2array;
   }
@@ -105,38 +112,7 @@ sub read_sections_control_2array
   $pointsSections = "NewsDigest_pointsSolutions|NewsDigest_pointsImpacts";
   require 'owner.pl';
   &owner_set_sectsubs($ownerSections,$ownerSubs);  # in owner.pl - set globals for $ownerSections,$ownerSubs derived in sub saveNewsSections
-
-  $SSid{$cSectsubid}{'id'} = $id;
-
-  $SS{$id}{'seq'}            = $seq;
-  $SS{$id}{'cSectsubid'}     = $cSectsubid;
-  $SS{$id}{'fromsectsubid'}  = $fromsectsubid;
-  $SS{$id}{'cIdxSectsubid'}  = $cIdxSectsubid;
-  $SS{$id}{'cSubdir'}        = $cSubdir;
-  $SS{$id}{'cPage'}          = $cPage;
-  $SS{$id}{'cCategory'}      = $cCategory;
-  $SS{$id}{'cVisable'}       = $cVisable;
-  $SS{$id}{'cPreview'}       = $cPreview;
-  $SS{$id}{'cOrder'}         = $cOrder;
-  $SS{$id}{'cPg2order'}      = $cPg2order;
-  $SS{$id}{'cTemplate'}      = $cTemplate;
-  $SS{$id}{'cTitleTemplate'} = $cTitleTemplate;
-  $SS{$id}{'cTitle'}         = $cTitle;
-  $SS{$id}{'cAllOr1'}        = $cAllOr1;
-  $SS{$id}{'cMobidesk'}      = $cMobidesk;
-  $SS{$id}{'cDocLink'}       = $cDocLink;
-  $SS{$id}{'cHeader'}        = $cHeader;
-  $SS{$id}{'cFooter'}        = $cFooter;
-  $SS{$id}{'cFTPinfo'}       = $cFTPinfo;
-  $SS{$id}{'cPg1Items'}      = $cPg1Items;
-  $SS{$id}{'cPg2Items'}      = $cPg2Items;
-  $SS{$id}{'cPg2Header'}     = $cPg2Header;
-  $SS{$id}{'cMore'}          = $cMore;
-  $SS{$id}{'cSubtitle'}      = $cSubtitle;
-  $SS{$id}{'cSubtitletemplate'} = $cSubtitletemplate;
-  $SS{$id}{'cMenuTitle'}     = $cMenuTitle;
-  $SS{$id}{'cKeywordsmatch'} = $cKeywordsmatch;
-	}
+  }
 
 sub flatfile_getrows_2array
 {
@@ -151,6 +127,7 @@ sub flatfile_getrows_2array
 	       $sectsubinfo = "$id^$seq^$sectsub^$value";
 	       $CSINDEX{$sectsub} = $line;
 	       $CSARRAY[$CSidx] = $line;
+	       $SSid{$sectsub}  = $id;
            $CSSEQ{$seq} = 'T';   #sequence numbers should be unique
 		   $cSectsub = $line;
 		   &split_sectionCtrl($cSectsub);  ## split the section info line into the section variables for the next two subroutines
@@ -168,28 +145,29 @@ sub flatfile_getrows_2array
 sub DB_getrows_2array
 {
  my $ssline = "";
- my $ss_sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch FROM sectsubs ORDER BY ABS(seq) ASC;";
- my $ss_sth = $DBH->prepare($ss_sql) or die("Couldn't prepare statement: ".$ss_sth->errstr);	
+ my $ss_sql = "SELECT sectsubid,seq,sectsub,tofrom,fromtoSSid,fromtoSSname,subdir,page,category,visable,preview,order1,pg2order,filtername,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch FROM sectsubs ORDER BY ABS(seq) ASC;";
+ my $ss_sth = $DBH->prepare($ss_sql) or die("Couldn't prepare statement: ".$ss_sth->errstr);
  if($ss_sth) {
     $ss_sth->execute() or die "Couldn't execute sectsubs table select statement: ".$ss_sth->errstr;
     if ($ss_sth->rows == 0) {
     }
     else {
-	    while( ($sectsubid,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate, $title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch) 
-	          = $ss_sth->fetchrow_array() ) 
+	    while( ($sectsubid,$seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$filtername,$template,$titletemplate, $title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
+	          = $ss_sth->fetchrow_array() )
 	    {
-		  $ssline = "$sectsubid^$seq^$sectsub^$fromsectsubid^$fromsectsub^$subdir^$page^$category^$visable^$preview^$order1^$pg2order^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch";
+		  $ssline = "$sectsubid^$seq^$sectsub^$tofrom^$fromtoSSid^$fromtoSSname^$subdir^$page^$category^$visable^$preview^$order1^$pg2order^$filtername^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch";
 		  $cSectsub = $ssline;
 		  ($id,$seq,$sectsub,$value) = split(/\^/,$ssline,4);
 		  $sectsubinfo = "$id^$seq^$sectsub^$value";
+		  $SSid{$sectsub}    = $id;
           $CSINDEX{$sectsub} = $ssline;
-          $CSARRAY[$CSidx] = $ssline;
+          $CSARRAY[$CSidx]   = $ssline;
 		  $cSectsub = $ssline;
-		  &split_sectionCtrl($ssline);  ## split the section info line into the section variables for the next two subroutines	      
+		  &split_sectionCtrl($ssline);  ## split the section info line into the section variables for the next two subroutines
           &savePageinfo;
 	      &saveNewsSections;
 	      $CSidx = $CSidx + 1;
-	      $ssline = "";	
+	      $ssline = "";
 	    }
 	}  # end inner else / if
 	$ss_sth->finish() or die "DB sectsubs failed finish";
@@ -203,23 +181,23 @@ sub DB_print_sectsubs
 {
  print "<h2>Sectsubs</h2>\n";
  print "<table>\n";
- print "<tr><td>sectsubid</td><td>seq</td><td>sectsub</td><td>fromsectsubid</td><td>fromsectsub</td>\n";
+ print "<tr><td>sectsubid</td><td>seq</td><td>sectsub</td><td>tofrom</td><td>fromtoSSid</td><td>fromtoSSname</td>\n";
 
- my $sql = "SELECT sectsubid,seq,sectsub,fromsectsubid,fromsectsub FROM sectsubs ORDER BY ABS(seq) ASC;";
- my $sth = $DBH->prepare($sql) or die("Couldn't prepare statement: ".$sth->errstr);	
+ my $sql = "SELECT sectsubid,seq,sectsub,tofrom,fromtoSSid,fromtoSSname FROM sectsubs ORDER BY ABS(seq) ASC;";
+ my $sth = $DBH->prepare($sql) or die("Couldn't prepare statement: ".$sth->errstr);
  if($sth) {
     $sth->execute();
     if ($sth->rows == 0) {
     }
     else {
-	    while( ($sectsubid,$seq,$sectsub,$fromsectsubid,$fromsectsub) 
-	          = $sth->fetchrow_array() ) 
+	    while( ($sectsubid,$seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname)
+	          = $sth->fetchrow_array() )
 	    {
-		 print "<tr><td>$sectsubid</td><td>$seq</td><td>$sectsub</td><td>$fromsectsubid</td><td>$fromsectsub</td>\n";
+		 print "<tr><td>$sectsubid</td><td>$seq</td><td>$sectsub</td><td>$tofrom</td><td>$fromtoSSid</td><td>$fromtoSSname</td>\n";
 	    }
 	}
 	$sth->finish() or die "DB sectsubs failed finish";
-    print "<\table>\n";	
+    print "<\table>\n";
  }
  else {
     print "Couldn't prepare sectsubs table query<br>\n";
@@ -240,45 +218,10 @@ sub clear_section_ctrl
  $totalItems     = 0;
  $seq            = 0;
  $sectsub        = "";
- $fromsectsubid  = 0;
- $fromsectsub    = "";
- $cIdxSectsubid  = "";
- $cWebsite       = "";
- $cSubdir        = "";
- $cPage          = "";
- $cCategory      = "";
- $cVisable       = "";
- $cPreview       = "";
- $cOrder         = "";
- $cPg2order      = "";
- $cTemplate      = "";
- $cTitleTemplate = "";
- $cTitle         = "";
- $cSubtitle      = "";
- $cAllOr1        = "";
- $cMobidesk      = "";
- $cDoclink       = "";
- $cHeader        = "";
- $cFooter        = "";
- $cFTPinfo       = "";
- $cMaxItems      = "";
- $cPg1Items      = "";
- $cPg2Items      = "";
- $cPg2Header     = ""; 
- $cMore          = "";
- $cSubtitle      = "";
- $cSubtitletemplate = "";
- $cMenuTitle     = "";
- $cKeywordsmatch = "";
- $cPg1max        = "";
- $cFly           = "";
+
+ &clear_SS_variables;
 }
 
-
-sub get_section_ctrl {
-	my $thisSectsub = $_[0];
-	&split_section_ctrlB($thisSectsub);
-}
 
 sub split_section_ctrlB
 {
@@ -291,16 +234,51 @@ sub split_sectionCtrl
 {
 	my($sectsubinfo) = $_[0];
 	&clear_section_ctrl;
-	($id,$seq,$cSectsubid,$fromsectsubid,$cIdxSectsubid,$cSubdir,$cPage,$cCategory,$cVisable,$cPreview,$cOrder,$cPg2order,$cTemplate,$cTitleTemplate,$cTitle,$cAllOr1,$cMobidesk,$cDocLink,$cHeader,$cFooter,$cFTPinfo,$cPg1Items,$cPg2Items,$cPg2Header,$cMore,$cSubtitle,$cSubtitletemplate,$cMenuTitle,$cKeywordsmatch)
+	($id,$seq,$cSectsubid,$tofrom,$fromtoSSid,$fromtoSSname,$cSubdir,$cPage,$cCategory,$cVisable,$cPreview,$cOrder,$cPg2order,$cFiltername,$cTemplate,$cTitleTemplate,$cTitle,$cAllOr1,$cMobidesk,$cDocLink,$cHeader,$cFooter,$cFTPinfo,$cPg1Items,$cPg2Items,$cPg2Header,$cMore,$cSubtitle,$cSubtitletemplate,$cMenuTitle,$cKeywordsmatch)
 	      = split(/\^/,$sectsubinfo);
 	($cSectid,$cSubid) = split(/_/,$cSectsubid,2);
-	  $cSSid = $id;
+	$cSSid = $id;
+## WHY DOESN'T THIS WORK??
+	$SS2{$cSectsubid}{qOrder} = $L{qlistorder} if($thisSectsub =~ /$cSectsubid/);
+	$SS2{$cSectsubid}{id}            = $id;
+	$SS2{$cSectsubid}{seq}           = $seq;
+	$SS2{$cSectsubid}{sectsubid}     = $cSectsubid;
+	$SS2{$cSectsubid}{tofrom}        = $tofrom;
+	$SS2{$cSectsubid}{fromtoSSid}    = $fromtoSSid;
+	$SS2{$cSectsubid}{fromtoSSname}  = $cIdxSectsubid;  # same as cIdxSectsubid
+	$SS2{$cSectsubid}{fromtoSSname}  = $fromtoSSname;  # same as cIdxSectsubid
+#	$SS2{$cIdxSectsubid}{srcsectsub} = $cSectsubid if($cIdxSectsubid);
+#	print "ss280 cSectsubid $cSectsubid ..from $cIdxSectsubid ..SS_srcsectsub $SS{$cIdxSectsubid}{srcsectsub}<br>\n";
+	$SS2{$cSectsubid}{idxSectsubid}  = $cIdxSectsubid; ## same as fromtoSSname
+	$SS2{$cSectsubid}{subdir}        = $cSubdir;
+	$SS2{$cSectsubid}{page}          = $cPage;
+	$SS2{$cSectsubid}{category}      = $cCategory;
+	$SS2{$cSectsubid}{visable}       = $cVisable;
+	$SS2{$cSectsubid}{preview}       = $cPreview;
+	$SS2{$cSectsubid}{order}         = $cOrder;
+	$SS2{$cSectsubid}{pg2order}      = $cPg2order;
+	$SS2{$cSectsubid}{filtername}    = $cFiltername;
+	$SS2{$cSectsubid}{template}      = $cTemplate;
+	$SS2{$cSectsubid}{titleTemplate} = $cTitleTemplate;
+	$SS2{$cSectsubid}{title}         = $cTitle;
+	$SS2{$cSectsubid}{allOr1}        = $cAllOr1;
+	$SS2{$cSectsubid}{mobidesk}      = $cMobidesk;
+	$SS2{$cSectsubid}{docLink}       = $cDocLink;
+	$SS2{$cSectsubid}{header}        = $cHeader;
+	$SS2{$cSectsubid}{footer}        = $cFooter;
+	$SS2{$cSectsubid}{ftpinfo}       = $cFTPinfo;
+	$SS2{$cSectsubid}{pg1Items}      = $cPg1Items;
+	$SS2{$cSectsubid}{pg2Items}      = $cPg2Items;
+	$SS2{$cSectsubid}{pg2Header}     = $cPg2Header;
+	$SS2{$cSectsubid}{more}          = $cMore;
+	$SS2{$cSectsubid}{subtitle}      = $cSubtitle;
+	$SS2{$cSectsubid}{subtitletemplate} = $cSubtitletemplate;
+	$SS2{$cSectsubid}{menuTitle}     = $cMenuTitle;
+	$SS2{$cSectsubid}{keywordsmatch} = $cKeywordsmatch;
 
-      $SS{$id}{'qOrder'} = $qOrder if($thisSectsub =~ /$cSectsubid/);
-
-#print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..fromsectsubid $fromsectsubid ..fromsectsub $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";	
+#print "sec787 ..id $id ..seq $seq ..sectsub $cSectsubid ..tofrom $tofrom ..fromtoSSid $fromtoSSid ..fromtoSSname $cIdxSectsubid ..cSubdir $cSubdir ..cPage $cPage ..cCategory $cCategory ..cVisable $cVisable ..cPreview $cPreview ..cOrder $cOrder ..cPg2order $cPg2order ..cFiltername $cFiltername ..cTemplate $cTemplate ..cTitleTemplate $cTitleTemplate ..cTitle $cTitle ..cAllOr1 $cAllOr1 cMobidesk $cMobidesk ..cDoclink $cDocLink ..cHeader $cHeader ..cFooter $cFooter ..cFTPinfo $cFTPinfo ..cPage1Items $cPg1Items ..cPg2Items $cPg2Items ..cPage2Header $cPg2Header ..cMore $cMore ..cSubtitle $cSubtitle ..cSubtitletemplate $cSubtitletemplate ..cMenuTitle $cMenuTitle ..cKeywordsmatch $cKeywordsmatch<br>\n";
 	$cPg2Items = $cPg1Items if($cPg2Items == 0);
-	
+
 	if($pg_num eq 1 and $cPg1Items =~ /[A-Za-b0-9]/) {
 		$cMaxItems = $cPg1Items;
 	}
@@ -311,38 +289,92 @@ sub split_sectionCtrl
 	else {
 		$cMaxItems = $default_itemMax;
 	}
-	if($cOrder =~ /A-Za-z0-9/) {}
-	else {
-#          $cOrder = $default_order ;
-    }
+
     $cCategory = &trim($cCategory);  #found in common.pl
+
+	$SS2{$cSectsubid}{pg2Items} = $cPg2Items;
+	$SS2{$cSectsubid}{maxItems} = $cMaxItems;
+	$SS2{$cSectsubid}{order}    = $cOrder;
+
+	$SS{qOrder} = $L{qlistorder} if($thisSectsub =~ /$cSectsubid/);
+	$SS{id}            = $id;
+	$SS{seq}           = $seq;
+	$SS{sectsubid}     = $cSectsubid;
+	$SS{tofrom}        = $tofrom;
+	$SS{fromtoSSid}    = $fromtoSSid;
+	$SS{fromtoSSname}  = $fromtoSSname;
+	$SS{idxSectsubid}  = $cIdxSectsubid; ## same as fromtoSSname
+	$SS{subdir}        = $cSubdir;
+	$SS{page}          = $cPage;
+	$SS{category}      = $cCategory;
+	$SS{visable}       = $cVisable;
+	$SS{preview}       = $cPreview;
+	$SS{order}         = $cOrder;
+	$SS{pg2order}      = $cPg2order;
+	$SS{filtername}    = $cFiltername;
+	$SS{template}      = $cTemplate;
+	$SS{titleTemplate} = $cTitleTemplate;
+	$SS{title}         = $cTitle;
+	$SS{allOr1}        = $cAllOr1;
+	$SS{mobidesk}      = $cMobidesk;
+	$SS{docLink}       = $cDocLink;
+	$SS{header}        = $cHeader;
+	$SS{footer}        = $cFooter;
+	$SS{ftpinfo}       = $cFTPinfo;
+	$SS{pg1Items}      = $cPg1Items;
+	$SS{pg2Items}      = $cPg2Items;
+	$SS{pg2Header}     = $cPg2Header;
+	$SS{more}          = $cMore;
+	$SS{subtitle}      = $cSubtitle;
+	$SS{subtitletemplate} = $cSubtitletemplate;
+	$SS{menuTitle}     = $cMenuTitle;
+	$SS{keywordsmatch} = $cKeywordsmatch;
+	$SS{pg2Items} = $cPg2Items;
+	$SS{maxItems} = $cMaxItems;
+	$SS{order}    = $cOrder;
 }
 
 sub get_sectsubid
 {
   my $sectsubname = $_[0];
+  my $ssid = $SSid{$sectsubname};
+  return{$ssid};
+
+###  DON'T NEED
   if($CSINDEX{$sectsubname}) {
      $sectsubinfo = $CSINDEX{$sectsubname};
      &split_sectionCtrl($sectsubinfo);
   }
   elsif($DB_sectsubs > 0) {
-	 $id = &DB_get_sectsubid
+	 $ssid = &DB_get_sectsubid;
   }
   else {
-     $id = 0;
+     $ssid = 0;
   }
   return($id);
 }
 
-sub DB_get_sectsubid
+sub DB_get_sectsubid  ## Don't need DB version if we read these into an array
 {
  my $sectsubname = $_[0];
  my $sth = $DBH->prepare( 'SELECT sectsubid FROM sectsubs where sectsub = ?' );
  $sth->execute($sectsubname);
- my $SSid = $sth->fetchrow_array();
+ my $ssid = $sth->fetchrow_array();
  $sth->finish();
  $SSid = 0 unless($SSid);
- return($SSid);
+ return($ssid);
+}
+
+sub DB_get_fromSSname
+{
+ my $sectsub = $_[0];
+ my $sth = $DBH->prepare( 'SELECT tofrom, fromtoSSname FROM sectsubs where sectsub = ?' );
+ $sth->execute($sectsub) or die "couldn't execute";
+ my ($tofrom,$fromtoSSname) = $sth->fetchrow_array();
+ $sth->finish();
+
+ return($fromtoSSname) if($tofrom ne 'T' and $tofrom ne 'N');
+ return("");
 }
 
 sub DB_get_sectsubinfo
@@ -372,7 +404,7 @@ sub savePageinfo
   }
 }
 
-	##          get the page(s) 
+	##          get the page(s)
 sub get_pages
 {
  $chksectsubs = "$addsectsubs;$sectsubs;$delsectsubs";
@@ -389,8 +421,8 @@ sub get_pages
 }
 
 sub saveNewsSections
-{ 
-  my $oSScategory = $OWNER{'oSScategory'}; 
+{
+  my $oSScategory = $OWNER{'oSScategory'};
   $oSScategory = trim($oSScategory);
   if($cCategory eq 'N') {
 	if($newsSections) {
@@ -415,51 +447,34 @@ sub saveNewsSections
 	 }
 	 else {
 		   $ownerSubs = $sub;
-	 } 
+	 }
   }
 }
 
-sub get_new_sectsubs
-{
- my $sectsubs = $_[0];
- my @sectsubs = split(/;/,$sectsubs);
- $sectsubs = "";
- foreach my $sectsub (@sectsubs) {
-   my($sectsubname,$stratus) = split(/`/, $sectsub,2);
-   $sectsubname = &get_new_sectsub($sectsubname);
-   $sectsubs = "$sectsubs;$sectsubname`$stratus";
- }
- $sectsubs =~ s/^;//; #Get rid of leading semicolon
- return($sectsubs);
-}
-
-
-sub get_new_sectsub
-{   # Done during get_docitem to reassign sectsubs that are 'T' in $category to the 'to' sectsub (kept in $fromsectsub)
-  my $sectsubname = $_[0];
-  my $id = $SSid{$sectsubname}{'id'};
-  if($SS{$id}{'category'} eq 'T' and $SS{$id}{'cIdxSectsubid'}) {
-      return($SS{$id}{'cIdxSectsubid'});	
-  }
-  else {
-	  return("");
-  }
+sub get_SSorFromToSS {
+	my $sectsubname = $_[0];
+	&split_section_ctrlB($sectsubname);
+	my $fromToSS = $SS{$fromtoSSname};
+	return $fromToSS if $fromToSS;
+	return $sectsub;
 }
 
 sub get_tosectsubid
 {
   my $sectsubname = $_[0];
+  my $tofromid = "";
   if($CSINDEX{$sectsubname}) {
      $sectsubinfo = $CSINDEX{$sectsubname};
      &split_sectionCtrl($sectsubinfo);
+     $tofromid = $SS{fromtoSSid};
   }
   elsif($DB_sectsubs > 0) {
-	 $id = &DB_get_sectsubid
+	 $tofromid = &DB_get_sectsubid;
   }
   else {
-     $id = 0;
+     $tofromid = 0;
   }
-  return($id);
+  return($tofromid);
 }
 
 sub DB_get_sectsubid
@@ -530,7 +545,7 @@ sub do_sectsubs
   }
 
 # 5th - Process News sectsubs - Headlines, Summarize, Suggested, Archives, etc
-     
+
    &do_newsprocsectsub;  # uses oldsectsubs from above
    &do_pointssectsub;    # uses sectsubs from do_newsprocsectsub
 
@@ -667,10 +682,10 @@ sub do_pointssectsub { # Talking Points: Impacts and Solutions
 }
 
 sub do_ownersectsub { # CSWP, Maidu, any owner other than WOA
- $ownerchg = 'N'; 
-                      
+ $ownerchg = 'N';
+
  if($docaction eq 'N') {
-	$addsectsubs = $ownersectsub; 
+	$addsectsubs = $ownersectsub;
 	$sectsubs = $ownersectsub;
  }
  elsif($docaction eq 'D') {
@@ -680,7 +695,7 @@ sub do_ownersectsub { # CSWP, Maidu, any owner other than WOA
     $addsectsubs = $deleteSS;
     return;
  }
- else {		                        
+ else {
 	 if($sectsubs) {
 	     if($ownersectsub eq $sectsubs) {
 		    $ownerchg = 'N';
@@ -692,7 +707,7 @@ sub do_ownersectsub { # CSWP, Maidu, any owner other than WOA
 	 }
 	 else {
 		   $addsectsubs = $ownersectsub;
-	
+
 	 }
 	 $sectsubs = $ownersectsub;
  }
@@ -765,7 +780,7 @@ sub delete_sectsubs
 {
 ##          current sectsubs
 
- my $oSScategory = $OWNER{oSScategory}; 
+ my $oSScategory = $OWNER{oSScategory};
 
  my @sectsubs = split(/;/,$sectsubs);
  foreach $xsectsub (@sectsubs) {
@@ -774,7 +789,7 @@ sub delete_sectsubs
 
    my($sectsubname,$subinfo) = split(/`/, $sectsub);
    &split_section_ctrlB($sectsubname);    # get $cCategory
-   if(($cmd eq "storeform" and $updsectsubs and $updsectsubs !~ /$sectsubname/ 
+   if(($cmd eq "storeform" and $updsectsubs and $updsectsubs !~ /$sectsubname/
 #           and $newsSections !~ /$sectsubname/ and $cswpSections !~ /$sectsubname/ and $maiduSections !~ /$sectsubname/)
            and $newsSections !~ /$sectsubname/ and $ownerSections !~ /$sectsubname/)
      or ($cCategory eq 'N' and $newschg eq 'Y' and $newsprocsectsub !~ /$sectsubname/)
@@ -782,7 +797,7 @@ sub delete_sectsubs
      or ( $pointschg eq 'Y' and $pointssectsub !~ /$sectsubname/)) {
    }
    elsif ($newsSections =~ /$sectsubname/ and $addsectsubs =~ /summarized/ and $sectsubname !~ $addsectsubs) {
-	     $delsectsubs .= ";$sectsubame";	
+	     $delsectsubs .= ";$sectsubame";
    }
    else {
         $redosectsubs .= ";$sectsub" if($redosectsubs !~ /$sectsubname/);  # if not deleted, redo it
@@ -858,7 +873,7 @@ sub add_temporary_sectsubs {
 
 sub add_subinfo  ## TODO - This doesn't seem to be doing what we want.
 {
-# my ($sectsubs,$dSectsubname,$first_addsectsub,$stratus_news,$stratus_add,$ssStratus) = @_;	
+# my ($sectsubs,$dSectsubname,$first_addsectsub,$stratus_news,$stratus_add,$ssStratus) = @_;
  $redosectsubs = "";
  $chglocs      = "";
 # my $redosectsubs = "";
@@ -890,7 +905,7 @@ sub add_subinfo  ## TODO - This doesn't seem to be doing what we want.
     $dStratus = 'M' if($dStratus !~ /[A-Z]/ and $cAllOr1 =~ /all/);
     $dStratus = 'd' if($dStratus !~ /[A-Z]/  and $cAllOr1 =~ /1only/); ## 'd' = please display
     $dStratus = 'M' if($dStratus !~ /[A-Z]/);
-		
+
     $redosectsubs .= ";$dSectsubname`$dStratus";
     $redosectsubs =~  s/^;+//;  #get rid of leading semi-colons
 
@@ -902,7 +917,7 @@ sub add_subinfo  ## TODO - This doesn't seem to be doing what we want.
 }
 
 
-## docitem sub do_updt_selected: &change_sectsubs_for_updt_selected($D{priority},$ipform,$selitem,$pgitemcnt,$listSectsub,$cmd,$fSectsubs,$D{sectsubs},$dStratus); # in sectsubs.pl 
+## docitem sub do_updt_selected: &change_sectsubs_for_updt_selected($D{priority},$ipform,$selitem,$pgitemcnt,$listSectsub,$cmd,$fSectsubs,$D{sectsubs},$dStratus); # in sectsubs.pl
 ## THIS IS LIKE DO_SECTSUBS IN STOREFORM
 
 sub change_sectsubs_for_updt_selected
@@ -936,10 +951,10 @@ sub change_sectsubs_for_updt_selected
      $delsectsubs =~  s/^;+//;
      $sectsubs = $fSectsubs;
 
-     &add_extra_sections;	
+     &add_extra_sections;
      &add_subinfo;
-#     $addsectsubs = &add_extra_sections($ipform, $docaction,$sectsubs,$addsectsubs,$body,$advance,$listSectsub);	
-#     ($sectsubs,$chglocs,$dStratus) 
+#     $addsectsubs = &add_extra_sections($ipform, $docaction,$sectsubs,$addsectsubs,$body,$advance,$listSectsub);
+#     ($sectsubs,$chglocs,$dStratus)
 #       = &add_subinfo($sectsubs,$dSectsubname,$first_addsectsub,$stratus_news,$stratus_add,$ssssStratus);
   }
   return($sectsubs,$addsectsubs,$delsectsubs);
@@ -948,7 +963,7 @@ sub change_sectsubs_for_updt_selected
 
 ###############
 
-sub add_updt_sectsub_values 
+sub add_updt_sectsub_values
 {
   $addchgsectsub    = $FORM{"addchgsectsub$pgitemcnt"};
   $sectsub          = $FORM{"sectsub$pgitemcnt"};
@@ -958,8 +973,9 @@ sub add_updt_sectsub_values
   }
   $sectsubid        = $FORM{"sectsubid$pgitemcnt"};
   $ss_seq           = $FORM{"ss_seq$pgitemcnt"};
-  $fromsectsubid    = $FORM{"fromsectsubid$pgitemcnt"};
-  $fromsectsub      = $FORM{"fromsectsub$pgitemcnt"};
+  $tofrom           = $FORM{"tofrom$pgitemcnt"};
+  $fromtoSSid       = $FORM{"fromtoSSid$pgitemcnt"};
+  $fromtoSSname     = $FORM{"fromtoSSname$pgitemcnt"};
   $subdir           = $FORM{"subdir$pgitemcnt"};
   $page             = $FORM{"page$pgitemcnt"};
   $category         = $FORM{"category$pgitemcnt"};
@@ -967,6 +983,7 @@ sub add_updt_sectsub_values
   $preview          = $FORM{"preview$pgitemcnt"};
   $order1           = $FORM{"order1$pgitemcnt"};
   $pg2order         = $FORM{"pg2order$pgitemcnt"};
+  $filtername       = $FORM{"filtername$pgitemcnt"};
   $template         = $FORM{"template$pgitemcnt"};
   $titletemplate    = $FORM{"titletemplate$pgitemcnt"};
   $title            = $FORM{"title$pgitemcnt"};
@@ -984,7 +1001,7 @@ sub add_updt_sectsub_values
   $subtitletemplate = $FORM{"subtitletemplate$pgitemcnt"};
   $menutitle        = $FORM{"menutitle$pgitemcnt"};
   $keywordsmatch    = $FORM{"keywordsmatch$pgitemcnt"};
-  if($addchgsectsub =~ /A/) {	
+  if($addchgsectsub =~ /A/) {
 	 if($CSINDEX{$sectsub}) {
 		printBadContinue("This sectsub $sectsub already exists. Sectsub must be unique. Can't add it.");
 		return;
@@ -993,11 +1010,11 @@ sub add_updt_sectsub_values
 		printBadContinue("This sectsub $sectsub sequence $ss_seq already exists. Seq must be unique. Can't add it.");
 		return;
 	 }
-     my $ssadd_sth = $DBH->prepare("REPLACE INTO sectsubs (seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch) 
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
+     my $ssadd_sth = $DBH->prepare("REPLACE INTO sectsubs (seq,sectsub,tofrom,fromtoSSid,fromtoSSname,subdir,page,category,visable,preview,order1,pg2order,filtername,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 
-     $ssadd_sth->execute($ss_seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page, 
-			$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate, 
+     $ssadd_sth->execute($ss_seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,
+			$category,$visable,$preview,$order1,$pg2order,$filtername,$template,$titletemplate,
 			$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,
 			$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch);
 	 $sectsubid = $DBH->do("SELECT MAX(sectsubid) FROM sectsubs");
@@ -1007,23 +1024,26 @@ sub add_updt_sectsub_values
 		printBadContinue("This sectsub $sectsub does not exist. Can't update it.");
 		return;
 	 }
-     my $ss_update_sql = 
-	"UPDATE sectsubs SET seq = ?,sectsub = ?,fromsectsubid = ?, " .
-	"fromsectsub = ?,subdir = ?,page = ?,category = ?,visable = ?, " .
-	"preview = ?, order1 = ?, pg2order = ?, template = ?, titletemplate = ?, " .
+     my $ss_update_sql =
+	"UPDATE sectsubs SET seq = ?,sectsub = ?,tofrom = ?,fromtoSSid = ?, " .
+	"fromtoSSname = ?,subdir = ?,page = ?,category = ?,visable = ?, " .
+	"preview = ?, order1 = ?, pg2order = ?, filtername = ?, template = ?, titletemplate = ?, " .
 	"title = ?, allor1 = ?, mobidesk = ?, doclink = ?, header = ?, " .
-	"footer = ?, ftpinfo = ?, pg1items = ?, pg2items = ?, pg2header = ?, " .  
+	"footer = ?, ftpinfo = ?, pg1items = ?, pg2items = ?, pg2header = ?, " .
 	"more = ?, subtitle = ?, subtitletemplate = ?, menutitle = ?, keywordsmatch = ? " .
 	"WHERE sectsubid = ?;";
-		
+
+	## [Sat Nov 29 19:26:24 2014] [error] [client 108.201.223.250] 	## DBD::mysql::st execute failed: called with 31 bind variables when 30 are needed at sectsubs.pl line 1038., referer: http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?display%article_control
+	## DB Update sectsub NewsDigest-Archive failed<br>, referer: http://www.population-awareness.net/cgi-bin/cgiwrap/popaware/article.pl?display%article_control
+
     my $ss_updt_sth = $DBH->prepare($ss_update_sql);
-	$ss_updt_sth->execute($ss_seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page, 
-			$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate, 
+	$ss_updt_sth->execute($ss_seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,
+			$category,$visable,$preview,$order1,$pg2order,$filtername,$template,$titletemplate,
 			$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,
-			$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch,$sectsubid) 
+			$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch,$sectsubid)
 		or die "DB Update sectsub $sectsub failed<br>\n";
   }
-  elsif($addchgsectsub =~ /D/) {  
+  elsif($addchgsectsub =~ /D/) {
 	 if(!$CSINDEX{$sectsub}) {
 		printBadContinue("This sectsub $sectsub does not exist. Can't delete it.");
 		return;
@@ -1058,15 +1078,15 @@ sub get_news_only_sections
   my (@xsects) = split(/\|/,$newsSections);  #newsSections created in sub read_sectCtrl_to_array
   my $checked = "";
   my $current_newsSS = "";
-  my $stratus = ""; 
+  my $stratus = "";
   foreach $xsect (@xsects) {
 	$checked = "";
-	
-    if($dSectsubs =~ /$xsect/ ) {	
+
+    if($dSectsubs =~ /$xsect/ ) {
 	   $checked = "checked";
 	   $current_newsSS = $xsect;
 	} # end if
-	
+
 	&print_output('M',"<input type=\"radio\" name=\"newsprocsectsub\" value=\"$xsect\" $checked ><b><small>$xsect</small></b><br>\n");
   } # end outer foreach
   &print_output('M',"<input type=\"radio\" name=\"newsprocsectsub\" value=\"$emailedSS\"><b><small>$xsect</small></b><br>\n");
@@ -1092,10 +1112,10 @@ sub get_points_sections
   my (@xsects) = split(/\|/,$pointsSections);  #pointsSections created in sub read_sectCtrl_to_array
   my $checked = "";
   my $current_pointsSS = "";
-  my $stratus = ""; 
+  my $stratus = "";
   foreach $xsect (@xsects) {
  	 $checked = "";
-     if($dSectsubs =~ /$xsect/) {	
+     if($dSectsubs =~ /$xsect/) {
 	    $checked = "checked";
 	    $current_pointsSS = $xsect;
 	 } # end if
@@ -1122,7 +1142,7 @@ sub get_owner_sections
     $xsect =~ s/`+$//;  #get rid of trailing tic marks
     $xsect = trim($xsect);
     $selected = "";
-    if($dSectsubs eq $xsect) {	
+    if($dSectsubs eq $xsect) {
 	   	$selected = "selected=\"selected\"";
 	   $currentSS = $xsect;
 	} # end if
@@ -1257,10 +1277,11 @@ sub get_addl_sections
  my($catCode,$catnum,$info)  = @_;
 
  $catnum =  "" if($catnum eq '_');
+
  if($info eq 'I') {
  }
  elsif($template =~ /docUpdate/) {
-   &print_output('M', "<select size=\"15\" multiple name=\"addsectsubs$catnum\">\n");
+     &print_output('M', "<select size=\"15\" multiple name=\"addsectsubs$catnum\">\n");
  }
  elsif($template !~ /selectUpdt|commonDropdowns/) {
    my $op = <<SELECTEND;
@@ -1273,18 +1294,22 @@ SELECTEND
 
  foreach $cSectsub (@CSARRAY) {
       &split_sectionCtrl($cSectsub);
+      break if($tofrom eq 'T' and $DB_docitems > 0);  # after conversion to DB
+      break if($tofrom eq 'N' and $DB_docitems < 1);  # before conversion to the DB
       if(($catCode eq 'X' and $cCategory eq 'X')
-      or ($catCode eq 'C' and  $cCategory eq 'C')
+      or ($catCode eq 'C' and $cCategory eq 'C')
       or ($catCode eq 'A' and $operator_access =~ /[ABCDP]/ and $cCategory =~ /w|ad/)
       or ($catCode eq 'O' and $cCategory !~ /N|X|C|w|ad/)
       or $catCode eq '_') {
          if(&ck_visability) {
-	         if($info eq 'I') {  
-				 &print_output('M',"<option value=\"$cSectsub\">$cSectsubid</option>\n");
-		     }
-		     else {
-		         &print_output('M',"<option value=\"$cSectsubid\">$cSectsubid</option>\n");
-		     }
+	         if( ($DB_docitems > 0 and $tofrom != /T/)  or ($DB_docitems < 1 and $tofrom != /N/) ) {
+		         if($info eq 'I') {
+					 &print_output('M',"<option value=\"$cSectsub\">$cSectsubid</option>\n");
+			     }
+			     else {
+			         &print_output('M',"<option value=\"$cSectsubid\">$cSectsubid</option>\n");
+			     }
+	         }
          }
       }
  } #end foreach
@@ -1294,6 +1319,7 @@ SELECTEND
  else {
 	my $op = <<ENDSELECT;
 	  <option value="NA">NA</option>
+	  <\select>
 ENDSELECT
     &print_output('M', $op);
 
@@ -1308,20 +1334,26 @@ ENDSELECT
 
 sub print_stratus_add {
   &print_output('M',"<br></font><font face=\"comic sans ms\" size=\"1\">\n");
-  my $op = <<ENDHERE;
-   (the following tools do not work with multiple adds <br> in this category. Add one at a time
-   if <br> using other than default)</font><br>
 
-      <table width="70%"><tr><td><cite class="verdana"><b>Item stratification</b> <br>
+  my $op = <<ENDHERE;
+     <table width="70%"><tr><td><cite class="verdana"><b>Item stratification</b> <br>
       &nbsp;&nbsp;&nbsp;M=middle (normal)</cite></td>
 ENDHERE
+
   &print_output('M',$op);
   &print_output('M',"<td><select name=\"docloc_add$catnum\">\n");
 
-
   $ck_stratus = $default_stratus;
   &print_doc_order;
+
   &print_output('M',"<\/tr><\/td><\/table>\n");
+  my $op = <<ENDAGAIN;
+   This tool does not work with multiple adds in <br>this  category. Add one at a time
+   if using other<br> than default</font><br>
+ENDAGAIN
+  &print_output('M',$op);
+
+
 }
 
 sub print_stratus_current {     # NOT USED ???
@@ -1359,11 +1391,13 @@ sub print_doc_order   ## stratus
 #                 called from article.pl
 sub php_do_pages {
   &print_output('M',"<table width=\"100%\" border=\"0\">\n");
-  my $prev_pagename = "";	
+  my $prev_pagename = "";
   $saveCsectsub = $cSectsub;
   foreach $cSectsub (@CSARRAY) {
       &split_sectionCtrl($cSectsub);
-
+      break if($tofrom eq 'T' and $DB_docitems > 0);  # after conversion to DB
+      break if($tofrom eq 'N' and $DB_docitems < 1);  # before conversion to the DB
+      
       &ck_visability;
       if($tVisable eq 'Y' and ($tPreview eq 'Y')) {
           if($cPage and $cPage ne $prev_pagename) {
@@ -1374,7 +1408,7 @@ sub php_do_pages {
                    &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/index.php?$cSectsubid\">Index view</a></td>\n");
                    &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/php/saveindex.php?$cPage\">Save index</a></td></tr>\n");
               }
-              elsif($cVisable =~ /mo/) { # mobile does not go through php 
+              elsif($cVisable =~ /mo/) { # mobile does not go through php
 	               &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%NewsDigest_newsmobile\">NewsMobile fly</a></td>\n");
                    &print_output('M',"<td><a target=\"_blank\" href=\"http://$scriptpath/moveutil.pl?move%$cPage\">Move $cPage</a></td></tr>\n");
               }
@@ -1382,20 +1416,20 @@ sub php_do_pages {
 	               &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n");
                    &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n");
               }
-              elsif($cVisable =~ /pp/) {   # page parts other than head parts (mostly Page 1) 
+              elsif($cVisable =~ /pp/) {   # page parts other than head parts (mostly Page 1)
 	               &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$scriptpath/article.pl?display_subsection%%%$cSectsubid%\">$cSectsubid fly</a></td>\n");
                    &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/prepage/savePagePart.php?$cPage%$cSectsubid\">Save $cPage</a></td></tr>\n");
               }
-              else {            # all sections (page 2) 
+              else {            # all sections (page 2)
                    &print_output('M',"<tr><td><a target=\"_blank\" href=\"http://$cgiSite/prepage/viewsection.php?$cSectsubid\">$cPage view</a></td>\n");
-                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">Save/View</a></td></tr>\n");	
+                   &print_output('M',"<td><a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">Save/View</a></td></tr>\n");
               }
               $prev_pagename = $cPage;
           }  #cPage
-      } # visable        
+      } # visable
    }
    &print_output('M',"</tr></table>\n");
-   
+
    $cSectsub = $saveCsectsub;  ## restore previous sectsub and split it
    &split_sectionCtrl($cSectsub);
 }
@@ -1450,8 +1484,10 @@ sub prt_move_mauve_pages
  $saveCsectsub = $cSectsub;
  foreach $cSectsub (@CSARRAY) {
      &split_sectionCtrl($cSectsub);
+     break if($tofrom eq 'T' and $DB_docitems > 0);  # after conversion to DB
+     break if($tofrom eq 'N' and $DB_docitems < 1);  # before conversion to the DB
      &ck_visability;
-     if($tVisable eq 'Y' and $tPreview eq 'Y') {  
+     if($tVisable eq 'Y' and $tPreview eq 'Y') {
 	     &print_output($printmode,"<a target=\"_blank\" href=\"http://$cgiSite/php/savesection.php?$cPage%$cSectsubid\">$cSectsubid</a><br>\n");
      }
  } #end foreach
@@ -1476,10 +1512,41 @@ sub getpagename {
 	return $cPage;
 }
 
+##                   Currently used only once -- when importing docitems and indexes
+sub get_new_sectsubs
+{
+ my $sectsubs = $_[0];
+ my @sectsubs = split(/;/,$sectsubs);
+ $sectsubs = "";
+ foreach my $sectsub (@sectsubs) {
+   my($sectsubname,$stratus) = split(/`/, $sectsub,2);
+   $sectsubname = &get_new_sectsub($sectsubname);
+   $sectsubs = "$sectsubs;$sectsubname`$stratus";
+ }
+ $sectsubs =~ s/^;//; #Get rid of leading semicolon
+ return($sectsubs);
+}
+
+
+sub get_new_sectsub
+{   # Done during get_docitem to reassign sectsubs that are 'T' in $category to the 'to' sectsub (kept in $fromtoSSname)
+  my $sectsubname = $_[0];
+  &split_section_ctrlB($sectsubname);
+  if( $SS{'tofrom'} eq 'T' and $SS{'fromtoSSname'} ) {
+	 return $SS{'fromtoSSname'};
+#  my $id = $SSid{$sectsubname}{'id'};
+#  if($SS{$id}{'category'} eq 'T' and $SS{$id}{'fromtoSSname'}) {
+#      return($SS{$id}{'fromtoSSname'});
+  }
+  else {
+	  return("");
+  }
+}
+
 
 sub import1st_sectsubs
 {          #### One time only
-	
+
   $seq = 0;
   $ctr = 0;
   $default_itemmax = 7;
@@ -1501,19 +1568,19 @@ print "Goes to $sections_import, then to sectsubs.rb (import)<br><br>\n";
     &clear_sectsubs_variables;
 
 	next if($line =~ /sectid_subid/ or $line =~ /sectsubid^seq^sectsub/);
-	
+
 	if($pass =~ /pass1/) {
 		&do_1st_pass;
 	}
     else {
-	    &do_2nd_pass;	
+	    &do_2nd_pass;
     }
-	
-	$ctr = $ctr + 1;	
+
+	$ctr = $ctr + 1;
 	$seq = $ctr * 10;
 	$sectsubid = $ctr;
 
-    $sql_line = "$sectsubid^$seq^$sectsub^$fromsectsubid^$fromsectsub^$subdir^$page^$category^$visable^$preview^$order^$pg2order^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch\n";
+    $sql_line = "$sectsubid^$seq^$sectsub^$tofrom^$fromtoSSid^$fromtoSSname^$subdir^$page^$category^$visable^$preview^$order^$pg2order^$filtername^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch\n";
 
     print SSIMPORT $sql_line;
 
@@ -1527,7 +1594,8 @@ print "Goes to $sections_import, then to sectsubs.rb (import)<br><br>\n";
 
 sub old_clear_sectsubs_variables {
 	$id = 0;
-	$fromsectsubid = 0;
+	$fromtoSSname = 0;
+	$fromtoSSname = "";
 	$subdir = "";
 	$page = "";
 	$category = "";
@@ -1548,7 +1616,6 @@ sub old_clear_sectsubs_variables {
 	$printlimit = "";
 	$pg2header = "";
 	$more = "";
-	$fromsectsub = "";
 	$subtitle = "";
 	$subtitletemplate = "";
 	$menutitle = "";
@@ -1559,15 +1626,15 @@ sub do_1st_pass_not_used {
 	($sectsub,$sectsubinfo) = split(/\`/, $line);
 
     if($sectsubinfo =~ /^>>/) {
-        ($fromsectsub,$sectsubinfo) = split(/\^/,$sectsubinfo,2);
-         $fromsectsub =~ s/^>>+//g;  ## delete leading arrows
+        ($fromtoSSname,$sectsubinfo) = split(/\^/,$sectsubinfo,2);
+         $fromtoSSname =~ s/^>>+//g;  ## delete leading arrows
     }
-	
+
 	($subdir,$page,$category,$visable,$preview,$order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$maxitems,$fly,$ftptoinfo,$pg2header)
 	               = split(/\^/,$sectsubinfo);
-	    
+
 	($page,$website,$subdir) = split(/;/,$page,3) if($title =~ /;/);  ## why two subdir?
-	   
+
 	($title,$title2nd,$subtitle) = split(/#/,$title,3) if($title =~ /#/);
 
 	if($maxitems =~ /:/) {
@@ -1582,36 +1649,37 @@ sub do_1st_pass_not_used {
 }
 
 sub do_2nd_pass_not_used {
-	#	($subdir,$page,$category,$visable,$preview,$order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$maxitems,$fly,$ftptoinfo,$pg2header)
-	($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
-	   = split(/\^/,$line);	
+	($id,$seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,$category,$visable,$preview,$order,$pg2prder,$filtername,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
+	   = split(/\^/,$line);
 }
 
 
 sub create_sectsubs
 {
 	$DBH = &db_connect();
-	
+
 	dbh->do("DROP TABLE IF EXISTS sectsubs");
 
 $sql = <<ENDSECTSUBS;
 	CREATE TABLE sectsubs (
 		sectsubid smallint unsigned not null,
-		seq smallint not null, 
+		seq smallint not null,
 		sectsub varchar(100) not null,
-		fromsectsubid smallint default 0, 
-		fromsectsub varchar(100), 
-		subdir varchar(100), 
-		page varchar(50), 
-		category char(2) default "N", 
-		visable char(1)  default "V", 
-		preview char(1) default "D", 
-		order1 char(1) default "P", 
-		pg2order char(1) default "P", 
-		template varchar(50), 
-		titletemplate varchar(50), 
-		title varchar(100), 
-		allor1 varchar(10) default "all", 
+		tofrom char(1) default " ",
+		fromtossid smallint default 0,
+		fromtossname varchar(100) default "97",
+		subdir varchar(100),
+		page varchar(50),
+		category char(2) default "N",
+		visable char(1)  default "V",
+		preview char(1) default "D",
+		order1 char(1) default "P",
+		pg2order char(1) default "P",
+		filtername varchar(30),
+		template varchar(50),
+		titletemplate varchar(50),
+		title varchar(100),
+		allor1 varchar(10) default "all",
 		mobidesk varchar(10) default "desk",
 		doclink varchar(10) default "doclink",
 		header varchar(50),
@@ -1642,7 +1710,7 @@ print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<b
   $sth_exportSS = $DBH->prepare("SELECT * FROM sectsubs ORDER BY seq");
   if(!$sth_exportSS) {
 	 print "Failed in prepare sectsubs export at prepare command, sec89 " . $sth_exportSS->errstr . "<br>\n";
-	 exit;	
+	 exit;
   }
   $sth_exportSS->execute();
   if (!$sth_exportSS->rows) {
@@ -1658,15 +1726,15 @@ print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<b
 	  unlink($sectionsbkppath)  if(-f $sectionbkppath);
 	  sleep (3);
 	  print "File was not deleted - $sectionsbkppath <br>\n" if(-f $sectionbkppath);
-	
+
 	  my $sectionsexppath = "$controlpath/sections_exported.html";
 	  open(EXPSS, ">$sectionsexppath");
-      my $line = "#sectsubid^seq^sectsub^fromsectsubid^fromsectsub^subdir^page^category^visable^preview^order1^pg2order^template^titletemplate^title^allor1^mobidesk^doclink^header^footer^ftpinfo^pg1items^pg2items^pg2header^more^subtitle^subtitletemplate^menutitle^keywordsmatch\n";
+      my $line = "#sectsubid^seq^sectsub^tofrom^fromtoSSid^fromtoSSname^subdir^page^category^visable^preview^order1^pg2order^filtername^template^titletemplate^title^allor1^mobidesk^doclink^header^footer^ftpinfo^pg1items^pg2items^pg2header^more^subtitle^subtitletemplate^menutitle^keywordsmatch\n";
       print EXPSS "$line";  # first line is headers
       while (my @row = $sth_exportSS->fetchrow_array()) { # print data retrieved
-         my ($sectsubid,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
+         my ($sectsubid,$seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$filtername,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
          = @row;
-         $line = "$sectsubid^$seq^$sectsub^$fromsectsubid^$fromsectsub^$subdir^$page^$category^$visable^$preview^$order1^$pg2order^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch\n";	
+         $line = "$sectsubid^$seq^$sectsub^$tofrom^$fromtoSSid^$fromtoSSname^$subdir^$page^$category^$visable^$preview^$order1^$pg2order^$filtername^$template^$titletemplate^$title^$allor1^$mobidesk^$doclink^$header^$footer^$ftpinfo^$pg1items^$pg2items^$pg2header^$more^$subtitle^$subtitletemplate^$menutitle^$keywordsmatch\n";
          print EXPSS "$line";
          print "$line<br\n";
       }
@@ -1676,7 +1744,7 @@ print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<b
 	  system "cp $sectionspath $sectionsbkppath";   # back up old sections.html path
 	  sleep (3);
 	  print "File was not copied to bkp - $sectionsbkppath <br>\n" unless(-f $sectionbkppath);
-	
+
       unlink($sectionspath);
  	  sleep (3);
  	  print "File was not deleted - $sectionspath<br>\n" if(-f $sectionpath);
@@ -1687,14 +1755,14 @@ print "Exporting sectsubs to sections.html and saving old in sections_bkp.html<b
 }
 
 sub import_sectsubs
-{ 
+{
   $DBH = &db_connect() if(!$DBH);
   print "<b>Import sectsubs</b> sectionctrl $sectionctrl<br>\n";
   print "<b>DON'T FORGET TO CHANGE SECTSUBID TO PRIMARY AND AUTOINCREMENT AFTER IMPORTING 1ST TIME ONLY!- ALTER table sectsubs add primary key (sectsubid)</b><br>\n";
 
   my $sectionsctrl = "$controlpath/sections.html";
-  my $sth = $DBH->prepare( "INSERT INTO sectsubs (sectsubid,seq,sectsub,fromsectsubid,fromsectsub,subdir,page,category,visable,preview,order1,pg2order,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
-VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ? )" );
+  my $sth = $DBH->prepare( "INSERT INTO sectsubs (sectsubid,seq,sectsub,tofrom,fromtoSSid,fromtoSSname,subdir,page,category,visable,preview,order1,pg2order,filtername,template,titletemplate,title,allor1,mobidesk,doclink,header,footer,ftpinfo,pg1items,pg2items,pg2header,more,subtitle,subtitletemplate,menutitle,keywordsmatch)
+VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)" );
 
   open(SECTIONS, "$sectionctrl") or die("Can't open sections control");
   while(<SECTIONS>)
@@ -1702,13 +1770,14 @@ VALUES ( ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?,
     chomp;
     $line = $_;
 	next if($line =~ /sectsubid\^seq/);
-	($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
+	($id,$seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$filtername,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch)
 	   = split(/\^/,$line);
-	$sth->execute($id,$seq,$sectsub,$fromsectsubid,$fromsectsub,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch);								
+	$sth->execute($id,$seq,$sectsub,$tofrom,$fromtoSSid,$fromtoSSname,$subdir,$page,$category,$visable,$preview,$order1,$pg2order,$filtername,$template,$titletemplate,$title,$allor1,$mobidesk,$doclink,$header,$footer,$ftpinfo,$pg1items,$pg2items,$pg2header,$more,$subtitle,$subtitletemplate,$menutitle,$keywordsmatch);
 print "<br>$line <br>\n";
   }
   $sth->finish;
   close(SECTIONS);
 }
+
 
 1;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl --
 
-# 2014 January 8. display_list.pl
+# 2014 Sept. 19. display_list.pl
 
 ## TODO: make these part of the $L hash: $pg2max,$totalItems,$pg1max
 
@@ -36,7 +36,7 @@ sub init_paging_variables
  $pg_num = 1;
  $ckItemnbr = 0;
  $default_itemMax = 7;
- $default_order = 'p';	
+ $default_order = 'p';
 }
 
 
@@ -55,12 +55,12 @@ sub do_html_page
      $cSectsubid = $rSectsubid;
      &split_section_ctrlB($rSectsubid);
 #                  if we didn't already do this section
-      if($didsections !~ /$rSectid/ and $cPage and $action !~ /move_webpage/)   {
+     if($didsections !~ /$rSectid/ and $cPage and $action !~ /move_webpage/)   {
         &create_html($rSectsub,$aTemplate,$pg_num,'Y',$listSectsub);
 
         $pagenames = "$cPage;$pagenames" if($pagenames !~ /$cPage/ and $PAGEINFO{$cPage} =~ /ftpdefault/);
         $didsections = "$didsections;$rSectsubid";
-      }
+     }
    }
  }
  $pagenames =~  s/^;+//;  #get rid of leading semi-colons
@@ -105,20 +105,21 @@ sub create_html
   $pgitemcnt = &padCount4($pgItemnbr);
 
   foreach $cSectsub (@CSARRAY) {
-     ($SSid,$SSseq,$cSectsubid,$rest1,$rest2,$rest3,$cPage,$rest4) = split(/\^/,$cSectsub);
+     ($SSid,$SSseq,$cSectsubid,$rest1,$rest2,$rest3,$rest4,$cPage,$rest5) = split(/\^/,$cSectsub);
      ($cSectid,$cSubid) = split(/_/,$cSectsubid);
      &clear_doc_data;  ### clear out any data that may be left from another time
      &clear_doc_helper_variables;
      @DOCARRAY = "";
      undef %DOCARRAY;
-     if($rSectid eq $cSectid) {
-        if( ($cmd =~ /display_section/ and $rPage eq $cPage) or
-            ($cmd =~ /(display_subsection|print_select)/ and ($rSectsubid eq $cSectsubid or $supress_nonsectsubs !~ /Y/) ) )  { ##      will work even if no page
-             $found_it = &do_subsection($cSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it);
-	    }
-	  }
 
-	 if(($cSectid ne $rSectid and $found_it)
+     if($rSectid eq $cSectid) {
+        if( ($cmd =~ /display_section/ and $rPage eq $cPage)
+           or ($cmd =~ /(display_subsection|print_select)/ and ($rSectsubid eq $cSectsubid or $supress_nonsectsubs !~ /Y/) ) )  { ##      will work even if no page
+       
+           $found_it = &do_subsection($cSectsubid,$cFiltername,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it);
+        }
+	  }
+	  if(($cSectid ne $rSectid and $found_it)
      or ($cmd =~ /display_subsection/ and $cSubid ne $rSubid and $found_it) ) {
         last;
      }
@@ -136,9 +137,14 @@ sub create_html
 }
 
 sub do_subsection {
- my ($rSectsubid,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it) = @_;
- $listSectsub = $rSectsubid;
+ my ($rSectsubid,$rFiltername,$print_it,$email_it,$htmlfile_it,$pg_num,$found_it) = @_;
+
  &split_section_ctrlB($rSectsubid);
+
+ return("") if($SS{'tofrom'} eq 'T' and $DB_docitems > 0);
+ return("") if($SS{'tofrom'} eq 'N' and $DB_docitems < 1);
+
+ $listSectsub = $rSectsubid;
  $pg2Max = $qItemMax;
  $pg2Max = $cPg2Items unless($itemMax);
  $pg1max  = $qPg1max;
@@ -149,6 +155,7 @@ sub do_subsection {
  $savetemplate = $aTemplate;
  $aTemplate = "";
  $save_printit = $print_it;
+
  if($cVisable eq 'E'){
     $email_it = 'Y'
  }
@@ -160,9 +167,36 @@ sub do_subsection {
     $email_it    = 'N' if($pg_num > 1);
  }
 
-##  First do the top
-	
- if(!$found_it and ($pg_num eq 1 or $pg_num !~ /[0-9]/) ) { 
+## First find out if there is any data
+
+ if($SS{'fromtoSSname'} and $SS{'tofrom'} ne 'T') {
+	 my $fromSSname = $SS{'fromtoSSname'};
+##                            If $DB_docitems > 0 means we have converted docitems, indexes and sectsubs
+	 if($fromSSname =~ /Headlines_sustainability/ and $DB_docitems > 0) {
+##          Do this until we can manually change from to Headlines_headlines
+		 $fromSSname = "Headlines_headlines" # only instance of a from SS where name is being changed
+	 }
+     $doclistname = "$sectionpath$slash$fromSSname.idx";
+     $dFilename = $fromSSname;
+ }
+ else {
+	 $doclistname = "$sectionpath$slash$rSectsubid.idx";
+     $dFilename = $rSectsubid;
+ }
+
+ if(-f $doclistname) {
+    $nodata = 'N';
+    $nodata = 'Y' if(-z $doclistname);
+ }
+ else {
+    $nodata = 'Y';
+ }
+
+return ($found_it) if($nodata eq 'Y');
+
+##  2nd do the top
+
+ if(!$found_it and ($pg_num eq 1 or $pg_num !~ /[0-9]/) ) {
      if($cHeader or $qHeader) {
            $aTemplate = $cHeader if($cHeader);
            $aTemplate = $qHeader if($qHeader);
@@ -203,34 +237,18 @@ sub do_subsection {
  &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($aTemplate);
  $aTemplate = "";
 
- if($cIdxSectsubid) {
-    $doclistname = "$sectionpath$slash$cIdxSectsubid.idx";
-    $dFilename = $cIdxSectsubid;
- }
- else {
-	$doclistname = "$sectionpath$slash$cSectsubid.idx";
-    $dFilename = $cSectsubid;
- }
 
- if($rSectsubid =~ /$emailedSS/) {
-    $nodata = 'N';	
- }
- elsif(-f $doclistname) {
-    $nodata = 'N';
-    $nodata = 'Y' if(-z $doclistname);
- }
- else {
-    $nodata = 'Y';
- }
 #                          do template even if no items
- $aTemplate = $qTemplate;  #time to do detail
- $aTemplate = $cTemplate unless($aTemplate);
 
- if($nodata eq 'Y' and $cTemplate) {
+ $aTemplate = $qTemplate;  #time to do detail
+ $aTemplate = $SS{'template'} unless($aTemplate);
+# $aTemplate = $cTemplate unless($aTemplate);
+
+ if($nodata eq 'Y' and $aTemplate) {
     &process_template($aTemplate,'Y',$email_it,$htmlfile_it) if($cTemplate !~ /Item/); #in template_ctrl.pl
  }
- else {	
-    &process_doclist($rSectsubid,$doclistname);
+ elsif ($nodata ne 'Y') {	
+    &process_doclist($rSectsubid,$rFiltername,$doclistname);
  }
 
  if($cmd =~ /print_select/ and $listSectsub !~ /$suggestedSS/ and !$qFooter) {
@@ -252,17 +270,18 @@ sub do_subsection {
 
 sub process_doclist
 {
- my ($rSectsubid,$doclistname) = @_;
+ my ($rSectsubid,$rFiltername,$doclistname) = @_;
 
  if($DB_doclist > 0 and $rSectsubid !~ /$emailedSS/ and $cAllOr1 =~ /all/) {
+#	 if($rFiltername and &filter_)
 	 &DB_doclist_print($rSectsubid,$pg_num);     # in docitem.pl
      return;
  }
-	
- $expired = "";
- &get_start_stop_count($pg_num); #results go in $L{start_count} and $L{stop_count}
 
- if($rSectsubid =~ /$emailedSS/) {	
+ $expired = "";
+ ($L{startcount},$L{stopcount}) = &get_start_stop_count($pg_num); #results go in $L{start_count} and $L{stop_count}
+
+ if($rSectsubid =~ /$emailedSS/) {
     &process_popnews_list;
  }
  elsif($cAllOr1 =~ /1only/) {
@@ -271,9 +290,12 @@ sub process_doclist
 
  else {
 	$lock_file = "$statuspath/$dFilename.busy";
-	&waitIfBusy($lock_file, 'lock');	
-	my $ref_unsorted = &push_items_to_sort;
- 	&sort_and_out($ref_unsorted);     
+	&waitIfBusy($lock_file, 'lock');
+
+	my $ref_unsorted =  &push_items_to_sort($rSectsubid,$doclistname);
+
+ 	&sort_and_out($ref_unsorted);
+
 	$docid = ""; $A{$docid} = "";
 
 	unlink "$lock_file";
@@ -295,7 +317,7 @@ sub process_popnews_list
      my($fdocid,$rest) = split(/\.itm/,$filename) if($filename =~ /itm$/);
      ($fdocid,$rest) = split(/\.email/,$filename) if($filename =~ /email$/);
 
-     &do_one_mail($filepath,$fdocid,$ckItemnbr);  
+     &do_one_mail($filepath,$fdocid,$ckItemnbr);
      $ckItemcnt  = &padCount6($ckItemnbr);
      if($pgItemnbr ne "" or $pgItemnbr > 0) {
          $pgItemnbr = $pgItemnbr + 1;
@@ -304,7 +326,7 @@ sub process_popnews_list
      $totalItems = $totalItems + 1;
      $ckItemnbr  = $ckItemnbr + 1;
      last if($ckItemcnt > $L{stop_count});
-  } # end foreach 
+  } # end foreach
 }
 
 
@@ -350,7 +372,7 @@ sub process_1only_list
 {
 #TODO: If DB > 0, do DB thing
 
- &push_items_to_sort;
+ &push_items_to_sort($rSectsubid,$doclistname);
 
  print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
@@ -427,9 +449,10 @@ sub process_1only_list
 
 sub push_items_to_sort
 {
+ my($rSectsubid,$doclistname) = @_;
  my $sortorder = $cOrder;
-		
- if($L{qlistorder} =~ /[A-Za-z0-9]/) {  # listorder specified by query string in article.pl 
+
+ if($L{qlistorder} =~ /[A-Za-z0-9]/) {  # listorder specified by query string in article.pl
    $sortorder = $L{qlistorder};
  }
 
@@ -440,21 +463,30 @@ sub push_items_to_sort
  $ckItemnbr = 1;
  my $prev_docid = "";
  my @unsorted = ();
- open(INFILE, "$doclistname");
+
+ my $fromSSname = &DB_get_fromSSname($rSectsubid); # in sectsubs.pl
+# my $srcsectsub = $SS{$rSectsubid}{srcsectsub};
+
+ open(INFILE, "$doclistname") or die("Couldn't open doclist $doclistname");
  while(<INFILE>) {
     chomp;
     my $line = $_;
     my($docid,$stratus) = split(/\^/,$line,3);
     if($docid =~ /[0-9]/ and $docid ne $prev_docid) {   ## prepare for sort
-#       my $kDocid  = $docid;
-#       $kStratus = $stratus;
        &get_doc_data($docid,N);    # in docitem.pl
-       $seq = &calc_idxSeqNbr($totalItems,$sortorder);
-       &pushdata_to_sortArray($docid,$stratus,$ckItemnbr,$sortorder,$tdaysago,\@unsorted);
-       $totalItems = $totalItems + 1;
-       $ckItemnbr  = $ckItemnbr + 1;
-       last if($total_items > 30);    ##### TEMPORARY FIX
-       $prev_docid = $docid;
+#               DON'T LIST IT UNLESS the docitem sectsubs shows the list sectsub or the from sectsub #  and $tofrom ne 'T'
+       if(!$rSectsubid or ($rSectsubid and ($D{sectsubs} =~ /$rSectsubid/)) or ($fromSSname and $tofrom ne 'T' and $D{sectsubs} =~ /$fromSSname/) ) {  # process only if the list sectsub is one of the docitem sectsubs
+#             print "<small><small><small><small style=\"color:grey\">````` $docid</small></small></small></small><br>\n";
+           if($rSectsubid and $rSectsubid =~ /Headlines_priority/ and $D{priority} != 7) {}
+	       else {
+		       $seq = &calc_idxSeqNbr($totalItems,$sortorder);
+		       &pushdata_to_sortArray($docid,$stratus,$ckItemnbr,$sortorder,$tdaysago,\@unsorted);
+		       $totalItems = $totalItems + 1;
+		       $ckItemnbr  = $ckItemnbr + 1;
+		       last if($total_items > 30);    ##### TEMPORARY FIX
+		       $prev_docid = $docid;
+		  }
+       }
     }
  } #end file
  close(INFILE);
@@ -478,6 +510,8 @@ sub sort_and_out  #flatfile version - after the sort
  $ss_ctr = $ss_ctr + 1;
  print "<!-- - - - subsection $qSectsub $ss_ctr - - - -->\n";
 
+ $L{stop_count} = $cMaxItems if($cMaxItems =~ /[0-9]/);
+
  $ckItemnbr = 0;
  $ckItemcnt = &padCount6($ckItemnbr);
  my $prev_docid = "000000";
@@ -487,7 +521,10 @@ sub sort_and_out  #flatfile version - after the sort
  my $data = "";
  foreach $data (@sorted) {
      my($keyfield,$docid,$stratus) = split(/\^/,$data,3);
-     &display_doc($docid,$stratus,$prev_docid,$ckItemnbr);
+#	 print "dis527 docid $docid ..ckItemcnt $ckItemcnt ..stop_count $L{stop_count}<br>\n";
+     $ckItemnbr = &display_doc($docid,$stratus,$prev_docid,$ckItemnbr);
+	 last if($ckItemcnt > $L{stop_count});
+#	print "dis530 after last<br>\n";
 	 $prev_docid = $docid;
  }
 }
@@ -495,40 +532,39 @@ sub sort_and_out  #flatfile version - after the sort
 sub display_doc
 {
   my($docid,$stratus,$prev_doc,$ckItemnbr) = @_;
+#         print "<small><small><small style=\"color:grey\">.... $docid ..prev_docid $prev_docid ..L-start_count $L{start_count}</small></small></small>\n";
   if($docid ne $prev_docid and $ckItemcnt >= $L{start_count} and $docid =~ /[0-9]/) {
 	  my($skip_item,$select_item) = &do_each_doc($docid,$stratus,$ckItemnbr); #in docitem.pl
-          
-	  if($skip_item !~ /Y/ or $select_item == 'Y') 
+#          print "<small><small><small style=\"color:grey\">.... skip_item $skip_item ..select_item $select_item .. $docid</small></small></small>\n";
+	  if($skip_item !~ /Y/ or $select_item == 'Y')
 		{
 	        $ckItemnbr = $ckItemnbr + 1;
-	        my $ckItemcnt = &padCount6($ckItemnbr);
+	        $ckItemcnt = &padCount6($ckItemnbr);
 		    if($pgItemnbr ne "" or $pgItemnbr > 0) { # $pgItemnbr and $pgitemcnt are globals
 				$pgItemnbr = $pgItemnbr + 1;
 				$pgitemcnt = &padCount4($pgItemnbr);
 		    }
 	 }
    }
-   last if($ckItemcnt > $L{stop_count});
-   $prev_docid = $docid;
    return($ckItemnbr);
 }
 
 
 sub DB_doclist_print {  #database version
-  my($dSectsub,$pagenum) = @_; 
+  my($dSectsub,$pagenum) = @_;
 
  $L{stop_count} = $cMaxItems if($cMaxItems =~ /[0-9]/);
  $ckItemnbr = 0;
  $ckItemcnt = "";
 
-  my ($n_startcnt,$num_articles,$orderby,$lastpg2woadatetm) 
+  my ($n_startcnt,$num_articles,$orderby,$lastpg2woadatetm)
        =  &DB_prep_counts_order($dSectsub,$pagenum);  # in display.pl
 
   &clear_doc_data;   #  ready for next row = in docitem.pl
   my $col_sql = &build_sql('select');
 
-  my $sql = "SELECT $col_sql,i.stratus FROM indexes as i, docitems as d, sectsubs as s WHERE i.sectsubid = s.sectsubid AND d.docid=i.docid AND s.sectsub = ? AND deleted = 'N' AND d.woadatetem > ? ORDER BY ? LIMIT ?, ?";		
-	
+  my $sql = "SELECT $col_sql,i.stratus FROM indexes as i, docitems as d, sectsubs as s WHERE i.sectsubid = s.sectsubid AND d.docid=i.docid AND s.sectsub = ? AND deleted = 'N' AND d.woadatetem > ? ORDER BY ? LIMIT ?, ?";
+
   my $sth = $DBH->prepare($sql) or die "DB doclist failed prepare";
 
   $sth->execute($dSectsub,$lastpg2woadatetm,$orderby,$n_startcnt,$num_articles) or die "DB doclist failed execute";
@@ -539,7 +575,8 @@ sub DB_doclist_print {  #database version
   while ($sth->fetch) {
       %D = %$row;   # %D is a global hash where docitem column data is stored.
 
-	  &display_doc($D{docid},$D{stratus},"",$ckItemnbr);
+	  $ckItemnbr = &display_doc($D{docid},$D{stratus},"",$ckItemnbr);
+	  last if($ckItemcnt > $L{stop_count});
   }
 
 	#  my %d;
@@ -661,7 +698,7 @@ sub calc_idxSeqNbr
  $count = $itemnbr          if $sortorder eq 'F';
  $count = 999999 - $itemnbr if $sortorder eq 'L';
  $count = &padCount6($count);
- return $count;  
+ return $count;
 }
 
 sub get_sort_pubdate
@@ -712,7 +749,7 @@ sub conform_date    # format yyyy-mm-dd
 	 $date = $date2;
      ($yyyy,$mm,$dd) = split(/-/,$date,3);
   }
-     
+
   if($yyyy !~ /^[0-9]{4}$/ or $yyyy =~ /0000/) {
       return ("0000-00-00") if($format =~ /f/);
       return ("00000000") if($format !~ /f/);   # use this format on indexes
@@ -744,7 +781,7 @@ sub conform_date    # format yyyy-mm-dd
 }
 
 
-######## PAGING  ########## 
+######## PAGING  ##########
 
 ## query string:     1^100:10 i.e. pg_num^max:pg1max
 ## in sections.html : maxitems: 100:10   N:M = stop after 10 on the 1st page
@@ -793,7 +830,7 @@ sub get_start_stop_count
     $start_count = 0;
     $stop_count = $pg1max;
  }
- else {
+ else {  # 40 + (1-2) * 40
     $start_count = $pg1max + (($pg_num - 2) * $pg2max);  #  pg2-11, pg3-111, pg4-211
     $stop_count = $start_count + $pg2max;
  }
@@ -801,16 +838,13 @@ sub get_start_stop_count
  $start_count = &padCount6($start_count);
  $stop_count  = &padCount6($stop_count);
 
- $L{startcount} = $start_count;
- $L{stopcount}  = $stop_count;
-
- return;
+ return($start_count,$stop_count);
 }
 
 sub DB_prep_counts_order   {
   my ($dSectsub,$pagenum) = @_;
 
-  &get_start_stop_count($pagenum); # results go in $L{start_count} and $L{stop_count}
+  ($L{startcount},$L{stopcount}) = &get_start_stop_count($pagenum); # results go in $L{start_count} and $L{stop_count}
   my $orderby = &get_orderby;
   my $lastpg2woadatetm = $epoch_time;
   $lastpg2woadatetm = &DB_get_lastpg2_woadatetm if($orderby =~ /[LrW]/);  # in docitem.pl
@@ -834,7 +868,7 @@ sub total_pages
     $totalPages = 1;
  }
  else {  # more than one page
-	
+
    $remaining_items = $tot_items - $pg1max;
 
    $totalPages = ($remaining_items / $pg2max) + 2; # add page 1 and fraction back in
@@ -861,8 +895,8 @@ sub print_pages_index
 
  if(($cMobidesk =~ /mobi/ or $qMobidesk =~ /mobi/) and $end_section eq 'Y') {
 	$pg = $pg_num + 1;
-##article.pl?0-cmd%1-atemplate%2-docid%3-listSectsub%4-doclist/sectsubid%5-userid/pgnum%6-pgcnt%7-header%8-footer%9-order%10-mobidesk	
-    print MIDTEMPL "<a target=_blank href=\"http://$scriptpath/article.pl?display_subsection%%NewsDigest_newsmobile%NewsDigest_newsmobile%%$pg%5%%%%mobi\">Next<\/a>\n";	
+##article.pl?0-cmd%1-atemplate%2-docid%3-listSectsub%4-doclist/sectsubid%5-userid/pgnum%6-pgcnt%7-header%8-footer%9-order%10-mobidesk
+    print MIDTEMPL "<a target=_blank href=\"http://$scriptpath/article.pl?display_subsection%%NewsDigest_newsmobile%NewsDigest_newsmobile%%$pg%5%%%%mobi\">Next<\/a>\n";
  }
  elsif($totalPages > 1) {
 	if($end_section eq 'Y') {

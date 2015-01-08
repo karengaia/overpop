@@ -4,20 +4,20 @@
 #      smartdata.pl  ... replaces parsedata.pl
 
 
-sub parse_popnews 
+sub parse_popnews
 {
   my($pdfline,$emessage,$save_sectsubs) = @_;
   &clear_doc_variables;   #    in docitem.pl establish variables
   $sectsubs = $save_sectsubs;   #restore from clear
 
   $emessage = &apple_convert($emessage);
-  $emessage = &choppedline_convert($emessage); 
+  $emessage = &choppedline_convert($emessage);
   $emessage = &strip_leadingSPlineBR($emessage);
-  $emessage = &byebye_singleLF($pdfline,'',$emessage); #moved here from below, which was after parsing 
+  $emessage = &byebye_singleLF($pdfline,'',$emessage); #moved here from below, which was after parsing
 
 ##               use $save_emessage for $fullbody - before line feeds gone
   my $save_emessage = $emessage;
-  
+
   $emessage =~ s/\(/&#40;/g;    # helps parsing since () and [] are part of regexpr's
   $emessage =~ s/\)/&#41;/g;
   $emessage =~ s/\[/&#91;/g;
@@ -30,7 +30,7 @@ sub parse_popnews
 
   if($skip_item eq 'Y') {
     if(-f  "debugit.yes") {}
-    else { 
+    else {
        unlink "$inboxpath/$email_filename";
        print "$docid skipped item - $handle - $headline .. $link<br>\n"
          if($rSectsubid =~ /suggested/i);
@@ -58,7 +58,7 @@ sub parse_popnews
 
 sub parse_msg_4variables {
   my($ep_type,$pdfline,$emessage) = @_;      #  ep_type P = parse from new form E = comes in from email R = redo
-	
+
   $gEPtype = $ep_type;       #set to global
 
   &clear_msgline_variables;  # in email2docitem.pl
@@ -111,31 +111,31 @@ sub parse_msg_4variables {
   &finish_msglines;  # assigns $msglineN and $msglineN1
 #  &assign_msglines($msglineN);
 #  &assign_msglines($msglineN1);
-  &assign_paragraphs;         ## last paragraph 
-  
+  &assign_paragraphs;         ## last paragraph
+
   $docaction = 'N';   # set it at 'New' for now
 
-  &refine_headline; 
-	
+  &refine_headline;
+
   &refine_header_info;  #do before date
 
   &refine_link;
 #             ## &refine_date is in date.pl
-  $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc) 
+  $pubdate = &refine_date($msgline_anydate,$msgline_date,$msgline_link,$link,$msgline_source,$paragr_source,$uDateloc)
      if($pubdate =~ /1000-00-00/ or !$pubdate or $pubdate =~ /0000-00-00/ or $pubdate =~ /-00-00/ or $pubdate < $DT{earliest_date});
 
   $fullbody = $save_emessage unless($gEPtype =~ /[RP]/);  # Need to do before &refine_source
-  
+
   ($source,$src_region) = &refine_source($msgline_source,$link) if(!$source);
 
   ($region,$regionhead) = &refine_region($region,$src_region);   # found in regions.pl
 
-  $fullbody = &refine_fullbody($fullbody);  
+  $fullbody = &refine_fullbody($fullbody);
   $fullbody = &byebye_singleLF($pdfline,'Y',$fullbody); #do this after parsing for headline, date, etc
 
-  $miscinfo = "$miscinfo\nhandle: $handle" if($handle and $handle !~ /unk/); 
+  $miscinfo = "$miscinfo\nhandle: $handle" if($handle and $handle !~ /unk/);
 
-  $prev_headline = $headline; 
+  $prev_headline = $headline;
   return($fullbody);
 }
 
@@ -172,7 +172,7 @@ sub assign_msglines
  elsif($ehandle =~ /push/ and $msgline =~ /Author: /) {
 	($headline,$author) = split(/Author: /,$msgline);
 	if($headline =~ /Source: /i) {
-		($headline,$source) = split(/Source: /,$headline);	
+		($headline,$source) = split(/Source: /,$headline);
 	}
 	if($headline =~ /Date: /i) {
 		($headline,$msgline_date) = split(/Date: /,$headline);
@@ -180,7 +180,7 @@ sub assign_msglines
 #		print "sm184 author<br>\n";
  }
  elsif($ehandle =~ /push/ and $msgline =~ /Source: /) {
-	($headline,$source) = split(/Source: /,$msgline);	
+	($headline,$source) = split(/Source: /,$msgline);
 	if($headline =~ /Date: /i) {
 		($headline,$msgline_date) = split(/Date: /,$headline);
 	}
@@ -190,7 +190,7 @@ sub assign_msglines
 #			print "sm194 author2<br>\n";
  }
  elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:
-#			print "sm197 source 2<br>\n";	
+#			print "sm197 source 2<br>\n";
  }
  elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline)) { # DD Date:
 #	print "sm192 date found msgline_date $msgline_date<br>\n";
@@ -219,7 +219,7 @@ sub assign_msglines
 
  if($linecnt eq 1) {
      $msgline1 = $msgline;
-#     $headline = $msgline if((!$headline and ($msgline =~ /^[HH|Opinion: ] / or $uHeadlineloc =~ /line1/)) 
+#     $headline = $msgline if((!$headline and ($msgline =~ /^[HH|Opinion: ] / or $uHeadlineloc =~ /line1/))
 #                 and $msgline !~ /\b(http.*)\b/ and $msgline !~ /^[DD|SS|MI|RR|SH|By:] / and $msgline !~ /^DATE: /i);
       $head     = $msgline if(!$headline and !$uHeadlineloc and $msgline !~ /\b(http.*)\b/ and $msgline !~ /^[DD|SS|MI|RR|SH|By:|DATE:] /i);
  }
@@ -258,7 +258,7 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
  elsif($ehandle =~ /push/ and $msgline =~ /Author: /) {
 	($headline,$author) = split(/Author: /,$msgline);
 	if($headline =~ /Source: /i) {
-		($headline,$source) = split(/Source: /,$headline);	
+		($headline,$source) = split(/Source: /,$headline);
 	}
 	if($headline =~ /Date: /i) {
 		($headline,$msgline_date) = split(/Date: /,$headline);
@@ -266,7 +266,7 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
 #		print "sm184 author<br>\n";
  }
  elsif($ehandle =~ /push/ and $msgline =~ /Source: /) {
-	($headline,$source) = split(/Source: /,$msgline);	
+	($headline,$source) = split(/Source: /,$msgline);
 	if($headline =~ /Date: /i) {
 		($headline,$msgline_date) = split(/Date: /,$headline);
 	}
@@ -275,7 +275,7 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
  elsif(!$author and $author = &chk_author($msgline,$bit) ) { # By: Author:
  }
  elsif(!$source and $source = &chk_source($msgline) ) { # SS Source:
-#			print "sm197 source $source<br>\n";	
+#			print "sm197 source $source<br>\n";
  }
  elsif(!$msgline_date and $msgline_date = &chk_date($dtkey,$msgline_anydate,$msgline,$bit)) { # DD Date:
  }
@@ -297,78 +297,29 @@ sub extract_variables     ## new May 2013; accessed from intake.pl; Maybe should
     }
  }
  $region = &chk_region($region,$msgline) unless($msgline =~ /^RR /);   # can be more than one region; accumulate
+}
 
- if($headline =~ /^\*\* /) {
-    $priority = "7"; 
-    $headline =~ s/^\*\*//;
+sub pull_from_headline {
+ my $line = $_[0];
+ if($line =~ /Author: /) {
+	($headline,$author) = split(/Author: /,$line);
+	if($headline =~ /Source: /i) {
+		($headline,$source) = split(/Source: /,$headline);
+	}
+	if($headline =~ /Date: /i) {
+		($headline,$msgline_date) = split(/Date: /,$headline);
+	}
+#		print "sm184 author<br>\n";
  }
- elsif($headline =~ /^\* /) {
-    $priority = "6";
-    $headline =~ s/^\*//;
+ elsif($line =~ /Source: /) {
+	($headline,$source) = split(/Source: /,$line);
+	if($headline =~ /Date: /i) {
+		($headline,$msgline_date) = split(/Date: /,$headline);
+	}
  }
 }
 
 
-sub removed_from_above_dont_need {
- if($linecnt < 9 or $linecnt eq $max_linecnt) {
-	
-	$link = &chk_link($msgline) if(!$link);
-	
-    my $date ="";
-##               A LOT OF THIS IS REDUNDANT WITH &assign_std_variables
-	if($msgline =~ /^HH /) {
-        ($rest,$headline) = split(/HH /,$msgline,2);
-	}
-	elsif($msgline =~ /^RR /) {
-		($rest,$region) = split(/RR /,$msgline,2);
-	}
-	elsif($msgline =~ /^SS /) {
-		($rest,$source) = split(/SS /,$msgline,2);
-	}
-	elsif($msgline =~ /^Source: /) {
-		($rest,$source) = split(/Source: /,$msgline,2);
-	}
-	elsif($msgline =~ /^DD /) {
-		($rest,$msgline_date) = split(/DD /,$msgline,2);
-	}
-    else {
-	    ($msgline_anydate,$msgline_date,$head) = &find_date_in_line($dtkey,$msgline_anydate,$msgline_date,$msgline); #in date.pl
-	 	if($msgline_date =~ /HH /) {
-			($msgline_date, $headline) = split(/HH /,$msgline_date,2);
-		}
-		elsif($msgline_anydate =~ /HH /) {
-			($msgline_anydate, $headline) = split(/HH /,$msgline_anydate,2);
-		}
-		if($msgline_date =~ /([By: |By |Author: ]) /i) {
-			($msgline_date, $author) = split(/$1/,$msgline_date,2);
-		}
-		elsif($msgline_anydate =~  /([By: |By |Author: ]i) /) {
-			($msgline_anydate, $author) = split(/$1/,$msgline_anydate,2);
-		}
-	}
-	if(!$author and $msgline =~ /([By: |By |Author: ])/) {
-		($rest,$author) = split(/$1/,$msgline,2);
-	}
-	
-	if($hdkey and $msgline =~ /$hdkey/ and !$headline) { 
-	    $head = $msgline;
-	}
-	elsif($msgline =~ /$link/) {
-	}
-	elsif($msgline =~ /^SOURCE:/i and !$source) {
-	    $msgline_source = $msgline;
-	}
-	elsif($msgline =~ /.{5,}?SOURCE:/i) {
-		($head,$msgline_source) = split(/SOURCE:/,$msgline,2);
-	}
-	else {
-		$head = $msgline;
-	}
- }
- elsif($linecnt < 15 and $msgline =~ /^MI /) {
-	($rest,$miscinfo) = split(/MI: /,$msgline,2);
- }
-}
 
 sub get_date_from_headline
 {
@@ -429,7 +380,7 @@ sub finish_msglines
   else {
     $msglineN  = $prev_line;
     $msglineN1 = $prevprev_line;
-  } 
+  }
 }
 
 sub refine_nonstd_variables_not_used
@@ -437,13 +388,13 @@ sub refine_nonstd_variables_not_used
   my $seq = $_[0];
   $source = &find_key_source;
 
-  &refine_headline; 
+  &refine_headline;
 #  &check_for_skip;   DISABLED THIS - WAS KILLING GOOD ARTICLES
 
 
-  if($skip_item eq 'Y') { 	
+  if($skip_item eq 'Y') {
   }
-  else {	
+  else {
      &refine_header_info;  #do before date
 
      goto end_parse_popnews_old if($seq eq 1);
@@ -460,14 +411,14 @@ sub refine_nonstd_variables_not_used
 
 #     $fullbody = $save_emessage;
 
-     $fullbody = &refine_fullbody($fullbody); 
+     $fullbody = &refine_fullbody($fullbody);
 
 ##  print "doc120b ehandle $ehandle headline $headline \n\n fullbody $fullbody\n";
 
      $miscinfo = "$miscinfo\n$handle";
      $miscinfo = &strip_leadingSPlineBR($miscinfo);
 
-	 $region = &get_regions('N',"",$headline,"","") if($region !~ /[A-Za-z0-9]/);  # print_regions=N, region="", # controlfiles.pl                
+	 $region = &get_regions('N',"",$headline,"","") if($region !~ /[A-Za-z0-9]/);  # print_regions=N, region="", # controlfiles.pl
 
 	 $region = &get_regions('N',"","",$fullbody,$link) if($region !~ /[A-Za-z0-9]/);
      $region = "Global" unless($region);
@@ -505,8 +456,8 @@ sub assign_std_variables
  if($splitter eq "" and $end_variable ne 'Y') {
    $EITEM{$name} = "$EITEM{$name}$msgline";
  }
- 
-  &fill_email_variables;  #in docitem.pl --- we don't use email variables anymore
+
+#  &fill_email_variables;  #in docitem.pl --- we don't use email variables anymore
 
  if($msgline =~ /EDITORIAL:/) {
     ($rest,$head)= split(/EDITORIAL:/,$msgline,2);
@@ -528,16 +479,16 @@ sub assign_std_variables
 sub convert_html_to_text
 {
   my($emessage) = $_[0];
-##   $emessage =~ s/<[Hh][1234]>/HEADLINE:/g; 
+##   $emessage =~ s/<[Hh][1234]>/HEADLINE:/g;
    $emessage =~ s/<([Hh][Tt][Tt][Pp]:\/\/)(.*)>/$1$2/g;
-   $emessage =~ s/<\/[Tt][Aa][Bb][Ll][Ee]>/\n/g; 
-   $emessage =~ s/<\/[Cc][Ee][Nn][Tt][Ee][Rr]>/\n/g; 
-   $emessage =~ s/<[Bb][Ll][Oo][Cc][Kk][Qq][Uu][Oo][Tt][Ee].*>/\n/g;  
-   $emessage =~ s/<[Aa][Hh][Rr][Ee][Ff]=\"{0,1}[Mm][Aa][Ii][Ll][Tt][Oo]:(\S+)\"{0,1}.*>/\($1\)/g; 
+   $emessage =~ s/<\/[Tt][Aa][Bb][Ll][Ee]>/\n/g;
+   $emessage =~ s/<\/[Cc][Ee][Nn][Tt][Ee][Rr]>/\n/g;
+   $emessage =~ s/<[Bb][Ll][Oo][Cc][Kk][Qq][Uu][Oo][Tt][Ee].*>/\n/g;
+   $emessage =~ s/<[Aa][Hh][Rr][Ee][Ff]=\"{0,1}[Mm][Aa][Ii][Ll][Tt][Oo]:(\S+)\"{0,1}.*>/\($1\)/g;
    $emessage =~ s/<[Aa][Hh][Rr][Ee][Ff]=\"{0,1}(\S+)\"{0,1}.*>/\($1\)/g;
 # converts email address from angle brackets to left and right parens
    $emessage =~ s/<(\S+\@\S+\.\w{2,4})>/\($1\)/g;
-   $emessage =~ s/<.+>//g; 
+   $emessage =~ s/<.+>//g;
    $emessage =~ s/\<\<//g;
    $emessage =~ s/\>\>//g;
    $emessage =~ s/<a name=\".*\">//g;
@@ -562,9 +513,9 @@ sub refine_header_info
              $subject = "$subject$subj";
          }
          $subjcnt = $subjcnt +1;
-      } 
-    } 
- } 
+      }
+    }
+ }
 
  $datehead    = "Sent: $sentdate";
  $subjecthead = "$subject";
@@ -573,7 +524,7 @@ sub refine_header_info
 ##   LINK   ##
 
 sub refine_link
-{ 
+{
 #####  $link = "$link$following_link" if($link !~ />/ or $link !~ / /);
   $link = $msgline_link unless($link);
   if($link =~ /[A-Za-z0-9]/) {
@@ -582,7 +533,7 @@ sub refine_link
      ($link,$rest) = split(/ /,$link) if($link =~ / /);
      ($link,$rest) = split(/\n/,$link) if($link =~ /\n/);
      ($link,$rest) = split(/\)/,$link) if($link =~ /\)/);
-     
+
      $link =~ s/\.$//;
      $link =~ s/^\s+//g;                         # eliminate leading white spaces
      $link =~ s/\[\t]+//g;                       # eliminate leading tabs
@@ -596,15 +547,15 @@ sub refine_link
      ($link2nd,$rest) = split(/ /,$link2nd) if($link2nd =~ / /);
      ($link2nd,$rest) = split(/\n/,$link2nd) if($link2nd =~ /\n/);
      ($link2nd,$rest) = split(/\)/,$link2nd) if($link2nd =~ /\)/);
-     
+
      $link2nd =~ s/\.$//;
      $link2nd =~ s/^\s+//g;                         # eliminate leading white spaces
-     $link2nd =~ s/\[\t]+//g; 
+     $link2nd =~ s/\[\t]+//g;
      $link2nd =~ s/^<//g;                          # eliminate leading angle brackets
      $link2nd =~ s/>$//g;                          # eliminate trailing angle brackets
      $link2nd =~ s/\*/=/g if($handle =~ /grist/);
-  }          
-  
+  }
+
   $skip_item = 'Y' if($link =~ /smj\.org|sciencedirect|bmjjournals|\.ncbi|springerlink|ingentaconnect/ );
 }
 
@@ -613,14 +564,14 @@ sub chk_link {
  my $line  = $_[0];
  my $linkword = "";
  my $answer = "";
- 
- if($answer = &is_link($line)){  
+
+ if($answer = &is_link($line)){
 	   if($line =~ / /) {
-         @link_words = split(/ /,$line);	
+         @link_words = split(/ /,$line);
          foreach $link_word (@link_words) {
             if($answer = &is_link($link_word) eq 'Y' and $link_word !~ /src=/ and $link_word !~ /\@/) {
 	            $link = $linkword;
-	  	       last;	
+	  	       last;
    	        }
          }
       }
@@ -668,7 +619,7 @@ sub chk_author {
  if($line =~ /^[Bb]y: / or $line =~ /^Author: / or ($bit =~ /Y/ and $line =~ /[Bb]y /) ) {
     $line =~ s/By//i;
     $line =~ s/Author//i;
-    return($line);	
+    return($line);
  }
  return("");
 }
@@ -681,7 +632,7 @@ sub chk_date {
   return($msgline_anydate) if($msgline_anydate);
   return ("");
 }
- 
+
 sub chk_source {
  my $line = $_[0];
  my $source = "";
@@ -689,7 +640,7 @@ sub chk_source {
     $line =~ s/$1//;
     $source = $line;
     ($source,$src_region) = &refine_source($source,$link) if(!$region);
-    return($source);	
+    return($source);
  }
  else {
 	return("");
@@ -721,24 +672,24 @@ sub chk_headline_HH {
  my $line = $_[0];
  if($line =~ /(^HH )/) {
     $line =~ s/$1//;
-    return($line);	
+    return($line);
  }
  return("");
 }
 
-  
+
 ##  0250 HEADLINE   ###
- 
+
 
 sub refine_headline
-{  
+{
  if($ehandle =~ /push/) {
 	if($headline) {
 		if($headline =~ /Author: /) {
 			($headline,$author) = split(/Author: /,$headline);
 		}
 		if($headline =~ /Source: /) {
-			($msgline1,$source) = split(/Source: /,$headline);	
+			($msgline1,$source) = split(/Source: /,$headline);
 		}
 		if($headline =~ /Date: /) {
 			($headline,$msgline_date) = split(/Date: /,$headline);
@@ -749,7 +700,7 @@ sub refine_headline
 			($msgline1,$author) = split(/Author: /,$msgline1);
 		}
 		if($msgline1 and $msgline1 =~ /Source: /) {
-			($msgline1,$source) = split(/Source: /,$msgline1);	
+			($msgline1,$source) = split(/Source: /,$msgline1);
 		}
 		if($msgline1 and $msgline1 =~ /Date: /) {
 			($msgline1,$msgline_date) = split(/Date: /,$msgline1);
@@ -792,7 +743,7 @@ sub refine_headline
      &split_std_parseVars;
      $headline = $variable;
   }
-  
+
   $headline = $msgline_headline if(!$headline and $msgline_headline);
 
   if(!$headline) {
@@ -808,7 +759,7 @@ sub refine_headline
   ($headline,$rest) = split(/http:/,$headline);
   ($headline,$rest) = split(/\(news article/,$headline);
   ($headline,$rest) = split(/\(/,$headline) if($ehandle =~ /jhuccp/); ## delete after parens
-  ($rest,$headline) = split(/\?=/,$headline) if($headline =~ /\?=/);   
+  ($rest,$headline) = split(/\?=/,$headline) if($headline =~ /\?=/);
 
   $headline =~ s/^Byline: //i;
   $headline =~ s/^Blog: //i;
@@ -817,7 +768,7 @@ sub refine_headline
   $headline =~ s/^Op\-ed: //i;
   $headline =~ s/^Column: //i;
   $headline =~ s/^Dateline: //i;
-  
+
   ($rest,$headline) = split(/Articles/,$headline) if($ehandle =~ /push/ and $headline =~ /Articles/);
   $headline = &strip_leadingSPlineBR($headline);
   $headline =~ s/^ //;
@@ -828,7 +779,7 @@ sub refine_headline
 ##  00260  SOURCE   ##
 
 sub refine_source
-{ 
+{
  my($msgline_source,$link) = @_;
  ($linksource,$sregionname) = &get_source_linkmatch($link) if($link);  # in source.pl
  if($msgline_source) {
@@ -879,7 +830,7 @@ sub find_key_source
   elsif($source =~ /[a-zA-Z0-9]/) {
      $source = &separate_variable_into_parts($variable,$sepsymbol,1);
   }
-  
+
   else {
      if($msgline_source ne "") {
         $locline = $msgline_source;
@@ -887,23 +838,23 @@ sub find_key_source
      else {
         &set_std_parseVars;
      }
-     
+
      &split_std_parseVars;
-    
+
      $source = $variable;
-   
+
    ##      any source
      if($source !~ /[a-zA-Z0-9]/ and $msgline_anysrc ne "") {
         $locline = $msgline_anysrc;
         &split_std_parseVars;
         $source = $variable;
      }
-     
+
      if($source !~ /[a-zA-Z0-9]/ and $msgline_source !~ /straight to the source/ and $handle eq 'grist') {
            $source = "Grist Magazine";
         }
   }
-  
+
   ($source,$rest) = split(/ [Ll]eased/,$source,2) if($source =~ / [Ll]eased/);
   ($source,$rest) = split(/ [Vv]ia/,$source,2)    if($source =~ / [Vv]ia/);
   $source =~ s/\s+$//;
@@ -914,8 +865,6 @@ sub find_key_source
 sub refine_fullbody
 {
   my $fullbody = $_[0];
-#  @fullbodylines = split(/\n/,$fullbody);    # switch to $msgline and @msglines to match docitem.pl
-#  $fullbody = "";
   my $line = "";
   my $linecnt += 1;   #start with 1
 
@@ -929,9 +878,9 @@ sub refine_fullbody
 #     $line = s/$msgline_date// if($msgline_date and $line =~ $msgline_date);
 #     $line = s/$source//       if($source and $line =~ $source);
 #     $fullbody = "$fullbody\n$line" if($line =~ /[A-Za-z0-9]/);
-#  }  
+#  }
 
-  &fix_fullbody;  
+  &fix_fullbody;
 
   return($fullbody);
 }
@@ -946,18 +895,31 @@ sub fix_fullbody
  my($first);
 
  if($source =~ /\(/  or $fullbody =~ /\(/ ) { }
- elsif ($source =~ /[A-Za-z0-9]/ 
+ elsif ($source =~ /[A-Za-z0-9]/
      and $msgtop =~ /$source/) {
    ($fulbdy1,$fulbdy2) = split(/$source/,$fullbody,2);
-       	     	 
-   $fullbody = "$fulbdy1 $fulbdy2";     
- }    	  
+
+   $fullbody = "$fulbdy1 $fulbdy2";
+ }
 ## $source = "$source$endsource";
  $fullbody = &strip_leadingSPlineBR($fullbody);
 # $fullbody =~ s/^\n//;
-# $fullbody =~ s/^\n//;	 
+# $fullbody =~ s/^\n//;
  $fullbody = &apple_convert($fullbody);
  $fullbody = &byebye_singleLF('N','Y',$fullbody);
+}
+
+sub prepare_fullbody {    # comes here from docitem.pl
+  my $fullbody = $D{fullbody};
+  $fullbody = &line_fix($fullbody);
+  $fullbody = &apple_line_endings($fullbody);
+  $fullbody =~ s/^\n*//g;
+  $fullbody =~ s/\n+$//g;
+
+  if( ($fullbody =~ /^(DD|SS|MI|HH|SH|By:|RR|SOURCE|Source) / or !$D{source}) and $form_priority !~ /D/) {
+    $fullbody = &parse_msg_4variables('R','N',$fullbody);   #smartdata.pl : P ep_type = parse from new form E = comes in from email R = redo
+  }
+  return ($fullbody);
 }
 
 ##    HTML TO XHTML  -----
@@ -980,7 +942,7 @@ local $sv_template = "";
 $template = $cTemplate if($template =~ /straight/);
 
 $body =~ s/ {1-9}\n/\n/g;  # get rid of trailing spaces
-		
+
 ## 2. Detect errant html and log it
 
 if($body =~ /<center/) {
@@ -996,11 +958,11 @@ if($body =~ /^<blockquote/) {  #remove beginning blockquote
 }
 
 if($body =~ /<img/) {
-  $ext = $ext."img_"; 
+  $ext = $ext."img_";
 }
 
 if($body =~ /<font/) {
-  $ext = $ext."fnt_"; 
+  $ext = $ext."fnt_";
 }
 
 ##  3. get rid of blank lines at top and bottom
@@ -1022,7 +984,7 @@ $line = "";
 $linectr = 0;
 $newbody = "";
 $prev_line = "";
- 
+
 @lines = split(/\n/,$body);
 foreach $ln (@lines) {
 	$linectr++;
@@ -1035,10 +997,10 @@ foreach $ln (@lines) {
 		$line =~ s/<\/b>/<\/h5>/;
 		$line =~ s/<font[^>]*?>//; #remove font tags
 	    $line =~ s/<\/font>//; #remove font tags
-        $ext = $ext."h5_"; 
+        $ext = $ext."h5_";
 	}
 
-##  6 deal with font tags 
+##  6 deal with font tags
 
 	if($line =~ /<font|\/font>/ and $linectr > 2) {
 	    ##    replace <font size=1> with <small> and <font .comic . .> with <cite>
@@ -1066,10 +1028,10 @@ foreach $ln (@lines) {
 	}
 ## 7. Do tables and lists
 	&ck_first_table_ul if($linectr == 1);
-    $in_ul = 'Y' if($line =~ /<ul|ol/ 
+    $in_ul = 'Y' if($line =~ /<ul|ol/
 		                or ($line =~ /^\./
 			              and $template =~ /(?:linkbulletitem|ulonlyitem|olonlyitem)/) );
-	$in_table = 'Y' if($line =~ /<table/ 
+	$in_table = 'Y' if($line =~ /<table/
 					    or ($line =~ /^\./
 							and $template =~ /(?:tableonlyitem|table)/) );
 
@@ -1089,7 +1051,7 @@ foreach $ln (@lines) {
 		$line = "$line</td></tr>";
 	}
 ## 9. If not a table or list line, change EOLs to <p> or <br>; Beginning and ending <p>s are on template
-	elsif($line =~ /<li|<td|<tr|<ul|<ol|<dl|<dt|<dd/ or $line =~ /li>|td>|tr>|ul>|ol>|dl>|dt>|dd>/) { 
+	elsif($line =~ /<li|<td|<tr|<ul|<ol|<dl|<dt|<dd/ or $line =~ /li>|td>|tr>|ul>|ol>|dl>|dt>|dd>/) {
 	}
     else {
 #		$line =~ s/\r/<br>/g;
@@ -1097,7 +1059,7 @@ foreach $ln (@lines) {
 #		$line =~ s/\n/<br>\n/g;
 #		$line =~ s/<\/p><p>/<\/p>\n\n<p>/g;
 	}
-			
+
 	$prev_line = $line;
  } #end foreach
 
@@ -1232,9 +1194,9 @@ sub split_std_parseVars
       ($rest,$locline,$rest2) = split(/$lockey/,$locline,3);
   }
 ##print"doc516-7 testippf variable $variable locline $locline partnum $partnum lockey $lockey\n";
-  
+
   $variable = &separate_variable_into_parts($variable,$sepsymbol,$partnum);
-   
+
   $variable =~  s/^\s+//; # trim annoying leading whitespace
   $variable =~  s/^ +//;
   $variable =~  s/^[!@#\$%&\*\(\)\+_\-=:\";'?\/,\.]+//;
@@ -1251,7 +1213,7 @@ sub split_std_parseVars
 sub titlize
 {
  my $datafield = $_[0];
-	# TODO : read these in from acronym table	
+	# TODO : read these in from acronym table
  my @acronyms = ("ACLU","aclu","AGI","agi","AIDS","aids","ALL","CD-ROM","BMJ","CEDAW","CEDPA","CRLP","EC","EPA","epa",
 "FAO","fao","FDA","GAO","GOP","ICDP","IPPF","ippf","II","III","IUD","iud","HHS","H1-B","H1B","HIV","hiv","HIV/AIDS","hiv/aids",
 "LA","L.A.","NARAL","NCPTP","NGO","NGOs","N.J.","NPG","npg","NPR","NPR's","NWLC","OK",
@@ -1260,7 +1222,7 @@ sub titlize
 "WSSD","WTO","wto","ZPG","zpg");
 
  my @noCapWords = ("a","and","as","at","but","by","in","is","it","for","of","on","to","the","was","with");
- 
+
  my @words = split(/ /,$datafield);
  $datafield = "";
  my $word_cnt = 0;
@@ -1292,7 +1254,7 @@ sub titlize
               $postword = "$postword$letter";
            }
         }
-        else { 
+        else {
            $postword = "$postword$letter" if($chkword =~ /[a-zA-Z0-9]/);
         }
     }
@@ -1315,7 +1277,7 @@ sub titlize
        foreach $noCap (@noCapWords) {
            if($word eq $noCap) {
                $lowercase = 'Y';
-               last; 
+               last;
            }
        }
     }
@@ -1326,14 +1288,27 @@ sub titlize
        $letter1 =~ tr/[a-z]/[A-Z]/;
        $word = "$letter1$rest";
    }
-   $datafield = "$datafield$word "; 
+   $datafield = "$datafield$word ";
 
  } #  end foreach
  return($datafield);
 }
 
+sub strip_lines_leadingSP_BR {  # Who added this?
+my $stripee = $_[0];
+$stripee     =~ s/\r/\n/g;
+my @lines = split(/\n/,$stripee);
+$stripee = "";
+foreach  (@lines) {
+  my $line = &strip_leadingSPlineBR($line);
+  $stripee = "$stripee$line\n";
+}
+$stripee =~ s/\s+$//;
+return($stripee);
+}
+
 sub strip_leadingSPlineBR
-{ 
+{
   my $datafield = $_[0];
   $datafield =~ s/^\s+//g;                         # eliminate leading white spaces
   $datafield =~ s/\[\t]+//g;                       # no need for tabs
@@ -1341,7 +1316,7 @@ sub strip_leadingSPlineBR
 }
 
 
-sub byebye_singleLF {  
+sub byebye_singleLF {
   my ($pdfline,$singleLF,$datafield) = @_;
 
   $datafield =~ s/\r\n\r\n/<p>/g;    # several versions of double line feeds
@@ -1352,7 +1327,6 @@ sub byebye_singleLF {
   $datafield =~ s/\n\r/\n/g;
   $datafield =~ s/\r/\n/g;
   $datafield =~ s/\n/ /g if($singleLF eq 'Y');
-#  unless($ehandle =~ /push/ or $uSingleLineFeeds eq 'Y' or $pdfline eq 'Y'); # single LF go bye-bye
   $datafield =~ s/\n/\n\n/g if($pdfline eq 'Y'); # single LF to double LF if from a pdf
   $datafield =~ s/<p>/\n\n/g;         #change double line feeds back
   return($datafield);
@@ -1376,7 +1350,7 @@ sub line_fix   #  eliminate non-ascii line endings
 sub byebye_unicode   #  # annoying unicode
 {
  my $datafield = $_[0];
- $datafield =~ s/^=A0 //;                
+ $datafield =~ s/^=A0 //;
  return($datafield);
 }
 
@@ -1388,15 +1362,15 @@ sub apple_line_endings
  $datafield =~ s/=3D/*/g;
  $datafield =~ s/\r/ /g;
  $datafield =~ s/\r/ /;
- 
+
  $datafield =~ s/=3D([a-z])/$1/g;   ## next line starts with lower case - not a paragraph
  $datafield =~ s/=0D=0A([a-z])/$1/g;
-  
+
 # $datafield =~ s/([a-z0-9] )\n\n/$1/ig;  ## THIS SHOULD BE DONE ELSEWHERE  -- GIT_PATHS
 # $datafield =~ s/([a-z0-9] )\n/$1/ig;
- 
+
  $datafield =~ s/ = $/ /g;  #end of line
- return($datafield); 
+ return($datafield);
 }
 
 ##                converts quotes, hyphens and other wayword perversions
@@ -1405,21 +1379,21 @@ sub apple_convert
  my $datafield = $_[0];
 
  $datafield = &apple_line_endings($datafield);  ##  line feeds, returns
-      
+
  ##                             # single quote
  $datafield =~ s/``/"/g;
  $datafield =~ s/�/'/g;
  $datafield =~ s/L/'/g;    #81
  $datafield =~ s/&rsquo;/'/g;
  $datafield =~ s/=91/'/g;  #91
- $datafield =~ s/=92/'/g;  #92 
+ $datafield =~ s/=92/'/g;  #92
  $datafield =~ s/Â´/'/;
  $datafield =~ s/â€˜/'/g;
  $datafield =~ s/â€™/&#39;/g;
  $datafield =~ s/=E2=90=99/&#39;/g; # same as proceeding
  $datafield =~ s/’/'/g;      # single quote
- 
- ##                    # double quotes             
+
+ ##                    # double quotes
  $datafield =~ s/=93/"/g; #93
  $datafield =~ s/=94/"/g; #94
  $datafield =~ s/E/"/g;   #81
@@ -1432,11 +1406,11 @@ sub apple_convert
  $datafield =~ s/=E2=80=9C/"/;  #double quote 3 - same as preceeding
  $datafield =~ s/“A/"/g; #double quote 4
  $datafield =~ s/”/"/g; #end quote
- 
+
 
  $datafield =~ s/&#40;/\(/g;  # left parens
  $datafield =~ s/&#41;/\)/g;  # right parens
- 
+
  $datafield =~ s/&#91;/\[/g;  # left bracket
  $datafield =~ s/&#93;/\]/g;  # right bracket
 
@@ -1444,14 +1418,14 @@ sub apple_convert
  $datafield =~ s/=3F/-/g;    # 95    hyphen
  $datafield =~ s/â€“/-/g;    #hyphen
  $datafield =~ s/–/-/g;    #hyphen
- return($datafield);  	
+ return($datafield);
 }
 
 sub choppedline_convert
 {
  my $datafield = $_[0];
  $datafield =~ s/=\r\n$//g;     #change back to normal: lines that are broken to make short lines (usually 72) for email
- return($datafield);  	
+ return($datafield);
 }
 
 

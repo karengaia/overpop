@@ -337,18 +337,15 @@ sub get_header_info {
 
 
 sub links_separate {          ## Not only for multiple articles in one submittal, but parses fields like date, source, etc.
- ($ep_type,$handle,$pdfline,$sectsubs,$fbody,$receiptdate) = @_;
-
- $fbody = &line_fix($fullbody);
+ my $fbody;
+ ($ep_type,$handle,$pdfline,$fbody,$receiptdate) = @_;
+ $fbody = &line_fix($fbody);
  $fbody = &apple_line_endings($fbody);
  $fbody  =~ s/^\n*//g;   # beginning of line   TODO: need to go line-by-line
  $fbody  =~ s/\n+$//g;   # end of line
-
- my $save_sectsubs = $sectsubs;
-
+ 
  &clear_doc_data; # Fills hash %D with initialize values
  &clear_doc_helper_variables;
-# $addsectsubs = $save_sectsubs;
 
  $head = "";
  my $misc = "";
@@ -357,7 +354,7 @@ sub links_separate {          ## Not only for multiple articles in one submittal
  my $answer = "";
  my $linkck = "";
  my $prelink = "";
- my $first = 'Y';
+ my $linect = 1;
 
  my @bodylines = split(/\n/,$fbody);
 
@@ -365,9 +362,9 @@ sub links_separate {          ## Not only for multiple articles in one submittal
    chomp $bline;
    if($bline =~ /\b(http.*)\b/) {
 	   $prelink = $1;
-	   &links_separate_finish($save_sectsubs) unless($first);
-	   $first = "";
+	   &links_separate_finish unless($linect == 1);
 	   $link = $prelink;
+	   $linect = 1;
     }
     elsif($bline =~ /\/\//) {
 		($headline,$rest) = split(/\/\//,$bline,2);
@@ -376,20 +373,42 @@ sub links_separate {          ## Not only for multiple articles in one submittal
 		   &extract_variables($varbit,"Y");	# in smartdata.pl
 		}
 	}
+	elsif($linect == 2) {
+		$headline = $bline;
+        &pull_from_headline($bline);  # in smartdata.pl
+	}
 	else {
 	    &extract_variables($bline,"");
     }
+    $linect += 1;
  }
-&links_separate_finish($save_sectsubs);   # End of bodylines
+ &links_separate_finish;   # End of bodylines
 }
 
 sub links_separate_finish
 {
- $D{sectsubs} = $_[0];
+ $D{sectsubs} = $A{sectsubs};  # we saved it here while %D was being cleared
  my $docid = "";  # not assigned until &main_storeform in docitem.pl
+
  $link = "htt$link" if($link and $link !~ /http/);
  $D{link} = $link;
 
+ if($headline =~ /^@([A-Z]) / ) {
+	$precat = $1;
+	$headline =~ s/^@//;
+	$headline =~ s/^$precat //;
+ }
+
+ if($headline =~ /^\*\* /) {
+    $priority = "7"; 
+    $headline =~ s/^\*\*//;
+ }
+ elsif($headline =~ /^\* /) {
+    $priority = "6";
+    $headline =~ s/^\*//;
+ }
+
+ $D{precat}      = $precat; 
  $D{headline}    = $headline;
  $D{subheadline} = $subheadline;
  $miscinfo       = "$msgline_date$misc_info";
@@ -775,7 +794,7 @@ sub close_it
 sub write_email    #writes what is accumulated in $MSGBODY, a global variable
 {
  if($gEPtype eq 'P' and $ehandle !~ /push/) {
-	    $save_sectsubs = $sectsubs;
+	    $save_sectsubs = $sectsubs;    #This won't work anymore got rid of $save_sectsubs
 	    &parse_popnews($pdfline,$MSGBODY,$sectsubs);  #in smartdata.pl - modifies $MSGBODY, a global
 	
 	    $addsectsubs = $sectsubs;

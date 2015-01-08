@@ -25,7 +25,7 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
 # $selitem = 'Y' if($listSectsub =~ /Suggested_suggestedItem/ and $priority =~ /[D1-7]/);
 
  until($selitem =~ /Z/ or $pgItemnbr > 100) {
-	
+
 # print "SIC28 selitem $selitem ..docid $docid ..pgItemnbr $pgItemnbr ..priority $priority ..ipform $ipform ..listSectsub $listSectsub<br>\n";
    if($selitem !~ /[YN]/ and $docid !~ /[0-9]/ and !$priority) #there may not be any item 0001
        {}
@@ -62,8 +62,12 @@ sub updt_select_list_items    # for emailed articles,  we do select_email instea
 
  &log_volunteer($userid,$selected_cnt,$listSectsub);  # in docitem.pl
 
- &email_admin("$selected_cnt articles on Suggested list have been processed by volunteer $A{userid}\n") 
- if($listSectsub =~ /$suggestedSS/);
+ if($listSectsub =~ /$suggestedSS/) {
+     &email_admin("$selected_cnt articles on Suggested list have been processed by volunteer $A{userid}\n");
+     my $msg = "$selected_cnt articles have been added to the headlines list; Click <a href=\"http://overpop/cgi-bin/article.pl?display_subsection%%%Headlines_priority%%%100\">here</a> for the most up-to-date list<br>\n";
+     $msg = $msg . "When you have chosen an article, click on the red arrow following the headline.<br><br>\nKaren\n";
+     &email_woa_prod ("- New Headlines for Summarization", $msg);
+ }
 
  &deleteFromIndex_deletelist($listSectsub, $from_updt_subsec_idx); #in indexes.pl - uses $DELETED LIST
 
